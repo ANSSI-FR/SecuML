@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+
+<style>
+
+body {
+  font: 11px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+}
+
+.tooltip {
+  position: absolute;
+  width: 200px;
+  height: 28px;
+  pointer-events: none;
+  color: red;
+}
+
+#slider_train, #slider_test, #slider_cv, #slider_validation {
+  float: right;
+  clear: right;
+  width: 180px;
+  margin: 10px;
+  background: green;
+}
+#slider_train .ui-slider-range   { background: #ef2929; }
+#slider_train .ui-slider-handle  { background: #000000; }
+
+#slider_test .ui-slider-range   { background: #ef2929; }
+#slider_test .ui-slider-handle  { background: #000000; }
+
+#slider_cv .ui-slider-range   { background: #ef2929; }
+#slider_cv .ui-slider-handle  { background: #000000; }
+
+#slider_validation .ui-slider-range   { background: #ef2929; }
+#slider_validation .ui-slider-handle  { background: #000000; }
+
+</style>
+
+<head>
+<title>Supervised Learning</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/lib/css/bootstrap.min.css">
+<link rel="stylesheet" href="/static/lib/css/jquery-ui.min.css">
+<script src="/static/lib/js/jquery.min.js"></script>
+<script src="/static/lib/js/jquery-ui.min.js"></script>
+<script src="/static/lib/js/bootstrap.min.js"></script>
+<script src="/static/lib/js/d3.min.js"></script>
+<script src="/static/lib/js/Chart.min.js"></script>
+</head>
+
+<body>
+
+
+      <div class="col-md-1">
+      </div>
+
+      <div class="col-md-3" id=first_col>
+        <div class="row">
+          <h4>Settings</h4>
+          <div id=settings>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4" id=second_col>
+        <div class="row">
+          <h4>Training</h4>
+          <div id=train_radio_monitoring>
+          </div>
+          <div id=train_monitoring>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4" id=third_col>
+        <div class="row">
+          <h4>Testing</h4>
+          <div id=test_radio_monitoring>
+          </div>
+          <div id=test_monitoring>
+          </div>
+          <div id=predictions_labeling>
+          </div>
+        </div>
+        <div class="row">
+          <div id=model_coefficients>
+          </div>
+        </div>
+      </div>
+
+</body>
+
+<script src="/static/js/Plots/BarPlot.js"></script>
+<script src="/static/js/Plots/Density.js"></script>
+<script src="/static/js/Tools/tools.js"></script>
+<script src="/static/js/Tools/experiment_tools.js"></script>
+<script src="/static/js/Tools/labels_tools.js"></script>
+<script src="/static/js/Tools/web_tools.js"></script>
+<script src="/static/js/SupervisedLearning/monitoring.js"></script>
+<script src="/static/js/SupervisedLearning/families_monitoring.js"></script>
+<script src="/static/js/SupervisedLearning/performance_monitoring.js"></script>
+<script src="/static/js/SupervisedLearning/predictions_monitoring.js"></script>
+<script src="/static/js/SupervisedLearning/supervised_learning.js"></script>
+
+</html>

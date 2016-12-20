@@ -1,0 +1,46 @@
+#!/usr/bin/python2
+
+## SecuML
+## Copyright (C) 2016  ANSSI
+## 
+## SecuML is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+## 
+## SecuML is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## 
+## You should have received a copy of the GNU General Public License along
+## with SecuML. If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+
+from SecuML.Tools import dir_tools
+from SecuML.Tools import mysql_tools
+    
+def removeDataset(cursor, project, dataset):
+    mysql_tools.dropDatabaseIfExists(cursor, project + '_' + dataset)
+    dir_tools.removeDatasetOutputDirectory(project, dataset)
+    
+if __name__ == '__main__':
+    description  = 'Delete the experiments for a given dataset in a project. '
+    description += 'If no dataset is specified, all the experiments '
+    description += 'of the project are deleted.'
+    parser = argparse.ArgumentParser(description = description)
+    parser.add_argument('project')
+    parser.add_argument('--dataset',
+            default = None)
+    args = parser.parse_args()
+    
+    db, cursor = mysql_tools.getDbConnection()
+    if args.dataset is not None:
+        removeDataset(cursor, args.project, args.dataset)
+    else:
+        datasets = dir_tools.getDatasets(args.project)
+        for dataset in datasets:
+            removeDataset(cursor, args.project, dataset)
+        dir_tools.removeProjectOutputDirectory(args.project)
+    mysql_tools.closeDb(db, cursor)

@@ -1,0 +1,29 @@
+#!/usr/bin/python2
+
+import glob
+import os
+import shutil
+import tarfile
+import urllib2
+
+def removeDirectory(directory):
+    if os.path.isdir(directory):
+        shutil.rmtree(directory)
+
+if __name__ == '__main__':
+    url = 'http://csmining.org/index.php/ling-spam-datasets.html?file=tl_files/Project_Datasets/Ling-Spam%20data%20set/lingspam_public.tar.tar'
+    f = urllib2.urlopen(url)
+    with open('data.tar', 'w') as output:
+        output.write(f.read())
+    tar = tarfile.open('data.tar')
+    tar.extractall(path = '.')
+    tar.close()
+    os.remove('data.tar')
+    shutil.move('lingspam_public/bare', 'raw_mail')
+    removeDirectory('lingspam_public/')
+    
+    for filename in glob.glob('raw_mail/*/*.txt'):
+        shutil.move(filename, 'raw_mail/')
+    
+    for directory in glob.glob('raw_mail/part*'):
+        removeDirectory(directory)

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<meta charset='utf-8'>
+
+<style>
+
+body {
+  font: 11px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+}
+
+.tooltip {
+  position: absolute;
+  width: 200px;
+  height: 28px;
+  pointer-events: none;
+  color: red;
+}
+
+</style>
+
+<head>
+<title>Projection</title>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<link rel='stylesheet' href='/static/lib/css/bootstrap.min.css'>
+<script src='/static/lib/js/jquery.min.js'></script>
+<script src='/static/lib/js/bootstrap.min.js'></script>
+<script src='/static/lib/js/d3.min.js'></script>
+</head>
+
+<body>
+
+    <div class='container'>
+
+      <div class='row'>
+      </div>
+
+      <div class='row'>
+
+        <div class='col-md-2' id='select_components'>
+        </div>
+
+        <div class='col-md-6' id='projected_data'>
+          <h4> Projected Instances </h4>
+          <div id='projected_data_graph'>
+          </div>
+        </div>
+        
+        <div class='col-md-3' id='projection_error'>
+        </div>
+
+      </div>
+
+      <div class='row'>
+        
+        <div class='col-md-3' id='select_bin'>
+          <h4> Instances in Bin </h5>
+          <div class='col-md-6'>
+            <h5> Ok </h5>
+            <select class='selectpicker' id='instances_selector_ok' size=5>
+              <option></option>
+            </select>
+          </div>
+          <div class='col-md-6'>
+            <h5> Malicious </h5>
+            <select class='selectpicker' id='instances_selector_malicious' size=5>
+              <option></option>
+            </select>
+          </div>
+        </div>
+
+        <div class='col-md-4' id='instance_label'>
+        </div>
+
+      </div>
+
+
+      <div class='row'>
+        <div class='col-md-8'>
+          <h4> Instance </h4>
+          <div id='instance_ident'>
+          </div>
+          <div id='instance_data'>
+          </div>  
+        </div>
+      </div>
+
+    </div>
+
+</body>
+
+<script src='/static/js/Tools/experiment_tools.js'></script>
+<script src='/static/js/Tools/tools.js'></script>
+<script src='/static/js/Tools/web_tools.js'></script>
+<script src='/static/js/Plots/Plot.js'></script>
+<script src='/static/js/Plots/BarPlot.js'></script>
+
+<script src='/static/js/UnsupervisedLearning/ComponentsErrorEvolution.js'></script>
+
+<script src='/static/js/InstancesInformation/InstancesInformation.js'></script>
+<script src='/static/js/InstancesInformation/{{ project }}.js'></script>
+
+<script src='/static/js/UnsupervisedLearning/ComponentsSelectors.js'></script>
+<script src='/static/js/UnsupervisedLearning/ComponentsDisplay.js'></script>
+
+<script src='/static/js/UnsupervisedLearning/projection.js'></script>
+
+</html>

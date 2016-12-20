@@ -1,0 +1,85 @@
+#!/usr/bin/python2
+
+## SecuML
+## Copyright (C) 2016  ANSSI
+##
+## SecuML is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## SecuML is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along
+## with SecuML. If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+
+from SecuML.Data.Dataset import Dataset
+from SecuML.Data.Instances import Instances
+from SecuML.Experiment.ProjectionExperiment \
+        import ProjectionExperiment
+
+from SecuML.UnsupervisedLearning.Configuration import ProjectionConfFactory
+
+from SecuML.Tools import mysql_tools
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(
+            description = 'Projection of the data for data visualization.')
+    parser.add_argument('project')
+    parser.add_argument('dataset')
+    parser.add_argument('--features', '-f',
+            dest = 'features_files',
+            nargs = '+',
+            required = False,
+            default = ['features.csv'],
+            help = 'CSV files containing the features.')
+    parser.add_argument('--labels', '-l',
+            dest = 'labels_file',
+            default = None,
+            help = 'CSV file containing the labels of some instances.')
+    parser.add_argument('--algo',
+            choices = ['Pca', 'Lda', 'Lmnn', 'Nca'],
+            help = 'The projection algorithm. Pca by default.',
+            default = 'Pca')
+    parser.add_argument('--sublabels-supervision',
+            action = 'store_true',
+            default = False,
+            help = 'When set to True, the semi supervision is based on the sublabels ' + 
+            'instead of the labels. Useless if an unsupervised projection method is used.')
+    parser.add_argument('--num-components',
+            type = int,
+            default = None)
+    
+    args = parser.parse_args()
+    db, cursor = mysql_tools.getDbConnection()
+    ## Check whether the dataset has been loaded before
+    if not mysql_tools.databaseExists(cursor, args.project, args.dataset):
+        load_dataset = Dataset(args.project, args.dataset,
+                db, cursor)
+        load_dataset.load()
+    
+    conf = ProjectionConfFactory.getFactory().fromParam(args.algo, 
+            num_components = args.num_components, 
+            sublabels_supervision = args.sublabels_supervision)
+    experiment = ProjectionExperiment(args.project, args.dataset, db, cursor, conf)
+    experiment.setFeaturesFilenames(args.features_files)
+    experiment.initLabels(args.labels_file)
+    experiment.export()
+    
+    instances = Instances()
+    instances.initFromExperiment(experiment)
+    
+    projection = conf.algo(experiment)
+    
+    projection.run(instances)
+    
+    mysql_tools.closeDb(db, cursor)
