@@ -173,10 +173,10 @@ def getExperimentLabelsSublabels(cursor, experiment_label_id):
     sublabels = [x[1] for x in res]
     return labels, sublabels
 
-def getDatasetSublabels(cursor, project, dataset):
+def getDatasetSublabels(cursor, project, dataset, experiment_label_id):
     mysql_tools.useDatabase(cursor, project, dataset)
     query  = 'SELECT DISTINCT sublabel FROM Labels '
-    query += 'WHERE experiment_label_id = 1;';
+    query += 'WHERE experiment_label_id = ' + str(experiment_label_id) + ';';
     cursor.execute(query)
     return [s[0] for s in cursor.fetchall()]
 

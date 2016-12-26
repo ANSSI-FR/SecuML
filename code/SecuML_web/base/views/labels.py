@@ -74,7 +74,7 @@ def getLabelsSublabels(project, dataset, experiment_label_id):
             experiment_label_id)
     return jsonify(labels_sublabels)
 
-@app.route('/datasetHasSublabels/<project>/<dataset>/')
-def datasetHasSublabels(project, dataset):
-    sublabels = labels_tools.getDatasetSublabels(cursor, project, dataset)
+@app.route('/datasetHasSublabels/<project>/<dataset>/<experiment_label_id>/')
+def datasetHasSublabels(project, dataset, experiment_label_id):
+    sublabels = labels_tools.getDatasetSublabels(cursor, project, dataset, experiment_label_id)
     return str(len(sublabels) > 1)

@@ -33,6 +33,14 @@ function validationWithoutTrueLabels(train_test, conf, exp_type) {
     }
 }
 
+function familiesMonitoring(train_test, conf) {
+    if (train_test == 'validation') {
+        return datasetHasSublabels(conf.project, conf.validation_conf.test_dataset, 1);
+    } else {
+        return datasetHasSublabels(conf.project, conf.dataset, conf.experiment_label_id);
+    }
+}
+
 function displayMonitoring(args, iteration, conf, train_test) {
   var div_name = train_test + '_monitoring';
   if (validationWithoutTrueLabels(train_test, conf, exp_type)) {
@@ -69,7 +77,7 @@ function displayMonitoringRadioButtons(args, conf, train_test) {
         parent_div = radio_div);
     displayPerformanceRadio(div_name, args, train_test);
     // Families
-    if (datasetHasSublabels(project, dataset)) {
+    if (familiesMonitoring(train_test, conf)) {
       var radio_families = makeRadioButton(radio_name,
           train_test + '_families', 'Families',
           false, function() {

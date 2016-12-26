@@ -58,9 +58,9 @@ function getChildren(project, dataset, experiment_id) {
     return xmlHttp.responseText.split(' ');
 }
 
-function datasetHasSublabels(project, dataset) {
+function datasetHasSublabels(project, dataset, experiment_label_id) {
     var families_monitoring_query = buildQuery('datasetHasSublabels',
-            [project, dataset]);
+            [project, dataset, experiment_label_id]);
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open('GET', query, false);
     xmlHttp.send(null);
