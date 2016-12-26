@@ -25,8 +25,6 @@ class ProjectionConfiguration(object):
         suffix  = '__' + self.algo.__name__
         if self.num_components is not None:
             suffix += '__numComponents' + str(self.num_components)
-        if self.sublabels_supervision:
-            suffix += '__sublabelsSupervision'
         return suffix
 
     def toJson(self):
