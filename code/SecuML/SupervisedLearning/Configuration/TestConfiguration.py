@@ -52,7 +52,7 @@ class TestConfiguration(object):
                 exp.project, self.test_dataset,
                 db, cursor)
         self.test_exp.setFeaturesFilenames(exp.features_filenames)
-        self.test_exp.initLabels('true_labels', overwrite = False)
+        self.test_exp.initLabels('true_labels.csv', overwrite = False)
         self.test_exp.export()
 
     def generateSuffix(self):

@@ -84,9 +84,3 @@ def getConf(project, dataset, experiment_id):
     mysql_tools.useDatabase(cursor, project, dataset)
     conf['has_true_labels'] = labels_tools.hasTrueLabels(cursor)
     return jsonify(conf)
-
-@app.route('/getValidationConf/<project>/<dataset>/<experiment_id>/')
-def getValidationConf(project, dataset, experiment_id):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    return jsonify(experiment.supervised_learning_conf.test_conf.toJson())

@@ -1,19 +1,30 @@
-function setInstancesSettings(project, dataset, experiment_id, experiment_label_id,
+function setInstancesSettings(train_test, project, dataset, experiment_id, experiment_label_id,
         callback) {
-    var query = buildQuery('getValidationConf', 
-                    [project, dataset, experiment_id]);
-    d3.json(query, function(error, data) {
-      if (data['method'] == 'random_split' || data['method'] == 'unlabeled') {
-          inst_dataset = dataset;
-          inst_exp_id = experiment_id;
-          inst_exp_label_id = experiment_label_id;
-      } else {
-          inst_dataset      = data['test_dataset'].split('__')[0];
-          inst_exp_id       = data['test_exp']['experiment_id'];
-          inst_exp_label_id = data['test_exp']['experiment_label_id'];
-      }
-      callback();
-    });
+    if (train_test == 'validation') {
+      var query = buildQuery('getActiveLearningValidationConf', 
+                      [project, dataset, experiment_id]);
+      d3.json(query, function(error, data) {
+        inst_dataset      = data['test_dataset'].split('__')[0];
+        inst_exp_id       = data['test_exp']['experiment_id'];
+        inst_exp_label_id = data['test_exp']['experiment_label_id'];
+        callback();
+      });
+    } else {
+      var query = buildQuery('getSupervisedValidationConf', 
+                      [project, dataset, experiment_id]);
+      d3.json(query, function(error, data) {
+        if (data['method'] == 'random_split' || data['method'] == 'unlabeled') {
+            inst_dataset = dataset;
+            inst_exp_id = experiment_id;
+            inst_exp_label_id = experiment_label_id;
+        } else {
+            inst_dataset      = data['test_dataset'].split('__')[0];
+            inst_exp_id       = data['test_exp']['experiment_id'];
+            inst_exp_label_id = data['test_exp']['experiment_label_id'];
+        }
+        callback();
+      });
+    }
 }
 
 function displayInstanceInformationStructure() {
@@ -132,7 +143,6 @@ function displaySublabelSelector(label_row, label, cluster = false) {
   // Sublabel values
   var query = buildQuery('getLabelsSublabels', [project, inst_dataset, inst_exp_label_id]);
   d3.json(query, function(error, data) {
-      console.log(data);
       var select = $('#' + prefix + label + '_sublabel_selector')[0];
       if (data[label]) {
         var sublabels = Object.keys(data[label]);

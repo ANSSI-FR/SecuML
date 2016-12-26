@@ -23,7 +23,7 @@ if (train_test == 'train') {
   inst_exp_label_id = experiment_label_id;
   callback();
 } else {
-  setInstancesSettings(project, dataset, experiment_id, experiment_label_id,
+  setInstancesSettings(train_test, project, dataset, experiment_id, experiment_label_id,
           callback);
 }
 

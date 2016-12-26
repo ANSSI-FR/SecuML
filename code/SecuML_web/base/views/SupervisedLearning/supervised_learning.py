@@ -209,3 +209,9 @@ def getCoefBarplot(project, dataset, experiment):
     barplot = BarPlot(best_features_name)
     barplot.addDataset(list(best_coef), 'red', 0)
     return barplot.getJson()
+
+@app.route('/getSupervisedValidationConf/<project>/<dataset>/<experiment_id>/')
+def getSupervisedValidationConf(project, dataset, experiment_id):
+    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
+            db, cursor)
+    return jsonify(experiment.supervised_learning_conf.test_conf.toJson())
