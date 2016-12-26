@@ -5,6 +5,7 @@ SecuML can be applied to any detection problem. It requires as input numerical f
 * Learning a Supervised Detection Model and Analysing the Alerts
 * Projecting Data
 * Clustering Data
+* Acquiring a Labeled Dataset with a Reduced Human Effort
 
 #### Requirements
 * MySQL server (>= 5.5.49)
@@ -50,11 +51,11 @@ To display the results of the experiments in the web user interface the server m
 
 To remove all the experiments carried out for a given project
 
-    ./SecuML_remove_project_dataset.py <project>
+    ./SecuML_remove_project_dataset <project>
 
 To remove all the experiments carried out for a given dataset
 
-    ./SecuML_remove_project_dataset.py <project> --dataset <dataset>
+    ./SecuML_remove_project_dataset <project> --dataset <dataset>
 
 * **Learning a Supervised Detection Model and Analysing the Alerts**
 
@@ -79,7 +80,7 @@ Screen shot of the interface for an experiment run on the lingspam dataset:
 
 The data are projected into a lower-dimensional space for visualization. The user interface allows to display the instances in a plane defined by two components. The instances are not displayed individually but with an hexagonal binning (color from green to black according to the number of instances in the bin). The color of the dot in the middle of each bin (from yellow to red) corresponds to the proportion of known malicious instances in the bin.
 
-    ./SecuML_projection <project> <dataset> -f <features_files> --algo <Pca/Lda/Lmnn/Nca>
+    ./SecuML_projection <project> <dataset> -f <features_files> --algo <Pca/Lda/Lmnn>
 
 For more information about the available options:
 
@@ -108,3 +109,22 @@ Web interface to display the results:
 
 Screen shot of the interface for an experiment run on the lingspam dataset:
 ![Clustering](/images/clustering.png)
+
+* **Acquiring a Labeled Dataset with a Reduced Human Effort**
+
+This program allows to acquire a labeled dataset to learn a supervised detection model with a low human effort.
+It is an iterative process initialized with some labeled instances. Then, at each iteration the user is asked to annotate a few
+instances to improve the current detection model.
+
+    ./SecuML_active_learning <project> <dataset> -f <features_files> --init-labels-file <labels_file>
+
+For more information about the available options:
+
+    ./SecuML_active_learning -h
+
+Web interface to display the results:
+
+    http://localhost:5000/SecuML/<project>/<dataset>/ActiveLearning/menu/
+
+Screen shot of the interface for an experiment run on the [NSL-KDD] (http://www.unb.ca/research/iscx/dataset/iscx-NSL-KDD-dataset.html) dataset:
+![Active Learning](/images/active_learning.png)

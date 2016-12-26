@@ -14,14 +14,3 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import ActiveLearning.active_learning
-import ActiveLearning.annotations
-import ActiveLearning.monitoring
-
-import SupervisedLearning.supervised_learning
-
-import UnsupervisedLearning.projections
-import UnsupervisedLearning.clusterings
-
-import labels
-import experiments

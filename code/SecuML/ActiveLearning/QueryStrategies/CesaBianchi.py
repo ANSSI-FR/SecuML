@@ -14,14 +14,17 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import ActiveLearning.active_learning
-import ActiveLearning.annotations
-import ActiveLearning.monitoring
+from AnnotationQueries.CesaBianchiAnnotationQueries import CesaBianchiAnnotationQueries
 
-import SupervisedLearning.supervised_learning
+class CesaBianchi(object):
 
-import UnsupervisedLearning.projections
-import UnsupervisedLearning.clusterings
+    def __init__(self, iteration):
+        b = iteration.experiment.b
+        num_annotations = iteration.experiment.batch
+        self.annotations = CesaBianchiAnnotationQueries(iteration, b, num_annotations)
 
-import labels
-import experiments
+    def generateAnnotationQueries(self):
+        self.annotations.run()
+
+    def annotateAuto(self):
+        self.annotations.annotateAuto()

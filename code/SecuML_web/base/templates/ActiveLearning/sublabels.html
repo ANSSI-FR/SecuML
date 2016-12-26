@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<meta charset='utf-8'>
+
+<style>
+
+body {
+  font: 11px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+}
+
+.tooltip {
+  position: absolute;
+  width: 200px;
+  height: 28px;
+  pointer-events: none;
+  color: red;
+}
+
+</style>
+
+<head>
+<title>Sublabels Annotations</title>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<link rel='stylesheet' href='/static/lib/css/bootstrap.min.css'>
+<script src='/static/lib/js/jquery.min.js'></script>
+<script src='/static/lib/js/bootstrap.min.js'></script>
+<script src='/static/lib/js/d3.min.js'></script>
+<script src='/static/lib/js/Chart.min.js'></script>
+
+</head>
+
+<body>
+  <div class='container'>
+    <div class='row' id='row1'>
+          <div id=barplot>
+          </div>
+    </div>
+  </div>
+</body>
+
+<script src='/static/js/Plots/BarPlot.js'></script>
+<script src='/static/js/Tools/web_tools.js'></script>
+<script src='/static/js/ActiveLearning/display_sublabels.js'></script>
+
+</html>

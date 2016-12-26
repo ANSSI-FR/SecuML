@@ -14,14 +14,16 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import ActiveLearning.active_learning
-import ActiveLearning.annotations
-import ActiveLearning.monitoring
+from AnnotationQueries.RandomAnnotationQueries import RandomAnnotationQueries
 
-import SupervisedLearning.supervised_learning
+class RandomSampling(object):
 
-import UnsupervisedLearning.projections
-import UnsupervisedLearning.clusterings
+    def __init__(self, iteration):
+        num_annotations = iteration.experiment.batch
+        self.random_annotations = RandomAnnotationQueries(iteration, num_annotations)
 
-import labels
-import experiments
+    def generateAnnotationQueries(self):
+        self.random_annotations.run()
+
+    def annotateAuto(self):
+        self.random_annotations.annotateAuto()

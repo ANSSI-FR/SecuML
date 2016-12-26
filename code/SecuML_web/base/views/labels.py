@@ -56,6 +56,10 @@ def addLabel(project, dataset, experiment_label_id, iteration_number, instance_i
     db.commit()
     return ''
 
+@app.route('/labeledInstances/<project>/<dataset>/<experiment_label_id>/<label_iteration>/')
+def labeledInstances(project, dataset, experiment_label_id, label_iteration):
+    return render_template('ActiveLearning/current_labels.html', project = project)
+
 @app.route('/getLabeledInstances/<project>/<dataset>/<experiment_label_id>/')
 def getLabeledInstances(project, dataset, experiment_label_id):
     mysql_tools.useDatabase(cursor, project, dataset)

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<meta charset='utf-8'>
+
+<style>
+
+body {
+  font: 11px sans-serif;
+}
+
+</style>
+
+<head>
+<title>Individual Annotations</title>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<link rel='stylesheet' href='/static/lib/css/bootstrap.min.css'>
+<script src='/static/lib/js/jquery.min.js'></script>
+<script src='/static/lib/js/bootstrap.min.js'></script>
+<script src='/static/lib/js/d3.min.js'></script>
+<script src='/static/lib/js/Chart.min.js'></script>
+</head>
+
+<body>
+
+  <div class='container'>
+
+  <div class='row'>
+        <div class='col-md-2'>
+          <h4>Instances to Annotate</h4>
+          <select class='selectpicker' id='instance_selector' size=5>
+            <option></option>
+          </select>
+        </div>
+        <div class='col-md-4'>
+          <div id=instance_predicted_proba>
+          </div>
+          <div id=instance_label>
+          </div>
+        </div>
+  </div>
+
+  <div class='row'>
+    <h4>Instance</h4>
+    <div id=instance_ident>
+    </div>
+    <div id=instance_data>
+    </div>
+  </div>
+
+  </div>
+
+</body>
+
+<script src='/static/js/InstancesInformation/InstancesInformation.js'></script>
+<script src='/static/js/InstancesInformation/{{ project }}.js'></script>
+
+<script src='/static/js/Tools/experiment_tools.js'></script>
+<script src='/static/js/Tools/web_tools.js'></script>
+<script src='/static/js/ActiveLearning/individual_annotations.js'></script>
+
+</html>
