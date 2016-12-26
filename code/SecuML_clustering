@@ -61,7 +61,7 @@ if __name__ == '__main__':
     projection_group = parser.add_argument_group(
             'Projection parameters')
     projection_group.add_argument('--projection-algo',
-            choices = ['Pca', 'Lda', 'Lmnn', 'Nca', None],
+            choices = ['Pca', 'Lda', 'Lmnn', 'Nca', 'Rca', None],
             default = None,
             help = 'Projection performed before building the clustering. ' + 
             'By default the instances are not projected.')

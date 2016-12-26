@@ -33,6 +33,8 @@ from SecuML.UnsupervisedLearning.Configuration.LmnnConfiguration \
         import LmnnConfiguration
 from SecuML.UnsupervisedLearning.Configuration.NcaConfiguration \
         import NcaConfiguration
+from SecuML.UnsupervisedLearning.Configuration.RcaConfiguration \
+        import RcaConfiguration
 
 # Clustering
 from SecuML.UnsupervisedLearning.Configuration.GaussianMixtureConfiguration \
