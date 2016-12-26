@@ -23,9 +23,7 @@ class Nca(SemiSupervisedProjection):
 
     def __init__(self, experiment):
         SemiSupervisedProjection.__init__(self, experiment)
-        self.projection = metric_learn.nca_dimension_reduction_mem.NCA(
-        #self.projection = metric_learn.nca_dimension_reduction.NCA(
-                dim = self.num_components)
+        self.projection = metric_learn.nca.NCA(num_dims = self.num_components)
 
     def setProjectionMatrix(self):
         self.projection_matrix = np.transpose(
