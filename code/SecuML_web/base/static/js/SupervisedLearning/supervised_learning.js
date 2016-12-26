@@ -23,7 +23,6 @@ function loadConfigurationFile(project, dataset, experiment_id, callback) {
         conf.validation_has_true_labels = conf.has_true_labels;
     }
     callback(conf);
-    console.log(conf);
   });
 }
 

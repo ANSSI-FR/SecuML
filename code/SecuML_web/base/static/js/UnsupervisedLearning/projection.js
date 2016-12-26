@@ -35,7 +35,6 @@ function loadConfigurationFile(callback) {
   d3.json(buildQuery('getConf', args), function(error, data) {
     conf = data;
     conf.projection_type = conf.conf.__type__.split('Configuration')[0];
-    console.log(conf);
     callback();
   });
 }

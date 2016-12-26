@@ -187,7 +187,6 @@ function drawProjectionOnComponents(project, dataset, experiment,
     if (d.num_malicious_instances + d.num_ok_instances > 1000) {
       return;
     } else {
-      console.log(d);
       displayInstancesList('malicious', d.malicious_instances);
       displayInstancesList('ok', d.ok_instances);
     }

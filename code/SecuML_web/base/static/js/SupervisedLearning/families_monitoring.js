@@ -30,7 +30,6 @@ function displayFamiliesPerformance(args, iteration, train_test, subkind = 'None
         return;
     }
     var threshold = $('#slider').slider('value');
-    console.log(threshold);
     var perf_div_name = train_test + '_perf_graph_div';
     perf_div = cleanDiv(perf_div_name);
     var label = 'benign';

@@ -58,9 +58,6 @@ function drawBarPlotFromPath(div_name, get_path, xlabel, ylabel, no_label, callb
         };
     }
 
-
-    console.log(options);
-
     d3.json(get_path, function(error, data) {
         var canvas = document.createElement('canvas');
         canvas.setAttribute('id', div_name + '_hist');
