@@ -16,7 +16,7 @@ var last_instance_selector = null;
 var last_sublabel = {'malicious': 'other', 'benign': 'other'};
 var last_instance_selector = null;
 
-setInstancesSettings(project, dataset, experiment_id, experiment_label_id,
+setInstancesSettings('alerts', project, dataset, experiment_id, experiment_label_id,
         callback);
 
 function callback() {
