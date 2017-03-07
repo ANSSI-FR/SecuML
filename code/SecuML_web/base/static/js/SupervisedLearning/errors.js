@@ -15,16 +15,26 @@ var label_method = 'confusion_matrix';
 
 var last_instance_selector = null;
 var last_sublabel = {'malicious': 'other', 'benign': 'other'};
-var last_instance_selector = null;
 
-if (train_test == 'train') {
-  inst_dataset = dataset;
-  inst_exp_id = experiment_id;
-  inst_exp_label_id = experiment_label_id;
-  callback();
-} else {
-  setInstancesSettings(train_test, project, dataset, experiment_id, experiment_label_id,
-          callback);
+var conf = {};
+
+loadConfigurationFile(function () {
+    if (train_test == 'train') {
+        inst_dataset = dataset;
+        inst_exp_id = experiment_id;
+        inst_exp_label_id = experiment_label_id;
+        callback();
+    } else {
+        setInstancesSettings(train_test, project, dataset, experiment_id, experiment_label_id,
+            callback);
+    }
+});
+
+function loadConfigurationFile(callback) {
+    d3.json(buildQuery('getConf', args.slice(0,3)), function(error, data) {
+        conf = data;
+        callback();
+    });
 }
 
 function callback() {
@@ -43,11 +53,13 @@ function displayErrors(args) {
   });
   var fp_selector = $('#fp_selector')[0];
   fp_selector.addEventListener('change', function() {
+      $('#fn_selector > option:selected').prop('selected',false)
       selected_instance_id = getSelectedOption(this);
       printInstanceInformation(selected_instance_id, query_data['FP'][selected_instance_id]);
   });
   var fn_selector = $('#fn_selector')[0];
   fn_selector.addEventListener('change', function() {
+      $('#fp_selector > option:selected').prop('selected', false)
       selected_instance_id = getSelectedOption(this);
       printInstanceInformation(selected_instance_id, query_data['FN'][selected_instance_id]);
   });

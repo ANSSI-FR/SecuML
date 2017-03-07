@@ -32,6 +32,12 @@ def getIdent(cursor, instance_id):
     ident = cursor.fetchone()[0]
     return ident
 
+def getRowNumber(cursor, instance_id):
+    cursor.execute('SELECT Idents.row_number FROM Idents \
+            WHERE Idents.instance_id = %s', (instance_id,))
+    row_number = cursor.fetchone()[0]
+    return row_number
+
 def getAllIdents(cursor):
     query  = 'SELECT Idents.ident '
     query += 'FROM Idents;'

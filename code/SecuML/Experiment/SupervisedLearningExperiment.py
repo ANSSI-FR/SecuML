@@ -18,7 +18,9 @@ from SecuML.Data.Dataset import Dataset
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Experiment.Experiment import Experiment
 from SecuML.SupervisedLearning.Configuration import SupervisedLearningConfFactory
-from SecuML.Tools import mysql_tools
+from SecuML.Tools import mysql_tools, dir_tools
+
+from sklearn.externals import joblib
 
 class SupervisedLearningExperiment(Experiment):
 
@@ -32,6 +34,11 @@ class SupervisedLearningExperiment(Experiment):
     def generateSuffix(self):
         suffix  = self.supervised_learning_conf.generateSuffix()
         return suffix
+
+    def getModelPipeline(self):
+        experiment_dir = dir_tools.getExperimentOutputDirectory(self)
+        pipeline = joblib.load(experiment_dir + '/model/model.out')
+        return pipeline
 
     @staticmethod
     def fromJson(obj, db, cursor):

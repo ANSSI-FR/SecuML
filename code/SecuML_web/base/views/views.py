@@ -16,6 +16,7 @@
 
 from __future__ import division
 import csv
+import json
 from flask import send_file, jsonify
 import importlib
 import numpy as np
@@ -30,8 +31,12 @@ from SecuML.Tools import mysql_tools
 
 @app.route('/getInstance/<project>/<dataset>/<instance_id>/<ident>/')
 def getInstance(project, dataset, instance_id, ident):
-    module = importlib.import_module('SecuML_web.base.views.Projects.' + project)
-    return module.getInstance(dataset, instance_id, ident)
+    try:
+        module = importlib.import_module('SecuML_web.base.views.Projects.' + project)
+        return module.getInstance(dataset, instance_id, ident)
+    except IOError as e:
+        app.logger.error(e)
+        return 'Unable to display the instance', ident
 
 @app.route('/getIdent/<project>/<dataset>/<instance_id>/')
 def getIdent(project, dataset, instance_id):
@@ -39,49 +44,11 @@ def getIdent(project, dataset, instance_id):
     ident = idents_tools.getIdent(cursor, instance_id)
     return ident
 
-@app.route('/getFeatures/<project>/<dataset>/<experiment>/<validation_dataset>/<instance_id>/')
-def getFeatures(project, dataset, experiment, validation_dataset, instance_id):
+@app.route('/getFeatures/<project>/<dataset>/<experiment>/<instance_dataset>/<instance_id>/')
+def getFeatures(project, dataset, experiment, instance_dataset, instance_id):
     instance_id = int(instance_id)
     mysql_tools.useDatabase(cursor, project, dataset)
-    experiment_obj = ExperimentFactory.getFactory().fromJson(project, dataset, experiment, db, cursor)
-    [feature_name, features_values] = experiment_tools.getFeatures(project, experiment_obj, validation_dataset, instance_id)
-    features = map(lambda name,value: ('"' + name + '"', value), feature_name, features_values)
-    features = [':'.join(sublist) for sublist in features]
-    return '{' + ','.join(features) + '}'
-
-@app.route('/getWeightedFeatures/<project>/<dataset>/<experiment>/<validation_dataset>/<instance_id>/')
-def getWeightedFeatures(project, dataset, experiment, validation_dataset, instance_id):
-    instance_id = int(instance_id)
-    mysql_tools.useDatabase(cursor, project, dataset)
-    #get the experiement
-    experiment_obj = ExperimentFactory.getFactory().fromJson(project, dataset, experiment, db, cursor)
-    #get the features
-    [feature_name, features_values] = experiment_tools.getFeatures(project, experiment_obj, validation_dataset, instance_id)
-    features_values = [float(value) for value in features_values]
-    #get the pipeline with scaler and logistic model
-    pipeline = experiment_tools.getModelPipeline(project, dataset, experiment)
-    #scale the features
-    scaled_values = pipeline.named_steps['scaler'].transform(np.reshape(features_values,(1,-1)))
-    weighted_values = np.multiply(scaled_values, pipeline.named_steps['lr'].coef_)
-    features = map(lambda name,value: ('"' + name + '"', str(value)), feature_name, weighted_values[0])
-    features = [':'.join(sublist) for sublist in features]
-    return '{' + ','.join(features) + '}'
-
-@app.route('/getWeightedBarplot/<project>/<dataset>/<experiment>/<validation_dataset>/<instance_id>/')
-def getWeightedBarplot(project, dataset, experiment, validation_dataset, instance_id):
-    instance_id = int(instance_id)
-    mysql_tools.useDatabase(cursor, project, dataset)
-    #get the experiement
-    experiment_obj = ExperimentFactory.getFactory().fromJson(project, dataset, experiment, db, cursor)
-    #get the features
-    [feature_name, features_values] = experiment_tools.getFeatures(project, experiment_obj, validation_dataset, instance_id)
-    features_values = [float(value) for value in features_values]
-    #get the pipeline with scaler and logistic model
-    pipeline = experiment_tools.getModelPipeline(project, dataset, experiment)
-    #scale the features
-    scaled_values = pipeline.named_steps['scaler'].transform(np.reshape(features_values,(1,-1)))
-    weighted_values = np.multiply(scaled_values, pipeline.named_steps['lr'].coef_)
-    #create the barplot
-    barplot = BarPlot(feature_name)
-    barplot.addDataset(list(weighted_values[0]), 'red', instance_id)
-    return barplot.getJson()
+    experiment_obj = ExperimentFactory.getFactory().fromJson(project, instance_dataset, experiment, db, cursor)
+    features_names, features_values = experiment_obj.getFeatures(instance_id)
+    features = zip(features_names, features_values)
+    return json.dumps(features)

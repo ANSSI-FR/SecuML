@@ -75,6 +75,8 @@ def loadCsvFile(cursor, filename, table_name, row_number_field = None):
     query += 'FIELDS TERMINATED BY \',\' '
     query += 'OPTIONALLY ENCLOSED BY \'"\' '
     query += 'IGNORE 1 LINES '
+    if row_number_field:
+        query += 'SET ' + row_number_field + ' = NULL '
     query += ';'
     cursor.execute(query, (filename,));
 

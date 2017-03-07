@@ -12,6 +12,9 @@ function displayAlertsButton() {
 
 function displayTraining(args, iteration, conf) {
   displayMonitoring(args, iteration, conf, 'train');
+  if (exp_type == 'SupervisedLearning') {
+    displayCoefficients(args, iteration);
+  }
 }
 
 function displayTesting(args, iteration, conf) {
@@ -97,4 +100,30 @@ function displayMonitoringRadioButtons(args, conf, train_test) {
         },
         parent_div = radio_div);
     }
+}
+
+function displayCoefficients(args, iteration) {
+  var model_coefficients_div = cleanDiv('model_coefficients');
+  //first we get the coef Bar plot json for the plot
+  var query = buildQuery('getTopModelCoefficients', [...args, 20]);
+  $.getJSON(query, function (data) {
+      var coefficients = data;
+      var coef_data = {labels:[],
+                       datasets:[{data:[],
+                                  backgroundColor:'red',
+                                  label:'Coefficients'}
+                                ]
+                      };
+      for (var key in coefficients) {
+          coef_data.labels.push(coefficients[key][0]);
+          coef_data.datasets[0].data.push(coefficients[key][1]);
+      }
+      //then we plot
+      var options = barPlotOptions(coef_data);
+      var barPlot = drawBarPlot('model_coefficients',
+                                 options, coef_data, 'horizontalBar');
+      model_coefficients_div.style.height = '500px';
+      model_coefficients_div.style.width = '500px';
+
+  });
 }

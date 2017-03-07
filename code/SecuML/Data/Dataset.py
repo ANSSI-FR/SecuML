@@ -62,14 +62,15 @@ class Dataset(object):
         mysql_tools.useDatabase(self.cursor, self.project, self.dataset)
 
     def loadIdents(self):
+        row_number_field = 'row_number'
         idents_file = dir_tools.getDatasetDirectory(
                 self.project, self.dataset) + 'idents.csv'
-        fields = ['instance_id', 'ident']
-        types  = ['INT', 'VARCHAR(200) CHARACTER SET utf8']
+        fields = ['instance_id', 'ident', row_number_field]
+        types  = ['INT', 'VARCHAR(200) CHARACTER SET utf8', 'INT NOT NULL AUTO_INCREMENT']
         mysql_tools.createTableFromFields(self.cursor, 'Idents',
                 fields, types,
-                ['instance_id'])
-        mysql_tools.loadCsvFile(self.cursor, idents_file, 'Idents') 
+                [row_number_field, 'instance_id'])
+        mysql_tools.loadCsvFile(self.cursor, idents_file, 'Idents', row_number_field)
 
     def loadTrueLabels(self):
         labels_file  = dir_tools.getDatasetDirectory(self.project,
