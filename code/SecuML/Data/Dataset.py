@@ -65,7 +65,7 @@ class Dataset(object):
         idents_file = dir_tools.getDatasetDirectory(
                 self.project, self.dataset) + 'idents.csv'
         fields = ['instance_id', 'ident']
-        types  = ['INT', 'VARCHAR(200)']
+        types  = ['INT', 'VARCHAR(200) CHARACTER SET utf8']
         mysql_tools.createTableFromFields(self.cursor, 'Idents',
                 fields, types,
                 ['instance_id'])

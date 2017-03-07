@@ -81,7 +81,7 @@ class Instances(object):
     def createDataset(self, project, dataset, features_filenames, cursor):
         dataset_dir, features_dir, init_labels_dir = dir_tools.createDataset(project, dataset)
         self.exportIdents(dataset_dir + 'idents.csv', cursor)
-        self.toCsv(features_dir + features_filenames + '.csv')
+        self.toCsv(features_dir + features_filenames )
         self.saveInstancesLabels(init_labels_dir + 'true_labels.csv')
 
     def exportIdents(self, output_filename, cursor):
@@ -90,7 +90,7 @@ class Instances(object):
             ids = self.getIds()
             idents = idents_tools.getAllIdents(cursor)
             for i in range(self.numInstances()):
-                print >>f, str(ids[i]) + ','  + idents[i]
+                print >>f, str(ids[i]) + ','  + idents[ids[i]].encode('utf-8')
 
     def toCsv(self, output_filename):
         header = ['instance_id'] + self.features_names

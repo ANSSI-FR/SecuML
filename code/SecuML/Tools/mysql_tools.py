@@ -16,6 +16,7 @@
 
 import math
 import mysql.connector
+from mysql.connector.constants import ClientFlag
 import os
 import sys
 
@@ -26,7 +27,7 @@ def getDbConnection(buffered = False):
         host = f.readline().split('=')[1].strip()
         user = f.readline().split('=')[1].strip()
         password = f.readline().split('=')[1].strip()
-    db = mysql.connector.connect(host = host, user = user, password = password)
+    db = mysql.connector.connect(host = host, user = user, password = password, unix_socket = '/var/run/mysqld/mysqld.sock', client_flags = [ClientFlag.LOCAL_FILES])
     cursor = db.cursor(buffered = buffered)
     return [db, cursor]
 
@@ -67,13 +68,15 @@ def createDatabase(cursor, database_name):
 def removeTableIfExists(cursor, table_name):
     cursor.execute('DROP TABLE IF EXISTS ' + table_name + ';')
 
-def loadCsvFile(cursor, filename, table_name):
-    query  = 'LOAD DATA LOCAL INFILE \'' + filename + '\' '
+def loadCsvFile(cursor, filename, table_name, row_number_field = None):
+    query  = 'LOAD DATA LOCAL INFILE %s '
     query += 'INTO TABLE ' + table_name + ' '
+    query += 'CHARACTER SET UTF8 '
     query += 'FIELDS TERMINATED BY \',\' '
+    query += 'OPTIONALLY ENCLOSED BY \'"\' '
     query += 'IGNORE 1 LINES '
     query += ';'
-    cursor.execute(query);
+    cursor.execute(query, (filename,));
 
 def getTables(cursor):
     cursor.execute('SHOW TABLES');
