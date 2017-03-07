@@ -90,7 +90,7 @@ class Instances(object):
             ids = self.getIds()
             idents = idents_tools.getAllIdents(cursor)
             for i in range(self.numInstances()):
-                print >>f, str(ids[i]) + ','  + idents[ids[i]].encode('utf-8')
+                print >>f, str(ids[i]) + ','  + idents[i].encode('utf-8')
 
     def toCsv(self, output_filename):
         header = ['instance_id'] + self.features_names
