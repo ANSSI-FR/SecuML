@@ -14,10 +14,17 @@ var experiment_label_id = getExperimentLabelId(
 var args = [project, dataset, experiment_id, label_iteration, analysis];
 var last_instance_selector = null;
 var last_sublabel = {'malicious': 'other', 'benign': 'other'};
-var last_instance_selector = null;
 
-setInstancesSettings('alerts', project, dataset, experiment_id, experiment_label_id,
-        callback);
+var conf = {}
+loadConfigurationFile();
+
+function loadConfigurationFile() {
+    d3.json(buildQuery('getConf', args.slice(0,3)), function(error, data) {
+        conf = data;
+        setInstancesSettings('alerts', project, dataset, experiment_id, experiment_label_id,
+            callback);
+    });
+}
 
 function callback() {
   displayInstanceInformationStructure();
@@ -27,13 +34,15 @@ function callback() {
 
 function displayInstancesToAnnotate(args) {
   var query = buildQuery('getAlerts', args);
+  var query_data;
   d3.json(query, function(error, data) {
       addElementsToSelectList('instance_selector', data['instances']);
+      query_data = data;
   });
   var selector = $('#instance_selector')[0];
   selector.addEventListener('change', function() {
       selected_instance_id = getSelectedOption(this);
-      printInstanceInformation(selected_instance_id);
+      printInstanceInformation(selected_instance_id, query_data['proba'][selected_instance_id]);
   });
   last_instance_selector = selector;
 }

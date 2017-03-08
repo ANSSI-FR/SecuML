@@ -76,26 +76,23 @@ function drawBarPlotFromPath(div_name, get_path, xlabel, ylabel, no_label, callb
             var activeBars = myBarChart.getElementsAtEvent(evt)
             if (activeBars.length >0){
                 //console.log('index', activeBars[0]._index);
-                //console.log('dataset', activeBars[0]._datasetIndex);
             }
         };
 
     });
 }
 
-function drawBarPlot(div_name, data, tooltips_data = false) {
-    cleanDiv(div_name);
+function barPlotOptions(data, tooltips_data = false) {
     var tooltips_function = function(tooltipItem, data) {
         if (tooltips_data) {
-            //$('#' + div_name)[0].appendChild(document.createTextNode(String(tooltips_data[tooltipItem.xLabel])));
-            return String(tooltips_data[tooltipItem.xLabel]);
+            return String(tooltips_data[tooltipItem.index]);
         } else {
-            return tooltipItem.yLabel;
+            return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
         }
     }
 
     var options = {
-        responsive: false,
+        responsive: true,
         maintainAspectRatio:false,
         tooltips: {
             mode: 'label',
@@ -131,7 +128,7 @@ function drawBarPlot(div_name, data, tooltips_data = false) {
         bands: {
             yValue: 0,
             bandLine: {
-                stroke: 0.1,
+                stroke: 2,
                 colour: 'black'
             },
             belowThresholdColour: [
@@ -139,16 +136,21 @@ function drawBarPlot(div_name, data, tooltips_data = false) {
             ]
         }
     };
+    return options
+}
+
+
+
+function drawBarPlot(div_name, options, data, type = 'bar' ) {
+    cleanDiv(div_name);
 
     var canvas = document.createElement('canvas');
     canvas.setAttribute('id', div_name + '_hist');
-    //canvas.setAttribute('width', '500');
-    //canvas.setAttribute('height', '530');
     $('#' + div_name)[0].appendChild(canvas);
     // Get the context of the canvas element we want to select
     var ctx = $('#' + div_name + '_hist')[0].getContext('2d');
     var myBarChart = new Chart(ctx, {
-        type: 'bar',
+        type: type,
         data: data,
         options: options
     });

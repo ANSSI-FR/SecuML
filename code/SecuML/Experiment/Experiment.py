@@ -15,8 +15,10 @@
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import json
+import csv
 
 from SecuML.Data import labels_tools
+from SecuML.Data import idents_tools
 
 from SecuML.Experiment import experiment_db_tools
 from SecuML.Experiment import ExperimentFactory
@@ -54,6 +56,35 @@ class Experiment(object):
                 self.project, self.dataset) + 'features/'
         features_filenames = [features_directory + f for f in features_filenames]
         return features_filenames
+
+    def getFeaturesNames(self):
+        features_path = self.getFeaturesFilesFullpaths()
+        features_names = []
+        for features_file in features_path:
+            with open(features_file,'r') as f_file:
+                features_reader = csv.reader(f_file)
+                f_features_names = features_reader.next()
+                features_names.extend(f_features_names[1:])
+        return features_names
+
+    def getFeatures(self, instance_id):
+        row_number = idents_tools.getRowNumber(self.cursor, instance_id)
+        features_path = self.getFeaturesFilesFullpaths()
+        features_names = []
+        features_values = []
+        for features_file in features_path:
+            line = 1
+            with open(features_file,'r') as f_file:
+                names_reader = csv.reader(f_file)
+                f_features_names = names_reader.next()
+                features_names.extend(f_features_names[1:])
+                while line < row_number:
+                    f_file.next()
+                    line = line + 1
+                row = f_file.next().rstrip(),
+                features_reader = csv.reader(row)
+                features_values.extend(features_reader.next()[1:])
+        return features_names, features_values
 
     def setFeaturesFilenames(self, features_filenames):
         self.features_filenames = features_filenames

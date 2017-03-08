@@ -19,6 +19,7 @@ import numpy as np
 import pandas as pd
 import random
 import sys
+import json
 
 from SecuML_web.base import app, db, cursor
 
@@ -87,13 +88,13 @@ def getAlerts(project, dataset, experiment_id, iteration, analysis_type):
         experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
                 db, cursor)
         num_max_alerts = experiment.supervised_learning_conf.test_conf.alerts_conf.num_max_alerts
-        alerts = list(data.index.values)
+        alerts = list(data[['predicted_proba']].itertuples())
         if num_max_alerts < len(alerts):
             if analysis_type == 'topN':
                 alerts = alerts[:num_max_alerts]
             elif analysis_type == 'random':
                 alerts = random.sample(alerts, num_max_alerts)
-    return jsonify({'instances': alerts})
+    return json.dumps({'instances' : [alert[0] for alert in alerts], 'proba' : dict(alerts)})
 
 @app.route('/getPredictionsDensityPNG/<project>/<dataset>/<experiment>/<iteration>/<train_test>/')
 def getPredictionsDensityPNG(project, dataset, experiment, iteration, train_test):
@@ -170,45 +171,72 @@ def getFamiliesPerformance(project, dataset, experiment, iteration, train_test, 
         barplot.addDataset(perf, 'blue', tp_fp)
     return jsonify(barplot.barplot);
 
-@app.route('/getModelCoefficients/<project>/<dataset>/<experiment>/<iteration>/')
-def getModelCoefficients(project, dataset, experiment, iteration):
-    if iteration != 'None':
-        # Active Learning
-        return False
-    else:
-        # Supervised Learning
-        pipeline = experiment_tools.getModelPipeline(project, dataset, experiment)
-        return list(pipeline.named_steps['lr'].coef_[0])
-
-@app.route('/getModelIntercept/<project>/<dataset>/<experiment>/<iteration>/')
-def getModelIntercept(project, dataset, experiment, iteration):
-    if iteration != 'None':
-        # Active Learning
-        return False
-    else:
-        # Supervised Learning
-        pipeline = experiment_tools.getModelPipeline(project, dataset, experiment)
-        return pipeline.named_steps['lr'].intercept_[0]
-
-@app.route('/getCoefBarplot/<project>/<dataset>/<experiment>/')
-def getCoefBarplot(project, dataset, experiment):
+@app.route('/getWeightedFeatures/<project>/<dataset>/<experiment>/<instance_dataset>/<instance_id>/')
+def getWeightedFeatures(project, dataset, experiment, instance_dataset, instance_id):
+    instance_id = int(instance_id)
     mysql_tools.useDatabase(cursor, project, dataset)
-    #get the experiement
-    experiment_obj = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
+    #get the experiements
+    model_experiment_obj = ExperimentFactory.getFactory().fromJson(project, dataset, experiment, db, cursor)
+    experiment_obj = ExperimentFactory.getFactory().fromJson(project, instance_dataset, experiment, db, cursor)
     #get the features
-    [features_name, features_values] = experiment_tools.getFeatures(project, experiment_obj)
+    features_names, features_values = experiment_obj.getFeatures(instance_id)
+    features_values = [float(value) for value in features_values]
     #get the pipeline with scaler and logistic model
-    pipeline = experiment_tools.getModelPipeline(project, dataset, experiment)
+    pipeline = model_experiment_obj.getModelPipeline()
     #scale the features
-    coefficients = pipeline.named_steps['lr'].coef_[0]
-    best_coef_index = np.argsort(np.absolute(coefficients))[-20:]
-    best_features_name = [features_name[index] for index in best_coef_index]
-    best_coef = [coefficients[index] for index in best_coef_index]
-    #create the barplot
-    barplot = BarPlot(best_features_name)
-    barplot.addDataset(list(best_coef), 'red', 0)
-    return barplot.getJson()
+    scaled_values = pipeline.named_steps['scaler'].transform(np.reshape(features_values,(1,-1)))
+    weighted_values = np.multiply(scaled_values, pipeline.named_steps['model'].coef_)
+    features = zip(features_names, features_values, weighted_values)
+    return json.dumps(features)
+
+@app.route('/getTopWeightedFeatures/<project>/<dataset>/<experiment>/<instance_dataset>/<inst_exp_id>/<instance_id>/<size>/')
+def getTopWeightedFeatures(project, dataset, experiment, instance_dataset, inst_exp_id, instance_id, size):
+    instance_id = int(instance_id)
+    mysql_tools.useDatabase(cursor, project, dataset)
+    #get the experiements
+    model_experiment_obj = ExperimentFactory.getFactory().fromJson(project, dataset, experiment, db, cursor)
+    experiment_obj = ExperimentFactory.getFactory().fromJson(project, instance_dataset, inst_exp_id, db, cursor)
+    #get the features
+    features_names, features_values = experiment_obj.getFeatures(instance_id)
+    features_values = [float(value) for value in features_values]
+    #get the pipeline with scaler and logistic model
+    pipeline = model_experiment_obj.getModelPipeline()
+    #scale the features
+    scaled_values = pipeline.named_steps['scaler'].transform(np.reshape(features_values,(1,-1)))
+    weighted_values = np.multiply(scaled_values, pipeline.named_steps['model'].coef_)
+    features = map(lambda name, value, w_value: (name, value, w_value),
+                          features_names, features_values, weighted_values[0])
+    features.sort(key = lambda tup: abs(tup[2]))
+    return json.dumps(features[:-int(size)-1:-1])
+
+@app.route('/getModelCoefficients/<project>/<dataset>/<experiment>/')
+def getModelCoefficients(project, dataset, experiment):
+    # Supervised Learning
+    model_experiment_obj = ExperimentFactory.getFactory().fromJson(project, dataset, experiment, db, cursor)
+    pipeline = model_experiment_obj.getModelPipeline()
+    model_coefficients = pipeline.named_steps['model'].coef_[0]
+    features_names = model_experiment_obj.getFeaturesNames()
+    coefficients = map(lambda name, coef: (name, coef),
+                          features_names, model_coefficients)
+    return json.dumps(coefficients)
+
+@app.route('/getTopModelCoefficients/<project>/<dataset>/<experiment>/<size>/')
+def getTopModelCoefficients(project, dataset, experiment, size):
+    # Supervised Learning
+    model_experiment_obj = ExperimentFactory.getFactory().fromJson(project, dataset, experiment, db, cursor)
+    pipeline = model_experiment_obj.getModelPipeline()
+    model_coefficients = pipeline.named_steps['model'].coef_[0]
+    features_names = model_experiment_obj.getFeaturesNames()
+    coefficients = map(lambda name, coef: (name, coef),
+                          features_names, model_coefficients)
+    coefficients.sort(key = lambda tup: abs(tup[1]))
+    return json.dumps(coefficients[:-int(size)-1:-1])
+
+@app.route('/getModelIntercept/<project>/<dataset>/<experiment>/')
+def getModelIntercept(project, dataset, experiment):
+    model_experiment_obj = ExperimentFactory.getFactory().fromJson(project, dataset, experiment, db, cursor)
+    pipeline = model_experiment_obj.getModelPipeline()
+    return pipeline.named_steps['model'].intercept_[0]
 
 @app.route('/getSupervisedValidationConf/<project>/<dataset>/<experiment_id>/')
 def getSupervisedValidationConf(project, dataset, experiment_id):

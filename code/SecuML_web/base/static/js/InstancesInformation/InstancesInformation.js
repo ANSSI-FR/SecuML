@@ -3,7 +3,7 @@ function setInstancesSettings(train_test, project, dataset, experiment_id, exper
     if (train_test == 'validation') {
       var query = buildQuery('getActiveLearningValidationConf', 
                       [project, dataset, experiment_id]);
-      d3.json(query, function(error, data) {
+      $.getJSON(query, function(data) {
         inst_dataset      = data['test_dataset'].split('__')[0];
         inst_exp_id       = data['test_exp']['experiment_id'];
         inst_exp_label_id = data['test_exp']['experiment_label_id'];
@@ -12,7 +12,7 @@ function setInstancesSettings(train_test, project, dataset, experiment_id, exper
     } else {
       var query = buildQuery('getSupervisedValidationConf', 
                       [project, dataset, experiment_id]);
-      d3.json(query, function(error, data) {
+      $.getJSON(query, function(data) {
         if (data['method'] == 'random_split' || data['method'] == 'unlabeled') {
             inst_dataset = dataset;
             inst_exp_id = experiment_id;
@@ -28,26 +28,61 @@ function setInstancesSettings(train_test, project, dataset, experiment_id, exper
 }
 
 function displayInstanceInformationStructure() {
-    try {
-      displayInformationStructure();
-    } catch (err) {
-      console.log(
-        'TODO: specific function to print information about an instance');
+    function callback() {
+        printInstanceData(selected_instance_id, selected_instance_ident);
     }
+    var div_name = 'instance_data';
+    var div_object = $('#' + div_name)[0];
+    var radio_div = createDiv('radio_div');
+    var radio_list = [['features', 'Features', false]];
+    if (conf.kind == 'SupervisedLearning') {
+        var supervised_radio_list = [
+                  ['weighted_features', 'Weighted Features', false]];
+        radio_list.push.apply(radio_list, supervised_radio_list);
+    }
+    try {
+        specificInformationStructure(radio_list);
+    } catch(err) {
+        console.log(
+              'TODO: specific function to print information about an instance');
+    }
+    if (!radio_list.map(function(index,e){index[2]}).some(Boolean)) {
+        radio_list[0][2] = true;
+    }
+    for (var i = 0, len = radio_list.length; i < len; i++) {
+        var t_radio = makeRadioButton('radio_instance', ...radio_list[i], callback);
+        radio_div.appendChild(t_radio);
+    }
+    div_object.appendChild(radio_div);
+    var instance_data_div = createDiv('instance_data_div');
+    div_object.appendChild(instance_data_div);
 }
 
 function printInstanceInformation(selected_id, predicted_proba = false) {
   cleanInstanceInformation();
-  //Instance proba
-  var proba = printInstanceProba(predicted_proba);
+  selected_instance_proba = predicted_proba;
   //Instance label
-  var ident = printInstanceLabel(selected_id);
+  selected_instance_ident = printInstanceLabel(selected_id);
   // Instance data
-  try {
-    printInformation(selected_id, ident);
-  } catch (err) {
-    console.log(
-      'TODO: specific function to print information about an instance');
+  printInstanceData(selected_id, selected_instance_ident);
+}
+function printInstanceData(selected_id, ident) {
+  // Instance data
+  var selected_radio = $('input[name=\'radio_instance\']:checked').val()
+  switch (selected_radio) {
+      case 'features':
+          printFeatures(selected_id);
+          break;
+      case 'weighted_features':
+          printWeightedFeatures(selected_id);
+          break;
+      default:
+          try {
+              printSpecificData(selected_id, selected_instance_ident, selected_radio);
+          } catch(err) {
+            console.log(
+              'TODO: specific function to print information about an instance');
+          }
   }
 }
 
@@ -80,19 +115,10 @@ function printInstanceLabel(selected_id) {
     // Label
     var query = buildQuery('getLabel',
                     [project, inst_dataset, inst_exp_label_id, selected_id]);
-    d3.json(query, function(error, data){
-      displayLabel($('#instance_label')[0], data);
+    $.getJSON(query, function(data) {
+        displayLabel($('#instance_label')[0], data);
     });
     return ident;
-}
-
-function printInstanceProba(predicted_proba = false) {
-    if (predicted_proba) {
-        var proba_div = cleanDiv('instance_predicted_proba');
-        // Ident
-        var proba_node = document.createTextNode('predicted proba : ' + predicted_proba);
-        proba_div.appendChild(proba_node);
-    }
 }
 
 function addSublabelCallback(label) {
@@ -142,7 +168,7 @@ function displaySublabelSelector(label_row, label, cluster = false) {
   }
   // Sublabel values
   var query = buildQuery('getLabelsSublabels', [project, inst_dataset, inst_exp_label_id]);
-  d3.json(query, function(error, data) {
+  $.getJSON(query, function(data) {
       var select = $('#' + prefix + label + '_sublabel_selector')[0];
       if (data[label]) {
         var sublabels = Object.keys(data[label]);
@@ -305,8 +331,8 @@ function displayInstancesList(malicious_ok, instances) {
 function createInstancesSelector(malicious_ok) {
   var instances_selector = $('#instances_selector_' + malicious_ok)[0];
   instances_selector.addEventListener('change', function() {
-    selected_id = getSelectedOption(instances_selector);
-    printInstanceInformation(selected_id);
+    selected_instance_id = getSelectedOption(instances_selector);
+    printInstanceInformation(selected_instance_id);
     last_instance_selector = this;
   }, false);
 }
@@ -323,4 +349,57 @@ function clearInstancesList(malicious_ok) {
 function clearInstancesLists() {
   clearInstancesList('malicious');
   clearInstancesList('ok');
+}
+
+// Instances Data
+
+function printFeatures(selected_id) {
+    var div_object = cleanDiv('instance_data_div');
+    var title = document.createElement('h5');
+    title.innerHTML = 'Instance ID : ' + selected_id;
+    div_object.appendChild(title);
+    var query = buildQuery('getFeatures',
+                [project, dataset, inst_exp_id, inst_dataset, selected_id]);
+    $.getJSON(query, function(data) {
+        var ul = document.createElement('ul');
+        for (var key in data) {
+            var li = document.createElement('li');
+            li.appendChild(document.createTextNode(
+                            data[key][0] + ' : ' + data[key][1]));
+            ul.appendChild(li);
+        }
+        div_object.appendChild(ul);
+    });
+}
+
+
+function printWeightedFeatures(selected_id) {
+    var div_object = cleanDiv('instance_data_div');
+    var proba = document.createElement('h5');
+    proba.innerHTML = 'Predicted proba : ' + selected_instance_proba;
+    div_object.appendChild(proba);
+    var graph_div  = createDiv('instance_graph_div', div_object);
+    //first we get the Weighted Bar plot json for the plot
+    var query = buildQuery('getTopWeightedFeatures',
+                [project, dataset, experiment_id, inst_dataset, inst_exp_id, selected_id, 20]);
+    $.getJSON(query, function(data) {
+        var weighted_features = data;
+        var weighted_data = {labels:[],
+                             datasets:[{data:[],
+                                        backgroundColor:'red',
+                                        label:selected_id}]
+                            };
+        var data_labels = [];
+        for (var key in weighted_features) {
+            weighted_data.labels.push(weighted_features[key][0]);
+            weighted_data.datasets[0].data.push(weighted_features[key][2]);
+            data_labels.push(weighted_features[key][1]);
+        }
+        //then we plot
+        var options = barPlotOptions(weighted_data, data_labels);
+        var barPlot = drawBarPlot('instance_graph_div', options,
+                                  weighted_data, 'horizontalBar');
+        graph_div.style.width = '800px';
+        graph_div.style.height = '500px';
+    });
 }

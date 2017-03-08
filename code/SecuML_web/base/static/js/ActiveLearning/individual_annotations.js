@@ -18,9 +18,22 @@ var inst_dataset = dataset;
 var inst_exp_id = experiment_id;
 var inst_exp_label_id = experiment_label_id;
 
-displayInstanceInformationStructure();
-displayInstancesToAnnotate(args);
-displayAnnotationDiv();
+var conf = {};
+
+loadConfigurationFile(callback);
+
+function callback() {
+    displayInstanceInformationStructure();
+    displayInstancesToAnnotate(args);
+    displayAnnotationDiv();
+}
+
+function loadConfigurationFile(callback) {
+    d3.json(buildQuery('getConf', args.slice(0,3)), function(error, data) {
+        conf = data;
+        callback();
+    });
+}
 
 function displayInstancesToAnnotate(args) {
   var query = buildQuery('getInstancesToAnnotate', args);
