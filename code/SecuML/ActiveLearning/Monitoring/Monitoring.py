@@ -1,16 +1,16 @@
 ## SecuML
 ## Copyright (C) 2016  ANSSI
-## 
+##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## SecuML is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
@@ -22,8 +22,8 @@ from SecuML.ActiveLearning.Monitoring.ExecutionTimeMonitoring \
         import ExecutionTimeMonitoring
 from SecuML.ActiveLearning.Monitoring.LabelsMonitoring \
         import LabelsMonitoring
-from SecuML.ActiveLearning.Monitoring.SublabelsMonitoring \
-        import SublabelsMonitoring
+from SecuML.ActiveLearning.Monitoring.FamiliesMonitoring \
+        import FamiliesMonitoring
 from SecuML.ActiveLearning.Monitoring.ValidationMonitoring \
         import ValidationMonitoring
 
@@ -38,7 +38,6 @@ class Monitoring(object):
         self.iteration = iteration
         self.iteration_number = iteration.iteration_number
         self.validation_monitoring = validation_monitoring
-        self.ilab = experiment.labeling_method == 'ILAB'
         self.init()
 
     def init(self):
@@ -47,7 +46,7 @@ class Monitoring(object):
         self.iteration_dir  = self.AL_directory
         self.iteration_dir += str(self.iteration_number) + '/'
         self.labels_monitoring = LabelsMonitoring(self)
-        self.sublabels_monitoring = SublabelsMonitoring(self)
+        self.families_monitoring = FamiliesMonitoring(self)
         self.execution_time_monitoring = ExecutionTimeMonitoring(self)
         if self.validation_monitoring:
             self.validation_monitoring = ValidationMonitoring(self)
@@ -60,8 +59,8 @@ class Monitoring(object):
         self.labels_monitoring.iterationMonitoring()
         print 'labels_monitoring', time.time() - start_time
         start_time = time.time()
-        self.sublabels_monitoring.iterationMonitoring()
-        print 'sublabels_monitoring', time.time() - start_time
+        self.families_monitoring.iterationMonitoring()
+        print 'families_monitoring', time.time() - start_time
         if self.validation_monitoring is not None:
             start_time = time.time()
             self.validation_monitoring.iterationMonitoring()
@@ -73,8 +72,8 @@ class Monitoring(object):
         self.labels_monitoring.evolutionMonitoring()
         print 'labels_monitoring', time.time() - start_time
         start_time = time.time()
-        self.sublabels_monitoring.evolutionMonitoring()
-        print 'sublabels_monitoring', time.time() - start_time
+        self.families_monitoring.evolutionMonitoring()
+        print 'families_monitoring', time.time() - start_time
         if self.validation_monitoring is not None:
             start_time = time.time()
             self.validation_monitoring.evolutionMonitoring()
@@ -85,7 +84,8 @@ class Monitoring(object):
         self.execution_time_monitoring.evolutionMonitoring()
 
     def clusteringHomogeneityMonitoring(self):
-        if self.ilab:
+        clusterings = self.iteration.annotations.getClusteringsEvaluations()
+        if clusterings:
             self.clustering_homogeneity_monitoring = ClusteringEvaluationMonitoring(self)
             self.clustering_homogeneity_monitoring.iterationMonitoring()
             self.clustering_homogeneity_monitoring.evolutionMonitoring()

@@ -1,16 +1,16 @@
 ## SecuML
 ## Copyright (C) 2016  ANSSI
-## 
+##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## SecuML is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
@@ -18,7 +18,9 @@
 ## In order to perform integer division (//)
 from __future__ import division
 
-from SecuML.ActiveLearning.Iteration import Iteration, NoLabelAdded
+import time
+
+from Iteration import Iteration, NoLabelAdded
 
 class Iterations(object):
 
@@ -32,8 +34,8 @@ class Iterations(object):
 
     def runIterations(self):
         if not self.auto:
-            print 'Check Initial Labels'
-            raw_input('Press Enter ...')
+            #print 'Check Initial Labels'
+            #raw_input('Press Enter ...')
             self.experiment.db.commit()
             self.datasets.checkLabelsWithDB(self.experiment.cursor,
                     self.experiment.experiment_label_id)
@@ -42,6 +44,7 @@ class Iterations(object):
         previous_iteration = None
         while True:
             try:
+                start = time.time()
                 iteration = Iteration(
                         previous_iteration,
                         self.experiment,
@@ -54,6 +57,7 @@ class Iterations(object):
                 self.iteration_number += 1
                 iteration.previous_iteration = None
                 previous_iteration = iteration
+                print '%%%%%%%%%%%%%%%%% Iteration ', time.time() - start
             except (NoLabelAdded) as e:
                 print e
                 break

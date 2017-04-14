@@ -98,11 +98,11 @@ function addCallbackOnDensityRadioButton(name) {
   // Add callback to log radio button
   button_log.addEventListener('click', function() {
     drawDensity(div_name, get_path, true, get_xlabel);
-  });  
+  });
   // Add callback to linear radio button
   button_linear.addEventListener('click', function() {
     drawDensity(div_name, get_path, false, get_xlabel);
-  }); 
+  });
   // Draw the log density
   drawDensity(div_name, get_path, button_log.checked, get_xlabel);
 }

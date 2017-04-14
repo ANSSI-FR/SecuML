@@ -6,3 +6,5 @@ In order to display the raw email messages in the web user interface you must fi
 
 Each email message is described by 1000 boolean features representing whether a word a present or not in the message. The words considered are the 1000 most present in all the messages.
 
+The original lingspam dataset does not provide families. We have performed a clustering on the malicious and benign instances separately,
+to assign a family to each instance.

@@ -1,3 +1,19 @@
+function createExperimentDiv(col_size, parent_div) {
+  var experiment_panel = createCollapsingPanel('panel-info', col_size, 'Experiment', parent_div,
+          'settings');
+  experiment_panel.setAttribute('style', 'font-size:smaller');
+}
+
+function getBinarySupervisedExperiment(conf, iteration) {
+    var query = buildQuery('getBinarySupervisedExperiment',
+            [conf.project, conf.dataset, conf.experiment_id, iteration]);
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open('GET', query, false);
+    xmlHttp.send(null);
+    var sup_exp = xmlHttp.responseText;
+    return sup_exp;
+}
+
 function getValidationDataset(project, dataset, experiment_id) {
     var query = buildQuery('getValidationDataset',
                     [project, dataset, experiment_id]);
@@ -8,7 +24,7 @@ function getValidationDataset(project, dataset, experiment_id) {
     return validation_dataset;
 }
 
-function getAlertsClusteringExperimentId(project, dataset, 
+function getAlertsClusteringExperimentId(project, dataset,
                 experiment_id) {
     var query = buildQuery('getAlertsClusteringExperimentId',
                     [project, dataset, experiment_id]);
@@ -20,7 +36,7 @@ function getAlertsClusteringExperimentId(project, dataset,
 }
 
 function getExperimentId(project, dataset, experiment_name) {
-    var query = buildQuery('getExperimentId', 
+    var query = buildQuery('getExperimentId',
                     [project, dataset, experiment_name]);
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open('GET', query, false);
@@ -30,7 +46,7 @@ function getExperimentId(project, dataset, experiment_name) {
 }
 
 function getExperimentName(project, dataset, experiment_id) {
-    var query = buildQuery('getExperimentName', 
+    var query = buildQuery('getExperimentName',
                     [project, dataset, experiment_id]);
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open('GET', query, false);
@@ -40,7 +56,7 @@ function getExperimentName(project, dataset, experiment_id) {
 }
 
 function getExperimentLabelId(project, dataset, experiment_id) {
-    var query = buildQuery('getExperimentLabelId', 
+    var query = buildQuery('getExperimentLabelId',
                     [project, dataset, experiment_id]);
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open('GET', query, false);
@@ -50,7 +66,7 @@ function getExperimentLabelId(project, dataset, experiment_id) {
 }
 
 function getChildren(project, dataset, experiment_id) {
-    var query = buildQuery('getChildren', 
+    var query = buildQuery('getChildren',
                     [project, dataset, experiment_id]);
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open('GET', query, false);
@@ -58,9 +74,9 @@ function getChildren(project, dataset, experiment_id) {
     return xmlHttp.responseText.split(' ');
 }
 
-function datasetHasSublabels(project, dataset, experiment_label_id) {
-    var families_monitoring_query = buildQuery('datasetHasSublabels',
-            [project, dataset, experiment_label_id]);
+function datasetHasFamilies(project, dataset, experiment_label_id) {
+    var query = buildQuery('datasetHasFamilies',
+                           [project, dataset, experiment_label_id]);
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open('GET', query, false);
     xmlHttp.send(null);

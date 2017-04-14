@@ -23,31 +23,7 @@ body {
 
 <body>
 
-  <div class='container'>
-
-  <div class='row'>
-        <div class='col-md-2'>
-          <h4>Instances to Annotate</h4>
-          <select class='selectpicker' id='instance_selector' size=5>
-            <option></option>
-          </select>
-        </div>
-        <div class='col-md-4'>
-          <div id=instance_predicted_proba>
-          </div>
-          <div id=instance_label>
-          </div>
-        </div>
-  </div>
-
-  <div class='row'>
-    <h4>Instance</h4>
-    <div id=instance_ident>
-    </div>
-    <div id=instance_data>
-    </div>
-  </div>
-
+  <div class='col-md-12' id='main'>
   </div>
 
 </body>
@@ -56,6 +32,7 @@ body {
 <script src='/static/js/InstancesInformation/{{ project }}.js'></script>
 
 <script src='/static/js/Tools/experiment_tools.js'></script>
+<script src='/static/js/Tools/labels_tools.js'></script>
 <script src='/static/js/Tools/web_tools.js'></script>
 <script src='/static/js/ActiveLearning/individual_annotations.js'></script>
 

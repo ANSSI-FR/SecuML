@@ -1,16 +1,16 @@
 ## SecuML
 ## Copyright (C) 2016  ANSSI
-## 
+##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## SecuML is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
@@ -34,7 +34,7 @@ def scale(point, scaling):
     return [x_scaled, y_scaled]
 
 class HexagonalBin(object):
-   
+
     def __init__(self, lattice, size, xmin, ymin, i, j):
         self.lattice = lattice
         self.size = size
@@ -50,9 +50,9 @@ class HexagonalBin(object):
 
     def addData(self, index, malicious_ids):
         if index in malicious_ids:
-            self.malicious_ids.append(index) 
+            self.malicious_ids.append(index)
         else:
-            self.ok_ids.append(index) 
+            self.ok_ids.append(index)
 
     def center(self):
         [x_center, y_center] = [0, 0]
@@ -69,10 +69,10 @@ class HexagonalBin(object):
         c = self.center()
         nodes = [
             [-0.5,  0.5], [0, 1],
-            [0.5, 0.5], [0.5, -0.5], 
+            [0.5, 0.5], [0.5, -0.5],
             [0, -1], [-0.5, -0.5]]
         for node in nodes:
-          hexag.append(translate(scale(translate(c, node), 
+          hexag.append(translate(scale(translate(c, node),
               [math.sqrt(3)*self.size, self.size]),
               [self.xmin, self.ymin]))
         return hexag
@@ -80,7 +80,7 @@ class HexagonalBin(object):
     def toJson(self):
         json = {}
         json['hexagon'] = self.hexagon()
-        json['center'] = translate(scale(self.center(), 
+        json['center'] = translate(scale(self.center(),
             [math.sqrt(3)*self.size, self.size]),
             [self.xmin, self.ymin])
         json['num_malicious_instances'] = len(self.malicious_ids)

@@ -1,27 +1,21 @@
 ## SecuML
 ## Copyright (C) 2016  ANSSI
-## 
+##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## SecuML is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import copy
-
-#def createZeroMatrix(num_rows, num_columns = None):
-#    if num_columns is None:
-#        num_columns = num_rows
-#    matrix = [[0 for col in range(num_columns)] 
-#            for row in range(num_rows)]
-#    return matrix
+import pandas as pd
 
 def extractRowsWithThresholds(df, t_min, t_max, column_label, deepcopy = False):
     selected_df = df
@@ -35,3 +29,10 @@ def extractRowsWithThresholds(df, t_min, t_max, column_label, deepcopy = False):
         return copy.deepcopy(selected_df)
     else:
         return selected_df
+
+def sortDataFrame(df, column, ascending, inplace):
+    if pd.__version__ in ['0.13.0', '0.14.1']:
+        new_df = df.sort([column], ascending = [ascending], inplace = inplace)
+    else:
+        new_df = df.sort_values([column], ascending = [ascending], inplace = inplace)
+    return new_df

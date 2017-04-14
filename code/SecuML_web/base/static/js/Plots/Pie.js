@@ -3,15 +3,15 @@ function drawPie(div_name, get_path, int_prop) {
   if (typeof int_prop === 'undefined') {
     int_prop = '75%'
   }
- 
-  cleanDiv(div_name); 
+
+  cleanDiv(div_name);
 
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.open('GET', get_path(), false);
   xmlHttp.send(null);
 
   var pie_data = JSON.parse(xmlHttp.responseText);
-  
+
   var pie = new d3pie(div_name, {
   	'size': {
   		'canvasWidth': 500,
@@ -59,7 +59,7 @@ function drawPie(div_name, get_path, int_prop) {
   });
 }
 
-function addCallBackOnPieSelectList(div_name, get_path, 
+function addCallBackOnPieSelectList(div_name, get_path,
     select_list_names, int_prop) {
   for (i in select_list_names) {
     select_list_name = select_list_names[i]

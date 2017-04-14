@@ -2,7 +2,7 @@ function drawPlot(div_name, get_path, xlabel, ylabel, yscale_0_1) {
 
   var color = 'black';
 
-  var plot = $('#' + div_name)[0];   
+  var plot = $('#' + div_name)[0];
   while (plot.firstChild) {
     plot.removeChild(plot.firstChild);
   }
@@ -37,7 +37,7 @@ function drawPlot(div_name, get_path, xlabel, ylabel, yscale_0_1) {
     var yAxis = d3.svg.axis().scale(yScale).orient('left');
     if (yscale_0_1()) {
       yScale.domain([0,1]);
-    } else { 
+    } else {
       yScale.domain(d3.extent(data, function(d) {return d.y} ));
     }
 
@@ -73,8 +73,8 @@ function drawPlot(div_name, get_path, xlabel, ylabel, yscale_0_1) {
     .attr('r', 2)
     .attr('cx', xMap)
     .attr('cy', yMap)
-    .style('fill', color) 
-    .style('stroke', color) 
+    .style('fill', color)
+    .style('stroke', color)
     .on('mouseover', function(d) {
       tooltip.transition()
       .duration(200)
@@ -89,7 +89,7 @@ function drawPlot(div_name, get_path, xlabel, ylabel, yscale_0_1) {
     .duration(500)
     .style('opacity', 0);
   });
- 
+
   // draw lines between dots
   var valueline = d3.svg.line()
     .x(xMap)
@@ -100,11 +100,11 @@ function drawPlot(div_name, get_path, xlabel, ylabel, yscale_0_1) {
     .attr('stroke', color)
     .attr('stroke-width', 2)
     .attr('fill', 'none');
-  
+
   });
 }
 
-function addCallBackOnPlotSelectList(div_name, get_path, 
+function addCallBackOnPlotSelectList(div_name, get_path,
     select_list_name, xlabel, ylabel, get_yscale_0_1) {
   var select_list = $('#' + select_list_name)[0];
   select_list.addEventListener('change', function() {

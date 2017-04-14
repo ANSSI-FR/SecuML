@@ -1,18 +1,40 @@
+var num_coeff = 15;
+
+// Annotation and Description panels
+function displayInstancePanel(parent_div) {
+  var instance_panel = createPanel('panel-primary', 'col-md-12', 'Instance', parent_div,
+          return_heading = true);
+  var instance = instance_panel[0];
+  var instance_title = instance_panel[1];
+  instance_title.setAttribute('id', 'instance_title');
+  var annotation = createPanel('panel-primary', 'col-md-5', 'Annotation', instance);
+  annotation.setAttribute('id', 'instance_label');
+  var description = createDivWithClass(null, 'col-md-7', instance);
+  var instance_panel = createPanel('panel-primary', 'col-md-12', 'Description', description);
+  var instance_proba = createDivWithClass('instance_predicted_proba', 'row', instance_panel);
+  var instance_data = createDivWithClass('instance_data', 'row', instance_panel);
+}
+
 function setInstancesSettings(train_test, project, dataset, experiment_id, experiment_label_id,
         callback) {
     if (train_test == 'validation') {
-      var query = buildQuery('getActiveLearningValidationConf', 
+      var query = buildQuery('getActiveLearningValidationConf',
                       [project, dataset, experiment_id]);
-      $.getJSON(query, function(data) {
+      jQuery.getJSON(query, function(data) {
         inst_dataset      = data['test_dataset'].split('__')[0];
         inst_exp_id       = data['test_exp']['experiment_id'];
         inst_exp_label_id = data['test_exp']['experiment_label_id'];
         callback();
       });
+    } else if (train_test == 'train') {
+      inst_dataset = dataset;
+      inst_exp_id = experiment_id;
+      inst_exp_label_id = experiment_label_id;
+      callback();
     } else {
-      var query = buildQuery('getSupervisedValidationConf', 
+      var query = buildQuery('getSupervisedValidationConf',
                       [project, dataset, experiment_id]);
-      $.getJSON(query, function(data) {
+      jQuery.getJSON(query, function(data) {
         if (data['method'] == 'random_split' || data['method'] == 'unlabeled') {
             inst_dataset = dataset;
             inst_exp_id = experiment_id;
@@ -28,61 +50,41 @@ function setInstancesSettings(train_test, project, dataset, experiment_id, exper
 }
 
 function displayInstanceInformationStructure() {
-    function callback() {
-        printInstanceData(selected_instance_id, selected_instance_ident);
-    }
-    var div_name = 'instance_data';
-    var div_object = $('#' + div_name)[0];
-    var radio_div = createDiv('radio_div');
-    var radio_list = [['features', 'Features', false]];
-    if (conf.kind == 'SupervisedLearning') {
-        var supervised_radio_list = [
-                  ['weighted_features', 'Weighted Features', false]];
-        radio_list.push.apply(radio_list, supervised_radio_list);
+    var tabs_div = document.getElementById('instance_data');
+    var menu_titles = ['Features'];
+    var menu_labels = ['features'];
+    if (conf.kind == 'Classification') {
+        if (conf.classification_conf.feature_coefficients) {
+          menu_titles.push('Weighted Features');
+          menu_labels.push('weighted_features');
+        }
     }
     try {
-        specificInformationStructure(radio_list);
+        specific_tabs = specificTabs();
+        menu_titles.unshift(specific_tabs[0]);
+        menu_labels.unshift(specific_tabs[1]);
     } catch(err) {
-        console.log(
-              'TODO: specific function to print information about an instance');
+        console.log('TODO: specific function to print information about an instance');
     }
-    if (!radio_list.map(function(index,e){index[2]}).some(Boolean)) {
-        radio_list[0][2] = true;
-    }
-    for (var i = 0, len = radio_list.length; i < len; i++) {
-        var t_radio = makeRadioButton('radio_instance', ...radio_list[i], callback);
-        radio_div.appendChild(t_radio);
-    }
-    div_object.appendChild(radio_div);
-    var instance_data_div = createDiv('instance_data_div');
-    div_object.appendChild(instance_data_div);
+    var menu = createTabsMenu(menu_labels, menu_titles, tabs_div, 'instance_tabs');
 }
 
-function printInstanceInformation(selected_id, predicted_proba = false) {
+function printInstanceInformation(selected_id, suggested_label = null, suggested_family = null) {
   cleanInstanceInformation();
-  selected_instance_proba = predicted_proba;
-  //Instance label
-  selected_instance_ident = printInstanceLabel(selected_id);
-  // Instance data
-  printInstanceData(selected_id, selected_instance_ident);
+  var ident = printInstanceIndent(selected_id);
+  printInstanceLabel(selected_id, suggested_label, suggested_family);
+  printInstanceData(selected_id, ident);
 }
+
 function printInstanceData(selected_id, ident) {
-  // Instance data
-  var selected_radio = $('input[name=\'radio_instance\']:checked').val()
-  switch (selected_radio) {
-      case 'features':
-          printFeatures(selected_id);
-          break;
-      case 'weighted_features':
-          printWeightedFeatures(selected_id);
-          break;
-      default:
-          try {
-              printSpecificData(selected_id, selected_instance_ident, selected_radio);
-          } catch(err) {
-            console.log(
-              'TODO: specific function to print information about an instance');
-          }
+  printFeatures(selected_id);
+  if (conf.kind == 'Classification') {
+    printWeightedFeatures(selected_id);
+  }
+  try {
+      printSpecificInformations(selected_id, ident);
+  } catch(err) {
+      return;
   }
 }
 
@@ -93,190 +95,256 @@ function cleanInstanceInformation() {
     console.log(
       'TODO: specific function to print information about an instance');
   }
-  cleanDiv('instance_ident');
 }
 
-// Label
-function printInstanceLabel(selected_id) {
-    var ident_div = cleanDiv('instance_ident');
-    // Ident
-    var xmlHttp = new XMLHttpRequest();
+function printInstanceIndent(selected_id) {
     var query = buildQuery('getIdent',
-                    [project, inst_dataset, selected_id])
-    xmlHttp.open('GET', query, false); 
-    xmlHttp.send(null);
-    var ident = xmlHttp.responseText;
-    if (hide_confidential) {
-      var ident_node = document.createTextNode('');
-    } else {
-      var ident_node = document.createTextNode(ident);
-    }
-    $('#instance_ident')[0].appendChild(ident_node);
-    // Label
-    var query = buildQuery('getLabel',
-                    [project, inst_dataset, inst_exp_label_id, selected_id]);
-    $.getJSON(query, function(data) {
-        displayLabel($('#instance_label')[0], data);
-    });
+                    [project, inst_dataset, selected_id]);
+    var ident = $.ajax({url: query, async: false}).responseText;
+    document.getElementById('instance_title').textContent = 'Instance ' + selected_id + ': ' + ident;
     return ident;
 }
 
-function addSublabelCallback(label) {
+function printInstanceLabel(selected_id, suggested_label, suggested_family) {
+    var query = buildQuery('getLabel',
+                    [project, inst_dataset, inst_exp_label_id, selected_id]);
+    jQuery.getJSON(query, function(data){
+      var prefix = 'instance_';
+      var label_value = cleanDiv('instance_' + 'label_value');
+      if (Object.keys(data).length == 2) {
+        var label = data.label;
+        var family = data.family;
+        if (label == 'malicious') {
+          label_value.setAttribute('class', 'label label-danger');
+        } else {
+          label_value.setAttribute('class', 'label label-success');
+        }
+        label_value.appendChild(document.createTextNode(upperCaseFirst(label)));
+        var other_label = otherLabel(label);
+        $('#' + prefix + label + '_family_selector')[0].value = family;
+        $('#' + prefix + other_label + '_family_selector')[0].selectedIndex = -1;
+      } else {
+        label_value.setAttribute('class', 'label label-default');
+        $('#' + prefix + 'malicious_family_selector')[0].selectedIndex = -1;
+        $('#' + prefix + 'benign_family_selector')[0].selectedIndex = -1;
+        if (suggested_label && suggested_family) {
+          $('#' + prefix + suggested_label + '_family_selector')[0].value = suggested_family;
+          label_value.appendChild(document.createTextNode(upperCaseFirst(suggested_label)));
+        } else {
+          label_value.appendChild(document.createTextNode('None'));
+        }
+      }
+      var suggestion_value = cleanDiv('suggested_family');
+      if (suggestion_value) {
+          if (suggested_label && suggested_family) {
+              if (suggested_label == 'benign') {
+                suggestion_value.setAttribute('class', 'label label-success');
+              } else {
+                suggestion_value.setAttribute('class', 'label label-danger');
+              }
+              suggestion_value.appendChild(document.createTextNode(suggested_family));
+          } else {
+              var suggestion_value = cleanDiv('suggested_family');
+              suggestion_value.setAttribute('class', 'label label-default');
+              suggestion_value.appendChild(document.createTextNode('None'));
+          }
+      }
+    });
+}
+
+function addFamilyCallback(label) {
     var prefix = 'instance_';
     return function() {
-        // Add sublabel to the select list
-        var select = $('#' + prefix + label + '_sublabel_selector')[0];
-        var new_sublabel = $('#' + prefix + label + '_add_sublabel_field').val();
-        if (new_sublabel != '') {
-            addElementToSelectList(select, new_sublabel, selected = true);
-        } else {
-            alert('Cannot add an empty sublabel.');
-            return;
+        var select = $('#' + prefix + label + '_family_selector')[0];
+        var new_family = $('#' + prefix + label + '_add_family_field').val();
+        // Check not already in the select list
+        for (var i = 0, n = select.options.length; i < n; i++) {
+          if (select.options[i].text == new_family) {
+              alert('This family already exists.');
+              return;
+          }
         }
-        $('#' + prefix + label + '_add_sublabel_field')[0].value = '';
-        // Add the label
-        addLabelCallback(label, project, inst_dataset, 
-                inst_exp_label_id, label_iteration,
-                label_method)();
+        if (new_family != '') {
+            addElementToSelectList(select, new_family, selected = true);
+            familyChangeCallback(label)();
+            $('#' + prefix + label + '_add_family_field')[0].value = '';
+        } else {
+            alert('Cannot add an empty family.');
+        }
     }
 }
 
-function displaySublabelSelector(label_row, label, cluster = false) {
+function displayFamilySelector(label_row, label, cluster = false) {
   var prefix = 'instance_';
   if (cluster) {
     prefix = 'cluster_';
   }
-  var col = createDivWithClass('None', 'col-md-5',
-          parent_div = label_row);
+  var col = createDivWithClass(null, 'col-lg-6', parent_div = label_row);
   // Selection
-  var select = $('#' + prefix + label + '_sublabel_selector')[0];
-  createSelectList(prefix + label + '_sublabel_selector', 5, null, parent_div = col);
-  var select = $('#' + prefix + label + '_sublabel_selector')[0];
+  var select = $('#' + prefix + label + '_family_selector')[0];
+  var label_title = label.charAt(0).toUpperCase() + label.substr(1) + ' Families';
+  var selector_size = 6;
+  if (cluster) {
+      selector_size = 5;
+  }
+  createSelectList(prefix + label + '_family_selector', selector_size, null, col, label_title);
+
+  var select = $('#' + prefix + label + '_family_selector')[0];
   // Adding value input
   if (!cluster) {
-    var row = createDivWithClass('None', 'row', parent_div = col);
-    var add_sublabel_field = document.createElement('input');
-    add_sublabel_field.setAttribute('id', prefix + label + '_add_sublabel_field');
-    add_sublabel_field.setAttribute('size', 10);
-    row.appendChild(add_sublabel_field);
-    add_sublabel_button = document.createElement('button');
-    add_sublabel_button.id = prefix + 'add_sublabel_button';
+    var input_group = createDivWithClass(null, 'input-group', col);
+    // Input field
+    var add_family_field = document.createElement('input');
+    add_family_field.setAttribute('class', 'form-control');
+    add_family_field.setAttribute('type', 'text');
+    add_family_field.setAttribute('id', prefix + label + '_add_family_field');
+    add_family_field.setAttribute('size', 5);
+    input_group.appendChild(add_family_field);
+    // Button
+    var button_span = document.createElement('span');
+    button_span.setAttribute('class', 'input-group-btn');
+    input_group.appendChild(button_span);
+    var add_family_button = document.createElement('button');
+    add_family_button.id = prefix + 'add_family_button';
+    add_family_button.setAttribute('class', 'btn btn-default');
+    add_family_button.setAttribute('type', 'button');
     var text = document.createTextNode('Add');
-    add_sublabel_button.appendChild(text);
-    add_sublabel_button.addEventListener('click', addSublabelCallback(label));
-    row.appendChild(add_sublabel_button);
+    add_family_button.appendChild(text);
+    add_family_button.addEventListener('click', addFamilyCallback(label));
+    button_span.appendChild(add_family_button);
   }
-  // Sublabel values
-  var query = buildQuery('getLabelsSublabels', [project, inst_dataset, inst_exp_label_id]);
-  $.getJSON(query, function(data) {
-      var select = $('#' + prefix + label + '_sublabel_selector')[0];
+  // Family values
+  var query = buildQuery('getLabelsFamilies', [project, inst_dataset, inst_exp_label_id]);
+  jQuery.getJSON(query, function(data) {
+      var select = $('#' + prefix + label + '_family_selector')[0];
       if (data[label]) {
-        var sublabels = Object.keys(data[label]);
-        sublabels.forEach(function(q) {
+        var families = Object.keys(data[label]);
+        families.forEach(function(q) {
             addElementToSelectList(select, q);
         });
       } else {
-          // When there is no sublabel, the default sublabel, 'other' is proposed
+          // When there is no family, the default family, 'other' is proposed
           addElementToSelectList(select, 'other');
 
       }
   });
+  // Add family selector callback
+  select.addEventListener('change', familyChangeCallback(label, cluster));
   return col;
 }
 
-function displayAnnotationDiv() {
+function familyChangeCallback(selected_label, cluster = false) {
+    return function() {
+      var prefix = 'instance_';
+      if (cluster) {
+        prefix = 'cluster_';
+      }
+      // Unselect the family of the other label
+      var other_label = otherLabel(selected_label);
+      var other_selector = $('#' + prefix + other_label + '_family_selector')[0];
+      other_selector.selectedIndex = -1;
+      // Change the label
+      var label_value = cleanDiv(prefix + 'label_value');
+      label_value.setAttribute('class', 'label label-default');
+      label_value.appendChild(document.createTextNode(upperCaseFirst(selected_label)));
+    }
+}
+
+function displayAnnotationDiv(suggestion = false) {
+  var prefix = 'instance_';
   var label_div = cleanDiv('instance_label');
-  addTitle(label_div, 'Instance Label');
-  // Remove button
-  var remove_row = createDivWithClass('None', 'row',
-          parent_div = label_div);
+  var form = document.createElement('form');
+  form.setAttribute('class', 'form-horizontal');
+  label_div.appendChild(form);
+  var fieldset = document.createElement('fieldset');
+  form.appendChild(fieldset);
+
+  // Label
+  if (suggestion) {
+     var suggestion_group = createDivWithClass('', 'form_group row', fieldset);
+     var suggestion_label = document.createElement('label');
+     suggestion_label.setAttribute('class', 'col-lg-3 control-label');
+     suggestion_label.appendChild(document.createTextNode('Suggestion'));
+     suggestion_group.appendChild(suggestion_label);
+     var suggestion_value_header = document.createElement('h4');
+     suggestion_group.appendChild(suggestion_value_header);
+     var suggestion_value = document.createElement('label');
+     suggestion_value.setAttribute('class', 'label label-default');
+     suggestion_value.setAttribute('id', 'suggested_family');
+     suggestion_value.appendChild(document.createTextNode('None'));
+     suggestion_value_header.appendChild(suggestion_value);
+  }
+
+  // Families
+  var malicious_col = displayFamilySelector(fieldset, 'malicious');
+  var benign_col    = displayFamilySelector(fieldset, 'benign');
+
+  // Label
+  var label_group = createDivWithClass('', 'form_group row', fieldset);
+  var label_label = document.createElement('label');
+  label_label.setAttribute('class', 'col-lg-2 control-label');
+  label_label.appendChild(document.createTextNode('Label'));
+  label_group.appendChild(label_label);
+  var label_value_header = document.createElement('h4');
+  label_group.appendChild(label_value_header);
+  var label_value = document.createElement('label');
+  label_value.setAttribute('class', 'label label-default');
+  label_value.setAttribute('id', prefix + 'label_value');
+  label_value.appendChild(document.createTextNode(''));
+  label_value_header.appendChild(label_value);
+
+  // Ok and Remove button
+  var ok_remove_group = createDivWithClass('', 'form-group row', fieldset);
+  /// Ok button
+  var ok_div = createDivWithClass(null, 'col-lg-2', ok_remove_group);
+  var ok_button = document.createElement('button');
+  ok_button.setAttribute('class', 'btn btn-primary');
+  ok_button.setAttribute('type', 'button');
+  ok_button.setAttribute('id', 'ok_button');
+  var ok_button_text = document.createTextNode('Ok');
+  ok_button.appendChild(ok_button_text);
+  ok_button.addEventListener('click', addLabelCallback(project, inst_dataset, inst_exp_label_id,
+              label_iteration));
+  ok_div.appendChild(ok_button);
+  /// Remove button
+  var remove_div = createDivWithClass(null, 'col-lg-2 col-lg-offset-1', ok_remove_group);
   var button = document.createElement('button');
+  button.setAttribute('class', 'btn btn-default');
+  button.setAttribute('type', 'button');
   var button_text = document.createTextNode('Remove');
   button.appendChild(button_text);
   button.addEventListener('click', removeLabelCallback(
-              project, inst_dataset, inst_exp_label_id));
-  remove_row.appendChild(button);
-  var label_row = createDivWithClass('None', 'row',
-          parent_div = label_div);
-  // Sublabels
-  var malicious_col = displaySublabelSelector(label_row, 'malicious');
-  var benign_col    = displaySublabelSelector(label_row, 'benign');
-  // Label buttons
-  // Benign Button
-  benign_label = 'ok';
-  var benign_button =  document.createElement('button');
-  benign_button.id = 'benign_button';
-  var benign_text = document.createTextNode(benign_label);
-  benign_button.appendChild(benign_text);
-  benign_button.addEventListener('click', addLabelCallback(
-              'benign', project, inst_dataset, 
-              inst_exp_label_id, label_iteration,
-              label_method));
-  benign_col.appendChild(benign_button);
-  // Malicious Button
-  malicious_label = 'alert';
-  var malicious_button = document.createElement('button');
-  malicious_button.id = 'malicious_button';
-  var malicious_text = document.createTextNode(malicious_label);
-  malicious_button.appendChild(malicious_text);
-  malicious_button.addEventListener('click', addLabelCallback(
-              'malicious', project, inst_dataset, 
-              inst_exp_label_id, label_iteration,
-              label_method));
-  malicious_col.appendChild(malicious_button);
+            project, inst_dataset, inst_exp_label_id));
+  remove_div.appendChild(button);
 }
 
-function displayLabel(label_div, label_sublabel, cluster = false) {
-  var prefix = 'instance_';
-  if (cluster) {
-    prefix = 'cluster_';
-  }
-  if (Object.keys(label_sublabel).length == 2) {
-    var label = label_sublabel.label;
-    var sublabel = label_sublabel.sublabel;
-    if (label == 'malicious') {
-      $('#malicious_button')[0].style.background = 'red';
-      $('#benign_button')[0].style.background = null;
-      $('#' + prefix + 'malicious_sublabel_selector')[0].value = sublabel;
-      $('#' + prefix + 'benign_sublabel_selector')[0].selectedIndex = -1;
-    } else if (label == 'benign') {
-      $('#benign_button')[0].style.background = 'green';
-      $('#malicious_button')[0].style.background = null;
-      $('#' + prefix + 'benign_sublabel_selector')[0].value = sublabel;
-      $('#' + prefix + 'malicious_sublabel_selector')[0].selectedIndex = -1;
-    }
+function getCurrentAnnotation(prefix) {
+  var label = '';
+  var family = '';
+  var malicious_selector = $('#' + prefix + '_malicious_family_selector')[0];
+  var benign_selector    = $('#' + prefix + '_benign_family_selector')[0];
+  if (malicious_selector.selectedIndex != -1) {
+      label = 'malicious';
+      family = getSelectedOption(malicious_selector);
   } else {
-    var labels = ['malicious', 'benign'];
-    for (var l in labels) {
-      var label = labels[l];
-      $('#' + prefix + label + '_sublabel_selector')[0].value = last_sublabel[label];
-      $('#' + label + '_button')[0].style.background = null;
-    }
+      label = 'benign';
+      family = getSelectedOption(benign_selector);
   }
+  return [label, family];
 }
 
-function setLastSublabel(label, sublabel) {
-    last_sublabel[label] = sublabel;
-    // If clustering - change selected sublabel
-    var cluster_selector = $('#cluster_' + label + '_sublabel_selector')[0]
-    if (cluster_selector) {
-        cluster_selector.value = sublabel;
-    }
-}
-
-function addLabelCallback(label, project, inst_dataset, inst_exp_label_id,
-        label_iteration, label_method) {
+function addLabelCallback(project, inst_dataset, inst_exp_label_id, label_iteration) {
   return function() {
-    var sublabel = $('#instance_' + label + '_sublabel_selector').val();
-    if (!sublabel) {
-        alert('A sublabel must be selected.');
+    var instance_id     = getCurrentInstance();
+    var [label, family] = getCurrentAnnotation('instance');
+    if (!family) {
+        alert('A family must be selected.');
         return;
     }
-    var instance_id = getSelectedOption(last_instance_selector);
     if (instance_id) {
       // Remove previous label
       var query = buildQuery('removeLabel',
-                      [project, inst_dataset, inst_exp_label_id, 
+                      [project, inst_dataset, inst_exp_label_id,
                       instance_id]);
       $.ajax({url: query});
       // Add new label
@@ -284,38 +352,64 @@ function addLabelCallback(label, project, inst_dataset, inst_exp_label_id,
                       [project, inst_dataset, inst_exp_label_id,
                       label_iteration,
                       instance_id,
-                      label, sublabel,
+                      label, family,
                       label_method, true]);
-      $.ajax({url: query});
-      // Update instance visu
-      if (label == 'malicious') {
-        $('#malicious_button')[0].style.background = 'red';
-        $('#benign_button')[0].style.background = null;
-      } else if (label == 'benign') {
-        $('#benign_button')[0].style.background = 'green';
-        $('#malicious_button')[0].style.background = null;
-      }
-      last_instance_selector.focus();
-      setLastSublabel(label, sublabel);
+      $.ajax({url: query,
+              success: function(data) {
+                printInstanceLabel(instance_id);
+              }});
+      document.getElementById('next_button').focus();
     }
   };
 }
 
 function removeLabelCallback(project, inst_dataset, inst_exp_label_id) {
   return function() {
-    var instance_id = getSelectedOption(last_instance_selector);
+    var instance_id = getCurrentInstance();
+    //var instance_id = instances_list[current_instance_index];
     var query = buildQuery('removeLabel',
-                    [project, inst_dataset, inst_exp_label_id, 
+                    [project, inst_dataset, inst_exp_label_id,
                     instance_id]);
-    $.ajax({url: query});
-    $('#benign_button')[0].style.background = null;
-    $('#malicious_button')[0].style.background = null;
-    last_instance_selector.focus();
+    $.ajax({url: query,
+            success: function(data) {
+              printInstanceLabel(instance_id);
+            }});
   }
 }
 
-// Instances Lists
+function printFeatures(selected_id) {
+    var div_object = cleanDiv('features');
+    var query = buildQuery('getFeatures',
+                [project, dataset, inst_exp_id, inst_dataset, selected_id]);
+    jQuery.getJSON(query, function(data) {
+        var ul = document.createElement('ul');
+        for (var key in data) {
+            var li = document.createElement('li');
+            li.appendChild(document.createTextNode(
+                            key + ' : ' + data[key]));
+            ul.appendChild(li);
+        }
+        div_object.appendChild(ul);
+    });
+}
 
+function printWeightedFeatures(selected_id) {
+    var div_object = cleanDiv('weighted_features');
+    var graph_div  = createDiv('instance_graph_div', div_object);
+    var query = buildQuery('getTopWeightedFeatures',
+                [project, dataset, experiment_id, inst_dataset, inst_exp_id, selected_id, num_coeff]);
+    jQuery.getJSON(query, function(data) {
+        var tooltip_data = data.datasets[0].tooltip_data
+        var options = barPlotOptions(data, tooltip_data);
+        options.legend.display = false;
+        var barPlot = drawBarPlot('instance_graph_div', options,
+                                  data, 'horizontalBar');
+        graph_div.style.width = '800px';
+        graph_div.style.height = '500px';
+    });
+}
+
+// Instances Lists
 function displayInstancesList(malicious_ok, instances) {
   clearInstancesList(malicious_ok);
   if (instances.length == 0)
@@ -331,8 +425,8 @@ function displayInstancesList(malicious_ok, instances) {
 function createInstancesSelector(malicious_ok) {
   var instances_selector = $('#instances_selector_' + malicious_ok)[0];
   instances_selector.addEventListener('change', function() {
-    selected_instance_id = getSelectedOption(instances_selector);
-    printInstanceInformation(selected_instance_id);
+    selected_id = getSelectedOption(instances_selector);
+    printInstanceInformation(selected_id);
     last_instance_selector = this;
   }, false);
 }
@@ -343,63 +437,10 @@ function createInstancesSelectors() {
 }
 
 function clearInstancesList(malicious_ok) {
-  cleanDiv('instances_selector_' + malicious_ok);
+    cleanDiv('instances_selector_' + malicious_ok);
 }
 
 function clearInstancesLists() {
-  clearInstancesList('malicious');
-  clearInstancesList('ok');
-}
-
-// Instances Data
-
-function printFeatures(selected_id) {
-    var div_object = cleanDiv('instance_data_div');
-    var title = document.createElement('h5');
-    title.innerHTML = 'Instance ID : ' + selected_id;
-    div_object.appendChild(title);
-    var query = buildQuery('getFeatures',
-                [project, dataset, inst_exp_id, inst_dataset, selected_id]);
-    $.getJSON(query, function(data) {
-        var ul = document.createElement('ul');
-        for (var key in data) {
-            var li = document.createElement('li');
-            li.appendChild(document.createTextNode(
-                            data[key][0] + ' : ' + data[key][1]));
-            ul.appendChild(li);
-        }
-        div_object.appendChild(ul);
-    });
-}
-
-
-function printWeightedFeatures(selected_id) {
-    var div_object = cleanDiv('instance_data_div');
-    var proba = document.createElement('h5');
-    proba.innerHTML = 'Predicted proba : ' + selected_instance_proba;
-    div_object.appendChild(proba);
-    var graph_div  = createDiv('instance_graph_div', div_object);
-    //first we get the Weighted Bar plot json for the plot
-    var query = buildQuery('getTopWeightedFeatures',
-                [project, dataset, experiment_id, inst_dataset, inst_exp_id, selected_id, 20]);
-    $.getJSON(query, function(data) {
-        var weighted_features = data;
-        var weighted_data = {labels:[],
-                             datasets:[{data:[],
-                                        backgroundColor:'red',
-                                        label:selected_id}]
-                            };
-        var data_labels = [];
-        for (var key in weighted_features) {
-            weighted_data.labels.push(weighted_features[key][0]);
-            weighted_data.datasets[0].data.push(weighted_features[key][2]);
-            data_labels.push(weighted_features[key][1]);
-        }
-        //then we plot
-        var options = barPlotOptions(weighted_data, data_labels);
-        var barPlot = drawBarPlot('instance_graph_div', options,
-                                  weighted_data, 'horizontalBar');
-        graph_div.style.width = '800px';
-        graph_div.style.height = '500px';
-    });
+    clearInstancesList('malicious');
+    clearInstancesList('ok');
 }

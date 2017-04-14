@@ -21,9 +21,9 @@ if __name__ == '__main__':
     os.remove('data.tar')
     shutil.move('lingspam_public/bare', 'raw_mail')
     removeDirectory('lingspam_public/')
-    
+
     for filename in glob.glob('raw_mail/*/*.txt'):
         shutil.move(filename, 'raw_mail/')
-    
+
     for directory in glob.glob('raw_mail/part*'):
         removeDirectory(directory)

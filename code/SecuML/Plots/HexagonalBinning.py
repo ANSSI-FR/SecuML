@@ -1,16 +1,16 @@
 ## SecuML
 ## Copyright (C) 2016  ANSSI
-## 
+##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## SecuML is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
@@ -24,28 +24,28 @@ from HexagonalBin import HexagonalBin, HexagonalBinEncoder
 epsilon = 0.001
 
 class HexagonalBinning(object):
-   
+
     def __init__(self, x, y, ids, nx, malicious_ids):
-       
+
         self.malicious_ids = malicious_ids
 
         self.x = np.array(x, float)
         self.y = np.array(y, float)
         self.ids = ids
-        
+
         self.xmin = np.amin(x)
         self.xmax = np.amax(x)
         self.ymin = np.amin(y)
         self.ymax = np.amax(y)
-          
+
         # to avoid issues with singular data, expand the min/max pairs
         self.xmin, self.xmax = mtrans.nonsingular(
-                self.xmin, 
-                self.xmax, 
+                self.xmin,
+                self.xmax,
                 expander=0.1)
         self.ymin, self.ymax = mtrans.nonsingular(
-                self.ymin, 
-                self.ymax, 
+                self.ymin,
+                self.ymax,
                 expander=0.1)
 
         # In the x-direction, the hexagons exactly cover the region from
@@ -61,19 +61,19 @@ class HexagonalBinning(object):
         if self.ymax - self.ymin < epsilon:
             self.ymin -= epsilon / 2
             self.ymax += epsilon / 2
-        
+
         self.nx = nx
         self.size = (self.xmax - self.xmin) / self.nx
-        self.nx = int(math.ceil((self.xmax - self.xmin) / 
+        self.nx = int(math.ceil((self.xmax - self.xmin) /
             (math.sqrt(3) * self.size))) + 1
-        self.ny = int(math.ceil((self.ymax - self.ymin) / 
+        self.ny = int(math.ceil((self.ymax - self.ymin) /
             self.size)) + 1
 
         self.x_scale = (self.x - self.xmin) / (self.size * math.sqrt(3))
         self.y_scale = (self.y - self.ymin) / self.size
 
     def computeBinning(self):
-        
+
         ## Looks for the closest hexagon center in each grid
         i_1 = np.round(self.x_scale - 0.5).astype(int)
         j_1 = np.round((self.y_scale - 0.5) / 3).astype(int)
@@ -89,12 +89,12 @@ class HexagonalBinning(object):
         d1 = 3 * (self.x_scale - x_1) ** 2 + (self.y_scale - y_1) ** 2
         d2 = 3 * (self.x_scale - x_2) ** 2 + (self.y_scale - y_2) ** 2
         bdist = (d1 < d2)
-       
+
         self.lattice1 = np.empty((self.nx, self.ny), dtype = object)
         self.lattice2 = np.empty((self.nx, self.ny), dtype = object)
         for i in range(self.nx):
             for j in range(self.ny):
-                self.lattice1[i,j] = HexagonalBin(1, self.size, 
+                self.lattice1[i,j] = HexagonalBin(1, self.size,
                     self.xmin, self.ymin, i, j)
                 self.lattice2[i,j] = HexagonalBin(2, self.size,
                     self.xmin, self.ymin, i, j)
@@ -103,12 +103,12 @@ class HexagonalBinning(object):
                 self.lattice1[i_1[i], j_1[i]].addData(self.ids[i], self.malicious_ids)
             else:
                 self.lattice2[i_2[i], j_2[i]].addData(self.ids[i], self.malicious_ids)
-    
+
     def printBinning(self, pc_x_index, pc_y_index, output_file):
         f = open(output_file, 'w')
         k = 0
         print >>f, '['
-        
+
         ## Prints xmin, xmax, ymin, ymax
         print >>f, '{', '"xmin":', self.xmin, ',', '"xmax":', self.xmax, ',', '"ymin":', self.ymin, ',', '"ymax":', self.ymax, '},'
 

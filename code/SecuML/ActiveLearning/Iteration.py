@@ -1,32 +1,27 @@
 ## SecuML
 ## Copyright (C) 2016  ANSSI
-## 
+##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## SecuML is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.Data.Dataset import Dataset
+import time
+
 from SecuML.Data import labels_tools
 from SecuML.Tools import dir_tools
 
-from TrainTestValidation import TrainTestValidation
-from CheckPredictedLabels import CheckPredictedLabels, NoAnnotationBudget
-
+from QueryStrategies.AnnotationQueries.AnnotationQuery import NoAnnotationBudget
 from Monitoring.Monitoring import Monitoring
-
-from QueryStrategies.CesaBianchi import CesaBianchi
-from QueryStrategies.ClosestToBoundary import ClosestToBoundary
-from QueryStrategies.ILAB import ILAB
-from QueryStrategies.RandomSampling import RandomSampling
+from TrainTestValidation import TrainTestValidation
 
 class NoLabelAdded(Exception):
     def __str__(self):
@@ -34,7 +29,7 @@ class NoLabelAdded(Exception):
 
 class Iteration(object):
 
-    def __init__(self, previous_iteration, experiment, datasets, has_true_labels, 
+    def __init__(self, previous_iteration, experiment, datasets, has_true_labels,
             budget, auto, iteration_number = None):
         self.previous_iteration = previous_iteration
         self.experiment = experiment
@@ -51,7 +46,7 @@ class Iteration(object):
             self.iteration_number = labels_tools.getIterationNumber(
                     self.experiment.cursor,
                     self.experiment.experiment_label_id) + 1
-    
+
     def setOutputDirectory(self):
         self.AL_directory = dir_tools.getExperimentOutputDirectory(
                 self.experiment)
@@ -106,43 +101,58 @@ class Iteration(object):
     #####################
 
     def trainTestValidation(self):
+        if self.experiment.classification_conf is None:
+            return
+        start = time.time()
         self.train_test_validation = TrainTestValidation(self)
         self.train_test_validation.run()
+        print '---- trainTestValidation', time.time() - start
 
     def generateAnnotationQueries(self):
-        labeling_method = self.experiment.labeling_method
-        if labeling_method == 'random_sampling':
-            self.annotations = RandomSampling(self)
-        if labeling_method == 'closest_to_boundary':
-            self.annotations = ClosestToBoundary(self)
-        if labeling_method == 'ILAB':
-            self.annotations = ILAB(self)
-        if labeling_method == 'Cesa_Bianchi':
-            self.annotations = CesaBianchi(self)
+        self.annotations = self.experiment.conf.getStrategy(self)
         self.annotations.generateAnnotationQueries()
 
     def annotateAuto(self):
         self.datasets.new_labels = False
         self.annotations.annotateAuto()
 
-    ## If the instance is in PredictedLabels (for the given experiment)
-    ## then PredictedLabels.final_label is set to "label"
-    ## Then, the new label is added to Label
-    ## If there is already a label for "instance_id" in "experiment"
-    ## nothing is done.
-    def addLabel(self, instance_id, label, sublabel, method):
-        labels_checking = CheckPredictedLabels(self)
-        labels_checking.addLabel(instance_id, label,
-                sublabel, method)
-
-    def updateLabeledInstances(self):
-        self.datasets.new_labels = False
-        labels_checking = CheckPredictedLabels(self)
-        labels_checking.checkPredictedLabelsDB()
-        self.datasets.saveLabeledInstances(self.iteration_number)
-
     ## Raise the exception NoLabelAdded if no new label
     ## was added during the current iteration
     def checkAddedLabels(self):
         if not self.datasets.new_labels:
             raise NoLabelAdded()
+
+    def addLabel(self, instance_id, label, family, method,
+            add_db = True):
+        if self.budget <= 0:
+            raise NoAnnotationBudget()
+        self.budget -= 1
+        if add_db:
+            labels_tools.addLabel(self.experiment.cursor,
+                    self.experiment.experiment_label_id,
+                    instance_id, label, family,
+                    self.iteration_number, method, True)
+        self.datasets.update(instance_id, label, family, True)
+        self.experiment.db.commit()
+
+    def updateLabeledInstances(self):
+        self.datasets.new_labels = False
+        # Update the datasets according to the new labels
+        # (from the confusion matrix for instance)
+        self.experiment.db.commit()
+        self.datasets.checkLabelsWithDB(
+                self.experiment.cursor,
+                self.experiment.experiment_label_id)
+        ## Newly labeled instances (annotated at the last iteration)
+        new_labeled_instances = labels_tools.getLabeledIds(
+                self.experiment.cursor,
+                self.experiment.experiment_label_id,
+                iteration = self.iteration_number)
+        for instance_id in new_labeled_instances:
+            label, family, method, annotation = labels_tools.getLabelDetails(
+                    self.experiment.cursor,
+                    instance_id,
+                    self.experiment.experiment_label_id)
+            self.addLabel(instance_id, label, family, method, add_db = False)
+        # Save the current labelled instances
+        self.datasets.saveLabeledInstances(self.iteration_number)

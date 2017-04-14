@@ -21,7 +21,7 @@ function get_density(log_radio_button, filename) {
     var label = get_label();
     var lin_log = get_lin_log(log_radio_button);
     var path = '/stats/getDensity/' + database_name + '/' + label
-    path += '/' + filename + '/' + lin_log + '/'; 
+    path += '/' + filename + '/' + lin_log + '/';
     return path;
   }
 }

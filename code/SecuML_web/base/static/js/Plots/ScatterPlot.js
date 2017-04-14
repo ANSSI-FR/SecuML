@@ -67,8 +67,8 @@ function drawScatterPlot(div_name, get_path, xlabel, ylabel,
     .attr('r', 2)
     .attr('cx', xMap)
     .attr('cy', yMap)
-    .style('fill', color) 
-    .style('stroke', color) 
+    .style('fill', color)
+    .style('stroke', color)
     .on('click', function(d) {
         click_instance_callback(Math.floor(d.id), Math.floor(d.cluster))();
     });

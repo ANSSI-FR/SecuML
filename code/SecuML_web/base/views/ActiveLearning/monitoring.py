@@ -1,16 +1,16 @@
 ## SecuML
 ## Copyright (C) 2016  ANSSI
-## 
+##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## SecuML is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
@@ -31,7 +31,7 @@ def getLabelsMonitoring(project, dataset, experiment_id, iteration):
     return send_file(filename)
 
 @app.route('/activeLearningMonitoring/<project>/<dataset>/<experiment_id>/<iteration>/<kind>/<sub_kind>/')
-def activeLearningLabelMonitoring(project, dataset, experiment_id, iteration, kind, sub_kind):
+def activeLearningMonitoring(project, dataset, experiment_id, iteration, kind, sub_kind):
     experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id, db, cursor)
     active_learning = Iteration(None, experiment, None, None, None, None,
             iteration_number = int(iteration))
@@ -39,8 +39,8 @@ def activeLearningLabelMonitoring(project, dataset, experiment_id, iteration, ki
     if kind == 'labels':
         filename  = directory + 'labels_monitoring/'
         filename += 'iteration' + '_' + sub_kind + '.png'
-    if kind == 'sublabels':
-        filename = directory + 'labels_monitoring/' + 'sublabels_monitoring.png'
+    if kind == 'families':
+        filename = directory + 'labels_monitoring/' + 'families_monitoring.png'
     if kind == 'clustering':
         filename  = directory + 'clustering_evaluation/'
         filename += sub_kind + '_monitoring.png'

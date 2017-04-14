@@ -16,13 +16,13 @@
 
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Experiment.Experiment import Experiment
-from SecuML.UnsupervisedLearning.Configuration import ProjectionConfFactory
-from SecuML.UnsupervisedLearning.Configuration.SemiSupervisedProjectionConfiguration \
+from SecuML.Projection.Configuration import ProjectionConfFactory
+from SecuML.Projection.Configuration.SemiSupervisedProjectionConfiguration \
         import SemiSupervisedProjectionConfiguration
 
 class ProjectionExperiment(Experiment):
 
-    def __init__(self, project, dataset, db, cursor, conf,
+    def __init__(self, project, dataset, db, cursor,
             experiment_name = None, experiment_label = None,
             parent = None):
         Experiment.__init__(self, project, dataset, db, cursor,
@@ -30,6 +30,8 @@ class ProjectionExperiment(Experiment):
                 experiment_label = experiment_label,
                 parent = parent)
         self.kind = 'Projection'
+
+    def setConf(self, conf):
         self.conf = conf
 
     def generateSuffix(self):
@@ -45,25 +47,13 @@ class ProjectionExperiment(Experiment):
                 raise ValueError(message)
         Experiment.initLabels(self, labels_filename = labels_filename, overwrite = overwrite)
 
-    def setFeaturesFilenames(self, features_filenames):
-        Experiment.setFeaturesFilenames(self, features_filenames)
-        # Set the number of components to the number of features
-        # if it has not been specified before
-        if self.conf.num_components is None:
-            num_features = 0
-            for filename in self.getFeaturesFilesFullpaths():
-                with open(filename, 'r') as f:
-                    header = f.readline().split(',')
-                    num_features += len(header) - 1
-            self.conf.num_components = num_features
-
     @staticmethod
     def fromJson(obj, db, cursor):
         conf = ProjectionConfFactory.getFactory().fromJson(obj['conf'])
         experiment = ProjectionExperiment(
-                obj['project'], obj['dataset'], db, cursor,
-                conf)
+                obj['project'], obj['dataset'], db, cursor)
         Experiment.expParamFromJson(experiment, obj)
+        experiment.setConf(conf)
         return experiment
 
     def toJson(self):
@@ -73,6 +63,6 @@ class ProjectionExperiment(Experiment):
         return conf
 
     def webTemplate(self):
-        return 'UnsupervisedLearning/projection.html'
+        return 'Projection/projection.html'
 
 ExperimentFactory.getFactory().registerClass('ProjectionExperiment', ProjectionExperiment)

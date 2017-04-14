@@ -1,21 +1,21 @@
 ## SecuML
 ## Copyright (C) 2016  ANSSI
-## 
+##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## SecuML is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import json
 import csv
+import json
 
 from SecuML.Data import labels_tools
 from SecuML.Data import idents_tools
@@ -61,7 +61,7 @@ class Experiment(object):
         features_path = self.getFeaturesFilesFullpaths()
         features_names = []
         for features_file in features_path:
-            with open(features_file,'r') as f_file:
+            with open(features_file, 'r') as f_file:
                 features_reader = csv.reader(f_file)
                 f_features_names = features_reader.next()
                 features_names.extend(f_features_names[1:])
@@ -74,7 +74,7 @@ class Experiment(object):
         features_values = []
         for features_file in features_path:
             line = 1
-            with open(features_file,'r') as f_file:
+            with open(features_file, 'r') as f_file:
                 names_reader = csv.reader(f_file)
                 f_features_names = names_reader.next()
                 features_names.extend(f_features_names[1:])
@@ -101,24 +101,24 @@ class Experiment(object):
         filename += 'labels/' + labels_filename
         if not dir_tools.checkFileExists(filename):
             raise ValueError('The labels file %s does not exist' % filename)
-        ## Check whether the file contains sublabels
-        sublabels = False
+        ## Check whether the file contains families
+        families = False
         with open(filename, 'r') as f:
             header = f.readline()
             fields = header.split(',')
             if len(fields) == 3:
-                sublabels = True
+                families = True
         query  = 'LOAD DATA LOCAL INFILE \'' + filename + '\' '
         query += 'INTO TABLE ' + 'Labels' + ' '
         query += 'FIELDS TERMINATED BY \',\' '
         query += 'IGNORE 1 LINES '
-        if sublabels:
-            query += '(instance_id, label, sublabel) '
+        if families:
+            query += '(instance_id, label, family) '
         else:
             query += '(instance_id, label) '
         query += 'SET experiment_label_id = ' + str(self.experiment_label_id) + ', '
-        if not sublabels:
-            query += 'sublabel = "other",'
+        if not families:
+            query += 'family = "other",'
         query += 'iteration = 0, '
         query += 'method = "init", '
         query += 'annotation = "0"'
@@ -138,7 +138,7 @@ class Experiment(object):
             self.experiment_label = self.experiment_name
         # Check whether the experiment already exists
         self.cursor.execute('SELECT id, label_id FROM Experiments \
-                WHERE name = %s', (self.experiment_name,))
+                WHERE name = %s AND kind = %s', (self.experiment_name, self.kind))
         experiment_details = self.cursor.fetchone()
         if experiment_details is not None and not overwrite:
             self.experiment_id, self.experiment_label_id = experiment_details
@@ -160,11 +160,11 @@ class Experiment(object):
             self.experiment_label_id = experiment_label_id[0]
         else:
             self.experiment_label_id = experiment_db_tools.addExperimentLabel(
-                    self.cursor, 
+                    self.cursor,
                     self.experiment_label)
         types = ['INT UNSIGNED', 'VARCHAR(200)', 'VARCHAR(1000)',
                 'INT UNSIGNED', 'INT UNSIGNED']
-        values = [0, self.kind, self.experiment_name, 
+        values = [0, self.kind, self.experiment_name,
                 self.experiment_label_id, self.parent]
         mysql_tools.insertRowIntoTable(self.cursor, 'Experiments',
                 values, types)
@@ -184,11 +184,11 @@ class Experiment(object):
                     self.db, self.cursor)
             child_exp.removeExperimentDB()
         if self.parent is None:
-            labels_tools.removeExperimentLabels(self.cursor, 
+            labels_tools.removeExperimentLabels(self.cursor,
                     experiment_label_id)
         self.cursor.execute('DELETE FROM Experiments \
                 WHERE name = %s \
-                AND kind = %s', (self.experiment_name, 
+                AND kind = %s', (self.experiment_name,
                     self.kind, ))
         self.db.commit()
         experiment_dir = dir_tools.getExperimentOutputDirectory(self)
@@ -208,7 +208,7 @@ class Experiment(object):
 
     def generateSuffix(self):
         return ''
-  
+
     @staticmethod
     def expParamFromJson(experiment, obj):
         experiment.kind                = obj['kind']

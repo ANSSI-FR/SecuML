@@ -1,16 +1,16 @@
 ## SecuML
 ## Copyright (C) 2016  ANSSI
-## 
+##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## SecuML is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
@@ -35,7 +35,6 @@ class Dataset(object):
         labels_tools.createLabelsTable(self.cursor)
         experiment_db_tools.createExperimentsTable(self.cursor)
         experiment_db_tools.createExperimentsLabelsTable(self.cursor)
-        experiment_db_tools.createPredictedLabelsAnalysisTable(self.cursor)
         ## Load idents and true labels
         self.loadIdents()
         self.loadTrueLabels()
@@ -62,15 +61,14 @@ class Dataset(object):
         mysql_tools.useDatabase(self.cursor, self.project, self.dataset)
 
     def loadIdents(self):
-        row_number_field = 'row_number'
         idents_file = dir_tools.getDatasetDirectory(
                 self.project, self.dataset) + 'idents.csv'
-        fields = ['instance_id', 'ident', row_number_field]
+        fields = ['instance_id', 'ident', 'row_number']
         types  = ['INT', 'VARCHAR(200) CHARACTER SET utf8', 'INT NOT NULL AUTO_INCREMENT']
         mysql_tools.createTableFromFields(self.cursor, 'Idents',
                 fields, types,
-                [row_number_field, 'instance_id'])
-        mysql_tools.loadCsvFile(self.cursor, idents_file, 'Idents', row_number_field)
+                ['row_number', 'instance_id'])
+        mysql_tools.loadCsvFile(self.cursor, idents_file, 'Idents', ['row_number'])
 
     def loadTrueLabels(self):
         labels_file  = dir_tools.getDatasetDirectory(self.project,

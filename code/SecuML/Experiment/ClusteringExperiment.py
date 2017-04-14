@@ -16,7 +16,7 @@
 
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Experiment.Experiment import Experiment
-from SecuML.UnsupervisedLearning.Configuration import ClusteringConfFactory
+from SecuML.Clustering.Configuration import ClusteringConfFactory
 
 class ClusteringExperiment(Experiment):
 
@@ -51,6 +51,6 @@ class ClusteringExperiment(Experiment):
         return conf
 
     def webTemplate(self):
-        return 'UnsupervisedLearning/clustering.html'
+        return 'Clustering/clustering.html'
 
 ExperimentFactory.getFactory().registerClass('ClusteringExperiment', ClusteringExperiment)

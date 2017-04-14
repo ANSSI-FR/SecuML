@@ -18,6 +18,7 @@ from __future__ import division
 import csv
 import numpy as np
 from scipy.sparse import csr_matrix
+from sklearn.preprocessing import StandardScaler
 
 from SecuML.Data import idents_tools
 from SecuML.Data import labels_tools
@@ -33,9 +34,9 @@ class Instances(object):
         ## (True -> Malicious, False -> Benign)
         ## None if the instance is unlabeled
         self.labels         = None
-        self.sublabels      = None
+        self.families      = None
         self.true_labels    = None
-        self.true_sublabels = None
+        self.true_families = None
         self.annotations    = None
 
     def initFromExperiment(self, experiment):
@@ -43,15 +44,17 @@ class Instances(object):
         self.setLabelsFromExperiment(experiment)
 
     def initFromMatrix(self, ids, matrix, features_names,
-            labels = None, sublabels = None,
-            true_labels = None, true_sublabels = None):
+            labels = None, families = None,
+            true_labels = None, true_families = None,
+            annotations = None):
         self.setIds(ids)
         self.features = matrix
         self.features_names = features_names
         self.labels = labels
-        self.sublabels = sublabels
+        self.families = families
         self.true_labels = true_labels
-        self.true_sublabels = true_sublabels
+        self.true_families = true_families
+        self.annotations = annotations
 
     def initFromCsvFiles(self, csv_files):
         self.features_names = []
@@ -74,14 +77,15 @@ class Instances(object):
                 instances_1.features + instances_2.features,
                 instances_1.features_names,
                 labels = instances_1.labels + instances_2.labels,
-                sublabels = instances_1.sublabels + instances_2.sublabels,
+                families = instances_1.families + instances_2.families,
                 true_labels = instances_1.true_labels + instances_2.true_labels,
-                true_sublabels = instances_1.true_sublabels + instances_2.true_sublabels)
+                true_families = instances_1.true_families + instances_2.true_families,
+                annotations = instances_1.annotations + instances_2.annotations)
 
     def createDataset(self, project, dataset, features_filenames, cursor):
         dataset_dir, features_dir, init_labels_dir = dir_tools.createDataset(project, dataset)
         self.exportIdents(dataset_dir + 'idents.csv', cursor)
-        self.toCsv(features_dir + features_filenames )
+        self.toCsv(features_dir + features_filenames)
         self.saveInstancesLabels(init_labels_dir + 'true_labels.csv')
 
     def exportIdents(self, output_filename, cursor):
@@ -101,12 +105,17 @@ class Instances(object):
 
     def saveInstancesLabels(self, output_filename):
         with open(output_filename, 'w') as f:
-            print >>f, 'instance_id,label,sublabel'
+            print >>f, 'instance_id,label,family'
             for i in range(self.numInstances()):
                 instance_id = self.ids[i]
                 label = 'malicious' if self.labels[i] else 'benign'
-                sublabel = self.sublabels[i]
-                print >>f, str(instance_id) + ',' + label + ',' + sublabel
+                family = self.families[i]
+                print >>f, str(instance_id) + ',' + label + ',' + family
+
+    def standardScaler(self):
+        scaler = StandardScaler()
+        scaler.fit(self.features)
+        self.features = scaler.transform(self.features)
 
     ##############
     ### Labels ###
@@ -118,28 +127,28 @@ class Instances(object):
     def setLabelsFromExperiment(self, experiment):
         num_instances = self.numInstances()
         self.labels = [None] * num_instances
-        self.sublabels = [None] * num_instances
+        self.families = [None] * num_instances
         self.annotations = [None] * num_instances
         self.true_labels = [None] * num_instances
-        self.true_sublabels = [None] * num_instances
-        ## Labels/Sublabels
+        self.true_families = [None] * num_instances
+        ## Labels/Families
         benign_ids = labels_tools.getLabelIds(experiment.cursor, 'benign',
                 experiment_label_id = experiment.experiment_label_id)
         malicious_ids = labels_tools.getLabelIds(experiment.cursor, 'malicious',
                 experiment_label_id = experiment.experiment_label_id)
         for instance_id in benign_ids + malicious_ids:
-            label, sublabel, method, annotation = labels_tools.getLabelDetails(
+            label, family, method, annotation = labels_tools.getLabelDetails(
                     experiment.cursor, instance_id,
                     experiment.experiment_label_id)
             self.setLabel(instance_id, label == 'malicious')
-            self.setSublabel(instance_id, sublabel)
+            self.setFamily(instance_id, family)
             self.setAnnotation(instance_id, annotation)
         ## True Labels
         if labels_tools.hasTrueLabels(experiment.cursor):
-            labels, sublabels = labels_tools.getExperimentLabelsSublabels(experiment.cursor,
+            labels, families = labels_tools.getExperimentLabelsFamilies(experiment.cursor,
                     experiment_label_id = 1)
             self.true_labels    = labels
-            self.true_sublabels = sublabels
+            self.true_families = families
 
     def getLabels(self, true_labels = False):
         if true_labels:
@@ -172,16 +181,16 @@ class Instances(object):
     def checkLabelsWithDB(self, cursor, experiment_label_id):
         for instance_id in self.getAnnotatedIds():
             label = self.getLabel(instance_id)
-            sublabel = self.getSublabel(instance_id)
+            family = self.getFamily(instance_id)
             try:
-                DB_label, DB_sublabel, m, annotation = labels_tools.getLabelDetails(
+                DB_label, DB_family, m, annotation = labels_tools.getLabelDetails(
                         cursor,
                         instance_id,
                         experiment_label_id)
                 DB_label = DB_label == 'malicious'
-                if DB_label != label or DB_sublabel != sublabel:
+                if DB_label != label or DB_family != family:
                     self.setLabel(instance_id, DB_label)
-                    self.setSublabel(instance_id, DB_sublabel)
+                    self.setFamily(instance_id, DB_family)
                     self.setAnnotation(instance_id, annotation)
             except labels_tools.NoLabel:
                 continue
@@ -208,33 +217,33 @@ class Instances(object):
 
     def eraseLabels(self):
         self.labels    = [None] * self.numInstances()
-        self.sublabels = [None] * self.numInstances()
+        self.families = [None] * self.numInstances()
 
     #################
-    ### Sublabels ###
+    ### Families ###
     #################
 
-    def getSublabels(self, true_labels = False):
+    def getFamilies(self, true_labels = False):
         if true_labels:
-            return self.true_sublabels
+            return self.true_families
         else:
-            return self.sublabels
+            return self.families
 
-    def getSublabel(self, instance_id, true_labels = False):
+    def getFamily(self, instance_id, true_labels = False):
         index = self.getIndex(instance_id)
         if true_labels:
-            return self.true_sublabels[index]
+            return self.true_families[index]
         else:
-            return self.sublabels[index]
+            return self.families[index]
 
-    def setSublabel(self, instance_id, sublabel):
+    def setFamily(self, instance_id, family):
         index = self.getIndex(instance_id)
-        self.sublabels[index] = sublabel
+        self.families[index] = family
 
-    def getSublabelIds(self, sublabel, true_labels = False):
-        return [i for i in self.getIds() if self.getSublabel(i, true_labels = true_labels) == sublabel]
+    def getFamilyIds(self, family, true_labels = False):
+        return [i for i in self.getIds() if self.getFamily(i, true_labels = true_labels) == family]
 
-    def getSublabelsValues(self, label = 'all', true_labels = False):
+    def getFamiliesValues(self, label = 'all', true_labels = False):
         if label == 'all':
             ids = self.getIds()
         else:
@@ -242,40 +251,40 @@ class Instances(object):
             ids = [i for i in self.getIds() if \
                     self.getLabel(i, true_labels = true_labels) is not None \
                     and self.getLabel(i, true_labels = true_labels) == l]
-        sublabels = set([self.getSublabel(i, true_labels = true_labels) for i in ids])
-        return sublabels
+        families = set([self.getFamily(i, true_labels = true_labels) for i in ids])
+        return families
 
-    def getSublabelsCount(self, label = 'all', true_labels = False):
-        sublabels_values = self.getSublabelsValues(label = label, true_labels = true_labels)
-        sublabels_count = {}
-        for sublabel in sublabels_values:
-            sublabels_count[sublabel]  = len(self.getSublabelIds(sublabel, true_labels = true_labels))
-        return sublabels_count
+    def getFamiliesCount(self, label = 'all', true_labels = False):
+        families_values = self.getFamiliesValues(label = label, true_labels = true_labels)
+        families_count = {}
+        for family in families_values:
+            families_count[family]  = len(self.getFamilyIds(family, true_labels = true_labels))
+        return families_count
 
-    def getSublabelsProp(self, label = 'all', true_labels = False):
-        sublabels_prop = self.getSublabelsCount(label = label, true_labels = true_labels)
-        for sublabel in sublabels_prop.keys():
-            sublabels_prop[sublabel] /= self.numInstances(label = label, true_labels = true_labels)
-        return sublabels_prop
+    def getFamiliesProp(self, label = 'all', true_labels = False):
+        families_prop = self.getFamiliesCount(label = label, true_labels = true_labels)
+        for family in families_prop.keys():
+            families_prop[family] /= self.numInstances(label = label, true_labels = true_labels)
+        return families_prop
 
     def getConnectivityMatrix(self, sparse = True):
-        sublabels_ids = {}
+        families_ids = {}
         for index in range(self.numInstances()):
-            sublabel = self.sublabels[index]
-            if sublabel is not None:
-                if sublabel not in sublabels_ids:
-                    sublabels_ids[sublabel] = []
-                sublabels_ids[sublabel].append(index)
+            family = self.families[index]
+            if family is not None:
+                if family not in families_ids:
+                    families_ids[family] = []
+                families_ids[family].append(index)
         connectivity = np.zeros((self.numInstances(), self.numInstances()),
                 dtype = np.int32)
-        for sublabel in sublabels_ids.keys():
-            for i in sublabels_ids[sublabel]:
-                for j in sublabels_ids[sublabel]:
+        for family in families_ids.keys():
+            for i in families_ids[family]:
+                for j in families_ids[family]:
                     connectivity[i, j] = 1
-                for sublabel_ in sublabels_ids.keys():
-                    if sublabel == sublabel_:
+                for family_ in families_ids.keys():
+                    if family == family_:
                         continue
-                    for j in sublabels_ids[sublabel_]:
+                    for j in families_ids[family_]:
                         connectivity[i, j] = -1
         if sparse:
             return csr_matrix(connectivity)
@@ -290,6 +299,9 @@ class Instances(object):
         self.ids = ids
         self.indexes = {}
         for i in range(len(self.ids)):
+            # Check collisions
+            if self.ids[i] in self.indexes.keys():
+                raise ValueError('Index collision !')
             self.indexes[self.ids[i]] = i
 
     def getIndex(self, instance_id):
@@ -333,17 +345,19 @@ class Instances(object):
     def getInstancesFromIds(self, instance_ids):
         X = [self.getInstance(i) for i in instance_ids]
         y = [self.getLabel(i) for i in instance_ids]
-        z = [self.getSublabel(i) for i in instance_ids]
+        z = [self.getFamily(i) for i in instance_ids]
         num_selected_instances = len(y)
         y_true = [None] * num_selected_instances
         z_true = [None] * num_selected_instances
         if self.hasTrueLabels():
             y_true = [self.getLabel(i, true_labels = True) for i in instance_ids]
-            z_true = [self.getSublabel(i, true_labels = True) for i in instance_ids]
+            z_true = [self.getFamily(i, true_labels = True) for i in instance_ids]
         selected_instances = Instances()
+        annotations = [self.isAnnotated(i) for i in instance_ids]
         selected_instances.initFromMatrix(instance_ids, X, self.getFeaturesNames(),
-                labels = y, sublabels = z,
-                true_labels = y_true, true_sublabels = z_true)
+                labels = y, families = z,
+                true_labels = y_true, true_families = z_true,
+                annotations = annotations)
         return selected_instances
 
     ################
@@ -353,11 +367,8 @@ class Instances(object):
     def getFeaturesNames(self):
         return self.features_names
 
-    def getFeatures(self, num_max_features = None):
-        if num_max_features is None:
-            return self.features
-        else:
-            return self.features[:, range(num_max_features)]
+    def getFeatures(self):
+        return self.features
 
     def numFeatures(self):
         return len(self.features_names)

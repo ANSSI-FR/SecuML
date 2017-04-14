@@ -1,22 +1,19 @@
 ## SecuML
 ## Copyright (C) 2016  ANSSI
-## 
+##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## SecuML is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import json
-
-from SecuML import config
 from SecuML.Data import idents_tools
 from SecuML.Tools import mysql_tools
 
@@ -24,9 +21,15 @@ class NoLabel(Exception):
     def __str__(self):
         return ''
 
+def labelBooleanToString(label):
+    if label:
+        return 'malicious'
+    else:
+        return 'benign'
+
 def createLabelsTable(cursor):
     fields  = ['experiment_label_id', 'instance_id']
-    fields += ['label', 'sublabel']
+    fields += ['label', 'family']
     fields += ['iteration', 'method', 'annotation']
     types   = ['INT UNSIGNED', 'INT UNSIGNED', 'VARCHAR(200)']
     types  += ['VARCHAR(200)', 'INT UNSIGNED', 'VARCHAR(200)', 'BIT(1)']
@@ -58,7 +61,7 @@ def getNumErrors(cursor, label, instance_ids):
     return num_errors
 
 def getLabel(cursor, instance_id, experiment_label_id):
-    query  = 'SELECT label, sublabel '
+    query  = 'SELECT label, family '
     query += 'FROM Labels '
     query += 'WHERE instance_id = ' + str(instance_id) + ' '
     query += 'AND experiment_label_id = ' + str(experiment_label_id)
@@ -67,8 +70,8 @@ def getLabel(cursor, instance_id, experiment_label_id):
     row = cursor.fetchone()
     if row is not None:
         label = row[0]
-        sublabel = row[1]
-        return label, sublabel
+        family = row[1]
+        return label, family
     else:
         return None
 
@@ -82,10 +85,10 @@ def getLabelDetails(cursor, instance_id, experiment_label_id):
     row = cursor.fetchone()
     if row is not None:
         label         = row[2]
-        sublabel = row[3]
+        family = row[3]
         method        = row[5]
         annotation    = row[6]
-        return label, sublabel, method, annotation
+        return label, family, method, annotation
     else:
         raise NoLabel()
 
@@ -97,11 +100,11 @@ def hasAnnotation(cursor, instance_id, experiment_label_id):
         return label_details[3]
 
 def addLabel(cursor, experiment_label_id, instance_id, final_label,
-        sublabel, iteration_number, method, annotation):
+        family, iteration_number, method, annotation):
     types  = ['INT UNSIGNED', 'INT UNSIGNED', 'VARCHAR(200)']
     types += ['VARCHAR(200)', 'INT', 'VARCHAR(200)', 'BIT(1)']
     label_info = [experiment_label_id, instance_id, final_label,
-            sublabel, iteration_number, method, annotation]
+            family, iteration_number, method, annotation]
     mysql_tools.insertRowIntoTable(cursor, 'Labels', label_info, types)
 
 def removeLabel(cursor, experiment_label_id, instance_id):
@@ -161,8 +164,8 @@ def getUnknownMaliciousBenignStats(cursor,
             (labels_stats['malicious'] + labels_stats['benign'])
     return labels_stats
 
-def getExperimentLabelsSublabels(cursor, experiment_label_id):
-    query  = 'SELECT label, sublabel '
+def getExperimentLabelsFamilies(cursor, experiment_label_id):
+    query  = 'SELECT label, family '
     query += 'FROM Labels '
     query += 'WHERE experiment_label_id = ' + str(experiment_label_id) + ' '
     query += 'ORDER BY instance_id'
@@ -170,18 +173,18 @@ def getExperimentLabelsSublabels(cursor, experiment_label_id):
     cursor.execute(query)
     res = cursor.fetchall()
     labels = [x[0] == 'malicious' for x in res]
-    sublabels = [x[1] for x in res]
-    return labels, sublabels
+    families = [x[1] for x in res]
+    return labels, families
 
-def getDatasetSublabels(cursor, project, dataset, experiment_label_id):
+def getDatasetFamilies(cursor, project, dataset, experiment_label_id):
     mysql_tools.useDatabase(cursor, project, dataset)
-    query  = 'SELECT DISTINCT sublabel FROM Labels '
+    query  = 'SELECT DISTINCT family FROM Labels '
     query += 'WHERE experiment_label_id = ' + str(experiment_label_id) + ';';
     cursor.execute(query)
     return [s[0] for s in cursor.fetchall()]
 
-def getLabelsSublabels(cursor, experiment_label_id, instance_ids = None):
-    query  = 'SELECT DISTINCT label, sublabel '
+def getLabelsFamilies(cursor, experiment_label_id, instance_ids = None):
+    query  = 'SELECT DISTINCT label, family '
     query += 'FROM Labels '
     query += 'WHERE experiment_label_id = ' + str(experiment_label_id) + ' '
     if instance_ids is not None:
@@ -194,20 +197,20 @@ def getLabelsSublabels(cursor, experiment_label_id, instance_ids = None):
     row = cursor.fetchone()
     while row is not None:
         label = row[0]
-        sublabel = row[1]
+        family = row[1]
         if label not in labels.keys():
             labels[label] = {}
-        labels[label][sublabel] = 0
+        labels[label][family] = 0
         row = cursor.fetchone()
     return labels
 
-def getLabelSublabelIds(cursor, experiment_label_id, label,
-        sublabel = None, instance_ids = None):
+def getLabelFamilyIds(cursor, experiment_label_id, label,
+        family = None, instance_ids = None):
     query  = 'SELECT instance_id '
     query += 'FROM Labels '
     query += 'WHERE label = "' + label + '" '
-    if sublabel is not None:
-        query += 'AND sublabel = "' + sublabel + '" '
+    if family is not None:
+        query += 'AND family = "' + family + '" '
     query += 'AND experiment_label_id = ' + str(experiment_label_id) + ' '
     if instance_ids is not None:
         query += 'AND instance_id IN ('
@@ -273,3 +276,12 @@ def getLabelsIds(cursor, labels, experiment_label_id):
             experiment_label_id))
         ids = ids.union(label_ids)
     return ids
+
+def getAssociatedLabel(family, cursor, experiment_label_id):
+    cursor.execute('SELECT label \
+            FROM Labels \
+            WHERE experiment_label_id = %s \
+            AND family = %s \
+            LIMIT 1;',
+            (experiment_label_id, str(family)))
+    return cursor.fetchone()[0]

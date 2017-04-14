@@ -1,84 +1,78 @@
 function displaySettings(conf) {
-  var table = createTable('settings',
-      ['', '']);
-  table.setAttribute('style','width:280px');
-  // Project Dataset
-  var row = table.insertRow(1);
-  var cell = row.insertCell(0);
-  cell.innerHTML = 'Project';
-  var cell = row.insertCell(1);
-  cell.innerHTML = project;
-  var row = table.insertRow(2);
-  var cell = row.insertCell(0);
-  cell.innerHTML = 'Dataset';
-  var cell = row.insertCell(1);
-  cell.innerHTML = dataset;
-  if (hide_confidential) {
-    cell.innerHTML = '';
-  }
-  // Supervised Learning
-  var supervised_learning_conf = conf.supervised_learning_conf;
-  var row = table.insertRow(3);
-  var cell = row.insertCell(0);
-  cell.innerHTML = 'Model Class';
-  var cell = row.insertCell(1);
-  cell.innerHTML = supervised_learning_conf['__type__'].split('Configuration')[0];
-  var row = table.insertRow(4);
-  var cell = row.insertCell(0);
-  cell.innerHTML = 'Sample Weights';
-  var cell = row.insertCell(1);
-  cell.innerHTML = supervised_learning_conf.sample_weight;
+  var body = createTable('settings', ['', ''], width = 'width:280px');
 
-  var row = table.insertRow(5);
-  var cell = row.insertCell(0);
-  cell.innerHTML = 'Labeling Procedure';
-  var cell = row.insertCell(1);
-  cell.innerHTML = conf.labeling_method;
-  // Ilab Configuration
-  if (conf.labeling_method == 'ILAB') {
-      var ilab_conf = conf.ilab_conf
-      var row = table.insertRow(6);
-      var cell = row.insertCell(0);
-      cell.innerHTML = 'Semi-auto labels';
-      var cell = row.insertCell(1);
-      cell.innerHTML = ilab_conf.semiauto;
-      var row = table.insertRow(7);
-      var cell = row.insertCell(0);
-      cell.innerHTML = 'Clustering';
-      var cell = row.insertCell(1);
-      cell.innerHTML = ilab_conf.clustering_conf['__type__'].split('Configuration')[0];
-      var row = table.insertRow(8);
-      var cell = row.insertCell(0);
-      cell.innerHTML = 'Projection';
-      var proj = ilab_conf.clustering_conf.projection_conf;
-      var cell = row.insertCell(1);
-      if (proj) {
-        cell.innerHTML = proj['__type__'].split('Configuration')[0];
+  // Project Dataset
+  addRow(body, ['Project', project]);
+  addRow(body, ['Dataset', dataset]);
+
+  // Classifier
+  if (conf.classification_conf) {
+    var classification_conf = conf.classification_conf;
+    var model_class = classification_conf['__type__'].split(
+            'Configuration')[0];
+    var num_folds = classification_conf.num_folds;
+    var sample_weight = classification_conf.sample_weight;
+    addRow(body, ['Model Class', model_class]);
+    addRow(body, ['Num folds', num_folds]);
+    addRow(body, ['Sample Weights', sample_weight]);
+  }
+
+  // Labeling Method
+  var labeling_method = conf.labeling_method;
+  addRow(body, ['Labeling Strategy', labeling_method]);
+
+  // Rare Category Detection Configuration
+  if (labeling_method == 'Ilab' || labeling_method == 'RareCategoryDetection') {
+      var semi_auto_labels = conf.conf.rare_category_detection_conf.semiauto;
+      var clustering_conf = conf.conf.rare_category_detection_conf.clustering_conf;
+      var clustering = clustering_conf['__type__'].split('Configuration')[0];
+      var projection = clustering_conf.projection_conf;
+      if (projection) {
+        projection= projection['__type__'].split('Configuration')[0];
       } else {
-        cell.innerHTML = 'None';
+        projection = 'None';
       }
+      addRow(body, ['Semi-auto labels', semi_auto_labels]);
+      addRow(body, ['Clustering', clustering]);
+      addRow(body, ['Projection', projection]);
   }
 }
 
-function displayLabelsInformation(args, iteration) {
+function displayLabelsInformation(project, dataset, experiment_id, iteration) {
+  // Labels stats
   var stats_div = cleanDiv('stats');
-  var path = buildQuery('getLabelsMonitoring', args.concat([iteration]));
+  var path = buildQuery('getLabelsMonitoring', [project, dataset, experiment_id, iteration]);
   d3.json(path, function(error, data) {
     var ul = document.createElement('ul');
-    keys = ['unlabeled', 'annotations'];
+    ul.setAttribute('class', 'list-group');
+    var keys = ['annotations', 'unlabeled'];
+    var keys_labels = ['annotations', 'unlabeled instances'];
     for (i in keys) {
         k = keys[i];
+        l = keys_labels[i];
         var li = document.createElement('li');
-        var text = data[k] + ' ' + k;
+        var text = data[k] + ' ' + l;
         var text = document.createTextNode(text);
         li.appendChild(text);
         ul.appendChild(li);
     }
     stats_div.appendChild(ul);
   });
-  var sublabels_link = document.createElement('a');
-  sublabels_link.appendChild(document.createTextNode('Sublabels'));
-  var path = buildQuery('sublabels', args.concat([iteration]));
-  sublabels_link.href = path;
-  stats_div.appendChild(sublabels_link);
+  // Check annotations
+  var check_annotations_div = cleanDiv('check_annotations')
+  var buttons_div = createDivWithClass(null, 'btn-group btn-group-justified', check_annotations_div);
+  var labels_button = document.createElement('a');
+  labels_button.setAttribute('class', 'btn btn-default')
+  labels_button.appendChild(document.createTextNode('Labels'));
+  var experiment_label_id = getExperimentLabelId(project, dataset, experiment_id);
+  var path = buildQuery('labeledInstances', [project, dataset, experiment_id, experiment_label_id, iteration]);
+  labels_button.href = path;
+  buttons_div.appendChild(labels_button);
+
+  var families_button = document.createElement('a');
+  families_button.setAttribute('class', 'btn btn-default')
+  families_button.appendChild(document.createTextNode('Families'));
+  var path = buildQuery('families', [project, dataset, experiment_id, iteration]);
+  families_button.href = path;
+  buttons_div.appendChild(families_button);
 }

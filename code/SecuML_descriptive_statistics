@@ -1,0 +1,61 @@
+#!/usr/bin/python2
+
+## SecuML
+## Copyright (C) 2016  ANSSI
+##
+## SecuML is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## SecuML is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along
+## with SecuML. If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import matplotlib
+matplotlib.use('Agg')
+
+from SecuML.Data.Dataset import Dataset
+from SecuML.Data.DescriptiveStatistics import DescriptiveStatistics
+from SecuML.Experiment.DescriptiveStatisticsExperiment \
+        import DescriptiveStatisticsExperiment
+from SecuML.Tools import mysql_tools
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+            description = 'Descriptive Statistics of the Dataset')
+    parser.add_argument('project')
+    parser.add_argument('dataset')
+    parser.add_argument('--features', '-f',
+            dest = 'features_files',
+            nargs = '+',
+            required = False,
+            default = ['features.csv'],
+            help = 'CSV files containing the features.')
+
+    args = parser.parse_args()
+    db, cursor = mysql_tools.getDbConnection(buffered = True)
+    ## Check whether the dataset has been loaded before
+    if not mysql_tools.databaseExists(cursor, args.project, args.dataset):
+        load_dataset = Dataset(args.project, args.dataset,
+                db, cursor)
+        load_dataset.load()
+
+    experiment = DescriptiveStatisticsExperiment(
+            args.project, args.dataset, db, cursor)
+    experiment.setFeaturesFilenames(args.features_files)
+    try:
+        experiment.initLabels('true_labels.csv')
+    except:
+        pass
+    experiment.export()
+
+    stats = DescriptiveStatistics(experiment)
+    stats.generateDescriptiveStatistics()
+
+    mysql_tools.closeDb(db, cursor)

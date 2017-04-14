@@ -1,32 +1,26 @@
 ## SecuML
 ## Copyright (C) 2016  ANSSI
-## 
+##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## SecuML is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import division
-import csv
-import json
-from flask import send_file, jsonify
+from flask import jsonify
 import importlib
-import numpy as np
 
-from SecuML_web.base import app, cursor, db
-
-from SecuML.Experiment import ExperimentFactory
-from SecuML.Plots.BarPlot import BarPlot
+from SecuML_web.base import app, db, cursor
 
 from SecuML.Data import idents_tools
+from SecuML.Experiment import ExperimentFactory
 from SecuML.Tools import mysql_tools
 
 @app.route('/getInstance/<project>/<dataset>/<instance_id>/<ident>/')
@@ -51,4 +45,4 @@ def getFeatures(project, dataset, experiment, instance_dataset, instance_id):
     experiment_obj = ExperimentFactory.getFactory().fromJson(project, instance_dataset, experiment, db, cursor)
     features_names, features_values = experiment_obj.getFeatures(instance_id)
     features = zip(features_names, features_values)
-    return json.dumps(features)
+    return jsonify(features)

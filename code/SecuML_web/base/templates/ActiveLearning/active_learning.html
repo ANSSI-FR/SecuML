@@ -32,18 +32,18 @@ body {
   clear: right;
   width: 120px;
   margin: 10px;
-  background: green;
+  background: #5cb85c;
 }
-#slider_train .ui-slider-range   { background: #ef2929; }
+#slider_train .ui-slider-range   { background: #d9534f; }
 #slider_train .ui-slider-handle  { background: #000000; }
 
-#slider_test .ui-slider-range   { background: #ef2929; }
+#slider_test .ui-slider-range   { background: #d9534f; }
 #slider_test .ui-slider-handle  { background: #000000; }
 
-#slider_cv .ui-slider-range   { background: #ef2929; }
+#slider_cv .ui-slider-range   { background: #d9534f; }
 #slider_cv .ui-slider-handle  { background: #000000; }
 
-#slider_validation .ui-slider-range   { background: #ef2929; }
+#slider_validation .ui-slider-range   { background: #d9534f; }
 #slider_validation .ui-slider-handle  { background: #000000; }
 
 </style>
@@ -62,25 +62,24 @@ body {
 </head>
 
 <body>
-
-    <div class='col-md-12'>
-    <div class='row', id=row_1>
-    </div>
-    <div class='row', id=row_2>
-    </div>
-    </div>
-
+      <div class='col-md-12', id=row_1>
+      </div>
+      <div class='col-md-12', id=row_2>
+      </div>
+      <div class='col-md-12', id=row_3>
+      </div>
 </body>
 
 <script src='/static/js/Tools/experiment_tools.js'></script>
 <script src='/static/js/Tools/labels_tools.js'></script>
 <script src='/static/js/Tools/web_tools.js'></script>
 <script src='/static/js/Plots/BarPlot.js'></script>
+<script src='/static/js/Plots/Chart.Bands.js'></script>
 <script src='/static/js/Plots/Density.js'></script>
-<script src='/static/js/SupervisedLearning/monitoring.js'></script>
-<script src='/static/js/SupervisedLearning/families_monitoring.js'></script>
-<script src='/static/js/SupervisedLearning/performance_monitoring.js'></script>
-<script src='/static/js/SupervisedLearning/predictions_monitoring.js'></script>
+<script src='/static/js/Classification/monitoring.js'></script>
+<script src='/static/js/Classification/families_monitoring.js'></script>
+<script src='/static/js/Classification/performance_monitoring.js'></script>
+<script src='/static/js/Classification/predictions_monitoring.js'></script>
 <script src='/static/js/ActiveLearning/divisions.js'></script>
 <script src='/static/js/ActiveLearning/information.js'></script>
 <script src='/static/js/ActiveLearning/monitoring.js'></script>

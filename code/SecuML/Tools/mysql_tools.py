@@ -1,16 +1,16 @@
 ## SecuML
 ## Copyright (C) 2016  ANSSI
-## 
+##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## SecuML is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
@@ -20,14 +20,16 @@ from mysql.connector.constants import ClientFlag
 import os
 import sys
 
-def getDbConnection(buffered = False):
+def getDbConnection(buffered = True):
     home = os.environ['HOME']
     with open(home + '/.my.cnf', 'r') as f:
-        header = f.readline()
+        f.readline() # skip the header
         host = f.readline().split('=')[1].strip()
         user = f.readline().split('=')[1].strip()
         password = f.readline().split('=')[1].strip()
-    db = mysql.connector.connect(host = host, user = user, password = password, unix_socket = '/var/run/mysqld/mysqld.sock', client_flags = [ClientFlag.LOCAL_FILES])
+    db = mysql.connector.connect(host = host, user = user, password = password,
+                                 unix_socket = '/var/run/mysqld/mysqld.sock',
+                                 client_flags = [ClientFlag.LOCAL_FILES])
     cursor = db.cursor(buffered = buffered)
     return [db, cursor]
 
@@ -68,17 +70,18 @@ def createDatabase(cursor, database_name):
 def removeTableIfExists(cursor, table_name):
     cursor.execute('DROP TABLE IF EXISTS ' + table_name + ';')
 
-def loadCsvFile(cursor, filename, table_name, row_number_field = None):
-    query  = 'LOAD DATA LOCAL INFILE %s '
+def loadCsvFile(cursor, filename, table_name, null_columns = None):
+    query  = 'LOAD DATA LOCAL INFILE \'' + filename + '\' '
     query += 'INTO TABLE ' + table_name + ' '
     query += 'CHARACTER SET UTF8 '
     query += 'FIELDS TERMINATED BY \',\' '
     query += 'OPTIONALLY ENCLOSED BY \'"\' '
     query += 'IGNORE 1 LINES '
-    if row_number_field:
-        query += 'SET ' + row_number_field + ' = NULL '
+    if null_columns is not None:
+        for col in null_columns:
+            query += 'SET ' + col + ' = NULL '
     query += ';'
-    cursor.execute(query, (filename,));
+    cursor.execute(query);
 
 def getTables(cursor):
     cursor.execute('SHOW TABLES');
@@ -92,14 +95,14 @@ def getCurrentDatabaseName(cursor):
 def tableExist(cursor, database, table):
     if database is None:
         database = getCurrentDatabaseName(cursor)
-    cursor.execute("SELECT table_name FROM information_schema.tables \
+    cursor.execute('SELECT table_name FROM information_schema.tables \
             WHERE table_schema = %s \
-            AND table_name = %s", (database, table))
+            AND table_name = %s', (database, table))
     answer = cursor.fetchone()
     return answer is not None
 
 def dropTableIfExists(cursor, table_name):
-    cursor.execute("DROP TABLE IF EXISTS " + table_name + ";")
+    cursor.execute('DROP TABLE IF EXISTS ' + table_name + ';')
 
 def createTableFromFields(cursor, table_name, fields, types, primary_key,
         index = None, auto_increment = False):
@@ -109,19 +112,19 @@ def createTableFromFields(cursor, table_name, fields, types, primary_key,
         field = fields[i]
         create_table += '`' + str(field) + '` ' + types[i]
         if auto_increment and field == primary_key[0]:
-            create_table += " PRIMARY KEY AUTO_INCREMENT"
+            create_table += ' PRIMARY KEY AUTO_INCREMENT'
         if i < len(fields) - 1:
             create_table += ', '
     if index is not None:
-        create_table += ", INDEX(" + ",".join(index) + ")"
+        create_table += ', INDEX(' + ','.join(index) + ')'
     if not auto_increment:
-        create_table += ", PRIMARY KEY(" + ",".join(primary_key) + ")"
-    create_table += ");"
+        create_table += ', PRIMARY KEY(' + ','.join(primary_key) + ')'
+    create_table += ');'
     cursor.execute(create_table)
 
 def insertRowIntoTable(cursor, table_name, features, types):
     command  = 'INSERT INTO ' + table_name + ' VALUES'
-    command += '('  
+    command += '('
     if features[0] is None:
         command += 'NULL'
     elif types[0].find('BIT') > -1:

@@ -1,16 +1,16 @@
 ## SecuML
 ## Copyright (C) 2016  ANSSI
-## 
+##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; either version 2 of the License, or
 ## (at your option) any later version.
-## 
+##
 ## SecuML is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-## 
+##
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
@@ -31,8 +31,6 @@ def getEstimatorColor(e):
         color = 'red'
     elif e == 'annotations':
         color = 'purple'
-    elif e == 'auto_labels':
-        color = 'green'
     return color
 
 class LabelsMonitoring(object):
@@ -45,9 +43,9 @@ class LabelsMonitoring(object):
         self.evolution_file  = self.monitoring.AL_directory
         self.evolution_file += 'labels_monitoring.csv'
         self.has_true_labels = self.monitoring.datasets.instances.hasTrueLabels()
-    
+
     def setOutputDirectory(self):
-        self.output_directory  = self.monitoring.iteration_dir 
+        self.output_directory  = self.monitoring.iteration_dir
         self.output_directory += 'labels_monitoring/'
         dir_tools.createDirectory(self.output_directory)
 
@@ -74,15 +72,14 @@ class LabelsMonitoring(object):
         self.labeled_monitoring.loadStats(self)
         self.unlabeled_monitoring = LabelsStats()
         self.unlabeled_monitoring.loadStats(self, unlabeled = True)
-        self.sublabels_monitoring = self.generateSublabelsMonitoring()
+        self.families_monitoring = self.generateFamiliesMonitoring()
         self.jsonExport()
 
-    def generateSublabelsMonitoring(self):
+    def generateFamiliesMonitoring(self):
         instances = self.monitoring.datasets.instances
         monitoring = {}
         for l in ['malicious', 'benign']:
-            sublabels = instances.getSublabelsValues(label = l)
-            monitoring[l] = len(instances.getSublabelsValues(label = l))
+            monitoring[l] = len(instances.getFamiliesValues(label = l))
         monitoring['global'] = monitoring['malicious'] + monitoring['benign']
         return monitoring
 
@@ -90,7 +87,7 @@ class LabelsMonitoring(object):
         labels = {}
         labels['unlabeled']   = self.unlabeled_monitoring.stats['global'].labels
         labels['annotations'] = self.labeled_monitoring.stats['global'].annotations
-        labels['sublabels']   = self.sublabels_monitoring
+        labels['families']   = self.families_monitoring
         with open(self.monitoring_file, 'w') as f:
             json.dump(labels, f, indent = 2)
 
@@ -119,7 +116,7 @@ class LabelsMonitoring(object):
             v.append(self.monitoring.iteration_number)
             v += self.labeled_monitoring.vectorRepresentation()
             for l in ['malicious', 'benign', 'global']:
-                v.append(self.sublabels_monitoring[l])
+                v.append(self.families_monitoring[l])
             print >>f, ','.join(map(str, v))
 
     def displayCsvHeader(self):
@@ -127,7 +124,7 @@ class LabelsMonitoring(object):
             header  = ['iteration']
             header += self.labeled_monitoring.vectorHeader()
             for l in ['malicious', 'benign', 'global']:
-                header.append('sublabels_' + l)
+                header.append('families_' + l)
             print >>f, ','.join(header)
 
     ##########################
@@ -140,7 +137,7 @@ class LabelsMonitoring(object):
         self.evolutions = {}
         for l in ['global', 'malicious', 'benign']:
             self.evolutions[l] = {}
-            for e in ['annotations', 'labels', 'errors', 'sublabels']:
+            for e in ['annotations', 'labels', 'errors', 'families']:
                 self.evolutions[l][e] = list(data.loc[:][e + '_' + l])
             ## Automatic labels
             self.evolutions[l]['auto_labels'] = [x - y for x, y in zip(
@@ -148,7 +145,7 @@ class LabelsMonitoring(object):
 
     def plotEvolutionMonitoring(self):
         self.plotLabelsEvolutionMonitoring()
-        self.plotSublabelsEvolutionMonitoring()
+        self.plotFamiliesEvolutionMonitoring()
 
     def plotLabelsEvolutionMonitoring(self):
         ## x = Iterations
@@ -204,25 +201,24 @@ class LabelsMonitoring(object):
         filename  = self.output_directory
         filename += 'annotations_prop_labels_' + 'global' + '.png'
         plt.savefig(filename)
-    
-    def plotSublabelsEvolutionMonitoring(self):
-        iterations = range(self.monitoring.iteration_number)
+
+    def plotFamiliesEvolutionMonitoring(self):
         annotations = self.evolutions['global']['annotations']
         plt.clf()
         if self.has_true_labels:
             max_value = 1
         else:
-            max_value = max(self.sublabels_monitoring['malicious'],
-                    self.sublabels_monitoring['benign'])
+            max_value = max(self.families_monitoring['malicious'],
+                    self.families_monitoring['benign'])
         for l in ['malicious', 'benign']:
-            evolution = self.evolutions[l]['sublabels']
+            evolution = self.evolutions[l]['families']
             if self.has_true_labels:
-                num_sublabels = len(self.monitoring.datasets.instances.getSublabelsValues(
+                num_families = len(self.monitoring.datasets.instances.getFamiliesValues(
                     label = l, true_labels = True))
-                evolution = [x / num_sublabels for x in evolution]
+                evolution = [x / num_families for x in evolution]
             color = colors_tools.getLabelColor(l)
             plt.plot(annotations, evolution,
-                    label = l,
+                    label = l.title(),
                     color = color, linewidth = 4, marker = 'o')
         plt.ylim(0, max_value)
         plt.xlabel('Num Annotations')
@@ -231,7 +227,7 @@ class LabelsMonitoring(object):
                 ncol = 2, mode = 'expand', borderaxespad = 0.,
                 fontsize = 'x-large')
         filename  = self.output_directory
-        filename += 'sublabels_monitoring.png'
+        filename += 'families_monitoring.png'
         plt.savefig(filename, bbox_extra_artists=(lgd,), bbox_inches='tight')
         plt.clf()
 

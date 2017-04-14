@@ -1,31 +1,15 @@
-function addCheckLabelsButton(project, dataset, experiment_label_id) {
-    var div = $('#check_labels_div')[0];
-    var button = document.createElement('button');
-    var button_text = document.createTextNode('Check Labels');
-    button.appendChild(button_text);
-    var label_iteration = getIteration();
-    if (!label_iteration) {
-        label_iteration = 0;
-    }
-    button.addEventListener('click', function() {
-        var query = buildQuery('labeledInstances',
-                [project, dataset, experiment_label_id, label_iteration]);
-        window.open(query);
-    });
-    div.appendChild(button)
-}
-
-function getNumIterations(args) {
+function getNumIterations(conf) {
     var xmlHttp = new XMLHttpRequest();
-    var query = buildQuery('getNumIterations', args);
+    var query = buildQuery('getNumIterations',
+                           [conf.project, conf.dataset, conf.experiment_id]);
     xmlHttp.open('GET', query, false);
     xmlHttp.send(null);
     var num_iterations = xmlHttp.responseText;
     return parseInt(num_iterations);
 }
 
-function displayIterationSelector(args, conf) {
-  var num_iterations = getNumIterations(args);
+function displayIterationSelector(conf) {
+  var num_iterations = getNumIterations(conf);
   iterations = [];
   for (var i = 1; i <= num_iterations; i++) {
     iterations.push(i);
@@ -33,8 +17,12 @@ function displayIterationSelector(args, conf) {
   addElementsToSelectList('iteration_selector', iterations);
   var iteration_selector = $('#iteration_selector')[0];
   iteration_selector.addEventListener('change', function() {
-      return displayIteration(args, conf)
+      return displayIteration(conf);
   });
+  // The last iteration is automatically selected
+  if (num_iterations >= 1) {
+    iteration_selector.selectedIndex = num_iterations - 1;
+  }
 }
 
 function getIteration() {
