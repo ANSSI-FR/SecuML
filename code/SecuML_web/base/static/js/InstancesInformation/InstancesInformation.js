@@ -9,10 +9,9 @@ function displayInstancePanel(parent_div) {
   instance_title.setAttribute('id', 'instance_title');
   var annotation = createPanel('panel-primary', 'col-md-5', 'Annotation', instance);
   annotation.setAttribute('id', 'instance_label');
-  var description = createDivWithClass(null, 'col-md-7', instance);
-  var instance_panel = createPanel('panel-primary', 'col-md-12', 'Description', description);
+  var instance_panel = createPanel('panel-primary', 'col-md-7', 'Description', instance);
   var instance_proba = createDivWithClass('instance_predicted_proba', 'row', instance_panel);
-  var instance_data = createDivWithClass('instance_data', 'row', instance_panel);
+  var instance_data = createDivWithClass('instance_data', 'col', instance_panel);
 }
 
 function setInstancesSettings(train_test, project, dataset, experiment_id, experiment_label_id,
@@ -399,13 +398,14 @@ function printWeightedFeatures(selected_id) {
     var query = buildQuery('getTopWeightedFeatures',
                 [project, dataset, experiment_id, inst_dataset, inst_exp_id, selected_id, num_coeff]);
     jQuery.getJSON(query, function(data) {
-        var tooltip_data = data.datasets[0].tooltip_data
-        var options = barPlotOptions(data, tooltip_data);
+        var tooltip_data = data.tooltip_data;
+        var options = barPlotOptions(data);
+        barPlotAddTooltips(options, tooltip_data);
+        barPlotAddBands(options, true);
         options.legend.display = false;
         var barPlot = drawBarPlot('instance_graph_div', options,
                                   data, 'horizontalBar');
-        graph_div.style.width = '800px';
-        graph_div.style.height = '500px';
+        graph_div.style.height = '400px';
     });
 }
 
