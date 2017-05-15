@@ -1,11 +1,4 @@
-function barPlotOptions(data, xlabel, ylabel, tooltips_data = false) {
-    var tooltips_function = function(tooltipItem, data) {
-        if (tooltips_data) {
-            return String(tooltips_data[tooltipItem.index]);
-        } else {
-            return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-        }
-    }
+function barPlotOptions(data, xlabel, ylabel) {
     var options = {
         responsive: true,
         maintainAspectRatio:false,
@@ -13,9 +6,6 @@ function barPlotOptions(data, xlabel, ylabel, tooltips_data = false) {
             mode: 'label',
             backgroundColor: 'rgba(0,0,0,0.5)',
             bodySpacing: 5,
-            callbacks: {
-                label: tooltips_function
-                }
         },
         legend: {
             display: true,
@@ -42,18 +32,32 @@ function barPlotOptions(data, xlabel, ylabel, tooltips_data = false) {
                 }
             }]
         },
-        bands: {
-            yValue: 0,
-            bandLine: {
-                stroke: 2,
-                colour: 'black'
-            },
-            belowThresholdColour: [
-                '#5cb85c',
-            ]
-        }
     };
+
     return options
+}
+
+function barPlotAddTooltips(options, tooltips_data = false) {
+    var tooltips_function = function(tooltipItem, data) {
+        if (tooltips_data) {
+            return String(tooltips_data[tooltipItem.index]);
+        } else {
+            return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+        }
+    }
+    options.tooltips.callbacks = {label: tooltips_function};
+}
+
+function barPlotAddBands(options, bands) {
+    if (bands) {
+        options.bands = {yValue: 0,
+                            bandLine: {
+                                stroke: 2,
+                                colour: 'black'},
+                            belowThresholdColour: [
+                                '#5cb85c']
+                        };
+    }
 }
 
 function drawBarPlot(div_name, options, data, type = 'bar',

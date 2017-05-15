@@ -111,20 +111,23 @@ function pluginBandOptionsHaveBeenSet (bandOptions) {
 }
 
 function calculateGradientFill (ctx, scale, size, baseColor, gradientColor, value, isVertical) {
-    var yPos = scale.getPixelForValue(value),
-        grd = ctx.createLinearGradient(0, (1-isVertical) * size, isVertical * size, 0),
-        gradientStop = isVertical ? (yPos / size) : 1 - (yPos / size);
+    if (size != 0)
+    {
+            var yPos = scale.getPixelForValue(value),
+            grd = ctx.createLinearGradient(0, (1-isVertical) * size, isVertical * size, 0),
+            gradientStop = isVertical ? (yPos / size) : 1 - (yPos / size);
 
-    try {
-        grd.addColorStop(0, gradientColor);
-        grd.addColorStop(gradientStop, gradientColor);
-        grd.addColorStop(gradientStop, baseColor);
-        grd.addColorStop(1.00, baseColor);
+        try {
+            grd.addColorStop(0, gradientColor);
+            grd.addColorStop(gradientStop, gradientColor);
+            grd.addColorStop(gradientStop, baseColor);
+            grd.addColorStop(1.00, baseColor);
 
-        return grd;
-    } catch (e) {
-        console.warn('ConfigError: Chart.Bands.js had a problem applying one or more colors please check that you have selected valid color strings');
-        return baseColor;
+            return grd;
+        } catch (e) {
+            console.warn('ConfigError: Chart.Bands.js had a problem applying one or more colors please check that you have selected valid color strings');
+            return baseColor;
+        }
     }
 }
 
@@ -142,8 +145,13 @@ function isPluginSupported (type) {
 var BandsPlugin = Chart.PluginBase.extend({
     beforeInit: function (chartInstance) {
         isPluginSupported(chartInstance.config.type);
-        chartInstance.hasBands = true;
-        chartInstance.isVertical = true;
+        if(typeof chartInstance.options.bands !== 'undefined') {
+            chartInstance.hasBands = true;
+            chartInstance.isVertical = true;
+        } else {
+            chartInstance.hasBands = false;
+            chartInstance.isVertical = false;
+        }
         // capture the baseColors so we can reapply on resize.
         for (var i = 0; i < chartInstance.chart.config.data.datasets.length; i++) {
             baseColor[i] = chartInstance.chart.config.data.datasets[i][colourProfile];

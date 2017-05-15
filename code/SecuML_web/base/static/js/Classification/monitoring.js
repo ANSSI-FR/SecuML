@@ -104,10 +104,10 @@ function displayCoefficients(conf, sup_exp = null) {
     [conf.project, conf.dataset, exp, num_coeff]);
   $.getJSON(query, function (data) {
       var options = barPlotOptions(data);
+      barPlotAddBands(options, true);
       options.legend.display = false;
       var barPlot = drawBarPlot('model_coefficients',
                                  options, data, 'horizontalBar');
       model_coefficients_div.style.height = '400px';
-      model_coefficients_div.style.width = '500px';
   });
 }

@@ -33,7 +33,6 @@ function displayPredictionsBarplot(div_obj, conf, train_test, exp) {
                                 height = null,
                                 callback = callback);
       div_obj.style.height = '400px';
-      div_obj.style.width  = '500px';
   });
 }
 
