@@ -127,7 +127,7 @@ function displayThresholdPerfIndicators(div_obj, conf, train_test, exp) {
   var slider_row = createDivWithClass('slider_row_' + train_test, 'row', parent_div = div_obj);
   var threshold_col = createDivWithClass('threshold_col_' + train_test, 'col-md-6', parent_div = slider_row);
   threshold_col.appendChild(document.createTextNode('Detection threshold: 50%'));
-  var slider_col = createDivWithClass('slider_col_' + train_test, 'col-md-4', parent_div = slider_row);
+  var slider_col = createDivWithClass('slider_col_' + train_test, 'col-md-6', parent_div = slider_row);
   createDiv('slider_' + train_test, parent_div = slider_col);
   $( function() {
     $('#slider_' + train_test).slider({
