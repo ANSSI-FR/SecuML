@@ -39,8 +39,8 @@ class AlertsConfiguration(object):
 
     def toJson(self):
         conf = {}
-        conf['__type__'] = 'AlertsConfiguration'
-        conf['num_max_alerts'] = self.num_max_alerts
+        conf['__type__']            = 'AlertsConfiguration'
+        conf['num_max_alerts']      = self.num_max_alerts
         conf['detection_threshold'] = self.detection_threshold
-        conf['clustering_conf'] = self.clustering_conf.toJson()
+        conf['clustering_conf']     = self.clustering_conf.toJson()
         return conf

@@ -14,11 +14,6 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-def getInstanceIdMax(cursor):
-    cursor.execute('SELECT MAX(Idents.instance_id) FROM Idents')
-    id_max = cursor.fetchone()[0]
-    return id_max
-
 def getAllIds(cursor):
     query  = 'SELECT Idents.instance_id '
     query += 'FROM Idents;'
@@ -43,29 +38,3 @@ def getAllIdents(cursor):
     query += 'FROM Idents;'
     cursor.execute(query)
     return [x[0] for x in cursor.fetchall()]
-
-def getIdents(cursor, ids):
-    if len(ids) == 0:
-        return []
-    query  = 'SELECT Idents.ident '
-    query += 'FROM Idents '
-    query += 'WHERE Idents.instance_id IN ('
-    query += ','.join(map(str, ids)) + ');'
-    cursor.execute(query)
-    return [x[0] for x in cursor.fetchall()]
-
-def getIds(cursor, idents):
-    if len(idents) == 0:
-        return []
-    query  = 'SELECT Idents.instance_id '
-    query += 'FROM Idents '
-    query += 'WHERE Idents.ident IN ('
-    query += ','.join(['"' + x + '"' for x in idents]) + ');'
-    cursor.execute(query)
-    return [x[0] for x in cursor.fetchall()]
-
-def getNumInstances(cursor):
-    query  = 'SELECT COUNT(*) '
-    query += 'FROM Idents;'
-    cursor.execute(query)
-    return int(cursor.fetchone()[0])

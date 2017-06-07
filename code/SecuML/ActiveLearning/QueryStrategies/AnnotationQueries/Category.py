@@ -87,6 +87,11 @@ class Category(object):
             for q, query in enumerate(queries):
                 query.annotateAuto(iteration, self.label)
 
+    def getManualAnnotations(self, iteration):
+        for k, queries in self.annotation_queries.iteritems():
+            for q, query in enumerate(queries):
+                query.getManualAnnotation(iteration)
+
     def setLikelihood(self, likelihood):
         self.likelihood = likelihood
         self.df['likelihood'] = likelihood
@@ -191,7 +196,7 @@ class Category(object):
         if kind not in self.annotation_queries.keys():
             self.annotation_queries[kind] = []
         for index, row in queries_df.iterrows():
-            query = AnnotationQuery(int(index), row['likelihood'], self.label, self.family)
+            query = AnnotationQuery(int(index), row['likelihood'], self.label, self.family, confidence = confidence)
             self.annotation_queries[kind].append(query)
             self.queries.append(int(index))
             self.queries_confidence.append(confidence)

@@ -32,6 +32,10 @@ class QueryStrategy(object):
     def annotateAuto(self):
         return
 
+    @abc.abstractmethod
+    def getManualAnnotations(self):
+        return
+
     def getClusteringsEvaluations(self):
         return None
 

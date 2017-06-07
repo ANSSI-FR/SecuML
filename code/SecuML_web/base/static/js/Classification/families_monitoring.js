@@ -37,8 +37,8 @@ function displayFamiliesPerformance(project, dataset, experiment_id, train_test,
       var options = barPlotOptions(data);
       var barPlot = drawBarPlot(perf_div_name,
                                  options, data);
-      perf_div.style.height = '800px';
-      perf_div.style.width = '1200px';
+      var div_height = Math.round(window.screen.availHeight * 0.75) + 'px';
+      perf_div.style.height = div_height;
   });
 
 }

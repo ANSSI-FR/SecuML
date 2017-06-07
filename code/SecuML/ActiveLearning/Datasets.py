@@ -84,12 +84,8 @@ class Datasets(object):
     def getFeaturesNames(self):
         return self.instances.getFeaturesNames()
 
-    def getTrainInstances(self):
-        method = self.experiment.labeling_method
-        if method == 'Ilab':
-            if self.experiment.conf.train_semiauto:
-                return self.getLabeledInstances()
-        if self.experiment.classification_conf.semi_supervised:
+    def getTrainInstances(self, conf):
+        if conf.semi_supervised:
             return self.instances
         else:
             return self.getAnnotatedInstances()

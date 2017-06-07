@@ -1,0 +1,7 @@
+BROKER_URL='amqp://guest@localhost//',
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Europe/Paris'
+CELERYD_CONCURRENCY = 1
+CELERY_DEFAULT_QUEUE = 'SecuMLActiveLearning'
+CELERY_CREATE_MISSING_QUEUES = False

@@ -17,12 +17,13 @@
 from SecuML.Classification.Classifiers.GaussianNaiveBayes import GaussianNaiveBayes
 import ClassifierConfFactory
 from ClassifierConfiguration import ClassifierConfiguration
+from TestConfiguration import TestConfiguration
 
 class GaussianNaiveBayesConfiguration(ClassifierConfiguration):
 
-    def __init__(self, num_folds, sample_weight, families_supervision, alerts_conf = None):
-        ClassifierConfiguration.__init__(self, num_folds, sample_weight, families_supervision,
-                alerts_conf = alerts_conf)
+    def __init__(self, num_folds, sample_weight, families_supervision, test_conf):
+        ClassifierConfiguration.__init__(self, num_folds, sample_weight,
+                                         families_supervision, test_conf)
         if self.sample_weight:
             raise ValueError('Gaussian Naive Bayes does not support sample weights.')
         self.model_class = GaussianNaiveBayes
@@ -41,7 +42,9 @@ class GaussianNaiveBayesConfiguration(ClassifierConfiguration):
 
     @staticmethod
     def fromJson(obj, exp):
-        conf = GaussianNaiveBayesConfiguration(obj['num_folds'], obj['sample_weight'], obj['families_supervision'])
+        test_conf = TestConfiguration.fromJson(obj['test_conf'], exp)
+        conf = GaussianNaiveBayesConfiguration(obj['num_folds'], obj['sample_weight'],
+                                               obj['families_supervision'], test_conf)
         ClassifierConfiguration.setTestConfiguration(conf, obj, exp)
         return conf
 
@@ -58,6 +61,15 @@ class GaussianNaiveBayesConfiguration(ClassifierConfiguration):
 
     def featureCoefficients(self):
         return False
+
+    @staticmethod
+    def generateParser(parser):
+        classifier_group = ClassifierConfiguration.generateParser(parser)
+
+    @staticmethod
+    def generateParamsFromArgs(args, experiment):
+        params = ClassifierConfiguration.generateParamsFromArgs(args, experiment)
+        return params
 
 ClassifierConfFactory.getFactory().registerClass('GaussianNaiveBayesConfiguration',
         GaussianNaiveBayesConfiguration)

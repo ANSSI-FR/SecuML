@@ -1,6 +1,9 @@
 function generateDivisions(conf) {
   generateFirstRowDivisions(conf);
-  generateSecondRowDivisions(conf);
+  if (view == 'ml') {
+    generateSecondRowDivisions(conf);
+  }
+  generateTabs(conf);
 }
 
 function generateFirstRowDivisions(conf) {
@@ -21,18 +24,21 @@ function generateFirstRowDivisions(conf) {
       parent_div = iteration_selector_panel);
   var stats_div = createPanel('panel-info', null, 'Annotation Progress', iteration_info_col);
   stats_div.id = 'stats';
-  var check_annotations_div = createPanel('panel-info', null, 'Check Annotations', iteration_info_col);
-  check_annotations_div.id = 'check_annotations';
+  var check_annotations_div = createDiv('check_annotations', parent_div = iteration_info_col, title = null);
+  var edit_families_div = createDiv('edit_families', parent_div = iteration_info_col, title = null);
 
   // Evolution monitoring
-  var evolution_monitoring = createPanel('panel-primary', 'col-md-3', 'Evolution Monitoring', main);
+  var col_size = 'col-md-4';
+  var evolution_monitoring = createPanel('panel-primary', col_size, 'Evolution Monitoring', main);
   createDivWithClass('evolution_monitoring', 'tabbable boxed parentTabs', evolution_monitoring);
 
   // Coefficient interpretation (only if available)
-  if (conf.classification_conf) {
-    if (conf.classification_conf.feature_coefficients) {
-      var model_coefficients = createPanel('panel-primary', 'col-md-4', 'Model Coefficients', main);
-      model_coefficients.setAttribute('id', 'model_coefficients');
+  if (view == 'ml') {
+    if (conf.classification_conf) {
+      if (conf.classification_conf.feature_coefficients) {
+        var model_coefficients = createPanel('panel-primary', 'col-md-4', 'Model Coefficients', main);
+        model_coefficients.setAttribute('id', 'model_coefficients');
+      }
     }
   }
 }
@@ -40,12 +46,19 @@ function generateFirstRowDivisions(conf) {
 function generateSecondRowDivisions(conf) {
   var row = $('#row_3')[0];
   var col_size = 'col-md-4';
-  if (conf.classification_conf) {
-    // Train, test and validation monitoring
-    createTrainTestMonitoring('train', col_size, row);
-    createTrainTestMonitoring('test', col_size, row);
-    if (conf.validation_conf) {
-      createTrainTestMonitoring('validation', col_size, row);
-    }
+  if (conf.validation_conf) {
+    monitorings = ['train', 'test', 'validation'];
+  } else {
+    monitorings = ['train', 'cv', 'test'];
+  }
+  for (var i in monitorings) {
+    createTrainTestMonitoring(monitorings[i], col_size, row);
+  }
+}
+
+function generateTabs(conf) {
+  displayEvolutionMonitoringTabs(conf);
+  for (var i in monitorings) {
+    displayMonitoringTabs(conf, monitorings[i]);
   }
 }

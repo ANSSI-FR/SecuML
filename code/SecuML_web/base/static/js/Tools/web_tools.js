@@ -8,24 +8,6 @@ function buildQuery(name, args) {
   return query;
 }
 
-function makeRadioButton(name, value, text, checked, callback,
-                parent_div = null) {
-  var label = document.createElement('label');
-  var radio = document.createElement('input');
-  radio.setAttribute('id', 'radio_' + value);
-  radio.type = 'radio';
-  radio.name = name;
-  radio.value = value;
-  radio.checked = checked;
-  radio.addEventListener('change', callback);
-  label.appendChild(radio);
-  label.appendChild(document.createTextNode(text));
-  if (parent_div) {
-    parent_div.appendChild(label);
-  }
-  return label;
-}
-
 function addTitle(div, title) {
   var h = document.createElement('h4');
   h.textContent = title;
@@ -192,7 +174,8 @@ function cleanDiv(div_name) {
   return div_content;
 }
 
-function createSelectList(id, size, callback, parent_div, label = null) {
+function createSelectList(id, size, callback, parent_div, label = null,
+        multiple = false) {
     var form_group = createDivWithClass('', 'form-group');
     parent_div.appendChild(form_group);
     if (label) {
@@ -203,6 +186,9 @@ function createSelectList(id, size, callback, parent_div, label = null) {
     }
     var select = document.createElement('SELECT');
     select.setAttribute('class', 'form-control');
+    if (multiple) {
+      select.setAttribute('multiple', 'multiple');
+    }
     select.setAttribute('id', id);
     select.setAttribute('size', size);
     select.addEventListener('change', callback);
@@ -233,6 +219,6 @@ function getSelectedOption(selector) {
         console.log('No element selected');
         return null;
     } else {
-        return selector[selector.selectedIndex].value;
+        return $('#' + selector.id).val();
     }
 }

@@ -24,6 +24,10 @@ class ExecutionTimeMonitoring(object):
         self.evolution_file  = self.monitoring.AL_directory
         self.evolution_file += 'execution_time_monitoring.csv'
 
+    def generateMonitoring(self):
+        self.iterationMonitoring()
+        self.evolutionMonitoring()
+
     def iterationMonitoring(self):
         self.displayCsvLine()
 

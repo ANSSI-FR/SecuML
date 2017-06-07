@@ -32,6 +32,11 @@ def getExperiment(project, dataset, experiment_id):
     experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id, db, cursor)
     return render_template(experiment.webTemplate(), project = project)
 
+@app.route('/SecuML/<project>/<dataset>/<experiment_id>/<feature>/')
+def getDescriptiveStatsExperiment(project, dataset, experiment_id, feature):
+    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id, db, cursor)
+    return render_template(experiment.webTemplate(), feature = {'feature': feature})
+
 @app.route('/getExperimentsNames/<project>/<dataset>/<exp_kind>/')
 def getExperimentsNames(project, dataset, exp_kind):
     db.commit()
@@ -83,3 +88,8 @@ def getConf(project, dataset, experiment_id):
     mysql_tools.useDatabase(cursor, project, dataset)
     conf['has_true_labels'] = labels_tools.hasTrueLabels(cursor)
     return jsonify(conf)
+
+@app.route('/getDescriptiveStatsExp/<project>/<dataset>/<features_filenames>/')
+def getDescriptiveStatsExp(project, dataset, features_filenames):
+    mysql_tools.useDatabase(cursor, project, dataset)
+    return str(experiment_db_tools.getDescriptiveStatsExp(cursor, features_filenames))

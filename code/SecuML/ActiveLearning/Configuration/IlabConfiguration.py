@@ -16,50 +16,85 @@
 
 import ActiveLearningConfFactory
 from ActiveLearningConfiguration import ActiveLearningConfiguration
-from InteractiveClusteringConfiguration import InteractiveClusteringConfiguration
+from RareCategoryDetectionStrategy import RareCategoryDetectionStrategy
 from SecuML.ActiveLearning.QueryStrategies.Ilab import Ilab
+from SecuML.Classification.Configuration import ClassifierConfFactory
+from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 
 class IlabConfiguration(ActiveLearningConfiguration):
 
-    def __init__(self, rare_category_detection_conf, num_annotations, num_uncertain, eps, train_semiauto):
+    def __init__(self, auto, budget, rare_category_detection_conf, num_uncertain, eps, binary_model_conf):
+        ActiveLearningConfiguration.__init__(self, auto, budget)
         self.labeling_method              = 'Ilab'
         self.eps                          = eps
-        self.train_semiauto               = train_semiauto
         self.num_uncertain                = num_uncertain
         self.rare_category_detection_conf = rare_category_detection_conf
+        self.setBinaryModelConf(binary_model_conf)
+
+    def setBinaryModelConf(self, binary_model_conf):
+        conf = {}
+        conf['binary'] = binary_model_conf
+        ActiveLearningConfiguration.setModelsConf(self, conf)
 
     def getStrategy(self, iteration):
         return Ilab(iteration)
-
-    def setFixedNumberAnnotations(self, num_malicious, num_benign, cluster_weights):
-        self.rare_category_detection_conf.setFixedNumberAnnotations(num_malicious, num_benign, cluster_weights)
-
-    def setNumberAnnotations(self, r):
-        self.rare_category_detection_conf.setNumberAnnotations(r)
 
     def generateSuffix(self):
         suffix = ''
         suffix += self.rare_category_detection_conf.generateSuffix()
         suffix += '__numUnsure' + str(self.num_uncertain)
-        if self.train_semiauto:
-            suffix += '__trainSemiAuto'
         return suffix
 
     @staticmethod
-    def fromJson(obj):
-        rare_category_detection_conf = InteractiveClusteringConfiguration.fromJson(
-                obj['rare_category_detection_conf'])
-        conf = IlabConfiguration(rare_category_detection_conf, None, obj['num_uncertain'], obj['eps'],
-                obj['train_semiauto'])
+    def fromJson(obj, experiment):
+        rare_category_detection_conf = RareCategoryDetectionStrategy.fromJson(obj['rare_category_detection_conf'])
+        binary_model_conf = ClassifierConfFactory.getFactory().fromJson(obj['models_conf']['binary'], experiment)
+        conf = IlabConfiguration(obj['auto'], obj['budget'],
+                                 rare_category_detection_conf,
+                                 obj['num_uncertain'], obj['eps'],
+                                 binary_model_conf)
         return conf
 
     def toJson(self):
-        conf = {}
+        conf = ActiveLearningConfiguration.toJson(self)
         conf['__type__']                     = 'IlabConfiguration'
         conf['eps']                          = self.eps
-        conf['train_semiauto']               = self.train_semiauto
         conf['num_uncertain']                = self.num_uncertain
         conf['rare_category_detection_conf'] = self.rare_category_detection_conf.toJson()
         return conf
+
+    @staticmethod
+    def generateParser(parser):
+        al_group = ActiveLearningConfiguration.generateParser(parser)
+        al_group.add_argument('--num-uncertain',
+                type = int,
+                default = 10,
+                help = 'Number of instances queried close to the decision boundary.')
+        al_group.add_argument('--num-annotations',
+                type = int,
+                default = 45,
+                help = 'Number of instances queried for each family.')
+        al_group.add_argument('--cluster-strategy',
+                default = 'center_anomalous')
+
+    @staticmethod
+    def generateParamsFromArgs(args):
+        params = ActiveLearningConfiguration.generateParamsFromArgs(args)
+        multiclass_classifier_args = {}
+        multiclass_classifier_args['num_folds']            = args.num_folds
+        multiclass_classifier_args['sample_weight']        = False
+        multiclass_classifier_args['families_supervision'] = True
+        test_conf = TestConfiguration()
+        test_conf.setUnlabeled(labels_annotations = 'annotations')
+        multiclass_classifier_args['test_conf'] = test_conf
+        multiclass_conf = ClassifierConfFactory.getFactory().fromParam(
+                'LogisticRegression', multiclass_classifier_args)
+        rare_category_detection_conf = RareCategoryDetectionStrategy(multiclass_conf,
+                args.cluster_strategy, args.num_annotations, 'uniform')
+        params['rare_category_detection_conf'] = rare_category_detection_conf
+        params['num_uncertain'] = args.num_uncertain
+        params['eps'] = 0.49
+        return params
+
 
 ActiveLearningConfFactory.getFactory().registerClass('IlabConfiguration', IlabConfiguration)

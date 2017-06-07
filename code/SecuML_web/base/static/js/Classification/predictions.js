@@ -7,6 +7,7 @@ var selected_index = window.location.pathname.split('/')[6];
 var instances_list           = null;
 var num_instances            = null;
 var current_instance_index   = null;
+var has_families             = null;
 
 function getCurrentInstance() {
   return instances_list[current_instance_index];
@@ -45,13 +46,16 @@ function updateInstancesDisplay(project, dataset, experiment_id, selected_index)
   $.getJSON(query,
             function(data) {
                 instances_list = data['instances'];
-                console.log(instances_list);
                 current_instance_index = 0;
                 num_instances = instances_list.length;
                 var iter_label = cleanDiv('iter_label');
-                iter_label.appendChild(
-                 document.createTextNode((current_instance_index+1) + ' / ' + num_instances));
-                printInstanceInformation(instances_list[current_instance_index]);
+                if (num_instances > 0) {
+                  iter_label.appendChild(
+                   document.createTextNode((current_instance_index+1) + ' / ' + num_instances));
+                  printInstanceInformation(instances_list[current_instance_index]);
+                } else {
+                  iter_label.appendChild(document.createTextNode('0 / 0'));
+                }
             }
            );
 }
@@ -100,7 +104,6 @@ function displayPredictionBarplot() {
                                   height = null,
                                   callback = updateDisplay);
         div_obj.style.height = '400px';
-        div_obj.style.width  = '500px';
     });
 }
 
@@ -158,5 +161,6 @@ function displayDivisions(selected_index) {
   displayInstancePanel(row);
 
   displayInstanceInformationStructure();
-  displayAnnotationDiv();
+  var interactive = !hasTrueLabels(project, inst_dataset);
+  displayAnnotationDiv(false, interactive);
 }

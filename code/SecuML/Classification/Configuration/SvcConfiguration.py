@@ -22,9 +22,9 @@ from ClassifierConfiguration import ClassifierConfiguration, LearningParameter
 
 class SvcConfiguration(ClassifierConfiguration):
 
-    def __init__(self, num_folds, sample_weight, families_supervision, alerts_conf = None):
-        ClassifierConfiguration.__init__(self, num_folds, sample_weight, families_supervision,
-                alerts_conf = alerts_conf)
+    def __init__(self, num_folds, sample_weight, families_supervision, test_conf = None):
+        ClassifierConfiguration.__init__(self, num_folds, sample_weight,
+                                         families_supervision, test_conf = test_conf)
         self.model_class = Svc
         self.c = LearningParameter(list(10. ** np.arange(-2, 2)))
 
@@ -47,7 +47,8 @@ class SvcConfiguration(ClassifierConfiguration):
 
     @staticmethod
     def fromJson(obj, exp):
-        conf = SvcConfiguration(obj['num_folds'], obj['sample_weight'], obj['families_supervision'])
+        conf = SvcConfiguration(obj['num_folds'], obj['sample_weight'],
+                                obj['families_supervision'])
         ClassifierConfiguration.setTestConfiguration(conf, obj, exp)
         conf.c = LearningParameter.fromJson(obj['c'])
         return conf
@@ -66,5 +67,14 @@ class SvcConfiguration(ClassifierConfiguration):
 
     def featureCoefficients(self):
         return True
+
+    @staticmethod
+    def generateParser(parser):
+        classifier_group = ClassifierConfiguration.generateParser(parser)
+
+    @staticmethod
+    def generateParamsFromArgs(args, experiment):
+        params = ClassifierConfiguration.generateParamsFromArgs(args, experiment)
+        return params
 
 ClassifierConfFactory.getFactory().registerClass('SvcConfiguration', SvcConfiguration)

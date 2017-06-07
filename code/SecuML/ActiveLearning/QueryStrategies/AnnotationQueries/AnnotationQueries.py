@@ -33,7 +33,7 @@ class AnnotationQueries(object):
         self.generateAnnotationQueries()
         self.generate_queries_time = time.time() - start_time
         print 'generate_queries_time', self.generate_queries_time
-        self.finalComputations()
+        self.exportAnnotationQueries()
 
     @abc.abstractmethod
     def runModels(self):
@@ -43,14 +43,11 @@ class AnnotationQueries(object):
     def generateAnnotationQueries(self):
         return
 
-    def finalComputations(self):
-        self.exportAnnotationQueries()
-
     def getPredictedProbabilities(self):
-        if self.iteration.experiment.classification_conf is not None:
-            classifier = self.iteration.train_test_validation.binary_classifier
-            predictions = classifier.testing_monitoring.\
-                    predictions_monitoring.predictions
+        models_conf = self.iteration.experiment.conf.models_conf
+        if 'binary' in models_conf:
+            classifier = self.iteration.train_test_validation.models['binary']
+            predictions = classifier.testing_monitoring.predictions_monitoring.predictions
         else:
             test_instances = self.iteration.datasets.getTestInstances()
             num_instances  = test_instances.numInstances()
@@ -76,6 +73,10 @@ class AnnotationQueries(object):
     def annotateAuto(self):
         for annotation_query in self.annotation_queries:
             annotation_query.annotateAuto(self.iteration, self.label)
+
+    def getManualAnnotations(self):
+        for annotation_query in self.annotation_queries:
+            annotation_query.getManualAnnotation(self.iteration)
 
     def getInstanceIds(self):
         instance_ids = []

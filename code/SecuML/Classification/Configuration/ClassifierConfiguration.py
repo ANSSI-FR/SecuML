@@ -16,7 +16,11 @@
 
 import abc
 
+from SecuML.Clustering.Configuration import ClusteringConfFactory
+from SecuML.Experiment.Experiment import Experiment
+
 import ClassifierConfFactory
+from AlertsConfiguration import AlertsConfiguration
 from TestConfiguration import TestConfiguration
 
 class LearningParameter(object):
@@ -43,24 +47,15 @@ class LearningParameter(object):
 
 class ClassifierConfiguration(object):
 
-    def __init__(self, num_folds, sample_weight, families_supervision, alerts_conf = None):
-        self.num_folds = num_folds
-        self.sample_weight = sample_weight
+    def __init__(self, num_folds, sample_weight, families_supervision, test_conf):
+        self.num_folds            = num_folds
+        self.sample_weight        = sample_weight
         self.families_supervision = families_supervision
-        self.model_class = None
-        self.test_conf = TestConfiguration(alerts_conf = alerts_conf)
+        self.model_class          = None
+        self.test_conf            = test_conf
         self.probabilist_model    = self.probabilistModel()
         self.semi_supervised      = self.semiSupervisedModel()
         self.feature_coefficients = self.featureCoefficients()
-
-    def setTestDataset(self, test_dataset, exp):
-        self.test_conf.setTestDataset(test_dataset, exp)
-
-    def setRandomSplit(self, test_size):
-        self.test_conf.setRandomSplit(test_size)
-
-    def setUnlabeled(self, labels_annotations = 'labels'):
-        self.test_conf.setUnlabeled(labels_annotations)
 
     def generateSuffix(self):
         suffix  = '__' + self.getModelClassName()
@@ -93,19 +88,20 @@ class ClassifierConfiguration(object):
 
     @staticmethod
     def fromJson(obj, exp):
-        conf = ClassifierConfiguration(obj['num_folds'], obj['sample_weight'], obj['families_supervision'])
+        conf = ClassifierConfiguration(obj['num_folds'], obj['sample_weight'],
+                                       obj['families_supervision'])
         ClassifierConfiguration.setTestConfiguration(conf, obj, exp)
         return conf
 
     def toJson(self):
         conf = {}
         conf['__type__'] = 'ClassifierConfiguration'
-        conf['num_folds']             = self.num_folds
-        conf['sample_weight']         = self.sample_weight
-        conf['test_conf']             = self.test_conf.toJson()
+        conf['num_folds']            = self.num_folds
+        conf['sample_weight']        = self.sample_weight
+        conf['test_conf']            = self.test_conf.toJson()
         conf['families_supervision'] = self.families_supervision
-        conf['probabilist_model']     = self.probabilist_model
-        conf['feature_coefficients']  = self.feature_coefficients
+        conf['probabilist_model']    = self.probabilist_model
+        conf['feature_coefficients'] = self.feature_coefficients
         return conf
 
     @abc.abstractmethod
@@ -119,6 +115,86 @@ class ClassifierConfiguration(object):
     @abc.abstractmethod
     def featureCoefficients(self):
         return
+
+    @staticmethod
+    def generateParser(parser):
+        Experiment.projectDatasetFeturesParser(parser)
+
+        parser.add_argument('--num-folds',
+                            type = int,
+                            default = 4)
+        parser.add_argument('--multilabel',
+                            action = 'store_true',
+                            default = False)
+        sample_weight_help  = 'When set to True, the detection model is learned with '
+        sample_weight_help += 'sample weights inverse to the proportion of the family '
+        sample_weight_help += 'in the dataset. Useless if the families are not specified.'
+        parser.add_argument('--sample-weight',
+                            action = 'store_true',
+                            default = False,
+                            help = sample_weight_help)
+
+        ## Validation parameters
+        validation_help  = 'Validation parameters: \n '
+        validation_help += 'The detection model is validated with a proportion of '
+        validation_help += 'the instances in the input dataset, or with a separate validation'
+        validation_help += ' dataset. By default 10% of the instances are used for validation'
+        validation_group = parser.add_argument_group(validation_help)
+        validation_group.add_argument('--test-size',
+                type = float,
+                default = 0.1)
+        validation_group.add_argument('--validation-dataset',
+                default = None)
+
+        ## Alerts
+        alerts_group = parser.add_argument_group(
+                'Alerts parameters')
+        alerts_group.add_argument('--top-n-alerts',
+                default = 100,
+                help = 'Number of most confident alerts displayed.')
+        alerts_group.add_argument('--detection-threshold',
+                type = float,
+                default = 0.8,
+                help = 'An alert is raised if the predicted probability of maliciousness ' +
+                'is above this threshold.')
+        alerts_group.add_argument('--clustering-algo',
+                default = 'Kmeans',
+                choices = ['Kmeans', 'GaussianMixture'],
+                help = 'Clustering algorithm to analyse the alerts.')
+        alerts_group.add_argument('--num-clusters',
+                type = int,
+                default = 4,
+                help = 'Number of clusters built from the alerts.')
+
+    @staticmethod
+    def generateParamsFromArgs(args, experiment):
+
+        # Alerts configuration
+        params = {}
+        params['num_clusters'] = args.num_clusters
+        params['num_results'] = None
+        params['projection_conf'] = None
+        params['label'] = 'all'
+        clustering_conf = ClusteringConfFactory.getFactory().fromParam(
+                args.clustering_algo,
+                params)
+        alerts_conf = AlertsConfiguration(args.top_n_alerts, args.detection_threshold,
+                                          clustering_conf)
+
+        # Test configuration
+        test_conf = TestConfiguration(alerts_conf = alerts_conf)
+        if args.validation_dataset is not None:
+            test_conf.setTestDataset(args.validation_dataset, experiment)
+        else:
+            test_conf.setRandomSplit(args.test_size)
+
+        params = {}
+        params['num_folds']            = args.num_folds
+        params['sample_weight']        = args.sample_weight
+        params['families_supervision'] = args.multilabel
+        params['test_conf']            = test_conf
+
+        return params
 
 ClassifierConfFactory.getFactory().registerClass('ClassifierConfiguration',
         ClassifierConfiguration)

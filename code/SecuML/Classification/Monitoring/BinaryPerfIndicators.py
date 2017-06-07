@@ -29,7 +29,7 @@ class BinaryPerfIndicators(object):
 
     def __init__(self, num_folds, probabilist_model, auc = True):
         self.probabilist_model = probabilist_model
-        self.auc = auc
+        self.auc               = auc
         self.num_folds         = num_folds
         if self.auc:
             self.fold_auc          = [0] * num_folds
@@ -61,7 +61,8 @@ class BinaryPerfIndicators(object):
                 self.addProbabilistFold(fold_id, true_labels, predicted_proba, threshold = threshold)
         else:
             predicted_labels = np.array(predicted_proba) > threshold / 100
-            precision, recall, f_score, _ = precision_recall_fscore_support(true_labels, predicted_labels, average = 'binary')
+            precision, recall, f_score, _ = precision_recall_fscore_support(true_labels, predicted_labels,
+                                                                            average = 'binary')
             conf_matrix = confusion_matrix(true_labels, predicted_labels, [True, False])
             fp = conf_matrix[1][0]
             tn = conf_matrix[1][1]
@@ -73,7 +74,8 @@ class BinaryPerfIndicators(object):
             self.fold_perf[threshold][fold_id, :] = [precision, recall, false_alarm_rate, f_score]
 
     def addNonProbabilistFold(self, fold_id, true_labels, predicted_labels):
-        precision, recall, f_score, _ = precision_recall_fscore_support(true_labels, predicted_labels, average = 'binary')
+        precision, recall, f_score, _ = precision_recall_fscore_support(true_labels, predicted_labels,
+                                                                        average = 'binary')
         accuracy = accuracy_score(true_labels, predicted_labels)
         conf_matrix = confusion_matrix(true_labels, predicted_labels, [True, False])
         fp = conf_matrix[1][0]
@@ -155,6 +157,17 @@ class BinaryPerfIndicators(object):
 
     def getAuc(self):
         return self.auc_mean
+
+    def getCsvHeader(self):
+        return ['auc', 'fscore', 'precision', 'recall']
+
+    def getCsvLine(self):
+        v = []
+        v.append(self.getAuc())
+        v.append(self.getFscore())
+        v.append(self.getPrecision())
+        v.append(self.getRecall())
+        return v
 
     def toJson(self, f):
         perf = {}

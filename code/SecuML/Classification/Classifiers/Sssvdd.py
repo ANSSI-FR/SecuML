@@ -67,11 +67,6 @@ class Sssvdd(Classifier):
         self.nu_U /= num_unlabeled_instances
 
         x_init = generateXinit(unlabeled_features, labeled_features, labeled_instances.getLabels())
-
-        #print '------------ check gradient'
-        #print scipy.optimize.check_grad(objective, gradient, x_init, unlabeled_features, labeled_features, labels, self.kappa, self.nu_U, self.nu_L)
-
-        #print '------------ optimization'
         optim_res = scipy.optimize.fmin_bfgs(
                 objective,
                 x_init,

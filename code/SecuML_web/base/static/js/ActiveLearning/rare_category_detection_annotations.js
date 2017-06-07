@@ -70,10 +70,9 @@ function displayInstancesToAnnotate(label, type) {
   return function () {
     current_type  = type;
     label_method  = 'annotation_' + label;
-    var annotations_type = annotations_types[label];
-    displayNavbars(type, annotations_type);
-    console.log(label);
-    console.log(annotations_type);
+    var annotations_type = annotations_types[label]['type'];
+    var clustering_exp = annotations_types[label]['clustering_exp'];
+    displayNavbars(type, annotations_type, clustering_exp);
     if (annotations_type == 'families') {
       var query = buildQuery('getFamiliesInstancesToAnnotate',
                              [project, dataset, experiment_id, label_iteration, label]);
@@ -165,19 +164,37 @@ function updateInstanceNavbar() {
   printInstanceInformation(instances_list[current_instance_index], suggested_label, suggested_family);
 }
 
-function displayNavbars(type, annotations_type) {
+function displayNavbars(type, annotations_type, clustering_exp) {
   var nav_bars = cleanDiv('nav_bars');
-  var panel_body = createPanel('panel-' + type, 'row',
+  var panel_body = createPanel('panel-' + type, 'col-md-7',
           'Annotation Queries',
           nav_bars);
   if (annotations_type == 'families') {
-    displayFamiliesBar(panel_body, type);
+    displayFamiliesBar(panel_body, type, clustering_exp);
   }
   displayAnnotationQueriesBar(panel_body, type);
 }
 
-function displayFamiliesBar(panel_body, type) {
-  var col_size = 'col-xs-1';
+function clusteringVisualization(row, clustering_exp) {
+  function displayClustering(clustering_exp) {
+    return function() {
+      var query = buildQuery('SecuML', [project, dataset, clustering_exp]);
+      window.open(query);
+    }
+  }
+  var group = createDivWithClass('', 'form-group col-md-4', row);
+  var button = document.createElement('button');
+  button.setAttribute('class', 'btn btn-default');
+  button.setAttribute('type', 'button');
+  button.setAttribute('id', 'button_clustering');
+  var button_text = document.createTextNode('Display Families');
+  button.appendChild(button_text);
+  button.addEventListener('click', displayClustering(clustering_exp));
+  group.appendChild(button);
+}
+
+function displayFamiliesBar(panel_body, type, clustering_exp) {
+  var col_size = 'col-md-2';
   var row = createDivWithClass(null,  'row', parent_div = panel_body);
   var annotation_query_family = document.createElement('label');
   annotation_query_family.setAttribute('class', col_size + ' control-label');
@@ -198,7 +215,7 @@ function displayFamiliesBar(panel_body, type) {
   row.appendChild(iter_family);
 
   // Prev / Next buttons
-  var prev_next_group = createDivWithClass('', 'form-group row', row);
+  var prev_next_group = createDivWithClass('', 'form-group ' + col_size, row);
   // Prev button
   var prev_button = document.createElement('button');
   prev_button.setAttribute('class', 'btn btn-' + type);
@@ -217,20 +234,22 @@ function displayFamiliesBar(panel_body, type) {
   next_button.appendChild(next_button_text);
   next_button.addEventListener('click', displayNextFamily);
   prev_next_group.appendChild(next_button);
+
+  clusteringVisualization(row, clustering_exp);
 }
 
 function displayAnnotationQueriesBar(panel_body, type) {
   var row = createDivWithClass(null,  'row', parent_div = panel_body);
   var annotation_query_label = document.createElement('label');
-  annotation_query_label.setAttribute('class', 'col-lg-2 control-label');
+  annotation_query_label.setAttribute('class', 'col-md-4 control-label');
   annotation_query_label.appendChild(document.createTextNode('Annotation Query'));
   row.appendChild(annotation_query_label);
   var iter_label = document.createElement('label');
-  iter_label.setAttribute('class', 'col-lg-1 control-label');
+  iter_label.setAttribute('class', 'col-md-2 control-label');
   iter_label.setAttribute('id', 'iter_label');
   row.appendChild(iter_label);
   // Prev / Next buttons
-  var prev_next_group = createDivWithClass('', 'form-group row', row);
+  var prev_next_group = createDivWithClass('', 'form-group col-md-2', row);
   // Prev button
   var prev_button = document.createElement('button');
   prev_button.setAttribute('class', 'btn btn-' + type);

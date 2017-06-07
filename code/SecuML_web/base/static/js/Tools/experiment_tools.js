@@ -4,8 +4,8 @@ function createExperimentDiv(col_size, parent_div) {
   experiment_panel.setAttribute('style', 'font-size:smaller');
 }
 
-function getBinarySupervisedExperiment(conf, iteration) {
-    var query = buildQuery('getBinarySupervisedExperiment',
+function getIterationSupervisedExperiment(conf, iteration) {
+    var query = buildQuery('getIterationSupervisedExperiment',
             [conf.project, conf.dataset, conf.experiment_id, iteration]);
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open('GET', query, false);

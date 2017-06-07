@@ -1,0 +1,76 @@
+#!/usr/bin/python2
+
+## SecuML
+## Copyright (C) 2016  ANSSI
+##
+## SecuML is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## SecuML is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along
+## with SecuML. If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import matplotlib
+matplotlib.use('Agg')
+
+from SecuML.ActiveLearning.Configuration import ActiveLearningConfFactory
+from SecuML.ActiveLearning.Iterations import Iterations
+from SecuML.Data.Dataset import Dataset
+from SecuML.Experiment.ActiveLearningExperiment import ActiveLearningExperiment
+
+from SecuML.Tools import mysql_tools
+
+if __name__ == '__main__':
+
+    description  = 'Interactive Labeling Procedure'
+    parser = argparse.ArgumentParser(description = description,
+            formatter_class = argparse.RawTextHelpFormatter)
+    labeling_strategies = ['Ilab', 'RandomSampling', 'UncertaintySampling', 'CesaBianchi', 'Aladin', 'Gornitz']
+    subparsers = parser.add_subparsers(dest = 'strategy')
+    for strategy in labeling_strategies:
+        strategy_parser = subparsers.add_parser(strategy)
+        factory = ActiveLearningConfFactory.getFactory()
+        factory.generateParser(strategy, strategy_parser)
+    args = parser.parse_args()
+
+    db, cursor = mysql_tools.getDbConnection()
+    ## Check whether the dataset has been loaded before
+    if not mysql_tools.databaseExists(cursor, args.project, args.dataset):
+        load_dataset = Dataset(args.project, args.dataset,
+                db, cursor)
+        load_dataset.load()
+
+    experiment = ActiveLearningExperiment(args.project, args.dataset, db, cursor)
+    active_learning_conf = factory.fromArgs(args.strategy, args)
+    experiment.setConfiguration(active_learning_conf)
+    experiment.setFeaturesFilenames(args.features_files)
+    experiment.setValidation(args.validation_dataset)
+    experiment.initLabels(args.init_labels_file)
+    experiment.export()
+
+    iterations = Iterations(experiment)
+    if not args.auto:
+        from CeleryApp.app import secumlworker
+        from CeleryApp.activeLearningTasks import IterationTask
+        options = {
+            # 'loglevel': 'DEBUG',
+            # 'traceback': True,
+            }
+        # bind iterations object to IterationTask class
+        iterations.runNextIteration()
+        IterationTask.iteration_object = iterations
+
+        # Start worker
+        secumlworker.enable_config_fromcmdline = False
+        secumlworker.run(**options)
+    else:
+        iterations.runIterations()
+
+    mysql_tools.closeDb(db, cursor)

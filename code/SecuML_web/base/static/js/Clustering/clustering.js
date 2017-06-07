@@ -73,7 +73,6 @@ function onceConfigurationIsLoaded() {
   cleanCluster();
   displayClusterIdSelection();
   displayClustersStats();
-  clusterLabel();
 }
 
 function displayClustersStats() {
@@ -223,85 +222,6 @@ function displayInstancesInOneSelector(selected_cluster, c_e_r) {
 
 /////////////////////////////////////////
 /////////////////////////////////////////
-// Cluster labeling
-/////////////////////////////////////////
-/////////////////////////////////////////
-
-
-
-function clusterLabel() {
-  var prefix = 'cluster_';
-  var label_div = cleanDiv(prefix + 'label');
-  var form = document.createElement('form');
-  form.setAttribute('class', 'form-horizontal');
-  label_div.appendChild(form);
-  var fieldset = document.createElement('fieldset');
-  form.appendChild(fieldset);
-
-  // Families
-  var malicious_col = displayFamilySelector(fieldset, 'malicious', true);
-  var benign_col    = displayFamilySelector(fieldset, 'benign', true);
-
-  // Label
-  var label_group = createDivWithClass('', 'form_group row', fieldset);
-  var label_label = document.createElement('label');
-  label_label.setAttribute('class', 'col-lg-2 control-label');
-  label_label.appendChild(document.createTextNode('Label'));
-  label_group.appendChild(label_label);
-  var label_value = document.createElement('label');
-  label_value.setAttribute('class', 'label label-default');
-  label_value.setAttribute('id', prefix + 'label_value');
-  label_value.appendChild(document.createTextNode(''));
-  label_group.appendChild(label_value);
-
-  // Ok and Remove button
-  var ok_remove_group = createDivWithClass('', 'form-group row', fieldset);
-  /// Ok button
-  var ok_div = createDivWithClass(null, 'col-lg-2', ok_remove_group);
-  var button = document.createElement('button');
-  button.setAttribute('class', 'btn btn-primary');
-  button.setAttribute('type', 'button');
-  var button_text = document.createTextNode('Ok');
-  button.appendChild(button_text);
-  button.addEventListener('click', null);
-  button.addEventListener('click', function() {
-      var selected_cluster = getSelectedOption(select_cluster_id);
-      var [label, family] = getCurrentAnnotation('cluster');
-      if (!family) {
-          alert('A family must be selected.');
-          return;
-      }
-      var query = buildQuery('addClusterLabel',
-                             [project, dataset, experiment_id,
-                              selected_cluster, conf.conf.num_results,
-                              label, family,
-                              label_iteration, label_method]);
-      $.ajax({url: query,
-              success: displayClustersStats});
-  });
-  ok_div.appendChild(button);
-  /// Remove button
-  var remove_div = createDivWithClass(null, 'col-lg-2 col-lg-offset-1', ok_remove_group);
-  var button = document.createElement('button');
-  button.setAttribute('class', 'btn btn-default');
-  button.setAttribute('type', 'button');
-  var button_text = document.createTextNode('Remove');
-  button.appendChild(button_text);
-  button.addEventListener('click', null);
-  button.addEventListener('click', function() {
-      var selected_cluster = getSelectedOption(select_cluster_id);
-      var query = buildQuery('removeClusterLabel',
-                             [project, dataset, experiment_id,
-                              selected_cluster, conf.conf.num_results]);
-      $.ajax({url: query,
-              success: displayClustersStats});
-  });
-  remove_div.appendChild(button);
-}
-
-
-/////////////////////////////////////////
-/////////////////////////////////////////
 // Pages elements
 /////////////////////////////////////////
 /////////////////////////////////////////
@@ -311,11 +231,9 @@ function generateClusteringDivisions() {
 
   // First row
   var row = createDivWithClass(null, 'row', main);
-  var num_instances_panel_body = createCollapsingPanel('panel-primary', 'col-md-3',
+  var num_instances_panel_body = createCollapsingPanel('panel-primary', 'col-md-6',
                                      'Clusters Statistics',
                                      row, null);
-  var labels_true_labels = createDivWithClass('labels_true_labels_div', 'row',
-                  parent_div = num_instances_panel_body);
   var clusters_labels_stats = createDiv('clusters_labels_stats',
                   parent_div = num_instances_panel_body);
 
@@ -369,12 +287,6 @@ function generateClusteringDivisions() {
           'instances_by_label',
           'tab-pane fade',
           parent_div = tabs_content);
-
-  var cluster_label_panel_body = createPanel('panel-primary', 'col-md-3',
-                                     'Annotate the Whole Cluster',
-                                     row);
-  cluster_label = createDiv('cluster_label',
-          parent_div = cluster_label_panel_body);
 
   // Third row
   var row = createDivWithClass(null,  'row', parent_div = main);

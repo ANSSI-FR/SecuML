@@ -17,12 +17,31 @@
 import ActiveLearningConfFactory
 from ActiveLearningConfiguration import ActiveLearningConfiguration
 from SecuML.ActiveLearning.QueryStrategies.Aladin import Aladin
+from SecuML.Classification.Configuration import ClassifierConfFactory
+
+def aladinMulticlassModelConf():
+    classifier_args = {}
+    classifier_args['num_folds']            = 4
+    classifier_args['sample_weight']        = False
+    classifier_args['families_supervision'] = True
+    classifier_args['alerts_conf']          = None
+    multiclass_model_conf = ClassifierConfFactory.getFactory().fromParam('LogisticRegression', classifier_args)
+    multiclass_model_conf.setUnlabeled(labels_annotations = 'annotations')
+    return multiclass_model_conf
 
 class AladinConfiguration(ActiveLearningConfiguration):
 
-    def __init__(self, num_annotations):
+    def __init__(self, auto, budget, num_annotations, binary_model_conf):
+        ActiveLearningConfiguration.__init__(self, auto, budget)
         self.labeling_method = 'Aladin'
-        self.num_annotations       = num_annotations
+        self.num_annotations = num_annotations
+        self.setModelsConf(binary_model_conf)
+
+    def setModelsConf(self, binary_model_conf):
+        conf = {}
+        conf['binary'] = binary_model_conf
+        conf['multiclass'] = aladinMulticlassModelConf()
+        ActiveLearningConfiguration.setModelsConf(self, conf)
 
     def getStrategy(self, iteration):
         return Aladin(iteration)
@@ -33,14 +52,32 @@ class AladinConfiguration(ActiveLearningConfiguration):
         return suffix
 
     @staticmethod
-    def fromJson(obj):
-        conf = AladinConfiguration(obj['num_annotations'])
+    def fromJson(obj, experiment):
+        binary_model_conf = ClassifierConfFactory.getFactory().fromJson(
+                obj['models_conf']['binary'],
+                experiment)
+        conf = AladinConfiguration(obj['auto'], obj['budget'],
+                                   obj['num_annotations'], binary_model_conf)
         return conf
 
     def toJson(self):
-        conf = {}
+        conf = ActiveLearningConfiguration.toJson(self)
         conf['__type__']        = 'AladinConfiguration'
         conf['num_annotations'] = self.num_annotations
         return conf
+
+    @staticmethod
+    def generateParser(parser):
+        al_group = ActiveLearningConfiguration.generateParser(parser)
+        al_group.add_argument('--num-annotations',
+                type = int,
+                default = 100,
+                help = 'Number of annotations asked from the user at each iteration.')
+
+    @staticmethod
+    def generateParamsFromArgs(args):
+        params = ActiveLearningConfiguration.generateParamsFromArgs(args)
+        params['num_annotations'] = args.num_annotations
+        return params
 
 ActiveLearningConfFactory.getFactory().registerClass('AladinConfiguration', AladinConfiguration)

@@ -14,78 +14,46 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import time
-
-from SecuML.ActiveLearning.Monitoring.ClusteringEvaluationMonitoring \
-        import ClusteringEvaluationMonitoring
-from SecuML.ActiveLearning.Monitoring.ExecutionTimeMonitoring \
-        import ExecutionTimeMonitoring
-from SecuML.ActiveLearning.Monitoring.LabelsMonitoring \
-        import LabelsMonitoring
-from SecuML.ActiveLearning.Monitoring.FamiliesMonitoring \
-        import FamiliesMonitoring
-from SecuML.ActiveLearning.Monitoring.ValidationMonitoring \
-        import ValidationMonitoring
+from ExecutionTimeMonitoring     import ExecutionTimeMonitoring
+from FamiliesMonitoring          import FamiliesMonitoring
+from LabelsMonitoring            import LabelsMonitoring
+from ModelsPerformanceMonitoring import ModelsPerformanceMonitoring
+from SuggestionsAccuracy         import SuggestionsAccuracy
 
 from SecuML.Tools import dir_tools
 
 class Monitoring(object):
 
-    def __init__(self, datasets, experiment, iteration,
-            validation_monitoring):
+    def __init__(self, datasets, experiment, iteration, validation_monitoring):
         self.datasets = datasets
         self.experiment = experiment
         self.iteration = iteration
         self.iteration_number = iteration.iteration_number
-        self.validation_monitoring = validation_monitoring
+        self.setDirectories()
         self.init()
+        self.validation_monitoring = validation_monitoring
 
     def init(self):
+        self.labels_monitoring         = LabelsMonitoring(self)
+        self.families_monitoring       = FamiliesMonitoring(self)
+        self.execution_time_monitoring = ExecutionTimeMonitoring(self)
+        self.suggestions               = SuggestionsAccuracy(self)
+
+    def setDirectories(self):
         self.AL_directory = dir_tools.getExperimentOutputDirectory(
                 self.experiment)
         self.iteration_dir  = self.AL_directory
         self.iteration_dir += str(self.iteration_number) + '/'
-        self.labels_monitoring = LabelsMonitoring(self)
-        self.families_monitoring = FamiliesMonitoring(self)
-        self.execution_time_monitoring = ExecutionTimeMonitoring(self)
-        if self.validation_monitoring:
-            self.validation_monitoring = ValidationMonitoring(self)
-        else:
-            self.validation_monitoring = None
 
-    def iterationMonitoring(self):
-        print 'iterationMonitoring'
-        start_time = time.time()
-        self.labels_monitoring.iterationMonitoring()
-        print 'labels_monitoring', time.time() - start_time
-        start_time = time.time()
-        self.families_monitoring.iterationMonitoring()
-        print 'families_monitoring', time.time() - start_time
-        if self.validation_monitoring is not None:
-            start_time = time.time()
-            self.validation_monitoring.iterationMonitoring()
-            print 'validation_monitoring', time.time() - start_time
+    def generateStartMonitoring(self):
+        self.labels_monitoring.generateMonitoring()
+        self.families_monitoring.generateMonitoring()
 
-    def evolutionMonitoring(self):
-        print 'evolutionMonitoring'
-        start_time = time.time()
-        self.labels_monitoring.evolutionMonitoring()
-        print 'labels_monitoring', time.time() - start_time
-        start_time = time.time()
-        self.families_monitoring.evolutionMonitoring()
-        print 'families_monitoring', time.time() - start_time
-        if self.validation_monitoring is not None:
-            start_time = time.time()
-            self.validation_monitoring.evolutionMonitoring()
-            print 'validation_monitoring', time.time() - start_time
+    def generateModelPerformanceMonitoring(self):
+        self.models_performance = ModelsPerformanceMonitoring(self,
+                self.validation_monitoring)
+        self.models_performance.generateMonitoring()
 
-    def generateExecutionTimeMonitoring(self):
-        self.execution_time_monitoring.iterationMonitoring()
-        self.execution_time_monitoring.evolutionMonitoring()
-
-    def clusteringHomogeneityMonitoring(self):
-        clusterings = self.iteration.annotations.getClusteringsEvaluations()
-        if clusterings:
-            self.clustering_homogeneity_monitoring = ClusteringEvaluationMonitoring(self)
-            self.clustering_homogeneity_monitoring.iterationMonitoring()
-            self.clustering_homogeneity_monitoring.evolutionMonitoring()
+    def generateEndMonitoring(self):
+        self.execution_time_monitoring.generateMonitoring()
+        self.suggestions.generateMonitoring()

@@ -35,9 +35,11 @@ class Dataset(object):
         labels_tools.createLabelsTable(self.cursor)
         experiment_db_tools.createExperimentsTable(self.cursor)
         experiment_db_tools.createExperimentsLabelsTable(self.cursor)
+        experiment_db_tools.createInteractiveExperimentsTable(self.cursor)
         ## Load idents and true labels
         self.loadIdents()
         self.loadTrueLabels()
+        self.db.commit()
 
     #####################
     #####################

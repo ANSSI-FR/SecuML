@@ -23,6 +23,12 @@ def createExperimentsTable(cursor):
     mysql_tools.createTableFromFields(cursor, 'Experiments',
             fields, types, ['id'], auto_increment = True)
 
+def createInteractiveExperimentsTable(cursor):
+    fields = ['id', 'current_iter', 'annotations']
+    types = ['INT UNSIGNED', 'INT UNSIGNED', 'BIT(1)']
+    mysql_tools.createTableFromFields(cursor, 'InteractiveExperiments',
+            fields, types, ['id'])
+
 def createExperimentsLabelsTable(cursor):
     fields = ['id', 'label']
     types = ['INT UNSIGNED', 'VARCHAR(1000)']
@@ -72,4 +78,14 @@ def getChildExperimentId(cursor, parent_id, child_name):
                    'WHERE parent = %s '
                    'AND name = %s',
                    (parent_id, child_name))
+    return cursor.fetchone()[0]
+
+def getDescriptiveStatsExp(cursor, features_filenames):
+    features_filenames = features_filenames.split('.')[0]
+    exp_name = features_filenames + '__labelsFile_true_labels'
+    query  = 'SELECT id '
+    query += 'FROM Experiments '
+    query += 'WHERE kind = "DescriptiveStatistics" '
+    query += 'AND name = "' + exp_name + '";'
+    cursor.execute(query)
     return cursor.fetchone()[0]

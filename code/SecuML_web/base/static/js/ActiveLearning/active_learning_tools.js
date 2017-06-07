@@ -1,15 +1,27 @@
-function getNumIterations(conf) {
-    var xmlHttp = new XMLHttpRequest();
-    var query = buildQuery('getNumIterations',
-                           [conf.project, conf.dataset, conf.experiment_id]);
-    xmlHttp.open('GET', query, false);
-    xmlHttp.send(null);
-    var num_iterations = xmlHttp.responseText;
-    return parseInt(num_iterations);
+function runNextIteration(conf) {
+    return function() {
+      // Generate the next annotation queries
+      var query = buildQuery('runNextIteration',
+                             [conf.project, conf.dataset, conf.experiment_id]);
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.open('GET', query, false);
+      xmlHttp.send(null);
+      // Close the current tab
+      window.close();
+    }
 }
 
-function displayIterationSelector(conf) {
-  var num_iterations = getNumIterations(conf);
+function currentAnnotationIteration(project, dataset, experiment_id) {
+    var xmlHttp = new XMLHttpRequest();
+    var query = buildQuery('currentAnnotationIteration',
+                           [project, dataset, experiment_id]);
+    xmlHttp.open('GET', query, false);
+    xmlHttp.send(null);
+    var current_iteration = xmlHttp.responseText;
+    return parseInt(current_iteration);
+}
+
+function displayIterationSelector(conf, num_iterations) {
   iterations = [];
   for (var i = 1; i <= num_iterations; i++) {
     iterations.push(i);

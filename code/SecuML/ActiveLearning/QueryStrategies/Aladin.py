@@ -32,6 +32,9 @@ class Aladin(QueryStrategy):
     def annotateAuto(self):
         self.unsure.annotateAuto()
 
+    def getManualAnnotations(self):
+        self.unsure.getManualAnnotations()
+
     def getClusteringsEvaluations(self):
         clusterings = {}
         clusterings['all'] = self.unsure.clustering_perf

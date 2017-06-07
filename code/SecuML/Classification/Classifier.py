@@ -115,8 +115,7 @@ class Classifier(object):
         self.dumpModel()
 
     def crossValidationMonitoring(self, cv):
-        self.cv_monitoring = TrainingMonitoring(self.conf,
-                self.datasets.getFeaturesNames(), monitoring_type = 'cv')
+        self.cv_monitoring = TrainingMonitoring(self.conf, self.datasets.getFeaturesNames(), monitoring_type = 'cv')
         cv_split = cv.split(
                 self.datasets.train_instances.getFeatures(),
                 self.getSupervision(self.datasets.train_instances))
@@ -128,7 +127,7 @@ class Classifier(object):
                 sample_weight = [sample_weight[i] \
                         for i in range(self.datasets.train_instances.numInstances()) if i in train]
             train_instances = self.datasets.train_instances.getInstancesFromIds(train_ids)
-            test_instances = self.datasets.train_instances.getInstancesFromIds(test_ids)
+            test_instances  = self.datasets.train_instances.getInstancesFromIds(test_ids)
             if self.datasets.sample_weight:
                 self.pipeline.fit(train_instances.getFeatures(),
                         self.getSupervision(train_instances),
@@ -136,13 +135,15 @@ class Classifier(object):
             else:
                 self.pipeline.fit(train_instances.getFeatures(),
                         self.getSupervision(train_instances))
-            predicted_proba_fold = self.pipeline.predict_proba(test_instances.getFeatures())[:,1]
+            predicted_proba_all, predicted_proba, predicted_labels, predicted_scores = \
+                    self.applyPipeline(test_instances.getFeatures())
             try:
                 coefs = self.pipeline.named_steps['model'].coef_[0]
             except:
                 coefs = [0] * len(self.datasets.getFeaturesNames())
             self.cv_monitoring.addFold(fold_id, test_instances.getLabels(), test_instances.getFamilies(),
-                    test_instances.getIds(), predicted_proba_fold, coefs)
+                    test_instances.getIds(), predicted_proba_all, predicted_proba, predicted_scores,
+                    predicted_labels, coefs)
 
     def setBestParameters(self):
         cv = StratifiedKFold(n_splits = self.conf.num_folds)

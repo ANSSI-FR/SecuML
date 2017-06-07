@@ -44,3 +44,12 @@ class ClassifierConfFactory(object):
         args = [args[key] for key in param]
         obj = class_(*args)
         return obj
+
+    def fromArgs(self, model, args, experiment):
+        class_ = self.register[model + 'Configuration']
+        params = class_.generateParamsFromArgs(args, experiment)
+        return self.fromParam(model, params)
+
+    def generateParser(self, labeling_strategy, parser):
+        class_ = self.register[labeling_strategy + 'Configuration']
+        return class_.generateParser(parser)

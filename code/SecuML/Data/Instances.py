@@ -33,28 +33,28 @@ class Instances(object):
         ## labels and true_labels contain booleans
         ## (True -> Malicious, False -> Benign)
         ## None if the instance is unlabeled
-        self.labels         = None
+        self.labels        = None
         self.families      = None
-        self.true_labels    = None
+        self.true_labels   = None
         self.true_families = None
-        self.annotations    = None
+        self.annotations   = None
 
     def initFromExperiment(self, experiment):
         self.initFromCsvFiles(experiment.getFeaturesFilesFullpaths())
         self.setLabelsFromExperiment(experiment)
 
     def initFromMatrix(self, ids, matrix, features_names,
-            labels = None, families = None,
-            true_labels = None, true_families = None,
-            annotations = None):
+                       labels = None, families = None,
+                       true_labels = None, true_families = None,
+                       annotations = None):
         self.setIds(ids)
-        self.features = matrix
+        self.features       = matrix
         self.features_names = features_names
-        self.labels = labels
-        self.families = families
-        self.true_labels = true_labels
-        self.true_families = true_families
-        self.annotations = annotations
+        self.labels         = labels
+        self.families       = families
+        self.true_labels    = true_labels
+        self.true_families  = true_families
+        self.annotations    = annotations
 
     def initFromCsvFiles(self, csv_files):
         self.features_names = []
@@ -111,11 +111,6 @@ class Instances(object):
                 label = 'malicious' if self.labels[i] else 'benign'
                 family = self.families[i]
                 print >>f, str(instance_id) + ',' + label + ',' + family
-
-    def standardScaler(self):
-        scaler = StandardScaler()
-        scaler.fit(self.features)
-        self.features = scaler.transform(self.features)
 
     ##############
     ### Labels ###
@@ -180,20 +175,23 @@ class Instances(object):
 
     def checkLabelsWithDB(self, cursor, experiment_label_id):
         for instance_id in self.getAnnotatedIds():
-            label = self.getLabel(instance_id)
+            label  = self.getLabel(instance_id)
             family = self.getFamily(instance_id)
             try:
                 DB_label, DB_family, m, annotation = labels_tools.getLabelDetails(
                         cursor,
                         instance_id,
                         experiment_label_id)
-                DB_label = DB_label == 'malicious'
+                DB_label = labels_tools.labelStringToBoolean(DB_label)
                 if DB_label != label or DB_family != family:
                     self.setLabel(instance_id, DB_label)
                     self.setFamily(instance_id, DB_family)
                     self.setAnnotation(instance_id, annotation)
             except labels_tools.NoLabel:
-                continue
+                ## The instance is not annotated anymore
+                self.setLabel(instance_id, None)
+                self.setFamily(instance_id, None)
+                self.setAnnotation(instance_id, None)
 
     def numLabelingErrors(self, label = 'all'):
         if not self.hasTrueLabels():
@@ -216,7 +214,7 @@ class Instances(object):
             return len(self.getBenignIds(true_labels = true_labels))
 
     def eraseLabels(self):
-        self.labels    = [None] * self.numInstances()
+        self.labels   = [None] * self.numInstances()
         self.families = [None] * self.numInstances()
 
     #################

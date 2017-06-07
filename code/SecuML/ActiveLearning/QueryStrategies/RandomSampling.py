@@ -33,6 +33,9 @@ class RandomSampling(QueryStrategy):
     def annotateAuto(self):
         self.random_annotations.annotateAuto()
 
+    def getManualAnnotations(self):
+        self.random_annotations.getManualAnnotations()
+
     ###############################
     ## Execution time monitoring ##
     ###############################
@@ -43,7 +46,7 @@ class RandomSampling(QueryStrategy):
         return header
 
     def executionTimeMonitoring(self):
-        line  = [self.iteration.train_test_validation.training_predicting_time]
+        line  = [self.iteration.train_test_validation.times['binary']]
         line += QueryStrategy.executionTimeMonitoring(self)
         return line
 

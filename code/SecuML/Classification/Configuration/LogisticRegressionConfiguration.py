@@ -17,15 +17,22 @@
 import numpy as np
 
 from SecuML.Classification.Classifiers.LogisticRegression import LogisticRegression
+
 import ClassifierConfFactory
 from ClassifierConfiguration import ClassifierConfiguration, LearningParameter
+from TestConfiguration import TestConfiguration
 
 class LogisticRegressionConfiguration(ClassifierConfiguration):
 
-    def __init__(self, num_folds, sample_weight, families_supervision, alerts_conf = None):
+    def __init__(self, num_folds, sample_weight, families_supervision, test_conf):
         ClassifierConfiguration.__init__(self, num_folds, sample_weight, families_supervision,
-                alerts_conf = alerts_conf)
+                test_conf = test_conf)
         self.model_class = LogisticRegression
+
+        #self.optim_algo = 'sag'
+        #self.c = LearningParameter(list(10. ** np.arange(-2, 2)))
+        #self.penalty = LearningParameter(['l2'])
+
         self.optim_algo = 'liblinear'
         self.c = LearningParameter(list(10. ** np.arange(-2, 2)))
         self.penalty = LearningParameter(['l1', 'l2'])
@@ -51,24 +58,27 @@ class LogisticRegressionConfiguration(ClassifierConfiguration):
         self.penalty.setBestValue(grid_search.best_params_['model__penalty'])
 
     def getBestValues(self):
-        best_values = {'model__C': self.c.best_value, 'model__penalty': self.penalty.best_value}
+        best_values = {'model__C': self.c.best_value,
+                       'model__penalty': self.penalty.best_value}
         return best_values
 
     @staticmethod
     def fromJson(obj, exp):
-        conf = LogisticRegressionConfiguration(obj['num_folds'], obj['sample_weight'], obj['families_supervision'])
+        test_conf = TestConfiguration.fromJson(obj['test_conf'], exp)
+        conf = LogisticRegressionConfiguration(obj['num_folds'], obj['sample_weight'],
+                                               obj['families_supervision'], test_conf)
         ClassifierConfiguration.setTestConfiguration(conf, obj, exp)
-        conf.c = LearningParameter.fromJson(obj['c'])
-        conf.penalty = LearningParameter.fromJson(obj['penalty'])
+        conf.c          = LearningParameter.fromJson(obj['c'])
+        conf.penalty    = LearningParameter.fromJson(obj['penalty'])
         conf.optim_algo = obj['optim_algo']
         return conf
 
     def toJson(self):
         conf = ClassifierConfiguration.toJson(self)
-        conf['__type__'] = 'LogisticRegressionConfiguration'
+        conf['__type__']   = 'LogisticRegressionConfiguration'
         conf['optim_algo'] = self.optim_algo
-        conf['c'] = self.c.toJson()
-        conf['penalty'] = self.penalty.toJson()
+        conf['c']          = self.c.toJson()
+        conf['penalty']    = self.penalty.toJson()
         return conf
 
     def probabilistModel(self):
@@ -79,6 +89,15 @@ class LogisticRegressionConfiguration(ClassifierConfiguration):
 
     def featureCoefficients(self):
         return not(self.families_supervision)
+
+    @staticmethod
+    def generateParser(parser):
+        classifier_group = ClassifierConfiguration.generateParser(parser)
+
+    @staticmethod
+    def generateParamsFromArgs(args, experiment):
+        params = ClassifierConfiguration.generateParamsFromArgs(args, experiment)
+        return params
 
 ClassifierConfFactory.getFactory().registerClass('LogisticRegressionConfiguration',
         LogisticRegressionConfiguration)

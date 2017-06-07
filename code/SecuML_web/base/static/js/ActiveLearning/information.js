@@ -23,18 +23,9 @@ function displaySettings(conf) {
 
   // Rare Category Detection Configuration
   if (labeling_method == 'Ilab' || labeling_method == 'RareCategoryDetection') {
-      var semi_auto_labels = conf.conf.rare_category_detection_conf.semiauto;
-      var clustering_conf = conf.conf.rare_category_detection_conf.clustering_conf;
-      var clustering = clustering_conf['__type__'].split('Configuration')[0];
-      var projection = clustering_conf.projection_conf;
-      if (projection) {
-        projection= projection['__type__'].split('Configuration')[0];
-      } else {
-        projection = 'None';
-      }
-      addRow(body, ['Semi-auto labels', semi_auto_labels]);
-      addRow(body, ['Clustering', clustering]);
-      addRow(body, ['Projection', projection]);
+      var classification_conf = conf.conf.rare_category_detection_conf.classification_conf;
+      var model = classification_conf['__type__'].split('Configuration')[0];
+      addRow(body, ['Model', model]);
   }
 }
 
@@ -61,18 +52,24 @@ function displayLabelsInformation(project, dataset, experiment_id, iteration) {
   // Check annotations
   var check_annotations_div = cleanDiv('check_annotations')
   var buttons_div = createDivWithClass(null, 'btn-group btn-group-justified', check_annotations_div);
-  var labels_button = document.createElement('a');
-  labels_button.setAttribute('class', 'btn btn-default')
-  labels_button.appendChild(document.createTextNode('Labels'));
-  var experiment_label_id = getExperimentLabelId(project, dataset, experiment_id);
-  var path = buildQuery('labeledInstances', [project, dataset, experiment_id, experiment_label_id, iteration]);
-  labels_button.href = path;
-  buttons_div.appendChild(labels_button);
+  var button = document.createElement('a');
+  button.setAttribute('class', 'btn btn-default')
+  button.appendChild(document.createTextNode('Annotated Instances'));
+  button.addEventListener('click', function() {
+    var path = buildQuery('currentAnnotations', [project, dataset, experiment_id, iteration]);
+    window.open(path);
+  });
+  buttons_div.appendChild(button);
+  // Edit families
+  var edit_families_div = cleanDiv('edit_families');
+  var buttons_div = createDivWithClass(null, 'btn-group btn-group-justified', edit_families_div);
+  var button = document.createElement('a');
+  button.setAttribute('class', 'btn btn-default');
+  button.appendChild(document.createTextNode('Family Editor'));
+  button.addEventListener('click', function() {
+    var path = buildQuery('editFamilies', [project, dataset, experiment_id]);
+    window.open(path);
+  });
 
-  var families_button = document.createElement('a');
-  families_button.setAttribute('class', 'btn btn-default')
-  families_button.appendChild(document.createTextNode('Families'));
-  var path = buildQuery('families', [project, dataset, experiment_id, iteration]);
-  families_button.href = path;
-  buttons_div.appendChild(families_button);
+  buttons_div.appendChild(button);
 }

@@ -31,32 +31,14 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(
             description = 'Projection of the data for data visualization.')
-    parser.add_argument('project')
-    parser.add_argument('dataset')
-    parser.add_argument('--features', '-f',
-            dest = 'features_files',
-            nargs = '+',
-            required = False,
-            default = ['features.csv'],
-            help = 'CSV files containing the features.')
-    parser.add_argument('--labels', '-l',
-            dest = 'labels_file',
-            default = None,
-            help = 'CSV file containing the labels of some instances.')
-    parser.add_argument('--algo',
-            choices = ['Pca', 'Rca', 'Lda', 'Lmnn', 'Nca', 'Itml'],
-            help = 'The projection algorithm. Pca by default.',
-            default = 'Pca')
-    parser.add_argument('--families-supervision',
-            action = 'store_true',
-            default = False,
-            help = 'When set to True, the semi supervision is based on the families' +
-            'instead of the binary labels (Malicious vs. Benign). Useless if an unsupervised projection method is used.')
-    parser.add_argument('--num-components',
-            type = int,
-            default = None)
-
+    algos = ['Pca', 'Rca', 'Lda', 'Lmnn', 'Nca', 'Itml']
+    subparsers = parser.add_subparsers(dest = 'algo')
+    for algo in algos:
+        algo_parser = subparsers.add_parser(algo)
+        factory = ProjectionConfFactory.getFactory()
+        factory.generateParser(algo, algo_parser)
     args = parser.parse_args()
+
     db, cursor = mysql_tools.getDbConnection()
     ## Check whether the dataset has been loaded before
     if not mysql_tools.databaseExists(cursor, args.project, args.dataset):
@@ -64,13 +46,10 @@ if __name__ == '__main__':
                 db, cursor)
         load_dataset.load()
 
-    experiment = ProjectionExperiment(args.project, args.dataset, db, cursor)
+    experiment = ProjectionExperiment(args.project, args.dataset, db,
+            cursor)
     experiment.setFeaturesFilenames(args.features_files)
-
-    projection_args = {}
-    projection_args['num_components']        = args.num_components
-    projection_args['families_supervision'] = args.families_supervision
-    conf = ProjectionConfFactory.getFactory().fromParam(args.algo, projection_args)
+    conf = factory.fromArgs(args.algo, args)
     experiment.setConf(conf)
     experiment.initLabels(args.labels_file)
     experiment.export()

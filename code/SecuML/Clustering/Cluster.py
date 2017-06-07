@@ -17,7 +17,6 @@
 from __future__ import division
 import pandas as pd
 import random
-import scipy
 
 from SecuML.Data import labels_tools
 from SecuML.Tools import matrix_tools
@@ -27,11 +26,6 @@ class Cluster(object):
     def __init__(self):
         self.instances_ids = []
         self.distances     = []
-
-        self.proba         = []
-        self.entropy       = []
-        self.likelihood    = []
-
         self.label         = None
         self.clusters_families_stats = {}
         self.num_annotated_instances = 0
@@ -39,12 +33,9 @@ class Cluster(object):
     def numInstances(self):
         return len(self.instances_ids)
 
-    def addInstance(self, instance_id, distance, probas, label, family, annotated):
+    def addInstance(self, instance_id, distance, label, family, annotated):
         self.instances_ids.append(instance_id)
         self.distances.append(distance)
-        if probas is not None:
-            self.entropy.append(scipy.stats.entropy(probas))
-            self.proba.append(max(probas))
         label = labels_tools.labelBooleanToString(label)
         if family is not None:
             key = label + '__' + family
@@ -60,61 +51,13 @@ class Cluster(object):
             self.sortInstances()
         return unknown_cluster_id
 
-    # The list of instances in the cluster are sorted according to :
-    #   - the probability of belonging to the cluster (if available)
-    #       or
-    #   - their distance from the centroid
+    # The list of instances in the cluster are sorted according to their distance from the centroid
     def sortInstances(self):
-        if len(self.proba) == self.numInstances():
-            df = pd.DataFrame({'proba': self.proba,
-                               'entropy': self.entropy,
-                               'distance': self.distances},
-                              index = map(str, self.instances_ids))
-            matrix_tools.sortDataFrame(df, 'proba', True, True)
-            self.proba     = df.proba.tolist()
-            self.entropy   = df.proba.tolist()
-        else:
-            df = pd.DataFrame({'distance': self.distances},
-                              index = map(str, self.instances_ids))
-            matrix_tools.sortDataFrame(df, 'distance', True, True)
+        df = pd.DataFrame({'distance': self.distances},
+                index = map(str, self.instances_ids))
+        matrix_tools.sortDataFrame(df, 'distance', True, True)
         self.instances_ids = map(int, df.index.values.tolist())
         self.distances = df.distance.tolist()
-
-    # Pre requisites: len(instances) > num_instances
-    #                 num_instances > 0
-    def getUncertainInstances(self, instances, num_instances):
-        df = pd.DataFrame({'entropy': self.entropy},
-                          index = map(str, self.instances_ids))
-        selected_df = df.loc[map(str, instances), :]
-        matrix_tools.sortDataFrame(selected_df, 'entropy', False, True)
-        return map(int, selected_df.index.values.tolist()[:num_instances])
-
-    def setLikelihood(self, likelihood):
-        self.likelihood = likelihood
-
-    # Pre requisites: len(instances) > num_instances
-    #                 num_instances > 0
-    def getHighLikelihoodInstances(self, instances, num_instances):
-        df = pd.DataFrame({'likelihood': self.likelihood},
-                          index = map(str, self.instances_ids))
-        selected_df = df.loc[map(str, instances), :]
-        matrix_tools.sortDataFrame(selected_df, 'likelihood', False, True)
-        return map(int, selected_df.index.values.tolist()[:num_instances])
-
-    # Pre requisites: len(instances) > num_instances
-    #                 num_instances > 0
-    def getLowLikelihoodInstances(self, instances, num_instances):
-        df = pd.DataFrame({'likelihood': self.likelihood},
-                          index = map(str, self.instances_ids))
-        selected_df = df.loc[map(str, instances), :]
-        matrix_tools.sortDataFrame(selected_df, 'likelihood', False, True)
-        return map(int, selected_df.index.values.tolist()[-num_instances:])
-
-    def getLikelihood(self, instances):
-        df = pd.DataFrame({'likelihood': self.likelihood},
-                          index = map(str, self.instances_ids))
-        selected_df = df.loc[map(str, instances), :]
-        return selected_df['likelihood'].tolist()
 
     def setClusterLabel(self, unknown_cluster_id):
         max_occurrences = 0
@@ -130,39 +73,6 @@ class Cluster(object):
 
     def getClusterLabel(self):
         return self.label
-
-    def getClusterInstances(self, c_e_r, num_instances, drop_instances = None):
-
-        if c_e_r == 'all':
-            return self.instances_ids
-
-        if num_instances == 0:
-            return []
-
-        if drop_instances is None:
-            instances = self.instances_ids
-        else:
-            instances = [x for x in self.instances_ids if x not in drop_instances]
-
-        if len(instances) < num_instances:
-            return instances
-
-        if c_e_r == 'center':
-            if len(self.likelihood) == self.numInstances():
-                return self.getHighLikelihoodInstances(instances, num_instances)
-            else:
-                return instances[:num_instances]
-        elif c_e_r == 'anomalous':
-            if len(self.likelihood) == self.numInstances():
-                return self.getLowLikelihoodInstances(instances, num_instances)
-            else:
-                return instances[-num_instances:]
-        elif c_e_r == 'random':
-            return random.sample(instances, num_instances)
-        elif c_e_r == 'uncertain':
-            return self.getUncertainInstances(instances, num_instances)
-        else:
-            raise ValueError('Invalid argument value c_e_r %s' % (c_e_r))
 
     # c: center
     # e: edge (does not return instances from the center)
@@ -226,7 +136,7 @@ class Cluster(object):
                 else:
                     obj['instances_ids'].append(instance_id)
                     obj['distances'].append(self.distances[i])
-        obj['label']                   = self.label
+        obj['label'] = self.label
         return obj
 
     @staticmethod
@@ -236,3 +146,23 @@ class Cluster(object):
         cluster.distances               = obj['distances']
         cluster.label                   = obj['label']
         return cluster
+
+    def getClusterInstances(self, c_e_r, num_instances, drop_instances = None):
+        if c_e_r == 'all':
+            return self.instances_ids
+        if num_instances == 0:
+            return []
+        if drop_instances is None:
+            instances = self.instances_ids
+        else:
+            instances = [x for x in self.instances_ids if x not in drop_instances]
+        if len(instances) < num_instances:
+            return instances
+        if c_e_r == 'center':
+            return instances[:num_instances]
+        elif c_e_r == 'anomalous':
+            return instances[-num_instances:]
+        elif c_e_r == 'random':
+            return random.sample(instances, num_instances)
+        else:
+            raise ValueError('Invalid argument value c_e_r %s' % (c_e_r))

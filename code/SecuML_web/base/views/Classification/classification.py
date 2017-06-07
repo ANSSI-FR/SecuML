@@ -105,7 +105,8 @@ def getPredictions(project, dataset, experiment_id, train_test, index):
     max_value = (index+1) * 0.1
     with open(filename, 'r') as f:
         data = pd.read_csv(f, header = 0, index_col = 0)
-        data = matrix_tools.extractRowsWithThresholds(data, min_value, max_value, 'predicted_proba')
+        data = matrix_tools.extractRowsWithThresholds(data, min_value, max_value,
+                                                      'predicted_proba')
         selected_instances = list(data.index.values)
         proba              = list(data['predicted_proba'])
     return jsonify({'instances': selected_instances, 'proba': proba})

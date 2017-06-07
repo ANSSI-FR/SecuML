@@ -44,3 +44,12 @@ class ProjectionConfFactory():
         args = [args[key] for key in param]
         obj = class_(*args)
         return obj
+
+    def fromArgs(self, algo, args):
+        class_ = self.register[algo + 'Configuration']
+        params = class_.generateParamsFromArgs(args)
+        return self.fromParam(algo, params)
+
+    def generateParser(self, labeling_strategy, parser):
+        class_ = self.register[labeling_strategy + 'Configuration']
+        return class_.generateParser(parser)

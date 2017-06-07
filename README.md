@@ -17,8 +17,10 @@ It supports binary labels (malicious vs. benign) and categorical labels which re
 ## Requirements and Configurations
 
 #### Requirements
+* rabbit-mq server (>= 3.3.5) (only for active learning and rare category detection)
 * MySQL server (>= 5.5.49)
 * Python packages:
+  * celery (>= 3.1.13) (only for active learning, and rare category detection)
   * flask (>= 0.10.1)
   * metric-learn (>= 0.3.0)
   * mysql.connector (>=2.1.3)

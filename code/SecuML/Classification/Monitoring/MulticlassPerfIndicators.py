@@ -14,6 +14,8 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import division
+
 import json
 import numpy as np
 from sklearn.metrics import accuracy_score, f1_score
@@ -23,10 +25,11 @@ from SecuML.Clustering.Evaluation.PerformanceIndicators import PerformanceIndica
 class MulticlassPerfIndicators(object):
 
     def __init__(self, num_folds):
-        self.accuracy = [0] * num_folds
-        self.f1_micro = [0] * num_folds
-        self.f1_macro = [0] * num_folds
-        self.clustering_perf = PerformanceIndicators()
+        self.num_folds = num_folds
+        self.accuracy  = [0] * num_folds
+        self.f1_micro  = [0] * num_folds
+        self.f1_macro  = [0] * num_folds
+        self.clustering_perf  = PerformanceIndicators()
         self.true_labels      = []
         self.predicted_labels = []
 
@@ -59,3 +62,13 @@ class MulticlassPerfIndicators(object):
                 'std': int(self.f1_macro_std*10000)/10000}
         perf['clustering_perf'] = self.clustering_perf.toJson()
         json.dump(perf, f, indent = 2)
+
+    def getCsvHeader(self):
+        return ['accuracy', 'f1-micro', 'f1-macro']
+
+    def getCsvLine(self):
+        v = []
+        v.append(self.accuracy_mean)
+        v.append(self.f1_micro_mean)
+        v.append(self.f1_macro_mean)
+        return v

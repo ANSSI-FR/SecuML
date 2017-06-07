@@ -14,6 +14,8 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import inspect
+
 clustering_conf_factory = None
 
 def getFactory():
@@ -35,7 +37,20 @@ class ClusteringConfFactory():
         obj = self.register[class_name].fromJson(obj)
         return obj
 
-    def fromParam(self, class_name, num_clusters, num_results = None, projection_conf = None, label = 'all'):
-        obj = self.register[class_name + 'Configuration'](num_clusters, num_results = num_results,
-                projection_conf = projection_conf, label = label)
+    def fromParam(self, clustering_algo, args):
+        class_ = self.register[clustering_algo + 'Configuration']
+        param = inspect.getargspec(class_.__init__).args
+        param.remove('self')
+        args = {key: args[key] for key in param}
+        obj = self.register[clustering_algo + 'Configuration'](**args)
         return obj
+
+    def fromArgs(self, clustering_algo, args):
+        class_ = self.register[clustering_algo + 'Configuration']
+        params = class_.generateParamsFromArgs(args)
+        return self.fromParam(clustering_algo, params)
+
+    def generateParser(self, clustering_algo, parser):
+        class_ = self.register[clustering_algo + 'Configuration']
+        parser = self.register[clustering_algo + 'Configuration'].generateParser(parser)
+        return parser

@@ -30,8 +30,8 @@ def getFeaturesTypes(project, dataset, experiment_id):
     filename += 'features_types.json'
     return send_file(filename)
 
-@app.route('/getStatsPlot/<project>/<dataset>/<experiment_id>/<feature>/<plot_type>/')
-def getStatsPlot(project, dataset, experiment_id, feature, plot_type):
+@app.route('/getStatsPlot/<project>/<dataset>/<experiment_id>/<plot_type>/<feature>/')
+def getStatsPlot(project, dataset, experiment_id, plot_type, feature):
     experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
             db, cursor)
     filename  = dir_tools.getExperimentOutputDirectory(experiment) + feature + '/'

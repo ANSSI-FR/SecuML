@@ -38,10 +38,10 @@ class AladinAnnotationQueries(AnnotationQueries):
     def __init__(self, iteration, conf):
         AnnotationQueries.__init__(self, iteration, 'aladin')
         self.num_annotations = conf.num_annotations
-        self.datasets = self.iteration.train_test_validation.binary_classifier.datasets
+        self.datasets = self.iteration.train_test_validation.models['binary'].datasets
 
     def runModels(self):
-        self.runLogisticRegression()
+        self.getLogisticRegressionResults()
         self.runNaiveBayes()
 
     def generateAnnotationQueries(self):
@@ -52,8 +52,8 @@ class AladinAnnotationQueries(AnnotationQueries):
     ## Private methods ##
     #####################
 
-    def runLogisticRegression(self):
-        multiclass = self.iteration.train_test_validation.multilabel_classifier
+    def getLogisticRegressionResults(self):
+        multiclass = self.iteration.train_test_validation.models['multiclass']
         self.lr_predicted_proba  = multiclass.testing_monitoring.predictions_monitoring.predicted_proba_all
         self.lr_predicted_labels = multiclass.testing_monitoring.predictions_monitoring.predictions['predicted_labels']
         self.lr_class_labels     = multiclass.class_labels
@@ -72,13 +72,13 @@ class AladinAnnotationQueries(AnnotationQueries):
                 experiment_label = exp.experiment_label,
                 parent = exp.experiment_id)
         naive_bayes_exp.setFeaturesFilenames(exp.features_filenames)
-        naive_bayes_conf = GaussianNaiveBayesConfiguration(exp.classification_conf.num_folds, False, True)
+        naive_bayes_conf = GaussianNaiveBayesConfiguration(exp.conf.models_conf['multiclass'].num_folds, False, True)
         naive_bayes_exp.setClassifierConf(naive_bayes_conf)
         naive_bayes_exp.createExperiment()
         naive_bayes_exp.export()
         # Update training data - the naive Bayes classifier is trained on all the data
         self.datasets.test_instances.families = list(self.lr_predicted_labels)
-        all_datasets = ClassifierDatasets(naive_bayes_exp)
+        all_datasets = ClassifierDatasets(naive_bayes_exp, naive_bayes_exp.classification_conf)
         train_instances = Instances()
         train_instances.union(self.datasets.train_instances, self.datasets.test_instances)
         all_datasets.train_instances = train_instances

@@ -37,17 +37,28 @@ class LabelsMonitoring(object):
 
     def __init__(self, monitoring):
         self.monitoring = monitoring
-        self.setOutputDirectory()
-        self.monitoring_file  = self.output_directory
-        self.monitoring_file += 'labels_monitoring.json'
-        self.evolution_file  = self.monitoring.AL_directory
-        self.evolution_file += 'labels_monitoring.csv'
+        self.createOutputDirectories()
+        self.setOutputFiles()
         self.has_true_labels = self.monitoring.datasets.instances.hasTrueLabels()
 
-    def setOutputDirectory(self):
+    def createOutputDirectories(self):
         self.output_directory  = self.monitoring.iteration_dir
         self.output_directory += 'labels_monitoring/'
         dir_tools.createDirectory(self.output_directory)
+        if self.monitoring.iteration_number == 1:
+            output_directory  = self.monitoring.AL_directory
+            output_directory += 'labels_monitoring/'
+            dir_tools.createDirectory(output_directory)
+
+    def setOutputFiles(self):
+        self.monitoring_file  = self.output_directory
+        self.monitoring_file += 'labels_monitoring.json'
+        self.evolution_file  = self.monitoring.AL_directory
+        self.evolution_file += 'labels_monitoring/labels_monitoring.csv'
+
+    def generateMonitoring(self):
+        self.iterationMonitoring()
+        self.evolutionMonitoring()
 
     def iterationMonitoring(self):
         self.iterationMonitoringJson()
@@ -234,7 +245,7 @@ class LabelsMonitoring(object):
     def computeYmax(self, label, max_value):
         datasets = self.monitoring.datasets
         if label in ['malicious', 'benign']:
-            if self.monitoring.iteration.has_true_labels:
+            if self.has_true_labels:
                 ymax = datasets.numInstances(label, true_labels = True)
             else:
                 ymax = 0

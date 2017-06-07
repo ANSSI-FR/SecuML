@@ -22,8 +22,11 @@ import random
 import time
 
 from SecuML.Classification.ClassifierDatasets import ClassifierDatasets
+from SecuML.Clustering.Configuration.ClusteringConfiguration import ClusteringConfiguration
+from SecuML.Clustering.Clustering import Clustering
 from SecuML.Data.Instances import Instances
 from SecuML.Experiment.ClassificationExperiment import ClassificationExperiment
+from SecuML.Experiment.ClusteringExperiment import ClusteringExperiment
 from SecuML.Tools import matrix_tools
 
 from AnnotationQueries import AnnotationQueries
@@ -33,18 +36,20 @@ from Categories import Categories
 
 class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
 
-    def __init__(self, iteration, label, proba_min, proba_max):
+    def __init__(self, iteration, label, proba_min, proba_max, multiclass_model = None):
         AnnotationQueries.__init__(self, iteration, label)
         self.proba_min = proba_min
         self.proba_max = proba_max
         self.rare_category_detection_conf = self.iteration.experiment.conf.rare_category_detection_conf
+        self.multiclass_model = multiclass_model
 
     def run(self, already_queried = None):
         self.runModels(already_queried = already_queried)
         start_time = time.time()
         self.generateAnnotationQueries()
         self.generate_queries_time = time.time() - start_time
-        self.finalComputations()
+        self.exportAnnotationQueries()
+        self.generateClusteringVisualization()
 
     def runModels(self, already_queried = None):
         df = matrix_tools.extractRowsWithThresholds(self.predictions,
@@ -58,9 +63,8 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
         self.families_analysis = self.familiesAnalysis()
         if self.families_analysis:
             self.annotations_type = 'families'
-            multiclass_exp = self.createMulticlassExperiment()
             start_time = time.time()
-            self.buildMulticlassClassifier(multiclass_exp)
+            self.buildCategories()
             self.analysis_time = time.time() - start_time
             self.categories.setLikelihood(self.iteration.iteration_number)
         else:
@@ -96,13 +100,19 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
         else:
             self.categories.annotateAuto(self.iteration)
 
+    def getManualAnnotations(self):
+        if not self.families_analysis:
+            AnnotationQueries.getManualAnnotations(self)
+        else:
+            self.categories.getManualAnnotations(self.iteration)
+
     #######################
     ### Private methods ###
     #######################
 
     def createMulticlassExperiment(self):
-        conf = self.rare_category_detection_conf.clustering_conf
-        exp = self.iteration.experiment
+        conf = self.rare_category_detection_conf.classification_conf
+        exp  = self.iteration.experiment
         name = '-'.join(['AL' + str(exp.experiment_id),
                          'Iter' + str(self.iteration.iteration_number),
                          self.label,
@@ -117,41 +127,50 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
         multiclass_exp.export()
         return multiclass_exp
 
-    def buildMulticlassClassifier(self, multiclass_exp):
-        datasets = self.iteration.datasets
-        predicted_instances = datasets.getInstancesFromIds(self.predicted_ids)
-        multiclass_datasets = ClassifierDatasets(multiclass_exp)
-        multiclass_datasets.train_instances = self.annotated_instances
-        multiclass_datasets.test_instances  = predicted_instances
-        multiclass_datasets.setSampleWeights()
-        multiclass = multiclass_exp.classification_conf.model_class(multiclass_exp, multiclass_datasets)
-        multiclass.run()
+    def buildCategories(self):
+        self.buildMulticlassClassifier()
         all_instances = Instances()
-        all_instances.union(predicted_instances, self.annotated_instances)
-        if len(self.predicted_ids) > 0:
-            predicted_labels = multiclass.testing_monitoring.getPredictedLabels()
-            all_families    = list(predicted_labels) + self.annotated_instances.families
-            predicted_proba = multiclass.testing_monitoring.getAllPredictedProba()
-            for family in self.annotated_instances.families:
-                probas = [int(family == s) for s in multiclass.class_labels]
+        train = self.multiclass_model.datasets.train_instances
+        test  = self.multiclass_model.datasets.test_instances
+        all_instances.union(test, train)
+        if test.numInstances() > 0:
+            predicted_labels = self.multiclass_model.testing_monitoring.getPredictedLabels()
+            all_families     = list(predicted_labels) + train.families
+            predicted_proba  = self.multiclass_model.testing_monitoring.getAllPredictedProba()
+            for family in train.families:
+                probas = [int(family == s) for s in self.multiclass_model.class_labels]
                 predicted_proba = np.vstack((predicted_proba, np.array(probas)))
         else:
             all_families    = self.annotated_instances.families
             predicted_proba = None
             for family in self.annotated_instances.families:
-                probas = [int(family == s) for s in multiclass.class_labels]
+                probas = [int(family == s) for s in self.multiclass_model.class_labels]
                 if predicted_proba is None:
                     predicted_proba = np.array(probas)
                 else:
                     predicted_proba = np.vstack((predicted_proba, np.array(probas)))
-        labels_values = list(set(all_families))
+        labels_values = list(self.multiclass_model.class_labels)
         assigned_categories = [labels_values.index(x) for x in all_families]
-        self.categories = Categories(multiclass_exp,
+        self.categories = Categories(self.multiclass_model.experiment,
                                    all_instances,
                                    assigned_categories,
                                    predicted_proba,
                                    self.label,
-                                   multiclass.class_labels)
+                                   self.multiclass_model.class_labels)
+
+    def buildMulticlassClassifier(self):
+        if self.multiclass_model is not None:
+            return
+        multiclass_exp = self.createMulticlassExperiment()
+        datasets = self.iteration.datasets
+        predicted_instances = datasets.getInstancesFromIds(self.predicted_ids)
+        multiclass_datasets = ClassifierDatasets(multiclass_exp, multiclass_exp.classification_conf)
+        multiclass_datasets.train_instances = self.annotated_instances
+        multiclass_datasets.test_instances  = predicted_instances
+        multiclass_datasets.setSampleWeights()
+        self.multiclass_model = multiclass_exp.classification_conf.model_class(multiclass_exp, multiclass_datasets,
+                                                                               cv_monitoring = True)
+        self.multiclass_model.run()
 
     # A multi class supervised model is learned from the annotated instances if:
     #       - there are at most 2 families
@@ -166,3 +185,29 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
         if families_counts[1][1] < 2:
             return False
         return True
+
+    def createClusteringExperiment(self):
+        conf = ClusteringConfiguration(self.categories.numCategories())
+        exp  = self.iteration.experiment
+        name = '-'.join(['AL' + str(exp.experiment_id),
+                         'Iter' + str(self.iteration.iteration_number),
+                         self.label,
+                         'clustering'])
+        clustering_exp = ClusteringExperiment(exp.project, exp.dataset, exp.db,
+                exp.cursor, conf,
+                experiment_name = name,
+                experiment_label = exp.experiment_label,
+                parent = exp.experiment_id)
+        clustering_exp.setFeaturesFilenames(exp.features_filenames)
+        clustering_exp.createExperiment()
+        clustering_exp.export()
+        return clustering_exp
+
+    def generateClusteringVisualization(self):
+        if self.families_analysis:
+            self.clustering_exp = self.createClusteringExperiment()
+            clustering = Clustering(self.clustering_exp, self.categories.instances,
+                                    self.categories.assigned_categories)
+            clustering.generateClustering(None, None)
+        else:
+            self.clustering_exp = None

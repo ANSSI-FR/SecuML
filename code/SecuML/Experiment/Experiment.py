@@ -245,4 +245,13 @@ class Experiment(object):
             json.dump(self.toJson(), f,
                     indent = 2)
 
-ExperimentFactory.getFactory().registerClass('Experiment', Experiment)
+    @staticmethod
+    def projectDatasetFeturesParser(parser):
+        parser.add_argument('project')
+        parser.add_argument('dataset')
+        parser.add_argument('--features', '-f',
+                dest = 'features_files',
+                nargs = '+',
+                required = False,
+                default = ['features.csv'],
+                help = 'CSV files containing the features.')

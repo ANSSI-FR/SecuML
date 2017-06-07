@@ -17,17 +17,20 @@
 import pandas as pd
 
 from SecuML.Plots.BarPlot import BarPlot
-from SecuML.Tools import colors_tools
 from SecuML.Tools import dir_tools
 
 class FamiliesMonitoring(object):
 
     def __init__(self, monitoring):
-        self.setOutputDirectory(monitoring)
+        self.createOutputDirectories(monitoring)
         self.labels = ['benign', 'malicious']
         self.monitorings = {}
         for label in self.labels:
             self.monitorings[label] = FamiliesMonitoringOneLabel(monitoring, label, self.output_directory)
+
+    def generateMonitoring(self):
+        self.iterationMonitoring()
+        self.evolutionMonitoring()
 
     def iterationMonitoring(self):
         for label in self.labels:
@@ -37,10 +40,14 @@ class FamiliesMonitoring(object):
         for label in self.labels:
             self.monitorings[label].evolutionMonitoring()
 
-    def setOutputDirectory(self, monitoring):
+    def createOutputDirectories(self, monitoring):
         self.output_directory  = monitoring.iteration_dir
         self.output_directory += 'families_monitoring/'
         dir_tools.createDirectory(self.output_directory)
+        if monitoring.iteration_number == 1:
+            output_directory  = monitoring.AL_directory
+            output_directory += 'families_monitoring/'
+            dir_tools.createDirectory(output_directory)
 
 class FamiliesMonitoringOneLabel(object):
 
@@ -48,7 +55,7 @@ class FamiliesMonitoringOneLabel(object):
         self.monitoring = monitoring
         self.output_directory = output_directory
         self.label = label
-        self.evolution_file  = self.monitoring.AL_directory
+        self.evolution_file  = self.monitoring.AL_directory + 'families_monitoring/'
         self.evolution_file += self.label + '_families_monitoring.csv'
         instances = self.monitoring.iteration.datasets.instances
         if instances.hasTrueLabels():
@@ -58,7 +65,6 @@ class FamiliesMonitoringOneLabel(object):
 
     def iterationMonitoring(self):
         self.displayCsvLine()
-        self.plotIterationMonitoring()
 
     # When there is no ground truth labels, the number of families
     # is unknown at the begining
@@ -97,15 +103,6 @@ class FamiliesMonitoringOneLabel(object):
             header  = ['iteration']
             header += self.families
             print >>f, ','.join(header)
-
-    def plotIterationMonitoring(self):
-        barplot = BarPlot(self.families)
-        barplot.addDataset(self.families_annotations,
-                colors_tools.getLabelColor(self.label), 'Num Annotations')
-        filename  = self.output_directory
-        filename += self.label + '_families_monitoring.json'
-        with open(filename, 'w') as f:
-            barplot.display(f)
 
     ##########################
     ## Evolution Monitoring ##

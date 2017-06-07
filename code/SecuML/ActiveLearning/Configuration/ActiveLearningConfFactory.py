@@ -32,9 +32,9 @@ class ActiveLearningConfFactory():
     def registerClass(self, class_name, class_obj):
         self.register[class_name] = class_obj
 
-    def fromJson(self, obj):
+    def fromJson(self, obj, experiment):
         class_name = obj['__type__']
-        obj = self.register[class_name].fromJson(obj)
+        obj = self.register[class_name].fromJson(obj, experiment)
         return obj
 
     def fromParam(self, labeling_strategy, args):
@@ -44,3 +44,13 @@ class ActiveLearningConfFactory():
         args = {key: args[key] for key in param}
         obj = self.register[labeling_strategy + 'Configuration'](**args)
         return obj
+
+    def fromArgs(self, labeling_strategy, args):
+        class_ = self.register[labeling_strategy + 'Configuration']
+        params = class_.generateParamsFromArgs(args)
+        return self.fromParam(labeling_strategy, params)
+
+    def generateParser(self, labeling_strategy, parser):
+        class_ = self.register[labeling_strategy + 'Configuration']
+        parser = self.register[labeling_strategy + 'Configuration'].generateParser(parser)
+        return parser

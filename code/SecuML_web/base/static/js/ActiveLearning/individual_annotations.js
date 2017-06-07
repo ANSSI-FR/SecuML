@@ -15,6 +15,7 @@ var current_instance_index   = null;
 var inst_dataset = dataset;
 var inst_exp_id = experiment_id;
 var inst_exp_label_id = experiment_label_id;
+var has_families = datasetHasFamilies(project, inst_dataset, inst_exp_label_id);
 
 $(document).keypress(function (e) {
    var key = e.keyCode;
@@ -37,16 +38,22 @@ function getCurrentInstance() {
   return instances_list[current_instance_index];
 }
 
-function callback() {
-    displayDivisions();
-    displayInstancesToAnnotate();
+function callback(conf) {
+      displayDivisions(conf);
+      displayInstancesToAnnotate();
 }
 
 function loadConfigurationFile(callback) {
     d3.json(buildQuery('getConf', [project, dataset, experiment_id]),
             function(error, data) {
                 conf = data;
-                callback();
+                conf.interactive = false;
+                if (!conf.conf.auto) {
+                    var current_iteration = currentAnnotationIteration(project, dataset,
+                            experiment_id);
+                    conf.interactive = label_iteration == current_iteration;
+                }
+                callback(conf);
             }
            );
 }
@@ -73,6 +80,10 @@ function displayNextInstance() {
   }
 }
 
+function displayNextInstanceToAnnotate() {
+    displayNextInstance();
+}
+
 function displayPrevInstance() {
   if (current_instance_index > 0) {
     current_instance_index -= 1;
@@ -82,14 +93,13 @@ function displayPrevInstance() {
   }
 }
 
-function displayDivisions() {
+function displayDivisions(conf) {
   var main = $('#main')[0];
 
   // Navigation bar
   var row = createDivWithClass(null,  'row', parent_div = main);
   var panel_body = createPanel('panel-primary', 'col-md-12',
-          null,
-          row);
+                               null, row);
   var annotation_query_label = document.createElement('label');
   annotation_query_label.setAttribute('class', 'col-lg-2 control-label');
   annotation_query_label.appendChild(document.createTextNode('Annotation Query'));
@@ -99,7 +109,7 @@ function displayDivisions() {
   iter_label.setAttribute('id', 'iter_label');
   panel_body.appendChild(iter_label);
   // Prev / Next buttons
-  var prev_next_group = createDivWithClass('', 'form-group row', panel_body);
+  var prev_next_group = createDivWithClass('', 'form-group col-md-3', panel_body);
 
   var prev_button = document.createElement('button');
   prev_button.setAttribute('class', 'btn btn-primary');
@@ -110,7 +120,6 @@ function displayDivisions() {
   prev_button.addEventListener('click', displayPrevInstance);
   prev_next_group.appendChild(prev_button);
 
-
   var next_button = document.createElement('button');
   next_button.setAttribute('class', 'btn btn-primary');
   next_button.setAttribute('type', 'button');
@@ -120,10 +129,18 @@ function displayDivisions() {
   next_button.addEventListener('click', displayNextInstance);
   prev_next_group.appendChild(next_button);
 
-  // Selected instance - data and annotation
-  var row = createDivWithClass(null,  'row', parent_div = main);
-  displayInstancePanel(row);
+  // End annotation process
+  if (conf.interactive) {
+    var end_group = createDivWithClass('', 'form-group col-md-3', panel_body);
+    var end_button = document.createElement('button');
+    end_button.setAttribute('class', 'btn btn-primary');
+    end_button.setAttribute('type', 'button');
+    end_button.setAttribute('id', 'end_button');
+    var end_button_text = document.createTextNode('End');
+    end_button.appendChild(end_button_text);
+    end_button.addEventListener('click', runNextIteration(conf));
+    end_group.appendChild(end_button);
+  }
 
-  displayInstanceInformationStructure();
-  displayAnnotationDiv();
+  displayAnnotationDivision(false);
 }

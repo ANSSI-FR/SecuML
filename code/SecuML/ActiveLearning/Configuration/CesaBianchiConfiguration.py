@@ -17,13 +17,21 @@
 import ActiveLearningConfFactory
 from ActiveLearningConfiguration import ActiveLearningConfiguration
 from SecuML.ActiveLearning.QueryStrategies.CesaBianchi import CesaBianchi
+from SecuML.Classification.Configuration import ClassifierConfFactory
 
 class CesaBianchiConfiguration(ActiveLearningConfiguration):
 
-    def __init__(self, num_annotations, b):
+    def __init__(self, auto, budget, batch, b, binary_model_conf):
+        ActiveLearningConfiguration.__init__(self, auto, budget)
         self.labeling_method = 'CesaBianchi'
         self.b               = b
-        self.batch           = num_annotations
+        self.batch           = batch
+        self.setBinaryModelConf(binary_model_conf)
+
+    def setBinaryModelConf(self, binary_model_conf):
+        conf = {}
+        conf['binary'] = binary_model_conf
+        ActiveLearningConfiguration.setModelsConf(self, conf)
 
     def getStrategy(self, iteration):
         return CesaBianchi(iteration)
@@ -35,16 +43,37 @@ class CesaBianchiConfiguration(ActiveLearningConfiguration):
         return suffix
 
     @staticmethod
-    def fromJson(obj):
-        conf = CesaBianchiConfiguration(obj['batch'], obj['b'])
+    def fromJson(obj, experiment):
+        binary_model_conf = ClassifierConfFactory.getFactory().fromJson(obj['models_conf']['binary'], experiment)
+        conf = CesaBianchiConfiguration(obj['auto'], obj['budget'],
+                                        obj['batch'], obj['b'],
+                                        binary_model_conf)
         return conf
 
     def toJson(self):
-        conf = {}
+        conf = ActiveLearningConfiguration.toJson(self)
         conf['__type__'] = 'CesaBianchiConfiguration'
         conf['b']        = self.b
         conf['batch']    = self.batch
         return conf
+
+    @staticmethod
+    def generateParser(parser):
+        al_group = ActiveLearningConfiguration.generateParser(parser)
+        al_group.add_argument('--batch',
+                type = int,
+                default = 100,
+                help = 'Number of annotations asked from the user at each iteration.')
+        al_group.add_argument('--b',
+                type = float,
+                default = 0.1)
+
+    @staticmethod
+    def generateParamsFromArgs(args):
+        params = ActiveLearningConfiguration.generateParamsFromArgs(args)
+        params['batch'] = args.batch
+        params['b'] = args.b
+        return params
 
 ActiveLearningConfFactory.getFactory().registerClass('CesaBianchiConfiguration',
         CesaBianchiConfiguration)

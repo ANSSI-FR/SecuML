@@ -16,6 +16,7 @@ function loadConfigurationFile(project, dataset, experiment_id, callback) {
                 } else {
                     conf.validation_has_true_labels = conf.has_true_labels;
                 }
+                conf.exp_type = exp_type;
                 callback(conf);
             }
            );

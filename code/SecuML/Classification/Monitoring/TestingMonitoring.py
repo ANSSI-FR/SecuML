@@ -23,8 +23,7 @@ from PredictionsMonitoring import PredictionsMonitoring
 class TestingMonitoring(object):
 
     ## monitoring_type in ['test', 'validation']
-    def __init__(self, conf, testing_labels, testing_families,
-            monitoring_type = 'test'):
+    def __init__(self, conf, testing_labels, testing_families, monitoring_type = 'test'):
         self.conf                   = conf
         self.monitoring_type        = monitoring_type
         self.predictions_monitoring = PredictionsMonitoring(self.conf)
@@ -37,7 +36,7 @@ class TestingMonitoring(object):
         if self.has_true_labels:
             self.performance_monitoring = PerformanceMonitoring(1, self.conf)
             if not self.conf.families_supervision:
-                if self.conf.getModelClassName() != 'Sssvdd' and self.conf.getModelClassName() != 'SssvddOriginal':
+                if self.conf.getModelClassName() != 'Sssvdd':
                     self.families_monitoring = FamiliesMonitoring()
 
     def addPredictions(self, predicted_proba_all, predicted_proba, predicted_scores, predicted_labels, instances_ids):

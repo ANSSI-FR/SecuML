@@ -14,6 +14,8 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import warnings
+
 from SecuML.Data import labels_tools
 
 class NoAnnotationBudget(Exception):
@@ -22,42 +24,60 @@ class NoAnnotationBudget(Exception):
 
 class AnnotationQuery(object):
 
-    def __init__(self, instance_id, predicted_proba, suggested_label, suggested_family):
-        self.instance_id        = instance_id
-        self.predicted_proba    = predicted_proba
-        self.suggested_label    = suggested_label
+    def __init__(self, instance_id, predicted_proba, suggested_label, suggested_family, confidence = None):
+        self.instance_id      = instance_id
+        self.predicted_proba  = predicted_proba
+        self.suggested_label  = suggested_label
         self.suggested_family = suggested_family
+        self.confidence       = confidence
 
     def displayHeader(self, f):
-        print >>f, 'instance_id,predicted_proba,suggested_label,suggested_family'
+        print >>f, 'instance_id,predicted_proba,suggested_label,suggested_family,confidence'
 
     def export(self, f):
         line = [self.instance_id, self.predicted_proba, self.suggested_label,
-                self.suggested_family]
+                self.suggested_family, self.confidence]
         line = ','.join(map(str, line))
         print >>f, line
 
     def toJson(self):
         obj = {}
-        obj['instance_id']        = self.instance_id
-        obj['predicted_proba']    = self.predicted_proba
-        obj['suggested_label']    = self.suggested_label
+        obj['instance_id']      = self.instance_id
+        obj['predicted_proba']  = self.predicted_proba
+        obj['suggested_label']  = self.suggested_label
         obj['suggested_family'] = self.suggested_family
+        obj['confidence']       = self.confidence
         return  obj
 
     def annotateAuto(self, iteration, kind):
         instances = iteration.datasets.instances
         label     = instances.getLabel(self.instance_id, true_labels = True)
         label     = labels_tools.labelBooleanToString(label)
-        family  = instances.getFamily(self.instance_id, true_labels = True)
+        family    = instances.getFamily(self.instance_id, true_labels = True)
+        # Update the datasets
+        self.updateDatasets(iteration, label, family)
+        # Update in the database
         method    = kind + '__annotation'
-        if iteration.budget <= 0:
-            raise NoAnnotationBudget()
-        iteration.budget -= 1
         labels_tools.addLabel(iteration.experiment.cursor,
                               iteration.experiment.experiment_label_id,
                               self.instance_id, label, family,
                               iteration.iteration_number, method, True)
-        iteration.datasets.update(self.instance_id, label, family, True)
         iteration.experiment.db.commit()
-        return label, family
+
+    def getManualAnnotation(self, iteration):
+        try:
+            label, family, _, _ = labels_tools.getLabelDetails(
+                    iteration.experiment.cursor,
+                    self.instance_id,
+                    iteration.experiment.experiment_label_id)
+            self.updateDatasets(iteration, label, family)
+        except labels_tools.NoLabel:
+            warnings.warn('Instance %s has not been annotated.' % (str(self.instance_id)))
+
+    def updateDatasets(self, iteration, label, family):
+        if iteration.budget <= 0:
+            raise NoAnnotationBudget()
+        iteration.budget -= 1
+        iteration.datasets.update(self.instance_id, label, family, True)
+        iteration.monitoring.suggestions.addAnnotation(self.suggested_label, self.suggested_family,
+                                                       label, family, self.confidence)

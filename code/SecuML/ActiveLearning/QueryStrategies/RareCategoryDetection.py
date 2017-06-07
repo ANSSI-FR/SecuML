@@ -25,7 +25,9 @@ class RareCategoryDetection(QueryStrategy):
 
     def __init__(self, iteration):
         QueryStrategy.__init__(self, iteration)
-        self.all_instances = RareCategoryDetectionAnnotationQueries(self.iteration, 'all', 0, 1)
+        multiclass_model = self.iteration.train_test_validation.models['multiclass']
+        self.all_instances = RareCategoryDetectionAnnotationQueries(self.iteration, 'all', 0, 1,
+                                                                    multiclass_model = multiclass_model)
 
     def generateAnnotationQueries(self):
         self.all_instances.run()
@@ -34,6 +36,9 @@ class RareCategoryDetection(QueryStrategy):
 
     def annotateAuto(self):
         self.all_instances.annotateAuto()
+
+    def getManualAnnotations(self):
+        self.all_instances.getManualAnnotations()
 
     def getClusteringsEvaluations(self):
         clusterings = {}
@@ -59,7 +64,13 @@ class RareCategoryDetection(QueryStrategy):
         return [clustering] + QueryStrategy.executionTimeDisplay(self)
 
     def exportAnnotationsTypes(self):
-        types = {'all': self.all_instances.annotations_type}
+        clustering_exp = self.all_instances.clustering_exp
+        if clustering_exp is not None:
+            clustering_exp = clustering_exp.experiment_id
+        types = {'all': {'type': self.all_instances.annotations_type,
+                         'clustering_exp': clustering_exp
+                        }
+                }
         filename  = self.iteration.output_directory
         filename += 'annotations_types.json'
         with open(filename, 'w') as f:

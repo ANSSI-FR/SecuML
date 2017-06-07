@@ -23,6 +23,7 @@ import warnings
 
 from SecuML.Classification.ClassifierDatasets import ClassifierDatasets
 from SecuML.Classification.Configuration.GaussianNaiveBayesConfiguration import GaussianNaiveBayesConfiguration
+from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 from SecuML.Classification.Classifiers.GaussianNaiveBayes import GaussianNaiveBayes
 from SecuML.Experiment.ClassificationExperiment import ClassificationExperiment
 from SecuML.Tools import dir_tools, floats_tools
@@ -86,6 +87,10 @@ class Categories(object):
     def annotateAuto(self, iteration):
         for c, category in enumerate(self.categories):
             category.annotateAuto(iteration)
+
+    def getManualAnnotations(self, iteration):
+        for c, category in enumerate(self.categories):
+            category.getManualAnnotations(iteration)
 
     def generateAnnotationQueries(self, conf):
         self.setCategoryNumAnnotations(conf)
@@ -242,12 +247,15 @@ class Categories(object):
                 experiment_label = exp.experiment_label,
                 parent = exp.experiment_id)
         naive_bayes_exp.setFeaturesFilenames(exp.features_filenames)
-        naive_bayes_conf = GaussianNaiveBayesConfiguration(exp.classification_conf.num_folds, False, True)
+        test_conf = TestConfiguration()
+        test_conf.setUnlabeled(labels_annotations = 'annotations')
+        naive_bayes_conf = GaussianNaiveBayesConfiguration(
+                exp.classification_conf.num_folds, False, True, test_conf)
         naive_bayes_exp.setClassifierConf(naive_bayes_conf)
         naive_bayes_exp.createExperiment()
         naive_bayes_exp.export()
         # Train the naive Bayes detection model and predict
-        datasets = ClassifierDatasets(naive_bayes_exp)
+        datasets = ClassifierDatasets(naive_bayes_exp, naive_bayes_exp.classification_conf)
         current_families = copy.deepcopy(self.instances.families)
         # families are altered
         self.instances.families = self.assigned_categories

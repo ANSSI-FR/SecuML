@@ -1,5 +1,5 @@
 function barPlotOptions(data, xlabel, ylabel) {
-    var options = {
+  var options = {
         responsive: true,
         maintainAspectRatio:false,
         tooltips: {
@@ -31,9 +31,8 @@ function barPlotOptions(data, xlabel, ylabel) {
                     display: false
                 }
             }]
-        },
+        }
     };
-
     return options
 }
 

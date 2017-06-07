@@ -53,6 +53,11 @@ class Ilab(QueryStrategy):
         self.malicious.annotateAuto()
         self.benign.annotateAuto()
 
+    def getManualAnnotations(self):
+        self.uncertain.getManualAnnotations()
+        self.malicious.getManualAnnotations()
+        self.benign.getManualAnnotations()
+
     def getClusteringsEvaluations(self):
         clusterings = {}
         clusterings['all']       = self.global_clustering_perf
@@ -88,7 +93,7 @@ class Ilab(QueryStrategy):
         return header
 
     def executionTimeMonitoring(self):
-        line  = [self.iteration.train_test_validation.training_predicting_time]
+        line  = [self.iteration.train_test_validation.times['binary']]
         line += [self.malicious.analysis_time, self.benign.analysis_time]
         line += QueryStrategy.executionTimeMonitoring(self)
         return line

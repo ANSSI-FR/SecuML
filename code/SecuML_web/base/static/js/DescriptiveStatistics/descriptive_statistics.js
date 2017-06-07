@@ -1,6 +1,8 @@
-var project         = window.location.pathname.split('/')[2];
-var dataset         = window.location.pathname.split('/')[3];
-var experiment_id   = window.location.pathname.split('/')[4];
+var split_path = window.location.pathname.split('/');
+var project       = split_path[2];
+var dataset       = split_path[3];
+var experiment_id = split_path[4];
+var init_feature  = split_path[5];
 
 var features_types =  null;
 
@@ -20,6 +22,15 @@ function callback(conf) {
   loadFeaturesNames();
 }
 
+function displaySelectedFeature() {
+  if (init_feature != '') {
+      $('#features_selector').val(init_feature);
+  } else {
+      $('#features_selector')[0].selectedIndex = 0;
+  }
+  displayFeatureAnalysis();
+}
+
 function generateDivisions(conf) {
   var col1 = $('#col1')[0];
   var select_features_div = createDiv('select_features_div', parent_div = col1);
@@ -37,17 +48,18 @@ function loadFeaturesNames() {
       addElementsToSelectList('features_selector', features);
       var features_selector = $('#features_selector')[0];
       features_types = data['types'];
+      displaySelectedFeature();
   });
 }
 
 function displayFeatureAnalysis() {
   var menu_div = cleanDiv('menu_div');
-  var feature = getSelectedOption($('#features_selector')[0]);
-  var type    = features_types[feature];
+  var selected_feature = getSelectedOption($('#features_selector')[0]);
+  var type    = features_types[selected_feature];
   if (type == 'binary') {
-    displayBinaryFeatureAnalysis(feature, menu_div);
+    displayBinaryFeatureAnalysis(selected_feature, menu_div);
   } else if (type == 'numeric') {
-    displayNumericFeatureAnalysis(feature, menu_div);
+    displayNumericFeatureAnalysis(selected_feature, menu_div);
   }
 }
 
@@ -56,14 +68,13 @@ function displayBinaryFeatureAnalysis(feature, menu_div) {
                             menu_div);
   // Histogram
   var query = buildQuery('getStatsPlot',
-                         [project, dataset, experiment_id, feature, 'binary_histogram']);
+                         [project, dataset, experiment_id, 'binary_histogram', feature]);
   var bin_hist = $('#bin_hist')[0];
   $.getJSON(query, function (data) {
       var options = barPlotOptions(data);
       var barPlot = drawBarPlot('bin_hist',
                                  options, data);
       bin_hist.style.height = '400px';
-      bin_hist.style.width = '500px';
   });
 }
 
@@ -74,7 +85,7 @@ function displayNumericFeatureAnalysis(feature, menu_div) {
   // BoxPlot
   var boxplot = document.getElementById('boxplot');
   var path = buildQuery('getStatsPlot',
-                        [project, dataset, experiment_id, feature, 'boxplot']);
+                        [project, dataset, experiment_id, 'boxplot', feature]);
   var picture = document.createElement('img');
   picture.src = path;
   picture.style.width = '80%';
@@ -84,19 +95,18 @@ function displayNumericFeatureAnalysis(feature, menu_div) {
   var hist = document.getElementById('hist');
   hist.setAttribute('class', 'tab-pane fade');
   var query = buildQuery('getStatsPlot',
-                         [project, dataset, experiment_id, feature, 'histogram']);
+                         [project, dataset, experiment_id, 'histogram', feature]);
   var hist = $('#hist')[0];
   $.getJSON(query, function (data) {
       var options = barPlotOptions(data);
       var barPlot = drawBarPlot('hist',
                                  options, data);
       hist.style.height = '400px';
-      hist.style.width = '1000px';
   });
   // Density
   var density = document.getElementById('density');
   var path = buildQuery('getStatsPlot',
-                        [project, dataset, experiment_id, feature, 'density']);
+                        [project, dataset, experiment_id, 'density', feature]);
   var picture = document.createElement('img');
   picture.src = path;
   picture.style.width = '80%';

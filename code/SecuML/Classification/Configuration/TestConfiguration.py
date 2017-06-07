@@ -48,11 +48,13 @@ class TestConfiguration(object):
                     db, cursor)
             load_dataset.load()
         ## Check if the validation experiments already exists
-        self.test_exp = ValidationExperiment(
-                exp.project, self.test_dataset,
-                db, cursor)
+        self.test_exp = ValidationExperiment(exp.project, self.test_dataset,
+                                             db, cursor)
         self.test_exp.setFeaturesFilenames(exp.features_filenames)
-        self.test_exp.initLabels('true_labels.csv', overwrite = False)
+        try:
+            self.test_exp.initLabels('true_labels.csv', overwrite = False)
+        except:
+            print 'The validation dataset does not have ground truth labels.'
         self.test_exp.export()
 
     def generateSuffix(self):

@@ -21,7 +21,6 @@ from SecuML.Tools import colors_tools
 from SecuML.Tools import mysql_tools
 from SecuML.Tools import web_tools
 
-from SecuML.Data import labels_tools
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Plots.BarPlot import BarPlot
 from SecuML.Clustering.Clustering import Clustering
@@ -125,28 +124,20 @@ def addClusterLabel(project, dataset, experiment_id, selected_cluster, num_resul
 def getClusterStats(project, dataset, experiment_id):
     experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
             db, cursor)
-    experiment_label_id = experiment.experiment_label_id
-    clustering = Clustering.fromJson(experiment)
-    num_clusters = clustering.num_clusters
-    num_unknown_v   = []
-    num_malicious_v = []
-    num_benign_v    = []
+    clustering      = Clustering.fromJson(experiment)
+    num_clusters    = clustering.num_clusters
+    num_instances_v = []
     labels          = []
     mysql_tools.useDatabase(cursor, project, dataset)
     for c in range(num_clusters):
         instances_in_cluster = clustering.clusters[c].instances_ids
+        num_instances = len(instances_in_cluster)
         # the empty clusters are not displayed
-        if len(instances_in_cluster) > 0:
-            cluster_stats = labels_tools.getUnknownMaliciousBenignStats(
-                    cursor, experiment_label_id, instances_in_cluster)
-            num_unknown_v.append(cluster_stats['unknown'])
-            num_malicious_v.append(cluster_stats['malicious'])
-            num_benign_v.append(cluster_stats['benign'])
+        if num_instances > 0:
+            num_instances_v.append(num_instances)
             labels.append('c_' + str(c))
     barplot = BarPlot(labels)
-    barplot.addDataset(num_unknown_v, 'black', 'unknown')
-    barplot.addDataset(num_malicious_v, '#d9534f', 'malicious')
-    barplot.addDataset(num_benign_v, '#5cb85c', 'benign')
+    barplot.addDataset(num_instances_v, colors_tools.blue, 'Num. Instances')
     return jsonify(barplot.barplot)
 
 @app.route('/getClustersColors/<num_clusters>/')

@@ -27,7 +27,7 @@ function displayAnnotationQueries(conf, iteration) {
       } else {
         var query = buildQuery('individualAnnotations',
             [project, dataset, experiment_id,
-            iteration, 'unsure']);
+            iteration, 'uncertain']);
       }
       window.open(query);
   });

@@ -33,6 +33,8 @@ class Gornitz(QueryStrategy):
     def annotateAuto(self):
         self.annotations.annotateAuto()
 
+    def getManualAnnotations(self):
+        self.annotations.getManualAnnotations()
 
     ###############################
     ## Execution time monitoring ##
@@ -44,7 +46,7 @@ class Gornitz(QueryStrategy):
         return header
 
     def executionTimeMonitoring(self):
-        line  = [self.iteration.train_test_validation.training_predicting_time]
+        line  = [self.iteration.train_test_validation.times['binary']]
         line += QueryStrategy.executionTimeMonitoring(self)
         return line
 

@@ -20,4 +20,4 @@ from SecuML.Tools import mysql_tools
 db, cursor  = mysql_tools.getDbConnection(buffered = True)
 app = Flask(__name__)
 
-import SecuML_web.base.views.views
+import SecuML_web.base.views.instances

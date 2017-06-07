@@ -17,7 +17,6 @@
 from __future__ import division
 import json
 import numpy as np
-import pandas as pd
 from sklearn.metrics.pairwise import euclidean_distances
 
 from Evaluation.ClusteringEvaluation import ClusteringEvaluation
@@ -32,7 +31,9 @@ class Clustering(object):
         self.assigned_clusters = assigned_clusters
         self.num_clusters      = len(set(assigned_clusters))
         self.clustering_algo   = clustering_algo
-        self.evaluation        = ClusteringEvaluation(self.instances, self.assigned_clusters, self.clustering_algo)
+        self.evaluation        = ClusteringEvaluation(self.instances,
+                                                      self.assigned_clusters,
+                                                      self.clustering_algo)
         self.setOutputDirectory()
 
     def numClusters(self):
@@ -62,7 +63,7 @@ class Clustering(object):
                 distance = euclidean_distances(centroid, features)[0][0]
             else:
                 distance = None
-            self.clusters[c].addInstance(instance_id, distance, proba, label, family, annotated)
+            self.clusters[c].addInstance(instance_id, distance, label, family, annotated)
         unknown_cluster_id = 0
         for c in range(self.num_clusters):
             unknown_cluster_id = self.clusters[c].finalComputation(unknown_cluster_id)
@@ -111,9 +112,6 @@ class Clustering(object):
             drop_instances = None):
         return self.clusters[selected_cluster].getClusterInstancesVisu(num_instances, random, drop_instances)
 
-    def getClusterInstances(self, selected_cluster, c_e_r, num_instances, drop_instances = None):
-        return self.clusters[selected_cluster].getClusterInstances(c_e_r, num_instances, drop_instances)
-
     def getClusterLabelsFamilies(self, selected_cluster):
         return self.clusters[selected_cluster].getClusterLabelsFamilies(self.experiment.cursor,
                 self.experiment.experiment_label_id)
@@ -132,11 +130,3 @@ class Clustering(object):
             label, family, label_iteration, label_method):
         self.clusters[selected_cluster].addClusterLabel(num_results, label, family, self.experiment.cursor,
                 self.experiment.experiment_label_id, label_iteration, label_method)
-
-    def setLikelihood(self, likelihood):
-        df = pd.DataFrame({'likelihood': likelihood,
-                           'clusters': self.assigned_clusters},
-                index = map(str, self.instances.getIds()))
-        for c in range(self.num_clusters):
-            selected_likelihood = df[df.clusters == c].likelihood
-            self.clusters[c].setLikelihood(selected_likelihood)

@@ -109,5 +109,6 @@ function displayDivisions() {
   displayInstancePanel(row);
 
   displayInstanceInformationStructure();
-  displayAnnotationDiv();
+  var interactive = !hasTrueLabels(project, inst_dataset);
+  displayAnnotationDiv(false, interactive);
 }

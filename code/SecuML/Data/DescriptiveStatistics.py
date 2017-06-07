@@ -56,14 +56,13 @@ class FeatureDescriptiveStatistics(object):
         self.feature = feature
         self.output_directory = output_directory + self.feature + '/'
         dir_tools.createDirectory(self.output_directory)
+        self.has_true_labels = instances.hasTrueLabels()
         self.generatePlotDatasets(instances)
         self.setFeatureType()
 
     def generatePlotDatasets(self, instances):
         self.plot_datasets = {}
-        self.plot_datasets['all'] = PlotDataset(instances.getFeatureValues(self.feature), 'all')
-        self.plot_datasets['all'].setColor(colors_tools.getLabelColor('all'))
-        if instances.hasTrueLabels():
+        if self.has_true_labels:
             malicious_instances = instances.getInstancesFromIds(instances.getMaliciousIds(true_labels = True))
             malicious_dataset = PlotDataset(malicious_instances.getFeatureValues(self.feature), 'malicious')
             malicious_dataset.setColor(colors_tools.getLabelColor('malicious'))
@@ -72,9 +71,15 @@ class FeatureDescriptiveStatistics(object):
             benign_dataset = PlotDataset(benign_instances.getFeatureValues(self.feature), 'benign')
             benign_dataset.setColor(colors_tools.getLabelColor('benign'))
             self.plot_datasets['benign'] = benign_dataset
+        else:
+            self.plot_datasets['all'] = PlotDataset(instances.getFeatureValues(self.feature), 'all')
+            self.plot_datasets['all'].setColor(colors_tools.getLabelColor('all'))
 
     def setFeatureType(self):
-        values = self.plot_datasets['all'].values
+        if not self.has_true_labels:
+            values = self.plot_datasets['all'].values
+        else:
+            values = self.plot_datasets['benign'].values
         if all(v in [0, 1] for v in values):
             self.feature_type = 'binary'
         else:
@@ -112,13 +117,13 @@ class FeatureDescriptiveStatistics(object):
 
     def generateHistogram(self):
         # 10 equal-width bins computed on all the data
-        hist, bin_edges = np.histogram(self.plot_datasets['all'].values, bins = 10, density = False)
+        if not self.has_true_labels:
+            hist, bin_edges = np.histogram(self.plot_datasets['all'].values, bins = 10, density = False)
+        else:
+            hist, bin_edges = np.histogram(self.plot_datasets['malicious'].values, bins = 10, density = False)
         x_labels = [str(bin_edges[e]) + ' - ' + str(bin_edges[e+1]) for e in range(len(bin_edges)-1)]
         barplot = BarPlot(x_labels)
-        barplot.addDataset(hist, self.plot_datasets['all'].color, self.plot_datasets['all'].label)
         for label, dataset in self.plot_datasets.iteritems():
-            if label == 'all':
-                continue
             hist, bin_edges = np.histogram(dataset.values, bins = bin_edges, density = False)
             barplot.addDataset(hist, dataset.color, dataset.label)
         output_filename = self.output_directory + 'histogram.json'

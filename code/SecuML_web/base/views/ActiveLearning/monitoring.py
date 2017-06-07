@@ -27,14 +27,37 @@ def getLabelsMonitoring(project, dataset, experiment_id, iteration):
     experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
             db, cursor)
     filename  = dir_tools.getExperimentOutputDirectory(experiment) + str(iteration) + '/'
-    filename += 'labels_monitoring/' + 'labels_monitoring.json'
+    filename += 'labels_monitoring/labels_monitoring.json'
     return send_file(filename)
+
+@app.route('/activeLearningSuggestionsMonitoring/<project>/<dataset>/<experiment_id>/<iteration>/')
+def activeLearningSuggestionsMonitoring(project, dataset, experiment_id, iteration):
+    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id, db, cursor)
+    filename  = dir_tools.getExperimentOutputDirectory(experiment) + str(int(iteration) - 1) + '/'
+    filename += 'suggestions_accuracy/'
+    filename += 'labels_families'
+    filename += '_high_confidence_suggestions.png'
+    return send_file(filename)
+
+@app.route('/activeLearningModelsMonitoring/<project>/<dataset>/<experiment_id>/<iteration>/<train_cv_validation>/')
+def activeLearningModelsMonitoring(project, dataset, experiment_id, iteration, train_cv_validation):
+    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id, db, cursor)
+    active_learning = Iteration(experiment, int(iteration))
+    binary_multiclass = 'multiclass'
+    estimator = 'accuracy'
+    if 'binary' in experiment.conf.models_conf.keys():
+        binary_multiclass = 'binary'
+        estimator = 'auc'
+    directory = active_learning.output_directory
+    filename  = directory
+    filename += 'models_performance/'
+    filename += binary_multiclass + '_' + train_cv_validation + '_' + estimator + '_monitoring.png'
+    return send_file(filename, mimetype='image/png')
 
 @app.route('/activeLearningMonitoring/<project>/<dataset>/<experiment_id>/<iteration>/<kind>/<sub_kind>/')
 def activeLearningMonitoring(project, dataset, experiment_id, iteration, kind, sub_kind):
     experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id, db, cursor)
-    active_learning = Iteration(None, experiment, None, None, None, None,
-            iteration_number = int(iteration))
+    active_learning = Iteration(experiment, int(iteration))
     directory = active_learning.output_directory
     if kind == 'labels':
         filename  = directory + 'labels_monitoring/'
@@ -44,9 +67,6 @@ def activeLearningMonitoring(project, dataset, experiment_id, iteration, kind, s
     if kind == 'clustering':
         filename  = directory + 'clustering_evaluation/'
         filename += sub_kind + '_monitoring.png'
-    if kind == 'validation':
-        filename  = directory
-        filename += sub_kind + '_validation_monitoring.png'
     if kind == 'time':
         filename  = directory
         filename += 'execution_time_monitoring.png'

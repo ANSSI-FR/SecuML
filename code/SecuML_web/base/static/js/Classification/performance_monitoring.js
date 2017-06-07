@@ -2,6 +2,9 @@ function familiesMonitoring(conf, train_test) {
     if (! conf.classification_conf.probabilist_model) {
         return false;
     }
+    if (conf.classification_conf.families_supervision) {
+        return false;
+    }
     if (train_test == 'validation') {
         return datasetHasFamilies(conf.project, conf.validation_conf.test_dataset, 1);
     } else {
@@ -11,10 +14,15 @@ function familiesMonitoring(conf, train_test) {
 
 function displayPerformanceTabs(conf, train_test) {
     var performance_div_name =  train_test + '_performance';
-    var menu_labels = [train_test + '_performance_indicators',
-                       train_test + '_performance_roc',
-                       train_test + '_performance_confusion_matrix'];
-    var menu_titles = ['Indicators', 'ROC', 'Confusion Matrix'];
+    if (conf.classification_conf.families_supervision) {
+      var menu_labels = [train_test + '_performance_indicators'];
+      var menu_titles = ['Indicators'];
+    } else {
+      var menu_labels = [train_test + '_performance_indicators',
+                         train_test + '_performance_roc',
+                         train_test + '_performance_confusion_matrix'];
+      var menu_titles = ['Indicators', 'ROC', 'Confusion Matrix'];
+    }
     var families_monitoring = familiesMonitoring(conf, train_test);
     if (families_monitoring) {
       menu_titles.push('Families');
@@ -23,6 +31,7 @@ function displayPerformanceTabs(conf, train_test) {
     var menu = createTabsMenu(menu_labels, menu_titles,
             document.getElementById(performance_div_name),
             train_test + '_performance_monitoring_tabs');
+    document.getElementById(performance_div_name).style.marginTop = '2px';
 }
 
 function updatePerformanceDisplay(conf, train_test, sup_exp) {
@@ -33,12 +42,14 @@ function updatePerformanceDisplay(conf, train_test, sup_exp) {
     // Indicators
     var indicators = cleanDiv(train_test + '_performance_indicators');
     displayPerfIndicators(indicators, conf, train_test, exp);
-    // ROC
-    var roc = cleanDiv(train_test + '_performance_roc');
-    displayROC(roc, conf, train_test, exp);
-    // Confusion Matrix
-    var confusion_matrix = cleanDiv(train_test + '_performance_confusion_matrix');
-    displayConfusionMatrix(confusion_matrix, conf, train_test, exp);
+    if (! conf.classification_conf.families_supervision) {
+      // ROC
+      var roc = cleanDiv(train_test + '_performance_roc');
+      displayROC(roc, conf, train_test, exp);
+      // Confusion Matrix
+      var confusion_matrix = cleanDiv(train_test + '_performance_confusion_matrix');
+      displayConfusionMatrix(confusion_matrix, conf, train_test, exp);
+    }
     var families_monitoring = familiesMonitoring(conf, train_test);
     if (families_monitoring) {
       displayFamiliesMonitoring(conf, train_test, sup_exp);
@@ -71,7 +82,7 @@ function sliderCallback(conf, train_test, sup_exp, event, ui) {
 }
 
 function displayPerfIndicators(div_obj, conf, train_test, exp) {
-  if (conf.classification_conf.probabilist_model) {
+  if (conf.classification_conf.probabilist_model && !conf.classification_conf.families_supervision) {
       displayThresholdPerfIndicators(div_obj, conf, train_test, exp);
   } else {
       displayNoThresholdPerfIndicators(div_obj, conf, train_test, exp);
@@ -90,12 +101,12 @@ function displayNoThresholdPerfIndicators(div_obj, conf, train_test, exp) {
           width = 'width:250px');
   $.getJSON(train_performance_path,
             function(data) {
-                if (train_test == 'labels') {
-                  fields_names = ['recall', 'false_positive', 'f-score'];
-                  fields_names_display = ['Detection', 'False alarms', 'F-score'];
+                if (conf.classification_conf.families_supervision) {
+                  var fields_names = ['f1_micro', 'f1_macro', 'accuracy'];
+                  var fields_names_display = ['F1-micro', 'F1-macro', 'Accuracy'];
                 } else {
-                  fields_names = ['recall', 'false_positive', 'f-score', 'auc'];
-                  fields_names_display = ['Detection', 'False alarms', 'F-score', 'AUC'];
+                  var fields_names = ['recall', 'false_positive', 'f-score', 'auc'];
+                  var fields_names_display = ['Detection', 'False alarms', 'F-score', 'AUC'];
                 }
                 for (var i = 0; i < fields_names.length; i++) {
                     var indicator = fields_names_display[i];
@@ -189,6 +200,10 @@ function displayConfusionMatrix(div_obj, conf, train_test, exp) {
     $.getJSON(confusion_matrix_path,
               function(data) {
 
+                var errors_query = buildQuery('errors',
+                        [conf.project, conf.dataset, exp, train_test, experiment_label_id]);
+
+
                 var row = table.insertRow(0);
                 var cell = row.insertCell(0);
                 cell.innerHTML = '';
@@ -197,7 +212,7 @@ function displayConfusionMatrix(div_obj, conf, train_test, exp) {
                 var cell = row.insertCell(2);
                 cell.colSpan = '2';
                 cell.align = 'center';
-                cell.innerHTML = 'Predicted Label';
+                cell.innerHTML = 'Prediction';
 
                 var row = table.insertRow(1);
                 var cell = row.insertCell(0);
@@ -211,7 +226,7 @@ function displayConfusionMatrix(div_obj, conf, train_test, exp) {
 
                 var row = table.insertRow(2);
                 var cell = row.insertCell(0);
-                cell.innerHTML = 'True Labels';
+                cell.innerHTML = 'Truth';
                 cell.rowSpan = '2';
                 cell.style.verticalAlign = 'middle';
 
@@ -223,8 +238,8 @@ function displayConfusionMatrix(div_obj, conf, train_test, exp) {
                 var fn_elem = document.createElement('a');
                 var fn_text = document.createTextNode(data['FN']);
                 fn_elem.appendChild(fn_text);
-                fn_elem.href = buildQuery('errors',
-                        [conf.project, conf.dataset, exp, train_test, experiment_label_id]);
+                fn_elem.href = errors_query;
+                fn_elem.setAttribute('title', 'Not Detected');
                 cell.appendChild(fn_elem);
                 cell.id = 'FN';
 
@@ -235,8 +250,8 @@ function displayConfusionMatrix(div_obj, conf, train_test, exp) {
                 var fp_elem = document.createElement('a');
                 var fp_text = document.createTextNode(data['FP']);
                 fp_elem.appendChild(fp_text);
-                fp_elem.href = buildQuery('errors',
-                        [conf.project, conf.dataset, exp, train_test, experiment_label_id]);
+                fp_elem.href = errors_query;
+                fp_elem.setAttribute('title', 'False Positives');
                 cell.appendChild(fp_elem);
                 cell.id = 'FP';
                 var cell = row.insertCell(2);

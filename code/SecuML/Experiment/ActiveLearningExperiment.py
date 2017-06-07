@@ -17,7 +17,6 @@
 from SecuML.ActiveLearning.Configuration import ActiveLearningConfFactory
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Experiment.Experiment import Experiment
-from SecuML.Classification.Configuration import ClassifierConfFactory
 from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 
 class ActiveLearningExperiment(Experiment):
@@ -26,10 +25,6 @@ class ActiveLearningExperiment(Experiment):
         Experiment.__init__(self, project, dataset, db, cursor)
         self.kind = 'ActiveLearning'
         self.labeling_method = None
-        self.classification_conf = None
-
-    def setClassifierConf(self, classification_conf):
-        self.classification_conf = classification_conf
 
     def setValidation(self, validation_dataset):
         self.validation_conf = None
@@ -43,8 +38,6 @@ class ActiveLearningExperiment(Experiment):
 
     def generateSuffix(self):
         suffix = ''
-        if self.classification_conf is not None:
-            suffix += self.classification_conf.generateSuffix()
         suffix += '__' + self.labeling_method
         suffix += self.conf.generateSuffix()
         if self.validation_conf is not None:
@@ -57,24 +50,17 @@ class ActiveLearningExperiment(Experiment):
         experiment = ActiveLearningExperiment(obj['project'], obj['dataset'], db, cursor)
         Experiment.expParamFromJson(experiment, obj)
         experiment.labeling_method  = obj['labeling_method']
-        classification_conf = None
-        if obj['classification_conf'] is not None:
-            classification_conf = ClassifierConfFactory.getFactory().fromJson(
-                    obj['classification_conf'], experiment)
-        experiment.setClassifierConf(classification_conf)
+        # Validation configuration
         experiment.validation_conf = None
         if obj['validation_conf'] is not None:
             experiment.validation_conf = TestConfiguration.fromJson(obj['validation_conf'], experiment)
-        experiment.conf = ActiveLearningConfFactory.getFactory().fromJson(obj['conf'])
+        experiment.conf = ActiveLearningConfFactory.getFactory().fromJson(obj['conf'], experiment)
         return experiment
 
     def toJson(self):
         conf = Experiment.toJson(self)
         conf['__type__'] = 'ActiveLearningExperiment'
         conf['labeling_method'] = self.labeling_method
-        conf['classification_conf'] = None
-        if self.classification_conf is not None:
-            conf['classification_conf'] = self.classification_conf.toJson()
         if self.validation_conf is not None:
             conf['validation_conf'] = self.validation_conf.toJson()
         else:
@@ -84,5 +70,12 @@ class ActiveLearningExperiment(Experiment):
 
     def webTemplate(self):
         return 'ActiveLearning/active_learning.html'
+
+    def getCurrentIteration(self):
+        query  = 'SELECT current_iter FROM InteractiveExperiments '
+        query += 'WHERE id = ' + str(self.experiment_id) + ';'
+        self.cursor.execute(query)
+        current_iter = self.cursor.fetchone()[0]
+        return current_iter
 
 ExperimentFactory.getFactory().registerClass('ActiveLearningExperiment', ActiveLearningExperiment)

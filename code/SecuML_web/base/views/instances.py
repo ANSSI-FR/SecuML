@@ -23,7 +23,7 @@ from SecuML.Data import idents_tools
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Tools import mysql_tools
 
-@app.route('/getInstance/<project>/<dataset>/<instance_id>/<ident>/')
+@app.route('/getInstance/<project>/<dataset>/<instance_id>/<path:ident>/')
 def getInstance(project, dataset, instance_id, ident):
     try:
         module = importlib.import_module('SecuML_web.base.views.Projects.' + project)

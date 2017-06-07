@@ -18,12 +18,14 @@ from flask import jsonify, render_template, send_file
 import pandas as pd
 
 from SecuML_web.base import app, db, cursor
+from SecuML_web.base.views.nocache import nocache
 
 from SecuML.Experiment.ActiveLearningExperiment import ActiveLearningExperiment
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Tools import dir_tools
 
 @app.route('/getAnnotationsTypes/<project>/<dataset>/<experiment_id>/<iteration>/')
+@nocache
 def getAnnotationsTypes(project, dataset, experiment_id, iteration):
     experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
             db, cursor)

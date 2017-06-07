@@ -17,47 +17,39 @@
 ## Package for float division (/)
 ## In order to perform integer division (//)
 from __future__ import division
-
 import time
 
+from Datasets import Datasets
 from Iteration import Iteration, NoLabelAdded
 
 class Iterations(object):
 
-    def __init__(self, experiment, datasets, budget, auto):
+    def __init__(self, experiment):
         self.experiment = experiment
-        self.datasets = datasets
-        self.budget = budget
-        self.auto = auto
+        self.datasets = Datasets(experiment)
+        self.budget = self.experiment.conf.budget
         self.iteration_number = 1
-        self.has_true_labels = self.datasets.instances.hasTrueLabels()
+        self.current_budget = self.budget
+        self.previous_iteration = None
+        self.current_iteration = None
 
     def runIterations(self):
-        if not self.auto:
-            #print 'Check Initial Labels'
-            #raw_input('Press Enter ...')
-            self.experiment.db.commit()
-            self.datasets.checkLabelsWithDB(self.experiment.cursor,
-                    self.experiment.experiment_label_id)
-            self.datasets.saveLabeledInstances(0)
-        budget = self.budget
-        previous_iteration = None
         while True:
             try:
                 start = time.time()
-                iteration = Iteration(
-                        previous_iteration,
-                        self.experiment,
-                        self.datasets,
-                        self.has_true_labels,
-                        budget,
-                        self.auto,
-                        iteration_number = self.iteration_number)
-                budget = iteration.run()
-                self.iteration_number += 1
-                iteration.previous_iteration = None
-                previous_iteration = iteration
+                self.runNextIteration()
                 print '%%%%%%%%%%%%%%%%% Iteration ', time.time() - start
             except (NoLabelAdded) as e:
                 print e
                 break
+
+    def runNextIteration(self):
+        self.current_iteration = Iteration(self.experiment,
+                                           self.iteration_number,
+                                           datasets = self.datasets,
+                                           previous_iteration = self.previous_iteration,
+                                           budget = self.current_budget)
+        self.current_budget = self.current_iteration.runIteration()
+        self.iteration_number += 1
+        self.current_iteration.previous_iteration = None
+        self.previous_iteration = self.current_iteration

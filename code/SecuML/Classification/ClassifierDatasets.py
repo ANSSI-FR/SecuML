@@ -35,8 +35,9 @@ def generateTrainTestIds(ids, test_size):
 # The true labels are used for the performance evaluation.
 class ClassifierDatasets(object):
 
-    def __init__(self, experiment):
-        self.experiment = experiment
+    def __init__(self, experiment, classification_conf):
+        self.experiment           = experiment
+        self.classification_conf  = classification_conf
         self.validation_instances = None
 
     def getFeaturesNames(self):
@@ -56,7 +57,7 @@ class ClassifierDatasets(object):
     def generateDatasets(self):
         instances = Instances()
         instances.initFromExperiment(self.experiment)
-        test_conf = self.experiment.classification_conf.test_conf
+        test_conf = self.classification_conf.test_conf
         if test_conf.method == 'random_split':
             self.splitTrainDataset(instances, test_conf.test_size)
         elif test_conf.method == 'test_dataset':
@@ -67,7 +68,7 @@ class ClassifierDatasets(object):
         self.setSampleWeights()
 
     def setSampleWeights(self):
-        if self.experiment.classification_conf.sample_weight:
+        if self.classification_conf.sample_weight:
             self.computeSampleWeights()
         else:
             self.sample_weight = None

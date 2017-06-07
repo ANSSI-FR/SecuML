@@ -18,13 +18,20 @@ import matplotlib.cm as cm
 from matplotlib.colors import rgb2hex
 import numpy as np
 
+green = '#5cb85c'
+red   = '#d9534f'
+blue  = '#428bca'
+
 def getLabelColor(label):
+    global green
+    global red
+    global blue
     if label == 'malicious':
-        return '#d9534f'
+        return red
     elif label == 'benign':
-        return '#5cb85c'
+        return green
     elif label == 'all':
-        return '#428bca'
+        return blue
     else:
         return None
 

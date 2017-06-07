@@ -1,15 +1,22 @@
 var num_coeff = 15;
 
 // Annotation and Description panels
-function displayInstancePanel(parent_div) {
+function displayInstancePanel(parent_div, annotation = true) {
   var instance_panel = createPanel('panel-primary', 'col-md-12', 'Instance', parent_div,
           return_heading = true);
   var instance = instance_panel[0];
   var instance_title = instance_panel[1];
   instance_title.setAttribute('id', 'instance_title');
-  var annotation = createPanel('panel-primary', 'col-md-5', 'Annotation', instance);
-  annotation.setAttribute('id', 'instance_label');
-  var instance_panel = createPanel('panel-primary', 'col-md-7', 'Description', instance);
+  if (annotation) {
+    var annotation = createPanel('panel-primary', 'col-md-5',
+                                 'Annotation', instance);
+    annotation.setAttribute('id', 'instance_label');
+  }
+  var col_size = 'col-md-7';
+  if (!annotation) {
+      col_size = 'col-md-12';
+  }
+  var instance_panel = createPanel('panel-primary', col_size, 'Description', instance);
   var instance_proba = createDivWithClass('instance_predicted_proba', 'row', instance_panel);
   var instance_data = createDivWithClass('instance_data', 'col', instance_panel);
 }
@@ -23,12 +30,14 @@ function setInstancesSettings(train_test, project, dataset, experiment_id, exper
         inst_dataset      = data['test_dataset'].split('__')[0];
         inst_exp_id       = data['test_exp']['experiment_id'];
         inst_exp_label_id = data['test_exp']['experiment_label_id'];
+        has_families = datasetHasFamilies(project, inst_dataset, inst_exp_label_id);
         callback();
       });
     } else if (train_test == 'train') {
       inst_dataset = dataset;
       inst_exp_id = experiment_id;
       inst_exp_label_id = experiment_label_id;
+      has_families = datasetHasFamilies(project, inst_dataset, inst_exp_label_id);
       callback();
     } else {
       var query = buildQuery('getSupervisedValidationConf',
@@ -43,6 +52,7 @@ function setInstancesSettings(train_test, project, dataset, experiment_id, exper
             inst_exp_id       = data['test_exp']['experiment_id'];
             inst_exp_label_id = data['test_exp']['experiment_label_id'];
         }
+        has_families = datasetHasFamilies(project, inst_dataset, inst_exp_label_id);
         callback();
       });
     }
@@ -50,6 +60,10 @@ function setInstancesSettings(train_test, project, dataset, experiment_id, exper
 
 function displayInstanceInformationStructure() {
     var tabs_div = document.getElementById('instance_data');
+
+    var menu_titles = [];
+    var menu_labels = [];
+
     var menu_titles = ['Features'];
     var menu_labels = ['features'];
     if (conf.kind == 'Classification') {
@@ -91,8 +105,6 @@ function cleanInstanceInformation() {
   try {
     cleanInformation();
   } catch (err) {
-    console.log(
-      'TODO: specific function to print information about an instance');
   }
 }
 
@@ -104,49 +116,54 @@ function printInstanceIndent(selected_id) {
     return ident;
 }
 
+
+
+
 function printInstanceLabel(selected_id, suggested_label, suggested_family) {
+      updateInstanceLabel(selected_id);
+      displaySuggestedValue(suggested_label, suggested_family);
+}
+
+function displaySuggestedValue(suggested_label, suggested_family) {
+  var suggestion_value = cleanDiv('suggested_family');
+  if (suggestion_value) {
+      if (suggested_label && suggested_family) {
+          if (suggested_label == 'benign') {
+            suggestion_value.setAttribute('class', 'btn btn-sm btn-success');
+          } else {
+            suggestion_value.setAttribute('class', 'btn btn-sm btn-danger');
+          }
+          suggestion_value.appendChild(document.createTextNode(suggested_family));
+          suggestion_value.addEventListener('click', selectSuggestedFamily(suggested_label, suggested_family));
+      } else {
+          var suggestion_value = cleanDiv('suggested_family');
+          suggestion_value.setAttribute('class', 'btn btn-sm btn-default disabled');
+          suggestion_value.addEventListener('click', null);
+          suggestion_value.appendChild(document.createTextNode('None'));
+      }
+  }
+}
+
+function selectSuggestedFamily(label, family) {
+  return function() {
+    var other_label = otherLabel(label);
+    var prefix = 'instance_';
+    $('#' + prefix + label + '_family_selector')[0].value = family;
+    $('#' + prefix + other_label + '_family_selector')[0].selectedIndex = -1;
+  }
+}
+
+function updateInstanceLabel(selected_id) {
     var query = buildQuery('getLabel',
-                    [project, inst_dataset, inst_exp_label_id, selected_id]);
+                           [project, inst_dataset, inst_exp_label_id, selected_id]);
     jQuery.getJSON(query, function(data){
       var prefix = 'instance_';
-      var label_value = cleanDiv('instance_' + 'label_value');
       if (Object.keys(data).length == 2) {
         var label = data.label;
         var family = data.family;
-        if (label == 'malicious') {
-          label_value.setAttribute('class', 'label label-danger');
-        } else {
-          label_value.setAttribute('class', 'label label-success');
-        }
-        label_value.appendChild(document.createTextNode(upperCaseFirst(label)));
-        var other_label = otherLabel(label);
-        $('#' + prefix + label + '_family_selector')[0].value = family;
-        $('#' + prefix + other_label + '_family_selector')[0].selectedIndex = -1;
+        displayAnnotation(label, family);
       } else {
-        label_value.setAttribute('class', 'label label-default');
-        $('#' + prefix + 'malicious_family_selector')[0].selectedIndex = -1;
-        $('#' + prefix + 'benign_family_selector')[0].selectedIndex = -1;
-        if (suggested_label && suggested_family) {
-          $('#' + prefix + suggested_label + '_family_selector')[0].value = suggested_family;
-          label_value.appendChild(document.createTextNode(upperCaseFirst(suggested_label)));
-        } else {
-          label_value.appendChild(document.createTextNode('None'));
-        }
-      }
-      var suggestion_value = cleanDiv('suggested_family');
-      if (suggestion_value) {
-          if (suggested_label && suggested_family) {
-              if (suggested_label == 'benign') {
-                suggestion_value.setAttribute('class', 'label label-success');
-              } else {
-                suggestion_value.setAttribute('class', 'label label-danger');
-              }
-              suggestion_value.appendChild(document.createTextNode(suggested_family));
-          } else {
-              var suggestion_value = cleanDiv('suggested_family');
-              suggestion_value.setAttribute('class', 'label label-default');
-              suggestion_value.appendChild(document.createTextNode('None'));
-          }
+        undisplayAnnotation();
       }
     });
 }
@@ -173,47 +190,39 @@ function addFamilyCallback(label) {
     }
 }
 
-function displayFamilySelector(label_row, label, cluster = false) {
+function displayFamilySelector(label_row, label) {
   var prefix = 'instance_';
-  if (cluster) {
-    prefix = 'cluster_';
-  }
-  var col = createDivWithClass(null, 'col-lg-6', parent_div = label_row);
+  var col = createDivWithClass(null, 'col-md-5', parent_div = label_row);
   // Selection
   var select = $('#' + prefix + label + '_family_selector')[0];
   var label_title = label.charAt(0).toUpperCase() + label.substr(1) + ' Families';
   var selector_size = 6;
-  if (cluster) {
-      selector_size = 5;
-  }
   createSelectList(prefix + label + '_family_selector', selector_size, null, col, label_title);
-
   var select = $('#' + prefix + label + '_family_selector')[0];
   // Adding value input
-  if (!cluster) {
-    var input_group = createDivWithClass(null, 'input-group', col);
-    // Input field
-    var add_family_field = document.createElement('input');
-    add_family_field.setAttribute('class', 'form-control');
-    add_family_field.setAttribute('type', 'text');
-    add_family_field.setAttribute('id', prefix + label + '_add_family_field');
-    add_family_field.setAttribute('size', 5);
-    input_group.appendChild(add_family_field);
-    // Button
-    var button_span = document.createElement('span');
-    button_span.setAttribute('class', 'input-group-btn');
-    input_group.appendChild(button_span);
-    var add_family_button = document.createElement('button');
-    add_family_button.id = prefix + 'add_family_button';
-    add_family_button.setAttribute('class', 'btn btn-default');
-    add_family_button.setAttribute('type', 'button');
-    var text = document.createTextNode('Add');
-    add_family_button.appendChild(text);
-    add_family_button.addEventListener('click', addFamilyCallback(label));
-    button_span.appendChild(add_family_button);
-  }
+  var form_group = createDivWithClass(null, 'form-group', col);
+  var input_group = createDivWithClass(null, 'input-group', form_group);
+  // Input field
+  var add_family_field = document.createElement('input');
+  add_family_field.setAttribute('class', 'form-control');
+  add_family_field.setAttribute('type', 'text');
+  add_family_field.setAttribute('id', prefix + label + '_add_family_field');
+  add_family_field.setAttribute('size', 5);
+  input_group.appendChild(add_family_field);
+  // Button
+  var button_span = document.createElement('span');
+  button_span.setAttribute('class', 'input-group-btn');
+  input_group.appendChild(button_span);
+  var add_family_button = document.createElement('button');
+  add_family_button.id = prefix + 'add_family_button';
+  add_family_button.setAttribute('class', 'btn btn-default');
+  add_family_button.setAttribute('type', 'button');
+  var text = document.createTextNode('Add');
+  add_family_button.appendChild(text);
+  add_family_button.addEventListener('click', addFamilyCallback(label));
+  button_span.appendChild(add_family_button);
   // Family values
-  var query = buildQuery('getLabelsFamilies', [project, inst_dataset, inst_exp_label_id]);
+  var query = buildQuery('getLabelsFamilies', [project, inst_dataset, inst_exp_label_id, 'None']);
   jQuery.getJSON(query, function(data) {
       var select = $('#' + prefix + label + '_family_selector')[0];
       if (data[label]) {
@@ -228,28 +237,61 @@ function displayFamilySelector(label_row, label, cluster = false) {
       }
   });
   // Add family selector callback
-  select.addEventListener('change', familyChangeCallback(label, cluster));
+  select.addEventListener('change', familyChangeCallback(label));
   return col;
 }
 
-function familyChangeCallback(selected_label, cluster = false) {
+function familyChangeCallback(selected_label) {
     return function() {
-      var prefix = 'instance_';
-      if (cluster) {
-        prefix = 'cluster_';
-      }
       // Unselect the family of the other label
       var other_label = otherLabel(selected_label);
-      var other_selector = $('#' + prefix + other_label + '_family_selector')[0];
+      var other_selector = $('#' + 'instance_' + other_label + '_family_selector')[0];
       other_selector.selectedIndex = -1;
-      // Change the label
-      var label_value = cleanDiv(prefix + 'label_value');
-      label_value.setAttribute('class', 'label label-default');
-      label_value.appendChild(document.createTextNode(upperCaseFirst(selected_label)));
     }
 }
 
-function displayAnnotationDiv(suggestion = false) {
+function displayAnnotation(label, family) {
+  // Annotation
+  var label_group = cleanDiv('label_group');
+  var label_label = document.createElement('label');
+  label_label.setAttribute('class', 'col-md-6 control-label');
+  label_label.appendChild(document.createTextNode('Annotation'));
+  label_group.appendChild(label_label);
+  var label_value = document.createElement('button');
+  if (label == 'malicious') {
+    label_value.setAttribute('class', 'col-md-4 btn btn-sm btn-danger');
+  } else {
+    label_value.setAttribute('class', 'col-md-4 btn btn-sm btn-success');
+  }
+  label_value.setAttribute('type', 'button');
+  if (has_families) {
+    label_value.appendChild(document.createTextNode(family));
+  } else {
+    label_value.appendChild(document.createTextNode(label));
+  }
+  label_value.addEventListener('click', function () {
+      displayAnnotation(label, family);
+  });
+  label_group.appendChild(label_value);
+  // Family selectors
+  var other_label = otherLabel(label);
+  var prefix = 'instance_';
+  if ($('#' + prefix + label + '_family_selector')[0]) {
+    $('#' + prefix + label + '_family_selector')[0].value = family;
+    $('#' + prefix + other_label + '_family_selector')[0].selectedIndex = -1;
+  }
+}
+
+function undisplayAnnotation() {
+  var prefix = 'instance_';
+  var label_group = cleanDiv('label_group');
+  if ($('#' + prefix + 'malicious_family_selector')[0]) {
+    $('#' + prefix + 'malicious_family_selector')[0].selectedIndex = -1;
+    $('#' + prefix + 'benign_family_selector')[0].selectedIndex = -1;
+  }
+}
+
+function displayAnnotationDiv(suggestion = false, interactive = true) {
   var prefix = 'instance_';
   var label_div = cleanDiv('instance_label');
   var form = document.createElement('form');
@@ -258,55 +300,56 @@ function displayAnnotationDiv(suggestion = false) {
   var fieldset = document.createElement('fieldset');
   form.appendChild(fieldset);
 
-  // Label
+  // Suggestion
+  var suggestion_group = createDivWithClass('', 'form-group col-md-6', fieldset);
   if (suggestion) {
-     var suggestion_group = createDivWithClass('', 'form_group row', fieldset);
      var suggestion_label = document.createElement('label');
-     suggestion_label.setAttribute('class', 'col-lg-3 control-label');
+     suggestion_label.setAttribute('class', 'col-md-6 control-label');
      suggestion_label.appendChild(document.createTextNode('Suggestion'));
      suggestion_group.appendChild(suggestion_label);
-     var suggestion_value_header = document.createElement('h4');
-     suggestion_group.appendChild(suggestion_value_header);
-     var suggestion_value = document.createElement('label');
-     suggestion_value.setAttribute('class', 'label label-default');
+     var suggestion_value = document.createElement('button');
+     suggestion_value.setAttribute('class', 'col-md-4 btn btn-sm btn-default disabled');
      suggestion_value.setAttribute('id', 'suggested_family');
+     suggestion_value.setAttribute('type', 'button');
      suggestion_value.appendChild(document.createTextNode('None'));
-     suggestion_value_header.appendChild(suggestion_value);
+     suggestion_group.appendChild(suggestion_value);
   }
 
-  // Families
+  // Annotation
+  var label_group = createDivWithClass('', 'form-group col-md-6', fieldset);
+  label_group.setAttribute('id', 'label_group');
+
+  if (interactive) {
+      displayUpdateAnnotationForm(form);
+  }
+}
+
+function displayUpdateAnnotationForm(form) {
+  var fieldset = document.createElement('fieldset');
+  form.appendChild(fieldset);
+  // Available Families
   var malicious_col = displayFamilySelector(fieldset, 'malicious');
+  createDivWithClass(null, 'col-md-1', parent_div = fieldset);
   var benign_col    = displayFamilySelector(fieldset, 'benign');
 
-  // Label
-  var label_group = createDivWithClass('', 'form_group row', fieldset);
-  var label_label = document.createElement('label');
-  label_label.setAttribute('class', 'col-lg-2 control-label');
-  label_label.appendChild(document.createTextNode('Label'));
-  label_group.appendChild(label_label);
-  var label_value_header = document.createElement('h4');
-  label_group.appendChild(label_value_header);
-  var label_value = document.createElement('label');
-  label_value.setAttribute('class', 'label label-default');
-  label_value.setAttribute('id', prefix + 'label_value');
-  label_value.appendChild(document.createTextNode(''));
-  label_value_header.appendChild(label_value);
-
+  var fieldset = document.createElement('fieldset');
+  form.appendChild(fieldset);
   // Ok and Remove button
-  var ok_remove_group = createDivWithClass('', 'form-group row', fieldset);
+  var ok_remove_group = createDivWithClass('', 'form-group col-md-12', fieldset);
   /// Ok button
-  var ok_div = createDivWithClass(null, 'col-lg-2', ok_remove_group);
+  var ok_div = createDivWithClass(null, 'col-md-2', ok_remove_group);
   var ok_button = document.createElement('button');
   ok_button.setAttribute('class', 'btn btn-primary');
   ok_button.setAttribute('type', 'button');
   ok_button.setAttribute('id', 'ok_button');
   var ok_button_text = document.createTextNode('Ok');
   ok_button.appendChild(ok_button_text);
-  ok_button.addEventListener('click', addLabelCallback(project, inst_dataset, inst_exp_label_id,
-              label_iteration));
+  ok_button.addEventListener('click', addLabelCallback(project, inst_dataset,
+                                                       inst_exp_label_id,
+                                                       label_iteration));
   ok_div.appendChild(ok_button);
   /// Remove button
-  var remove_div = createDivWithClass(null, 'col-lg-2 col-lg-offset-1', ok_remove_group);
+  var remove_div = createDivWithClass(null, 'col-md-2 col-md-offset-1', ok_remove_group);
   var button = document.createElement('button');
   button.setAttribute('class', 'btn btn-default');
   button.setAttribute('type', 'button');
@@ -336,11 +379,11 @@ function addLabelCallback(project, inst_dataset, inst_exp_label_id, label_iterat
   return function() {
     var instance_id     = getCurrentInstance();
     var [label, family] = getCurrentAnnotation('instance');
-    if (!family) {
-        alert('A family must be selected.');
-        return;
-    }
     if (instance_id) {
+      if (!family) {
+          alert('A family must be selected.');
+          return;
+      }
       // Remove previous label
       var query = buildQuery('removeLabel',
                       [project, inst_dataset, inst_exp_label_id,
@@ -355,9 +398,11 @@ function addLabelCallback(project, inst_dataset, inst_exp_label_id, label_iterat
                       label_method, true]);
       $.ajax({url: query,
               success: function(data) {
-                printInstanceLabel(instance_id);
+                updateInstanceLabel(instance_id);
               }});
       document.getElementById('next_button').focus();
+      // Display next instance to annotate
+      displayNextInstanceToAnnotate();
     }
   };
 }
@@ -365,19 +410,21 @@ function addLabelCallback(project, inst_dataset, inst_exp_label_id, label_iterat
 function removeLabelCallback(project, inst_dataset, inst_exp_label_id) {
   return function() {
     var instance_id = getCurrentInstance();
-    //var instance_id = instances_list[current_instance_index];
     var query = buildQuery('removeLabel',
                     [project, inst_dataset, inst_exp_label_id,
                     instance_id]);
     $.ajax({url: query,
             success: function(data) {
-              printInstanceLabel(instance_id);
+                updateInstanceLabel(instance_id);
             }});
   }
 }
 
 function printFeatures(selected_id) {
     var div_object = cleanDiv('features');
+    div_object.style.overflow = 'auto';
+    var div_height = Math.round(window.screen.availHeight * 0.4) + 'px';
+    div_object.style.height = div_height;
     var query = buildQuery('getFeatures',
                 [project, dataset, inst_exp_id, inst_dataset, selected_id]);
     jQuery.getJSON(query, function(data) {
@@ -393,6 +440,22 @@ function printFeatures(selected_id) {
 }
 
 function printWeightedFeatures(selected_id) {
+
+    // Display the descriptive statistics of the selected feature
+    var callback = function coefficientsCallback(active_bars) {
+      var selected_index = active_bars[0]._index;
+      var selected_feature = active_bars[0]._view.label;
+      var query = buildQuery('getDescriptiveStatsExp',
+              [project, inst_dataset, conf.features_filenames]);
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.open('GET', query, false);
+      xmlHttp.send(null);
+      var stats_exp_id = xmlHttp.responseText;
+      var page_query = buildQuery('SecuML',
+              [project, inst_dataset, stats_exp_id, selected_feature]);
+      window.open(page_query);
+    }
+
     var div_object = cleanDiv('weighted_features');
     var graph_div  = createDiv('instance_graph_div', div_object);
     var query = buildQuery('getTopWeightedFeatures',
@@ -404,10 +467,20 @@ function printWeightedFeatures(selected_id) {
         barPlotAddBands(options, true);
         options.legend.display = false;
         var barPlot = drawBarPlot('instance_graph_div', options,
-                                  data, 'horizontalBar');
-        graph_div.style.height = '400px';
+                                  data,
+                                  type = 'horizontalBar',
+                                  width = null,
+                                  height = null,
+                                  callback = callback);
+        graph_div.style.height = '400px'
     });
 }
+
+
+
+
+
+
 
 // Instances Lists
 function displayInstancesList(malicious_ok, instances) {

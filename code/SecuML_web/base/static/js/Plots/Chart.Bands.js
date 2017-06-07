@@ -128,6 +128,7 @@ function calculateGradientFill (ctx, scale, size, baseColor, gradientColor, valu
             console.warn('ConfigError: Chart.Bands.js had a problem applying one or more colors please check that you have selected valid color strings');
             return baseColor;
         }
+
     }
 }
 
