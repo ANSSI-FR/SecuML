@@ -1,8 +1,8 @@
-var split_path = window.location.pathname.split('/');
-var project       = split_path[2];
-var dataset       = split_path[3];
-var experiment_id = split_path[4];
-var view          = split_path[5];
+var path = window.location.pathname.split('/');
+var project       = path[2];
+var dataset       = path[3];
+var experiment_id = path[4];
+var view          = path[5];
 
 if (view == '') {
     view = 'ml';

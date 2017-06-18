@@ -25,7 +25,7 @@ class RareCategoryDetection(QueryStrategy):
 
     def __init__(self, iteration):
         QueryStrategy.__init__(self, iteration)
-        multiclass_model = self.iteration.train_test_validation.models['multiclass']
+        multiclass_model   = self.iteration.train_test_validation.models['multiclass']
         self.all_instances = RareCategoryDetectionAnnotationQueries(self.iteration, 'all', 0, 1,
                                                                     multiclass_model = multiclass_model)
 

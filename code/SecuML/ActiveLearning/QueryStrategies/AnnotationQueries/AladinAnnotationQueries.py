@@ -23,6 +23,7 @@ from SecuML.Data.Instances import Instances
 from SecuML.Experiment.ClassificationExperiment import ClassificationExperiment
 
 from SecuML.Classification.Configuration.GaussianNaiveBayesConfiguration import GaussianNaiveBayesConfiguration
+from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 from SecuML.Classification.Classifiers.GaussianNaiveBayes import GaussianNaiveBayes
 from SecuML.Classification.ClassifierDatasets import ClassifierDatasets
 
@@ -72,7 +73,9 @@ class AladinAnnotationQueries(AnnotationQueries):
                 experiment_label = exp.experiment_label,
                 parent = exp.experiment_id)
         naive_bayes_exp.setFeaturesFilenames(exp.features_filenames)
-        naive_bayes_conf = GaussianNaiveBayesConfiguration(exp.conf.models_conf['multiclass'].num_folds, False, True)
+        test_conf = TestConfiguration()
+        test_conf.setUnlabeled(labels_annotations = 'annotations')
+        naive_bayes_conf = GaussianNaiveBayesConfiguration(exp.conf.models_conf['multiclass'].num_folds, False, True, test_conf)
         naive_bayes_exp.setClassifierConf(naive_bayes_conf)
         naive_bayes_exp.createExperiment()
         naive_bayes_exp.export()
@@ -134,8 +137,12 @@ class AladinAnnotationQueries(AnnotationQueries):
     # Anomalous instances have a low probability of belonging to the assigned family
     def computeAnomalousScores(self):
         self.scores['nb_prediction'] = self.nb_predicted_labels
-        self.scores['nb_score'] = self.naive_bayes.logLikelihood(self.datasets.test_instances.getFeatures(),
-                self.nb_predicted_labels)
+        features = np.array(self.datasets.test_instances.getFeatures())
+        for c in set(self.nb_predicted_labels):
+            indexes = [i for i, x in enumerate(self.nb_predicted_labels) if x == c]
+            c_features = features[indexes, :]
+            c_likelihood = self.naive_bayes.logLikelihood(c_features, c)
+            self.scores['nb_score'].iloc[indexes] = c_likelihood
 
     def generateQueriesFromScores(self):
         assert(np.array_equal(self.lr_class_labels, self.nb_class_labels))

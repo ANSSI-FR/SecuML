@@ -17,7 +17,7 @@
 from __future__ import division
 import copy
 import json
-import pandas as pd
+import numpy as np
 import random
 import warnings
 
@@ -227,21 +227,36 @@ class Categories(object):
     ##################
 
     def setLikelihood(self, iteration_number):
-        likelihood = self.computeLikelihood(iteration_number)
-        df = pd.DataFrame({'likelihood': likelihood,
-                           'categories': self.assigned_categories},
-                index = map(str, self.instances.getIds()))
+        naive_bayes = self.trainNaiveBayes(iteration_number)
+        features = np.array(self.instances.getFeatures())
         for c in range(self.num_categories):
-            selected_likelihood = df[df.categories == c].likelihood
-            self.categories[c].setLikelihood(selected_likelihood)
+            indexes = [i for i, x in enumerate(self.assigned_categories) if x == c]
+            c_features = features[indexes, :]
+            c_likelihood = naive_bayes.logLikelihood(c_features, c)
+            self.categories[c].setLikelihood(c_likelihood)
 
-    def computeLikelihood(self, iteration_number):
-        # Create an experiment for the naive Bayes model
+    def trainNaiveBayes(self, iteration_number):
+        naive_bayes_exp = self.createNaiveBayesExperiment(iteration_number)
+        # Train the naive Bayes detection model and predict
+        datasets = ClassifierDatasets(naive_bayes_exp, naive_bayes_exp.classification_conf)
+        current_families = copy.deepcopy(self.instances.families)
+        # families are altered
+        self.instances.families = self.assigned_categories
+        datasets.train_instances = self.instances
+        datasets.test_instances  = None
+        datasets.setSampleWeights()
+        naive_bayes = GaussianNaiveBayes(naive_bayes_exp, datasets)
+        naive_bayes.training()
+        # families are restored
+        self.instances.families = current_families
+        return naive_bayes
+
+    def createNaiveBayesExperiment(self, iteration_number):
         exp = self.experiment
         name = '-'.join(['AL' + str(exp.experiment_id),
-            'Iter' + str(iteration_number),
-            'all',
-            'NaiveBayes'])
+                         'Iter' + str(iteration_number),
+                         'all',
+                         'NaiveBayes'])
         naive_bayes_exp = ClassificationExperiment(exp.project, exp.dataset, exp.db, exp.cursor,
                 experiment_name = name,
                 experiment_label = exp.experiment_label,
@@ -254,17 +269,4 @@ class Categories(object):
         naive_bayes_exp.setClassifierConf(naive_bayes_conf)
         naive_bayes_exp.createExperiment()
         naive_bayes_exp.export()
-        # Train the naive Bayes detection model and predict
-        datasets = ClassifierDatasets(naive_bayes_exp, naive_bayes_exp.classification_conf)
-        current_families = copy.deepcopy(self.instances.families)
-        # families are altered
-        self.instances.families = self.assigned_categories
-        datasets.train_instances = self.instances
-        datasets.test_instances  = None
-        datasets.setSampleWeights()
-        naive_bayes = GaussianNaiveBayes(naive_bayes_exp, datasets)
-        naive_bayes.training()
-        log_likelihoods = naive_bayes.logLikelihood(self.instances.getFeatures(), self.assigned_categories)
-        # families are restored
-        self.instances.families = current_families
-        return log_likelihoods
+        return naive_bayes_exp

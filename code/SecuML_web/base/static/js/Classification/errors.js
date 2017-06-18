@@ -1,9 +1,9 @@
-var split_path = window.location.pathname.split('/');
-var project             = split_path[2];
-var dataset             = split_path[3];
-var experiment_id       = split_path[4];
-var train_test          = split_path[5];
-var experiment_label_id = split_path[6];
+var path = window.location.pathname.split('/');
+var project             = path[2];
+var dataset             = path[3];
+var experiment_id       = path[4];
+var train_test          = path[5];
+var experiment_label_id = path[6];
 
 var label_method = 'confusion_matrix';
 var label_iteration = 0;

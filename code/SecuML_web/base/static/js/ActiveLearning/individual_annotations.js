@@ -1,8 +1,9 @@
-var project           = window.location.pathname.split('/')[2];
-var dataset           = window.location.pathname.split('/')[3];
-var experiment_id     = window.location.pathname.split('/')[4];
-var label_iteration   = window.location.pathname.split('/')[5];
-var predicted_label   = window.location.pathname.split('/')[6];
+var path = window.location.pathname.split('/');
+var project           = path[2];
+var dataset           = path[3];
+var experiment_id     = path[4];
+var label_iteration   = path[5];
+var predicted_label   = path[6];
 
 var label_method = 'annotation_' + predicted_label;
 var experiment_label_id = getExperimentLabelId(

@@ -1,8 +1,8 @@
-var split_path = window.location.pathname.split('/');
-var project       = split_path[2];
-var dataset       = split_path[3];
-var experiment_id = split_path[4];
-var init_feature  = split_path[5];
+var path = window.location.pathname.split('/');
+var project       = path[2];
+var dataset       = path[3];
+var experiment_id = path[4];
+var init_feature  = path[5];
 
 var features_types =  null;
 

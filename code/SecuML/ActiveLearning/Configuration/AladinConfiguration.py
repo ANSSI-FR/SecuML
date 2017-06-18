@@ -18,6 +18,7 @@ import ActiveLearningConfFactory
 from ActiveLearningConfiguration import ActiveLearningConfiguration
 from SecuML.ActiveLearning.QueryStrategies.Aladin import Aladin
 from SecuML.Classification.Configuration import ClassifierConfFactory
+from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 
 def aladinMulticlassModelConf():
     classifier_args = {}
@@ -25,8 +26,10 @@ def aladinMulticlassModelConf():
     classifier_args['sample_weight']        = False
     classifier_args['families_supervision'] = True
     classifier_args['alerts_conf']          = None
+    test_conf = TestConfiguration()
+    test_conf.setUnlabeled(labels_annotations = 'annotations')
+    classifier_args['test_conf'] = test_conf
     multiclass_model_conf = ClassifierConfFactory.getFactory().fromParam('LogisticRegression', classifier_args)
-    multiclass_model_conf.setUnlabeled(labels_annotations = 'annotations')
     return multiclass_model_conf
 
 class AladinConfiguration(ActiveLearningConfiguration):

@@ -61,13 +61,10 @@ class RareCategoryDetectionConfiguration(ActiveLearningConfiguration):
 
     @staticmethod
     def generateParser(parser):
-        al_group = ActiveLearningConfiguration.generateParser(parser)
-        al_group.add_argument('--multiclass-model',
-                choices = ['LogisticRegression', 'Svc', 'GaussianNaiveBayes'],
-                default = 'LogisticRegression')
+        al_group = ActiveLearningConfiguration.generateParser(parser, binary = False)
         al_group.add_argument('--num-annotations',
                 type = int,
-                default = 10,
+                default = 100,
                 help = 'Number of instances queried for each family.')
         al_group.add_argument('--cluster-strategy',
                 default = 'center_anomalous')
@@ -84,7 +81,7 @@ class RareCategoryDetectionConfiguration(ActiveLearningConfiguration):
         test_conf.setUnlabeled(labels_annotations = 'annotations')
         multiclass_classifier_args['test_conf'] = test_conf
         multiclass_conf = ClassifierConfFactory.getFactory().fromParam(
-                args.multiclass_model, multiclass_classifier_args)
+                args.model_class, multiclass_classifier_args)
         rare_category_detection_conf = RareCategoryDetectionStrategy(multiclass_conf,
                 args.cluster_strategy, args.num_annotations, 'uniform')
         params['rare_category_detection_conf'] = rare_category_detection_conf

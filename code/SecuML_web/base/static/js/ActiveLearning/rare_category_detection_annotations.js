@@ -1,7 +1,13 @@
-var project           = window.location.pathname.split('/')[2];
-var dataset           = window.location.pathname.split('/')[3];
-var experiment_id     = window.location.pathname.split('/')[4];
-var label_iteration   = window.location.pathname.split('/')[5];
+var path = window.location.pathname.split('/');
+var project           = path[2];
+var dataset           = path[3];
+var experiment_id     = path[4];
+var label_iteration   = path[5];
+var view              = path[6];
+
+if (view == '') {
+    view = 'ml';
+}
 
 var annotations_types = null;
 var label_method      = null;
@@ -21,6 +27,7 @@ var current_instance_index = null;
 var inst_dataset = dataset;
 var inst_exp_id = experiment_id;
 var inst_exp_label_id = experiment_label_id;
+var has_families = datasetHasFamilies(project, inst_dataset, inst_exp_label_id);
 
 $(document).keypress(function (e) {
    var key = e.keyCode;
@@ -56,6 +63,12 @@ function loadConfigurationFile(callback) {
     d3.json(buildQuery('getConf', [project, dataset, experiment_id]),
             function(error, data) {
                 conf = data;
+                conf.interactive = false;
+                if (!conf.conf.auto) {
+                    var current_iteration = currentAnnotationIteration(project, dataset,
+                            experiment_id);
+                    conf.interactive = label_iteration == current_iteration;
+                }
                 d3.json(buildQuery('getAnnotationsTypes', [project, dataset, experiment_id, label_iteration]),
                   function(error, data) {
                     annotations_types = data;
@@ -114,6 +127,8 @@ function displayNextInstance() {
   if (current_instance_index <= num_instances-2) {
     current_instance_index += 1;
     updateInstanceNavbar();
+  } else {
+    displayNextFamily();
   }
 }
 
@@ -166,13 +181,18 @@ function updateInstanceNavbar() {
 
 function displayNavbars(type, annotations_type, clustering_exp) {
   var nav_bars = cleanDiv('nav_bars');
-  var panel_body = createPanel('panel-' + type, 'col-md-7',
+  var panel_body = createPanel('panel-' + type, 'col-md-10',
           'Annotation Queries',
           nav_bars);
+  var col = createDivWithClass(null, 'col-md-10', panel_body);
   if (annotations_type == 'families') {
-    displayFamiliesBar(panel_body, type, clustering_exp);
+    displayFamiliesBar(col, type, clustering_exp);
   }
-  displayAnnotationQueriesBar(panel_body, type);
+  displayAnnotationQueriesBar(col, type);
+
+  var col = createDivWithClass(null, 'col-md-2', panel_body);
+  clusteringVisualization(col, clustering_exp);
+  displayEndButton(col);
 }
 
 function clusteringVisualization(row, clustering_exp) {
@@ -182,7 +202,7 @@ function clusteringVisualization(row, clustering_exp) {
       window.open(query);
     }
   }
-  var group = createDivWithClass('', 'form-group col-md-4', row);
+  var group = createDivWithClass('', 'row', row);
   var button = document.createElement('button');
   button.setAttribute('class', 'btn btn-default');
   button.setAttribute('type', 'button');
@@ -235,7 +255,23 @@ function displayFamiliesBar(panel_body, type, clustering_exp) {
   next_button.addEventListener('click', displayNextFamily);
   prev_next_group.appendChild(next_button);
 
-  clusteringVisualization(row, clustering_exp);
+}
+
+function displayEndButton(row) {
+  console.log(conf);
+  if (conf.interactive) {
+    var end_group = document.createElement('h3');
+    end_group.setAttribute('class', 'row');
+    row.appendChild(end_group);
+    var end_button = document.createElement('button');
+    end_button.setAttribute('class', 'btn btn-primary');
+    end_button.setAttribute('type', 'button');
+    end_button.setAttribute('id', 'end_button');
+    var end_button_text = document.createTextNode('Next Iteration');
+    end_button.appendChild(end_button_text);
+    end_button.addEventListener('click', runNextIteration(conf));
+    end_group.appendChild(end_button);
+  }
 }
 
 function displayAnnotationQueriesBar(panel_body, type) {
@@ -278,3 +314,8 @@ function displayAnnotationDivision() {
   displayInstanceInformationStructure();
   displayAnnotationDiv(suggestion = true);
 }
+
+function displayNextInstanceToAnnotate() {
+    displayNextInstance();
+}
+

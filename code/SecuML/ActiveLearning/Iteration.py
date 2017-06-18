@@ -14,6 +14,8 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import time
+
 from SecuML.Tools import dir_tools
 from SecuML.Tools import mysql_tools
 
@@ -57,12 +59,14 @@ class Iteration(object):
         return self.budget
 
     def generateAnnotationQueries(self):
-        print '\n\n%%%%%%%%%%%%%% Iteration ', self.iteration_number, self.budget
+        print '\n\n%%%%%%%%%%%%%% Iteration ', self.iteration_number
+        start = time.time()
         self.trainTestValidation()
         self.createDbLine()
         self.annotations = self.experiment.conf.getStrategy(self)
         self.annotations.generateAnnotationQueries()
         self.updateDbLine()
+        print '\nEnd iteration ', time.time() - start
 
     def initializeMonitoring(self):
         if self.previous_iteration is not None:

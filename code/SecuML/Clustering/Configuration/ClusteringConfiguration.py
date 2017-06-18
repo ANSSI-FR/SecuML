@@ -122,3 +122,6 @@ class ClusteringConfiguration(object):
                 args.algo, params)
 
         return params
+
+ClusteringConfFactory.getFactory().registerClass('ClusteringConfiguration',
+        ClusteringConfiguration)

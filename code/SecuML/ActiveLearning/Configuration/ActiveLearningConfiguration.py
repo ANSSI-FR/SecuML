@@ -52,10 +52,32 @@ class ActiveLearningConfiguration(object):
         self.models_conf = models_conf
 
     @staticmethod
-    def generateParser(parser):
-        Experiment.projectDatasetFeturesParser(parser)
+    def generateSupervisedLearningArguments(parser, binary = True):
+        supervised_group = parser.add_argument_group(
+                'Supervised learning parameters')
+        choices = ['LogisticRegression', 'Svc', 'GaussianNaiveBayes']
+        if binary:
+            choices += 'Sssvdd'
+        supervised_group.add_argument('--model-class',
+                choices = choices,
+                default = 'LogisticRegression')
+        supervised_group.add_argument('--num-folds',
+                type = int,
+                default = 4)
+        sample_weight_help  = 'When set to True, the detection model is learned with '
+        sample_weight_help += 'sample weights inverse to the proportion of the family '
+        sample_weight_help += 'in the dataset. Useless if the families are not specified.'
+        if binary:
+            supervised_group.add_argument('--sample-weight',
+                    action = 'store_true',
+                    default = False,
+                    help = sample_weight_help)
+        supervised_group.add_argument('--validation-dataset',
+                default = None,
+                help = 'The validation dataset must contain true labels.')
 
-        ## Active learning parameters
+    @staticmethod
+    def generateActiveLearningArguments(parser):
         al_group = parser.add_argument_group(
                 'Active learning parameters')
         al_group.add_argument('--init-labels-file',
@@ -75,27 +97,13 @@ class ActiveLearningConfiguration(object):
                 type = int,
                 default = 2000,
                 help = 'Total number of annotations asked from the user during the labeling procedure.')
+        return al_group
 
-        ## Supervised learning parameters
-        supervised_group = parser.add_argument_group(
-                'Supervised learning parameters')
-        supervised_group.add_argument('--model-class',
-                choices = ['LogisticRegression', 'Svc', 'Sssvdd'],
-                default = 'LogisticRegression')
-        supervised_group.add_argument('--num-folds',
-                type = int,
-                default = 4)
-        sample_weight_help  = 'When set to True, the detection model is learned with '
-        sample_weight_help += 'sample weights inverse to the proportion of the family '
-        sample_weight_help += 'in the dataset. Useless if the families are not specified.'
-        supervised_group.add_argument('--sample-weight',
-                action = 'store_true',
-                default = False,
-                help = sample_weight_help)
-        supervised_group.add_argument('--validation-dataset',
-                default = None,
-                help = 'The validation dataset must contain true labels.')
-
+    @staticmethod
+    def generateParser(parser, binary = True):
+        Experiment.projectDatasetFeturesParser(parser)
+        al_group = ActiveLearningConfiguration.generateActiveLearningArguments(parser)
+        ActiveLearningConfiguration.generateSupervisedLearningArguments(parser, binary = binary)
         return al_group
 
     @staticmethod

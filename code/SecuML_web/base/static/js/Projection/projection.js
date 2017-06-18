@@ -2,9 +2,10 @@ var tooltip = d3.select('body').append('div')
 .attr('class', 'tooltip')
 .style('opacity', 0);
 
-var project         = window.location.pathname.split('/')[2];
-var dataset         = window.location.pathname.split('/')[3];
-var experiment_id   = window.location.pathname.split('/')[4];
+var path = window.location.pathname.split('/');
+var project         = path[2];
+var dataset         = path[3];
+var experiment_id   = path[4];
 
 var experiment_name = getExperimentName(project, dataset, experiment_id);
 var experiment_label_id = getExperimentLabelId(

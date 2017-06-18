@@ -1,8 +1,9 @@
-var project        = window.location.pathname.split('/')[2];
-var dataset        = window.location.pathname.split('/')[3];
-var experiment_id  = window.location.pathname.split('/')[4];
-var train_test     = window.location.pathname.split('/')[5];
-var selected_index = window.location.pathname.split('/')[6];
+var path = window.location.pathname.split('/');
+var project        = path[2];
+var dataset        = path[3];
+var experiment_id  = path[4];
+var train_test     = path[5];
+var selected_index = path[6];
 
 var instances_list           = null;
 var num_instances            = null;

@@ -1,6 +1,7 @@
-var project = window.location.pathname.split('/')[2];
-var dataset = window.location.pathname.split('/')[3];
-var exp_type = window.location.pathname.split('/')[4];
+var path = window.location.pathname.split('/');
+var project  = path[2];
+var dataset  = path[3];
+var exp_type = path[4];
 
 var menu = $('#menu')[0];
 

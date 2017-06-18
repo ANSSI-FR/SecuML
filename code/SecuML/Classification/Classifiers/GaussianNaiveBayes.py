@@ -29,16 +29,13 @@ class GaussianNaiveBayes(Classifier):
             ('scaler', StandardScaler()),
             ('model', naive_bayes.GaussianNB())])
 
-    def logLikelihood(self, features, labels):
+    def logLikelihood(self, features, label):
         all_theta = self.pipeline.named_steps['model'].theta_
         all_sigma = self.pipeline.named_steps['model'].sigma_
         scaled_features = self.pipeline.named_steps['scaler'].transform(features)
-        log_likelihoods = []
-        for i, label in enumerate(labels):
-            label_index = np.where(self.class_labels == label)[0]
-            theta = all_theta[label_index, :][0]
-            sigma = all_sigma[label_index, :][0]
-            probas = scipy.stats.norm(theta, sigma).pdf(scaled_features[i, :])
-            log_likelihood = np.sum(np.log(np.maximum(probas, np.finfo(float).eps)))
-            log_likelihoods.append(log_likelihood)
+        label_index = np.where(self.class_labels == label)[0]
+        theta = all_theta[label_index, :][0]
+        sigma = all_sigma[label_index, :][0]
+        probas = scipy.stats.norm(theta, sigma).pdf(scaled_features)
+        log_likelihoods = np.sum(np.log(np.maximum(probas, np.finfo(float).eps)), axis = 1)
         return log_likelihoods

@@ -297,9 +297,6 @@ class Instances(object):
         self.ids = ids
         self.indexes = {}
         for i in range(len(self.ids)):
-            # Check collisions
-            if self.ids[i] in self.indexes.keys():
-                raise ValueError('Index collision !')
             self.indexes[self.ids[i]] = i
 
     def getIndex(self, instance_id):
