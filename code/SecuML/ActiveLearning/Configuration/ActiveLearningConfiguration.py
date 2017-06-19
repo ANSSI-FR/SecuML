@@ -67,11 +67,10 @@ class ActiveLearningConfiguration(object):
         sample_weight_help  = 'When set to True, the detection model is learned with '
         sample_weight_help += 'sample weights inverse to the proportion of the family '
         sample_weight_help += 'in the dataset. Useless if the families are not specified.'
-        if binary:
-            supervised_group.add_argument('--sample-weight',
-                    action = 'store_true',
-                    default = False,
-                    help = sample_weight_help)
+        supervised_group.add_argument('--sample-weight',
+                action = 'store_true',
+                default = False,
+                help = sample_weight_help)
         supervised_group.add_argument('--validation-dataset',
                 default = None,
                 help = 'The validation dataset must contain true labels.')
