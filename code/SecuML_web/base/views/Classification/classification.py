@@ -24,11 +24,9 @@ from SecuML_web.base import app, db, cursor
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Experiment.ClassificationExperiment import ClassificationExperiment
 from SecuML.Plots.BarPlot import BarPlot
-from SecuML.Classification.Monitoring import AlertsMonitoring
 from SecuML.Tools import colors_tools
 from SecuML.Tools import dir_tools
 from SecuML.Tools import matrix_tools
-from SecuML.Tools import mysql_tools
 
 def getDir(project, dataset, experiment_id):
     exp = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
@@ -65,17 +63,9 @@ def getValidationDataset(project, dataset, experiment_id):
 def getAlertsClusteringExperimentId(project, dataset, experiment_id):
     experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
             db, cursor)
-    test_conf = experiment.classification_conf.test_conf
-    if test_conf.method == 'random_split':
-        test_dataset = dataset
-        test_exp_id = experiment_id
-    elif test_conf.method == 'test_dataset':
-        test_dataset = test_conf.test_exp.dataset
-        test_exp_id = test_conf.test_exp.experiment_id
-    mysql_tools.useDatabase(cursor, project, test_dataset)
-    clustering_experiment_id = AlertsMonitoring.AlertsMonitoring.getAlertsClusteringExperimentId(
-            cursor, test_exp_id)
-    return str(clustering_experiment_id)
+    filename  = dir_tools.getExperimentOutputDirectory(experiment)
+    filename += 'grouping.json'
+    return send_file(filename)
 
 @app.route('/getAlerts/<project>/<dataset>/<experiment_id>/<analysis_type>/')
 def getAlerts(project, dataset, experiment_id, analysis_type):
@@ -152,9 +142,9 @@ def getSupervisedValidationConf(project, dataset, experiment_id):
 def getTopWeightedFeatures(project, dataset, experiment, instance_dataset, inst_exp_id, instance_id, size):
     instance_id = int(instance_id)
     model_experiment_obj = ExperimentFactory.getFactory().fromJson(project, dataset, experiment, db, cursor)
-    experiment_obj = ExperimentFactory.getFactory().fromJson(project, instance_dataset, inst_exp_id, db, cursor)
+    validation_experiment = ExperimentFactory.getFactory().fromJson(project, instance_dataset, inst_exp_id, db, cursor)
     #get the features
-    features_names, features_values = experiment_obj.getFeatures(instance_id)
+    features_names, features_values = validation_experiment.getFeatures(instance_id)
     features_values = [float(value) for value in features_values]
     #get the pipeline with scaler and logistic model
     pipeline = model_experiment_obj.getModelPipeline()
@@ -167,7 +157,7 @@ def getTopWeightedFeatures(project, dataset, experiment, instance_dataset, inst_
     features = features[:-int(size)-1:-1]
     tooltips = [x[1] for x in features]
     barplot = BarPlot([x[0] for x in features])
-    barplot.addDataset([x[2] for x in features], '#d9534f', None)
+    barplot.addDataset([x[2] for x in features], colors_tools.red, None)
     barplot.addTooltips(tooltips)
     return jsonify(barplot.barplot)
 
@@ -183,5 +173,5 @@ def getTopModelCoefficients(project, dataset, experiment, size):
     coefficients.sort(key = lambda tup: abs(tup[1]))
     coefficients = coefficients[:-size-1:-1]
     barplot = BarPlot([x[0] for x in coefficients])
-    barplot.addDataset([x[1] for x in coefficients], '#d9534f', None)
+    barplot.addDataset([x[1] for x in coefficients], colors_tools.red, None)
     return jsonify(barplot.barplot)

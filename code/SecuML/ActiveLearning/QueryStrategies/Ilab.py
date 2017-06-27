@@ -88,25 +88,24 @@ class Ilab(QueryStrategy):
     ###############################
 
     def executionTimeHeader(self):
-        header  = ['binary_model', 'malicious_clustering', 'benign_clustering']
-        header += QueryStrategy.executionTimeHeader(self)
+        header  = ['malicious_queries', 'uncertain_queries', 'benign_queries']
         return header
 
     def executionTimeMonitoring(self):
-        line  = [self.iteration.train_test_validation.times['binary']]
-        line += [self.malicious.analysis_time, self.benign.analysis_time]
-        line += QueryStrategy.executionTimeMonitoring(self)
+        line  = [self.malicious.analysis_time + self.malicious.generate_queries_time]
+        line += [self.iteration.train_test_validation.times['binary'] + self.uncertain.generate_queries_time]
+        line += [self.benign.analysis_time + self.benign.generate_queries_time]
         return line
 
     def executionTimeDisplay(self):
-        binary_model = PlotDataset(None, 'Binary model')
-        malicious = PlotDataset(None, 'Malicious Analysis')
+        uncertain = PlotDataset(None, 'Uncertain Queries')
+        malicious = PlotDataset(None, 'Malicious Queries')
         malicious.setLinestyle('dotted')
         malicious.setColor(colors_tools.getLabelColor('malicious'))
-        benign = PlotDataset(None, 'Benign Analysis')
+        benign = PlotDataset(None, 'Benign Queries')
         benign.setLinestyle('dashed')
         benign.setColor(colors_tools.getLabelColor('benign'))
-        return [binary_model, malicious, benign] + QueryStrategy.executionTimeDisplay(self)
+        return [malicious, uncertain, benign]
 
     def exportAnnotationsTypes(self, malicious = True, benign = True):
         types = {'uncertain': 'individual', 'malicious': None, 'benign': None}

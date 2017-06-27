@@ -18,7 +18,16 @@ import abc
 
 from SecuML.Classification.Configuration import ClassifierConfFactory
 from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
+from SecuML.Data import labels_tools
 from SecuML.Experiment.Experiment import Experiment
+
+class InvalidInputArguments(Exception):
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
 
 class ActiveLearningConfiguration(object):
 
@@ -123,3 +132,10 @@ class ActiveLearningConfiguration(object):
         active_learning_params['binary_model_conf'] = binary_model_conf
 
         return active_learning_params
+
+    @staticmethod
+    def checkInputParams(args, cursor):
+        if  args.auto:
+            # Check true labels are available for the oracle
+            if not labels_tools.hasTrueLabels(cursor):
+                raise InvalidInputArguments('true_labels.csv must be provided to run Active Learning with an oracle.')

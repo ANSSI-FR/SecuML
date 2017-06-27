@@ -60,7 +60,7 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
             self.predicted_ids = list(df.index)
         datasets = self.iteration.datasets
         self.annotated_instances = datasets.getAnnotatedInstances(label = self.label)
-        self.families_analysis = self.familiesAnalysis()
+        self.families_analysis   = self.familiesAnalysis()
         if self.families_analysis:
             self.annotations_type = 'families'
             start_time = time.time()
@@ -134,9 +134,9 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
         test  = self.multiclass_model.datasets.test_instances
         all_instances.union(test, train)
         if test.numInstances() > 0:
-            predicted_labels = self.multiclass_model.testing_monitoring.getPredictedLabels()
-            all_families     = list(predicted_labels) + train.families
-            predicted_proba  = self.multiclass_model.testing_monitoring.getAllPredictedProba()
+            predicted_families = self.multiclass_model.testing_monitoring.getPredictedLabels()
+            all_families       = list(predicted_families) + train.families
+            predicted_proba    = self.multiclass_model.testing_monitoring.getAllPredictedProba()
             for family in train.families:
                 probas = [int(family == s) for s in self.multiclass_model.class_labels]
                 predicted_proba = np.vstack((predicted_proba, np.array(probas)))
@@ -152,11 +152,11 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
         labels_values = list(self.multiclass_model.class_labels)
         assigned_categories = [labels_values.index(x) for x in all_families]
         self.categories = Categories(self.multiclass_model.experiment,
-                                   all_instances,
-                                   assigned_categories,
-                                   predicted_proba,
-                                   self.label,
-                                   self.multiclass_model.class_labels)
+                                     all_instances,
+                                     assigned_categories,
+                                     predicted_proba,
+                                     self.label,
+                                     self.multiclass_model.class_labels)
 
     def buildMulticlassClassifier(self):
         if self.multiclass_model is not None:

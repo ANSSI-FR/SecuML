@@ -24,6 +24,11 @@ def getProjectDirectory(project):
     project_dir += project + '/'
     return project_dir
 
+def getDatasetDirectory(project, dataset):
+    dataset_dir  = getProjectDirectory(project)
+    dataset_dir += dataset + '/'
+    return dataset_dir
+
 def getDatasets(project):
     project_dir = getProjectDirectory(project)
     return os.listdir(project_dir)
@@ -36,11 +41,6 @@ def createDataset(project, dataset):
     labels_dir = dataset_dir + 'labels/'
     createDirectory(labels_dir)
     return dataset_dir, features_dir, labels_dir
-
-def getDatasetDirectory(project, dataset):
-    dataset_dir  = getProjectDirectory(project)
-    dataset_dir += dataset + '/'
-    return dataset_dir
 
 def getProjectOutputDirectory(project):
     project_dir  = OUTPUTDATA_DIR

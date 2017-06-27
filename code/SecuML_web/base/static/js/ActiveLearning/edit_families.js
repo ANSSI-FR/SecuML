@@ -98,7 +98,8 @@ function displayRename(modif_div) {
     var selected_label  = label_family[0];
     var selected_family = label_family[1];
     var new_family_name = $('#rename_field').val();
-    var query = buildQuery('changeFamilyName', [project, dataset, experiment_label_id,
+    var query = buildQuery('changeFamilyName', [project, dataset, experiment_id,
+                                                experiment_label_id,
                                                 selected_label, selected_family,
                                                 new_family_name]);
     $.ajax({url: query, async: true});
@@ -145,7 +146,8 @@ function displayChange(modif_div) {
     var label_family    = getSelectedFamily();
     var selected_label  = label_family[0];
     var selected_family = label_family[1];
-    var query = buildQuery('changeFamilyLabel', [project, dataset, experiment_label_id,
+    var query = buildQuery('changeFamilyLabel', [project, dataset, experiment_id,
+                                                 experiment_label_id,
                                                  selected_label, selected_family]);
     $.ajax({url: query, async: true});
     displayChange(modif_div);
@@ -177,7 +179,8 @@ function displayMerge(modif_div) {
     var selected_label    = label_family[0];
     var selected_families = label_family[1];
     var new_family_name   = $('#merge_field').val();
-    var query = buildQuery('mergeFamilies', [project, dataset, experiment_label_id,
+    var query = buildQuery('mergeFamilies', [project, dataset, experiment_id,
+                                             experiment_label_id,
                                              selected_label, selected_families,
                                              new_family_name]);
     $.ajax({url: query, async: true});

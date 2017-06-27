@@ -20,9 +20,8 @@ from ClassifierConfiguration import ClassifierConfiguration
 
 class SssvddConfiguration(ClassifierConfiguration):
 
-    def __init__(self, num_folds, alerts_conf = None):
-        ClassifierConfiguration.__init__(self, num_folds, False, False,
-                alerts_conf = alerts_conf)
+    def __init__(self, num_folds, test_conf):
+        ClassifierConfiguration.__init__(self, num_folds, False, False, test_conf)
         self.model_class = Sssvdd
 
     def getModelClassName(self):

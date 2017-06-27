@@ -228,7 +228,7 @@ class Categories(object):
 
     def setLikelihood(self, iteration_number):
         naive_bayes = self.trainNaiveBayes(iteration_number)
-        features = np.array(self.instances.getFeatures())
+        features = self.instances.getFeatures()
         for c in range(self.num_categories):
             indexes = [i for i, x in enumerate(self.assigned_categories) if x == c]
             c_features = features[indexes, :]

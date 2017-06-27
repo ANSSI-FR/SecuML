@@ -26,6 +26,7 @@ def aladinMulticlassModelConf():
     classifier_args['sample_weight']        = False
     classifier_args['families_supervision'] = True
     classifier_args['alerts_conf']          = None
+    classifier_args['optim_algo']           = 'liblinear'
     test_conf = TestConfiguration()
     test_conf.setUnlabeled(labels_annotations = 'annotations')
     classifier_args['test_conf'] = test_conf

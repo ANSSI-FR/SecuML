@@ -19,8 +19,10 @@
 import argparse
 import matplotlib
 matplotlib.use('Agg')
+import sys
 
 from SecuML.ActiveLearning.Configuration import ActiveLearningConfFactory
+from SecuML.ActiveLearning.Configuration.ActiveLearningConfiguration import InvalidInputArguments
 from SecuML.ActiveLearning.Iterations import Iterations
 from SecuML.Data.Dataset import Dataset
 from SecuML.Experiment.ActiveLearningExperiment import ActiveLearningExperiment
@@ -34,9 +36,9 @@ if __name__ == '__main__':
             formatter_class = argparse.RawTextHelpFormatter)
     labeling_strategies = ['Ilab', 'RandomSampling', 'UncertaintySampling', 'CesaBianchi', 'Aladin', 'Gornitz']
     subparsers = parser.add_subparsers(dest = 'strategy')
+    factory = ActiveLearningConfFactory.getFactory()
     for strategy in labeling_strategies:
         strategy_parser = subparsers.add_parser(strategy)
-        factory = ActiveLearningConfFactory.getFactory()
         factory.generateParser(strategy, strategy_parser)
     args = parser.parse_args()
 
@@ -46,6 +48,13 @@ if __name__ == '__main__':
         load_dataset = Dataset(args.project, args.dataset,
                 db, cursor)
         load_dataset.load()
+
+    try:
+        factory.checkInputParams(args, cursor)
+    except InvalidInputArguments as e:
+        print e
+        mysql_tools.closeDb(db, cursor)
+        sys.exit()
 
     experiment = ActiveLearningExperiment(args.project, args.dataset, db, cursor)
     active_learning_conf = factory.fromArgs(args.strategy, args)
@@ -59,14 +68,10 @@ if __name__ == '__main__':
     if not args.auto:
         from CeleryApp.app import secumlworker
         from CeleryApp.activeLearningTasks import IterationTask
-        options = {
-            # 'loglevel': 'DEBUG',
-            # 'traceback': True,
-            }
+        options = {}
         # bind iterations object to IterationTask class
         iterations.runNextIteration()
         IterationTask.iteration_object = iterations
-
         # Start worker
         secumlworker.enable_config_fromcmdline = False
         secumlworker.run(**options)

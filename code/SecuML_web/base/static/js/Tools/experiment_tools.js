@@ -24,17 +24,6 @@ function getValidationDataset(project, dataset, experiment_id) {
     return validation_dataset;
 }
 
-function getAlertsClusteringExperimentId(project, dataset,
-                experiment_id) {
-    var query = buildQuery('getAlertsClusteringExperimentId',
-                    [project, dataset, experiment_id]);
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open('GET', query, false);
-    xmlHttp.send(null);
-    var clustering_experiment_id = xmlHttp.responseText;
-    return clustering_experiment_id;
-}
-
 function getExperimentId(project, dataset, experiment_name) {
     var query = buildQuery('getExperimentId',
                     [project, dataset, experiment_name]);

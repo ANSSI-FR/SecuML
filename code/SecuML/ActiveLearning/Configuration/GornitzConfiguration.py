@@ -18,15 +18,17 @@ import ActiveLearningConfFactory
 from ActiveLearningConfiguration import ActiveLearningConfiguration
 from SecuML.ActiveLearning.QueryStrategies.Gornitz import Gornitz
 from SecuML.Classification.Configuration import ClassifierConfFactory
+from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 
 def gornitzBinaryModelConf():
     classifier_args = {}
     classifier_args['num_folds']            = 4
     classifier_args['sample_weight']        = False
     classifier_args['families_supervision'] = False
-    classifier_args['alerts_conf']          = None
+    test_conf = TestConfiguration()
+    test_conf.setUnlabeled(labels_annotations = 'annotations')
+    classifier_args['test_conf'] = test_conf
     binary_model_conf = ClassifierConfFactory.getFactory().fromParam('Sssvdd', classifier_args)
-    binary_model_conf.setUnlabeled(labels_annotations = 'annotations')
     return binary_model_conf
 
 class GornitzConfiguration(ActiveLearningConfiguration):

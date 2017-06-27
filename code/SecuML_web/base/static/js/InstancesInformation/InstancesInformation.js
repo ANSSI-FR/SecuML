@@ -89,6 +89,18 @@ function printInstanceInformation(selected_id, suggested_label = null, suggested
   printInstanceData(selected_id, ident);
 }
 
+function cleanInstanceData() {
+  cleanFeatures();
+  if (conf.kind == 'Classification') {
+    cleanWeightedFeatures();
+  }
+  try {
+      cleanSpecificInformations();
+  } catch(err) {
+      return;
+  }
+}
+
 function printInstanceData(selected_id, ident) {
   printFeatures(selected_id);
   if (conf.kind == 'Classification') {
@@ -115,9 +127,6 @@ function printInstanceIndent(selected_id) {
     document.getElementById('instance_title').textContent = 'Instance ' + selected_id + ': ' + ident;
     return ident;
 }
-
-
-
 
 function printInstanceLabel(selected_id, suggested_label, suggested_family) {
       updateInstanceLabel(selected_id);
@@ -259,9 +268,9 @@ function displayAnnotation(label, family) {
   label_group.appendChild(label_label);
   var label_value = document.createElement('button');
   if (label == 'malicious') {
-    label_value.setAttribute('class', 'col-md-4 btn btn-sm btn-danger');
+    label_value.setAttribute('class', 'col-md-6 btn btn-sm btn-danger');
   } else {
-    label_value.setAttribute('class', 'col-md-4 btn btn-sm btn-success');
+    label_value.setAttribute('class', 'col-md-6 btn btn-sm btn-success');
   }
   label_value.setAttribute('type', 'button');
   if (has_families) {
@@ -301,7 +310,7 @@ function displayAnnotationDiv(suggestion = false, interactive = true) {
   form.appendChild(fieldset);
 
   // Suggestion
-  var suggestion_group = createDivWithClass('', 'form-group col-md-6', fieldset);
+  var suggestion_group = createDivWithClass('', 'form-group col-md-2', fieldset);
   if (suggestion) {
      var suggestion_label = document.createElement('label');
      suggestion_label.setAttribute('class', 'col-md-6 control-label');
@@ -316,7 +325,7 @@ function displayAnnotationDiv(suggestion = false, interactive = true) {
   }
 
   // Annotation
-  var label_group = createDivWithClass('', 'form-group col-md-6', fieldset);
+  var label_group = createDivWithClass('', 'form-group col-md-10', fieldset);
   label_group.setAttribute('id', 'label_group');
 
   if (interactive) {
@@ -344,7 +353,10 @@ function displayUpdateAnnotationForm(form) {
   ok_button.setAttribute('id', 'ok_button');
   var ok_button_text = document.createTextNode('Ok');
   ok_button.appendChild(ok_button_text);
-  ok_button.addEventListener('click', addLabelCallback(project, inst_dataset,
+  ok_button.addEventListener('click', addLabelCallback(project,
+                                                       dataset,
+                                                       experiment_id,
+                                                       inst_dataset,
                                                        inst_exp_label_id,
                                                        label_iteration));
   ok_div.appendChild(ok_button);
@@ -356,7 +368,7 @@ function displayUpdateAnnotationForm(form) {
   var button_text = document.createTextNode('Remove');
   button.appendChild(button_text);
   button.addEventListener('click', removeLabelCallback(
-            project, inst_dataset, inst_exp_label_id));
+            project, dataset, experiment_id, inst_dataset, inst_exp_label_id, label_iteration));
   remove_div.appendChild(button);
 }
 
@@ -375,7 +387,7 @@ function getCurrentAnnotation(prefix) {
   return [label, family];
 }
 
-function addLabelCallback(project, inst_dataset, inst_exp_label_id, label_iteration) {
+function addLabelCallback(project, dataset, experiment_id, inst_dataset, inst_exp_label_id, label_iteration) {
   return function() {
     var instance_id     = getCurrentInstance();
     var [label, family] = getCurrentAnnotation('instance');
@@ -386,12 +398,21 @@ function addLabelCallback(project, inst_dataset, inst_exp_label_id, label_iterat
       }
       // Remove previous label
       var query = buildQuery('removeLabel',
-                      [project, inst_dataset, inst_exp_label_id,
+                      [project,
+                      dataset,
+                      experiment_id,
+                      inst_dataset,
+                      inst_exp_label_id,
+                      label_iteration,
                       instance_id]);
       $.ajax({url: query});
       // Add new label
       var query = buildQuery('addLabel',
-                      [project, inst_dataset, inst_exp_label_id,
+                      [project,
+                      dataset,
+                      experiment_id,
+                      inst_dataset,
+                      inst_exp_label_id,
                       label_iteration,
                       instance_id,
                       label, family,
@@ -407,17 +428,26 @@ function addLabelCallback(project, inst_dataset, inst_exp_label_id, label_iterat
   };
 }
 
-function removeLabelCallback(project, inst_dataset, inst_exp_label_id) {
+function removeLabelCallback(project, dataset, experiment_id, inst_dataset, inst_exp_label_id, label_iteration) {
   return function() {
     var instance_id = getCurrentInstance();
     var query = buildQuery('removeLabel',
-                    [project, inst_dataset, inst_exp_label_id,
+                    [project,
+                    dataset,
+                    experiment_id,
+                    inst_dataset,
+                    inst_exp_label_id,
+                    label_iteration,
                     instance_id]);
     $.ajax({url: query,
             success: function(data) {
                 updateInstanceLabel(instance_id);
             }});
   }
+}
+
+function cleanFeatures() {
+  cleanDiv('features');
 }
 
 function printFeatures(selected_id) {
@@ -437,6 +467,10 @@ function printFeatures(selected_id) {
         }
         div_object.appendChild(ul);
     });
+}
+
+function cleanWeightedFeatures() {
+    cleanDiv('weighted_features');
 }
 
 function printWeightedFeatures(selected_id) {

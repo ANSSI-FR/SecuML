@@ -18,12 +18,9 @@
 
 import argparse
 
+from SecuML.Data.Dataset import Dataset
 from SecuML.Tools import dir_tools
 from SecuML.Tools import mysql_tools
-
-def removeDataset(cursor, project, dataset):
-    mysql_tools.dropDatabaseIfExists(cursor, project + '_' + dataset)
-    dir_tools.removeDatasetOutputDirectory(project, dataset)
 
 if __name__ == '__main__':
     description  = 'Delete the experiments for a given dataset in a project. '
@@ -36,11 +33,15 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     db, cursor = mysql_tools.getDbConnection()
+
     if args.dataset is not None:
-        removeDataset(cursor, args.project, args.dataset)
+        dataset = Dataset(args.project, args.dataset, db, cursor)
+        dataset.remove()
     else:
         datasets = dir_tools.getDatasets(args.project)
         for dataset in datasets:
-            removeDataset(cursor, args.project, dataset)
+            dataset = Dataset(args.project, dataset, db, cursor)
+            dataset.remove()
         dir_tools.removeProjectOutputDirectory(args.project)
+
     mysql_tools.closeDb(db, cursor)

@@ -29,7 +29,10 @@ class Clustering(object):
         self.experiment        = experiment
         self.instances         = instances
         self.assigned_clusters = assigned_clusters
-        self.num_clusters      = len(set(assigned_clusters))
+        if assigned_clusters == []:
+            self.num_clusters = 0
+        else:
+            self.num_clusters      = max(assigned_clusters) + 1
         self.clustering_algo   = clustering_algo
         self.evaluation        = ClusteringEvaluation(self.instances,
                                                       self.assigned_clusters,
@@ -43,8 +46,12 @@ class Clustering(object):
         self.output_directory = dir_tools.getExperimentOutputDirectory(
                 self.experiment)
 
-    def generateClustering(self, assignment_proba, centroids, drop_annotated_instances = False):
+    def generateClustering(self, assignment_proba, centroids, drop_annotated_instances = False,
+            cluster_labels = None):
         self.clusters = [Cluster() for x in range(self.num_clusters)]
+        if cluster_labels is not None:
+            for x in range(self.num_clusters):
+                self.clusters[x].label = cluster_labels[x]
         ids = self.instances.getIds()
         for i in range(len(ids)):
             instance_id = ids[i]
@@ -52,14 +59,14 @@ class Clustering(object):
             c           = self.assigned_clusters[i]
             proba       = None
             if assignment_proba is not None:
-                proba       = assignment_proba[i, :]
-            label       = self.instances.getLabel(instance_id)
-            family    = self.instances.getFamily(instance_id)
+                proba = assignment_proba[i, :]
+            label  = self.instances.getLabel(instance_id)
+            family = self.instances.getFamily(instance_id)
             if centroids is not None:
                 # Reshape to avoid warning from euclidean_distances
                 # Does not take 1D array as input
                 centroid = centroids[c].reshape(1, -1)
-                features = np.array(self.instances.getInstance(instance_id)).reshape(1,-1)
+                features = self.instances.getInstance(instance_id).reshape(1,-1)
                 distance = euclidean_distances(centroid, features)[0][0]
             else:
                 distance = None

@@ -24,7 +24,7 @@ class ClassSeparation(object):
         self.class_separation = None
 
     def computePerformance(self, instances):
-        X = np.array(instances.features)
+        X = instances.features
         labels = instances.true_labels
         # For unsupervised projection methods, the performance is always computed with the labels (not the families).
         if hasattr(self.projection.conf, 'families_supervision'):

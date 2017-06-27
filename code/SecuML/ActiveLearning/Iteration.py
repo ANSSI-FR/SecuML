@@ -53,20 +53,21 @@ class Iteration(object):
         self.output_directory += str(self.iteration_number) + '/'
 
     def runIteration(self):
+        print '\n\n%%%%%%%%%%%%%% Iteration ', self.iteration_number
+        start = time.time()
         self.initializeMonitoring()
         self.generateAnnotationQueries()
         self.answerAnnotationQueries()
+        self.global_execution_time = time.time() - start
+        print '\nEnd iteration ', self.global_execution_time
         return self.budget
 
     def generateAnnotationQueries(self):
-        print '\n\n%%%%%%%%%%%%%% Iteration ', self.iteration_number
-        start = time.time()
         self.trainTestValidation()
         self.createDbLine()
         self.annotations = self.experiment.conf.getStrategy(self)
         self.annotations.generateAnnotationQueries()
         self.updateDbLine()
-        print '\nEnd iteration ', time.time() - start
 
     def initializeMonitoring(self):
         if self.previous_iteration is not None:

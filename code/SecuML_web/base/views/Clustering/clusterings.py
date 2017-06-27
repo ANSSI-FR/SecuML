@@ -15,15 +15,27 @@
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from flask import jsonify
+import random
 from SecuML_web.base import app, db, cursor
 
 from SecuML.Tools import colors_tools
 from SecuML.Tools import mysql_tools
-from SecuML.Tools import web_tools
 
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Plots.BarPlot import BarPlot
 from SecuML.Clustering.Clustering import Clustering
+
+def randomSelection(ids, num_res = None):
+    if num_res is None or len(ids) <= num_res:
+        return ids
+    else:
+        return random.sample(ids, num_res)
+
+def listResultWebFormat(ids, num_res = None):
+    res = {}
+    res['num_ids'] = len(ids)
+    res['ids'] = randomSelection(ids, num_res)
+    return res
 
 @app.route('/getNumElements/<project>/<dataset>/<experiment_id>/<selected_cluster>/')
 def getNumElements(project, dataset, experiment_id, selected_cluster):
@@ -59,11 +71,11 @@ def getClustersLabels(project, dataset, experiment_id):
             db, cursor)
     clustering = Clustering.fromJson(experiment)
     # Do not consider empty clusters for visualization
-    labels = []
+    clusters = []
     for c in range(clustering.num_clusters):
-        if clustering.clusters[c].numInstances() > 0:
-            labels.append('c_' + str(c))
-    return jsonify({'labels': labels})
+        #if clustering.clusters[c].numInstances() > 0:
+        clusters.append({'id': c, 'label': clustering.clusters[c].label})
+    return jsonify({'clusters': clusters})
 
 @app.route('/getClusterLabel/<project>/<dataset>/<experiment_id>/<selected_cluster>/')
 def getClusterPredictedLabel(project, dataset, experiment_id, selected_cluster):
@@ -92,7 +104,7 @@ def getClusterLabelFamilyIds(project, dataset, experiment_id, selected_cluster, 
     clustering = Clustering.fromJson(experiment)
     ids = clustering.getClusterLabelFamilyIds(selected_cluster,
             label, family)
-    res = web_tools.listResultWebFormat(ids, num_results)
+    res = listResultWebFormat(ids, num_results)
     return jsonify(res)
 
 ## Remove only semi automatic labels (the annotations are preserved)
@@ -133,9 +145,12 @@ def getClusterStats(project, dataset, experiment_id):
         instances_in_cluster = clustering.clusters[c].instances_ids
         num_instances = len(instances_in_cluster)
         # the empty clusters are not displayed
-        if num_instances > 0:
-            num_instances_v.append(num_instances)
-            labels.append('c_' + str(c))
+
+        #if num_instances > 0:
+        num_instances_v.append(num_instances)
+        #labels.append('c_' + str(c))
+        labels.append(clustering.clusters[c].label)
+
     barplot = BarPlot(labels)
     barplot.addDataset(num_instances_v, colors_tools.blue, 'Num. Instances')
     return jsonify(barplot.barplot)

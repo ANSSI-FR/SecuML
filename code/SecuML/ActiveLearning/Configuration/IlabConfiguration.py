@@ -84,6 +84,7 @@ class IlabConfiguration(ActiveLearningConfiguration):
         multiclass_classifier_args['num_folds']            = args.num_folds
         multiclass_classifier_args['sample_weight']        = False
         multiclass_classifier_args['families_supervision'] = True
+        multiclass_classifier_args['optim_algo']           = 'liblinear'
         test_conf = TestConfiguration()
         test_conf.setUnlabeled(labels_annotations = 'annotations')
         multiclass_classifier_args['test_conf'] = test_conf

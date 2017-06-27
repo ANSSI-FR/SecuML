@@ -36,9 +36,7 @@ class Iterations(object):
     def runIterations(self):
         while True:
             try:
-                start = time.time()
                 self.runNextIteration()
-                print '%%%%%%%%%%%%%%%%% Iteration ', time.time() - start
             except (NoLabelAdded) as e:
                 print e
                 break

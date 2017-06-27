@@ -14,12 +14,14 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
 from flask import jsonify
 
-from SecuML_web.base import app, db, cursor
+from SecuML_web.base import app, db, cursor, user_exp
 
-from SecuML.Tools import mysql_tools
 from SecuML.Data import labels_tools
+from SecuML.Experiment import ExperimentFactory
+from SecuML.Tools import dir_tools, mysql_tools
 
 @app.route('/getLabel/<project>/<dataset>/<experiment_label_id>/<instance_id>/')
 def getLabel(project, dataset, experiment_label_id, instance_id):
@@ -35,24 +37,48 @@ def getLabel(project, dataset, experiment_label_id, instance_id):
 ## If there is a label for 'instance_id' in 'experiment',
 ## then the label is removed
 ## Otherwise, nothing is done
-@app.route('/removeLabel/<project>/<dataset>/<experiment>/<instance_id>/')
-def removeLabel(project, dataset, experiment, instance_id):
-    mysql_tools.useDatabase(cursor, project, dataset)
-    labels_tools.removeLabel(cursor, experiment, instance_id)
+@app.route('/removeLabel/<project>/<dataset>/<experiment_id>/<inst_dataset>/<inst_experiment_label_id>/<iteration_number>/<instance_id>/')
+def removeLabel(project, dataset, experiment_id, inst_dataset, inst_experiment_label_id, iteration_number, instance_id):
+    mysql_tools.useDatabase(cursor, project, inst_dataset)
+    labels_tools.removeLabel(cursor, inst_experiment_label_id, instance_id)
     db.commit()
+    if user_exp:
+        experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
+                                                             db, cursor)
+        filename  = dir_tools.getExperimentOutputDirectory(experiment)
+        filename += 'user_actions.log'
+        file_exists = dir_tools.checkFileExists(filename)
+        mode = 'a' if file_exists else 'w'
+        to_print = [datetime.datetime.now(), 'removeLabel', project, dataset, instance_id]
+        to_print = map(str, to_print)
+        to_print = ','.join(to_print)
+        with open(filename, mode) as f:
+            print >>f, to_print
     return ''
 
 ## The new label is added to the table Label
 ## If there is already a label for 'instance_id' in 'experiment' nothing is done.
-@app.route('/addLabel/<project>/<dataset>/<experiment_label_id>/<iteration_number>/<instance_id>/<label>/<family>/<method>/<annotation>/')
-def addLabel(project, dataset, experiment_label_id, iteration_number, instance_id,
+@app.route('/addLabel/<project>/<dataset>/<experiment_id>/<inst_dataset>/<inst_experiment_label_id>/<iteration_number>/<instance_id>/<label>/<family>/<method>/<annotation>/')
+def addLabel(project, dataset, experiment_id, inst_dataset, inst_experiment_label_id, iteration_number, instance_id,
         label, family, method, annotation):
     annotation = annotation == 'true'
-    mysql_tools.useDatabase(cursor, project, dataset)
-    labels_tools.addLabel(cursor, experiment_label_id,
+    mysql_tools.useDatabase(cursor, project, inst_dataset)
+    labels_tools.addLabel(cursor, inst_experiment_label_id,
             instance_id, label, family,
             iteration_number, method, annotation)
     db.commit()
+    if user_exp:
+        experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
+                                                             db, cursor)
+        filename  = dir_tools.getExperimentOutputDirectory(experiment)
+        filename += 'user_actions.log'
+        file_exists = dir_tools.checkFileExists(filename)
+        mode = 'a' if file_exists else 'w'
+        to_print = [datetime.datetime.now(), 'addLabel', project, dataset, iteration_number, instance_id, label, family, method, annotation]
+        to_print = map(str, to_print)
+        to_print = ','.join(to_print)
+        with open(filename, mode) as f:
+            print >>f, to_print
     return ''
 
 @app.route('/getLabeledInstances/<project>/<dataset>/<experiment_label_id>/')
@@ -95,29 +121,61 @@ def getFamiliesInstances(project, dataset, experiment_label_id, label, iteration
 @app.route('/datasetHasFamilies/<project>/<dataset>/<experiment_label_id>/')
 def datasetHasFamilies(project, dataset, experiment_label_id):
     mysql_tools.useDatabase(cursor, project, dataset)
-    families = labels_tools.getDatasetFamilies(cursor, project, dataset, experiment_label_id)
-    if (len(families) == 0):
-        return str(False)
-    if (len(families) == 1):
-        if families[0] == 'other':
-            return str(False)
-    return str(True)
+    has_families = labels_tools.datasetHasFamilies(cursor, project, dataset, experiment_label_id)
+    return str(has_families)
 
-@app.route('/changeFamilyName/<project>/<dataset>/<experiment_label_id>/<label>/<family>/<new_family_name>/')
-def changeFamilyName(project, dataset, experiment_label_id, label, family, new_family_name):
+@app.route('/changeFamilyName/<project>/<dataset>/<experiment_id>/<experiment_label_id>/<label>/<family>/<new_family_name>/')
+def changeFamilyName(project, dataset, experiment_id, experiment_label_id, label, family, new_family_name):
     mysql_tools.useDatabase(cursor, project, dataset)
     labels_tools.changeFamilyName(cursor, label, family, new_family_name, experiment_label_id)
+    if user_exp:
+        experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
+                                                             db, cursor)
+        filename  = dir_tools.getExperimentOutputDirectory(experiment)
+        filename += 'user_actions.log'
+        file_exists = dir_tools.checkFileExists(filename)
+        mode = 'a' if file_exists else 'w'
+        to_print = [datetime.datetime.now(), 'changeFamilyName',family, new_family_name]
+        to_print = map(str, to_print)
+        to_print = ','.join(to_print)
+        with open(filename, mode) as f:
+            print >>f, to_print
     return ''
 
-@app.route('/changeFamilyLabel/<project>/<dataset>/<experiment_label_id>/<label>/<family>/')
-def changeFamilyLabel(project, dataset, experiment_label_id, label, family):
+@app.route('/changeFamilyLabel/<project>/<dataset>/<experiment_id>/<experiment_label_id>/<label>/<family>/')
+def changeFamilyLabel(project, dataset, experiment_id, experiment_label_id, label, family):
     mysql_tools.useDatabase(cursor, project, dataset)
     labels_tools.changeFamilyLabel(cursor, label, family, experiment_label_id)
+    if user_exp:
+        experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
+                                                             db, cursor)
+        filename  = dir_tools.getExperimentOutputDirectory(experiment)
+        filename += 'user_actions.log'
+        file_exists = dir_tools.checkFileExists(filename)
+        mode = 'a' if file_exists else 'w'
+        to_print = [datetime.datetime.now(), 'changeFamilyLabel',family, label]
+        to_print = map(str, to_print)
+        to_print = ','.join(to_print)
+        with open(filename, mode) as f:
+            print >>f, to_print
     return ''
 
-@app.route('/mergeFamilies/<project>/<dataset>/<experiment_label_id>/<label>/<families>/<new_family_name>/')
-def mergeFamilies(project, dataset, experiment_label_id, label, families, new_family_name):
+@app.route('/mergeFamilies/<project>/<dataset>/<experiment_id>/<experiment_label_id>/<label>/<families>/<new_family_name>/')
+def mergeFamilies(project, dataset, experiment_id, experiment_label_id, label, families, new_family_name):
     families = families.split(',')
     mysql_tools.useDatabase(cursor, project, dataset)
     labels_tools.mergeFamilies(cursor, label, families, new_family_name, experiment_label_id)
+    if user_exp:
+        experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
+                                                             db, cursor)
+        filename  = dir_tools.getExperimentOutputDirectory(experiment)
+        filename += 'user_actions.log'
+        file_exists = dir_tools.checkFileExists(filename)
+        mode = 'a' if file_exists else 'w'
+        to_print = [datetime.datetime.now(), 'mergeFamilies', new_family_name]
+        to_print += map(str, families)
+        to_print = map(str, to_print)
+        to_print = ','.join(to_print)
+        with open(filename, mode) as f:
+            print >>f, to_print
     return ''

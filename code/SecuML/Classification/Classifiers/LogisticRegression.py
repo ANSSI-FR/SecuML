@@ -23,6 +23,9 @@ from SecuML.Classification.Classifier import Classifier
 class LogisticRegression(Classifier):
 
     def createPipeline(self):
+        # fit_intercept = False, to ease the interpretation of the predictions
+        # with the weighted features
         self.pipeline = Pipeline([
             ('scaler', StandardScaler()),
-            ('model', linear_model.LogisticRegression(solver = self.conf.optim_algo))])
+            ('model', linear_model.LogisticRegression(solver = self.conf.optim_algo,
+                                                      fit_intercept = False))])

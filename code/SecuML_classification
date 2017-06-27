@@ -51,7 +51,13 @@ if __name__ == '__main__':
     factory = ClassifierConfFactory.getFactory()
     conf = factory.fromArgs(args.model, args, experiment)
     experiment.setClassifierConf(conf)
-    experiment.initLabels('true_labels.csv')
+    try:
+        experiment.initLabels('true_labels.csv')
+    except Exception as e:
+        message  = 'The ground truth labels must be provided in true_labels.csv '
+        message += 'to run SecuML_classification.'
+        print message
+        raise e
     experiment.export()
 
     datasets = ClassifierDatasets(experiment, experiment.classification_conf)

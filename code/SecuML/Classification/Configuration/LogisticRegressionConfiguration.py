@@ -24,21 +24,27 @@ from TestConfiguration import TestConfiguration
 
 class LogisticRegressionConfiguration(ClassifierConfiguration):
 
-    def __init__(self, num_folds, sample_weight, families_supervision, test_conf):
+    def __init__(self, num_folds, sample_weight, families_supervision, optim_algo, test_conf):
         ClassifierConfiguration.__init__(self, num_folds, sample_weight, families_supervision,
                 test_conf = test_conf)
         self.model_class = LogisticRegression
-
-        #self.optim_algo = 'sag'
-        #self.c = LearningParameter(list(10. ** np.arange(-2, 2)))
-        #self.penalty = LearningParameter(['l2'])
-
-        self.optim_algo = 'liblinear'
+        if optim_algo is not None:
+            self.optim_algo = optim_algo
+        else:
+            self.optim_algo = 'liblinear'
         self.c = LearningParameter(list(10. ** np.arange(-2, 2)))
-        self.penalty = LearningParameter(['l1', 'l2'])
+        if self.optim_algo == 'sag':
+            self.penalty = LearningParameter(['l2'])
+        elif self.optim_algo == 'liblinear':
+            self.penalty = LearningParameter(['l1', 'l2'])
 
     def getModelClassName(self):
         return 'LogisticRegression'
+
+    def generateSuffix(self):
+        suffix = ClassifierConfiguration.generateSuffix(self)
+        suffix += '__' + self.optim_algo
+        return suffix
 
     def setC(self, c_values):
         self.c = LearningParameter(c_values)
@@ -66,7 +72,8 @@ class LogisticRegressionConfiguration(ClassifierConfiguration):
     def fromJson(obj, exp):
         test_conf = TestConfiguration.fromJson(obj['test_conf'], exp)
         conf = LogisticRegressionConfiguration(obj['num_folds'], obj['sample_weight'],
-                                               obj['families_supervision'], test_conf)
+                                               obj['families_supervision'], obj['optim_algo'],
+                                               test_conf)
         ClassifierConfiguration.setTestConfiguration(conf, obj, exp)
         conf.c          = LearningParameter.fromJson(obj['c'])
         conf.penalty    = LearningParameter.fromJson(obj['penalty'])
@@ -92,11 +99,16 @@ class LogisticRegressionConfiguration(ClassifierConfiguration):
 
     @staticmethod
     def generateParser(parser):
-        classifier_group = ClassifierConfiguration.generateParser(parser)
+        ClassifierConfiguration.generateParser(parser)
+        parser.add_argument('--optim-algo',
+                choices = ['sag', 'liblinear'],
+                default = 'liblinear',
+                help = 'sag is recommended for large datasets.')
 
     @staticmethod
     def generateParamsFromArgs(args, experiment):
         params = ClassifierConfiguration.generateParamsFromArgs(args, experiment)
+        params['optim_algo'] = args.optim_algo
         return params
 
 ClassifierConfFactory.getFactory().registerClass('LogisticRegressionConfiguration',

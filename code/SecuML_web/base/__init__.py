@@ -17,6 +17,7 @@
 from flask import Flask
 from SecuML.Tools import mysql_tools
 
+user_exp = True
 db, cursor  = mysql_tools.getDbConnection(buffered = True)
 app = Flask(__name__)
 

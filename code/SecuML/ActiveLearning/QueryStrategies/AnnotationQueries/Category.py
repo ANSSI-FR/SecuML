@@ -179,7 +179,7 @@ class Category(object):
         if num_instances == 0:
             return []
         queries_df = self.getSelectedInstancesDataframe(drop_instances)
-        matrix_tools.sortDataFrame(queries_df, 'likelihood', False, True)
+        matrix_tools.sortDataFrame(queries_df, 'likelihood', True, True)
         queries_df = queries_df.head(num_instances)
         self.addAnnotationQueries('low_likelihood', 'low', queries_df)
         return map(int, queries_df.index.values.tolist())

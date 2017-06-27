@@ -258,7 +258,6 @@ function displayFamiliesBar(panel_body, type, clustering_exp) {
 }
 
 function displayEndButton(row) {
-  console.log(conf);
   if (conf.interactive) {
     var end_group = document.createElement('h3');
     end_group.setAttribute('class', 'row');

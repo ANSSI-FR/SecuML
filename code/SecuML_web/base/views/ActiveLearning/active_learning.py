@@ -14,11 +14,12 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
 from flask import render_template, jsonify
 import json
 import pandas as pd
 
-from SecuML_web.base import app, db, cursor
+from SecuML_web.base import app, db, cursor, user_exp
 
 from SecuML.ActiveLearning.Iteration import Iteration
 from SecuML.Data import labels_tools
@@ -26,13 +27,27 @@ from SecuML.Experiment.ActiveLearningExperiment import ActiveLearningExperiment
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Plots.BarPlot import BarPlot
 from SecuML.Tools import colors_tools
+from SecuML.Tools import dir_tools
 from SecuML.Tools import matrix_tools
 
 from CeleryApp.activeLearningTasks import runNextIteration as celeryRunNextIteration
 
 @app.route('/currentAnnotations/<project>/<dataset>/<experiment_id>/<iteration>/')
 def currentAnnotations(project, dataset, experiment_id, iteration):
-    return render_template('ActiveLearning/current_annotations.html', project = project)
+    page = render_template('ActiveLearning/current_annotations.html', project = project)
+    if user_exp:
+        experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
+                                                             db, cursor)
+        filename  = dir_tools.getExperimentOutputDirectory(experiment)
+        filename += 'user_actions.log'
+        file_exists = dir_tools.checkFileExists(filename)
+        mode = 'a' if file_exists else 'w'
+        to_print = [datetime.datetime.now(), 'displayAnnotatedInstances']
+        to_print = map(str, to_print)
+        to_print = ','.join(to_print)
+        with open(filename, mode) as f:
+            print >>f, to_print
+    return page
 
 @app.route('/editFamilies/<project>/<dataset>/<experiment_id>/')
 def editFamilies(project, dataset, experiment_id):
@@ -82,6 +97,19 @@ def getIterationSupervisedExperiment(project, dataset, experiment_id, iteration)
         models_exp = json.load(f)
     return str(models_exp[binary_multiclass])
 
-@app.route('/runNextIteration/<project>/<dataset>/<experiment_id>/')
-def runNextIteration(project, dataset, experiment_id):
-    return str(celeryRunNextIteration.s().apply_async())
+@app.route('/runNextIteration/<project>/<dataset>/<experiment_id>/<iteration_number>/')
+def runNextIteration(project, dataset, experiment_id, iteration_number):
+    res = str(celeryRunNextIteration.s().apply_async())
+    if user_exp:
+        experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
+                                                             db, cursor)
+        filename  = dir_tools.getExperimentOutputDirectory(experiment)
+        filename += 'user_actions.log'
+        file_exists = dir_tools.checkFileExists(filename)
+        mode = 'a' if file_exists else 'w'
+        to_print = [datetime.datetime.now(), 'nextIteration', iteration_number]
+        to_print = map(str, to_print)
+        to_print = ','.join(to_print)
+        with open(filename, mode) as f:
+            print >>f, to_print
+    return res

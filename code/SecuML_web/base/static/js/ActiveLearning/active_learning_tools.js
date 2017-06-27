@@ -2,7 +2,7 @@ function runNextIteration(conf) {
     return function() {
       // Generate the next annotation queries
       var query = buildQuery('runNextIteration',
-                             [conf.project, conf.dataset, conf.experiment_id]);
+                             [conf.project, conf.dataset, conf.experiment_id, label_iteration]);
       var xmlHttp = new XMLHttpRequest();
       xmlHttp.open('GET', query, false);
       xmlHttp.send(null);

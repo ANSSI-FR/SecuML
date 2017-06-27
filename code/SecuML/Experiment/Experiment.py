@@ -26,6 +26,16 @@ from SecuML.Experiment import ExperimentFactory
 from SecuML.Tools import dir_tools
 from SecuML.Tools import mysql_tools
 
+class InvalidLabels(Exception):
+
+    def __init__(self, invalid_values):
+        self.message  = 'The labels must be "malicious" or "benign". '
+        self.message += 'Invalid values encountered: '
+        self.message += ','.join(invalid_values) + '.'
+
+    def __str__(self):
+        return self.message
+
 class Experiment(object):
 
     def __init__(self, project, dataset, db, cursor,
@@ -100,7 +110,7 @@ class Experiment(object):
                 self.dataset)
         filename += 'labels/' + labels_filename
         if not dir_tools.checkFileExists(filename):
-            raise ValueError('The labels file %s does not exist' % filename)
+            raise ValueError('The labels file %s does not exist.' % filename)
         ## Check whether the file contains families
         families = False
         with open(filename, 'r') as f:
@@ -125,6 +135,15 @@ class Experiment(object):
         query += ';'
         self.cursor.execute(query);
         self.db.commit()
+        self.checkLabelsValidity()
+
+    def checkLabelsValidity(self):
+        query = 'SELECT DISTINCT label from Labels;'
+        self.cursor.execute(query)
+        labels_values = set([x[0] for x in self.cursor.fetchall()])
+        other_values = list(labels_values.difference(set(['malicious', 'benign'])))
+        if len(other_values) != 0:
+            raise InvalidLabels(other_values)
 
     def generateExperimentName(self, labels_filename):
         if self.experiment_name is None:

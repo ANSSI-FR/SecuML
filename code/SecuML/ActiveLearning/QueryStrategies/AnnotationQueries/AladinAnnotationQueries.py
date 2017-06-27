@@ -137,7 +137,7 @@ class AladinAnnotationQueries(AnnotationQueries):
     # Anomalous instances have a low probability of belonging to the assigned family
     def computeAnomalousScores(self):
         self.scores['nb_prediction'] = self.nb_predicted_labels
-        features = np.array(self.datasets.test_instances.getFeatures())
+        features = self.datasets.test_instances.getFeatures()
         for c in set(self.nb_predicted_labels):
             indexes = [i for i, x in enumerate(self.nb_predicted_labels) if x == c]
             c_features = features[indexes, :]

@@ -216,6 +216,16 @@ def getAssociatedLabel(family, cursor, experiment_label_id):
             (experiment_label_id, str(family)))
     return cursor.fetchone()[0]
 
+
+def datasetHasFamilies(cursor, project, dataset, experiment_label_id):
+    families = getDatasetFamilies(cursor, project, dataset, experiment_label_id)
+    if (len(families) == 0):
+        return False
+    if (len(families) == 1):
+        if families[0] == 'other':
+            return False
+    return True
+
 #####################
 ### Edit Families ###
 #####################

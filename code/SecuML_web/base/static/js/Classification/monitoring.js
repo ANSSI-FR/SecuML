@@ -1,4 +1,4 @@
-var num_coeff = 15;
+var num_coeff_model = 15;
 
 function createTrainTestMonitoring(train_test, col_size, parent_div) {
   var monitoring = createPanel('panel-primary', col_size, upperCaseFirst(train_test), parent_div);
@@ -21,13 +21,16 @@ function displayAlertsButton(buttons_group, button_label, buttons_title) {
       var validation_project = project;
       var validation_dataset = getValidationDataset(project, dataset,
                       experiment_id);
-      var clustering_experiment_id = getAlertsClusteringExperimentId(
-                      project, dataset, experiment_id);
-      var query = buildQuery('SecuML',
-                              [validation_project, validation_dataset,
-                              clustering_experiment_id]);
+      var query = buildQuery('getAlertsClusteringExperimentId',
+                      [project, dataset, experiment_id]);
+      d3.json(query, function(error, data) {
+          var clustering_experiment_id = data['grouping_exp_id'];
+          var query = buildQuery('SecuML',
+                                  [validation_project, validation_dataset,
+                                  clustering_experiment_id]);
+          window.open(query);
+        });
     }
-    window.open(query);
   });
   label_group.appendChild(label_button);
 }
@@ -36,8 +39,8 @@ function displayAlertsButtons() {
   var test_monitoring = document.getElementById('test_monitoring');
   var alerts_div = createPanel('panel-danger', null, 'Alerts Analysis', test_monitoring);
   var buttons_group = createDivWithClass(null, 'btn-group btn-group-justified', parent_div = alerts_div);
-  var labels = ['topN', 'random'];
-  var titles = ['Top N', 'Random'];
+  var labels = ['topN', 'random', 'clustering'];
+  var titles = ['Top N', 'Random', 'Clustering'];
   for (var i = 0; i < labels.length; i++) {
     displayAlertsButton(buttons_group, labels[i], titles[i]);
   }
@@ -117,7 +120,7 @@ function displayCoefficients(conf, sup_exp = null) {
   }
   var model_coefficients_div = cleanDiv('model_coefficients');
   var query = buildQuery('getTopModelCoefficients',
-    [conf.project, conf.dataset, exp, num_coeff]);
+    [conf.project, conf.dataset, exp, num_coeff_model]);
   $.getJSON(query, function (data) {
       var options = barPlotOptions(data);
       barPlotAddBands(options, true);

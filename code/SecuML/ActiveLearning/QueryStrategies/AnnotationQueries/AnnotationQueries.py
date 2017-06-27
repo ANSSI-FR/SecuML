@@ -32,7 +32,6 @@ class AnnotationQueries(object):
         start_time = time.time()
         self.generateAnnotationQueries()
         self.generate_queries_time = time.time() - start_time
-        print 'generate_queries_time', self.generate_queries_time
         self.exportAnnotationQueries()
 
     @abc.abstractmethod

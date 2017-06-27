@@ -24,6 +24,14 @@ from SecuML.Data import idents_tools
 from SecuML.Data import labels_tools
 from SecuML.Tools import dir_tools
 
+class InvalidInstances(Exception):
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
 class Instances(object):
 
     def __init__(self):
@@ -42,19 +50,48 @@ class Instances(object):
     def initFromExperiment(self, experiment):
         self.initFromCsvFiles(experiment.getFeaturesFilesFullpaths())
         self.setLabelsFromExperiment(experiment)
+        self.checkValidity()
 
     def initFromMatrix(self, ids, matrix, features_names,
                        labels = None, families = None,
                        true_labels = None, true_families = None,
                        annotations = None):
         self.setIds(ids)
-        self.features       = matrix
+        self.features       = np.array(matrix)
         self.features_names = features_names
         self.labels         = labels
         self.families       = families
         self.true_labels    = true_labels
         self.true_families  = true_families
         self.annotations    = annotations
+        self.checkValidity()
+
+    def checkValidity(self):
+        message = None
+        num_instances = len(self.ids)
+        if self.features.shape[0] != num_instances:
+            message  = 'There are ' + str(num_instances) + ' instances '
+            message += 'but the features of ' + str(self.features.shape[0]) + ' instances are provided.'
+        elif len(self.labels) != num_instances:
+            message  = 'There are ' + str(num_instances) + ' instances '
+            message += 'but ' + str(len(self.labels)) + ' labels are provided.'
+        elif  len(self.true_labels) != num_instances:
+            message  = 'There are ' + str(num_instances) + ' instances '
+            message += 'but ' + str(len(self.true_labels)) + ' true labels are provided.'
+        elif len(self.families) != num_instances:
+            message  = 'There are ' + str(num_instances) + ' instances '
+            message += 'but ' + str(len(self.families)) + ' families are provided.'
+        elif len(self.true_families) != num_instances:
+            message  = 'There are ' + str(num_instances) + ' instances '
+            message += 'but ' + str(len(self.true_families)) + ' true families are provided.'
+        elif len(self.annotations) != num_instances:
+            message  = 'There are ' + str(num_instances) + ' instances '
+            message += 'but ' + str(len(self.annotations)) + ' annotations are provided.'
+        elif len(self.features_names) != self.features.shape[1]:
+            message  = 'There are ' + str(self.features.shape[1]) + ' features '
+            message += 'but ' + str(len(self.features_names)) + ' features names are provided.'
+        if message is not None:
+            raise InvalidInstances(message)
 
     def initFromCsvFiles(self, csv_files):
         self.features_names = []
@@ -70,11 +107,14 @@ class Instances(object):
                     self.features = [l[1:] for l in features]
                 else:
                     self.features = [f1 + f2[1:] for f1, f2 in zip(self.features, features)]
+        self.features = np.array(self.features)
 
+    # The union must be used on instances coming from the same dataset.
+    # Otherwise, there may be some collisions on the ids.
     def union(self, instances_1, instances_2):
         self.initFromMatrix(
                 instances_1.ids + instances_2.ids,
-                instances_1.features + instances_2.features,
+                np.vstack((instances_1.features, instances_2.features)),
                 instances_1.features_names,
                 labels = instances_1.labels + instances_2.labels,
                 families = instances_1.families + instances_2.families,
@@ -108,7 +148,7 @@ class Instances(object):
             print >>f, 'instance_id,label,family'
             for i in range(self.numInstances()):
                 instance_id = self.ids[i]
-                label = 'malicious' if self.labels[i] else 'benign'
+                label = labels_tools.labelBooleanToString(self.labels[i])
                 family = self.families[i]
                 print >>f, str(instance_id) + ',' + label + ',' + family
 
@@ -120,11 +160,11 @@ class Instances(object):
         return all(l is not None for l in self.true_labels)
 
     def setLabelsFromExperiment(self, experiment):
-        num_instances = self.numInstances()
-        self.labels = [None] * num_instances
-        self.families = [None] * num_instances
-        self.annotations = [None] * num_instances
-        self.true_labels = [None] * num_instances
+        num_instances      = self.numInstances()
+        self.labels        = [None] * num_instances
+        self.families      = [None] * num_instances
+        self.annotations   = [None] * num_instances
+        self.true_labels   = [None] * num_instances
         self.true_families = [None] * num_instances
         ## Labels/Families
         benign_ids = labels_tools.getLabelIds(experiment.cursor, 'benign',
@@ -312,7 +352,7 @@ class Instances(object):
         if label == 'all':
             ids = [i for i in self.getIds() if self.getLabel(i) is not None and self.isAnnotated(i)]
         else:
-            l = label == 'malicious'
+            l = labels_tools.labelStringToBoolean(label)
             ids = [i for i in self.getIds() if self.getLabel(i) == l and self.isAnnotated(i)]
         return ids
 

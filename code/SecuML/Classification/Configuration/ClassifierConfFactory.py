@@ -41,7 +41,7 @@ class ClassifierConfFactory(object):
         class_ = self.register[class_name + 'Configuration']
         param = inspect.getargspec(class_.__init__).args
         param.remove('self')
-        args = [args[key] for key in param]
+        args = [args[key] if key in args else None for key in param]
         obj = class_(*args)
         return obj
 

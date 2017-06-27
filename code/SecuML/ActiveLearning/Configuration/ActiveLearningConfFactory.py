@@ -52,5 +52,9 @@ class ActiveLearningConfFactory():
 
     def generateParser(self, labeling_strategy, parser):
         class_ = self.register[labeling_strategy + 'Configuration']
-        parser = self.register[labeling_strategy + 'Configuration'].generateParser(parser)
+        parser = class_.generateParser(parser)
         return parser
+
+    def checkInputParams(self, args, cursor):
+        class_ = self.register[args.strategy + 'Configuration']
+        class_.checkInputParams(args, cursor)

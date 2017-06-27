@@ -17,7 +17,7 @@
 import sys
 
 from SecuML.Data import labels_tools
-from SecuML.Experiment.Experiment import Experiment
+from SecuML.Experiment.Experiment import Experiment, InvalidLabels
 from SecuML.Experiment import experiment_db_tools
 from SecuML.Tools import dir_tools
 from SecuML.Tools import mysql_tools
@@ -30,16 +30,26 @@ class Dataset(object):
         self.db, self.cursor = db, cursor
 
     def load(self):
-        self.initDataset()
-        ## Create tables
-        labels_tools.createLabelsTable(self.cursor)
-        experiment_db_tools.createExperimentsTable(self.cursor)
-        experiment_db_tools.createExperimentsLabelsTable(self.cursor)
-        experiment_db_tools.createInteractiveExperimentsTable(self.cursor)
-        ## Load idents and true labels
-        self.loadIdents()
-        self.loadTrueLabels()
-        self.db.commit()
+        try:
+            self.initDataset()
+            ## Create tables
+            labels_tools.createLabelsTable(self.cursor)
+            experiment_db_tools.createExperimentsTable(self.cursor)
+            experiment_db_tools.createExperimentsLabelsTable(self.cursor)
+            experiment_db_tools.createInteractiveExperimentsTable(self.cursor)
+            ## Load idents and true labels
+            self.loadIdents()
+            self.loadTrueLabels()
+            self.db.commit()
+        except InvalidLabels as e:
+            self.remove()
+            print 'The dataset has not been loaded.'
+            raise e
+
+    def remove(self):
+        mysql_tools.dropDatabaseIfExists(self.cursor,
+                self.project + '_' + self.dataset)
+        dir_tools.removeDatasetOutputDirectory(self.project, self.dataset)
 
     #####################
     #####################
