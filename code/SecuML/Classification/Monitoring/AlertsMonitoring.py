@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -37,8 +37,7 @@ class AlertsMonitoring(object):
 
     def generateAlerts(self, directory):
         alerts_ids = self.generateAlertsCsvFile(directory)
-        if len(alerts_ids) > 0:
-            self.alertsGrouping(alerts_ids, directory)
+        self.alertsGrouping(alerts_ids, directory)
 
     def generateAlertsCsvFile(self, directory):
         detection_threshold = self.alerts_conf.detection_threshold
@@ -52,13 +51,16 @@ class AlertsMonitoring(object):
         return list(alerts.index.values)
 
     def alertsGrouping(self, alerts_ids, directory):
-        has_families = labels_tools.datasetHasFamilies(self.supervised_exp.cursor,
-                self.supervised_exp.project, self.supervised_exp.dataset,
-                self.supervised_exp.experiment_label_id)
-        if has_families:
-            self.alertsClassification(alerts_ids)
+        if len(alerts_ids) > 0:
+            has_families = labels_tools.datasetHasFamilies(self.supervised_exp.cursor,
+                    self.supervised_exp.project, self.supervised_exp.dataset,
+                    self.supervised_exp.experiment_label_id)
+            if has_families:
+                self.alertsClassification(alerts_ids)
+            else:
+                self.alertsClustering(alerts_ids)
         else:
-            self.alertsClustering(alerts_ids)
+            self.grouping_exp_id = None
         with open(directory + 'grouping.json', 'w') as f:
             grouping = {'grouping_exp_id': self.grouping_exp_id}
             json.dump(grouping, f, indent = 2)
@@ -142,7 +144,7 @@ class AlertsMonitoring(object):
         params['num_folds'] = exp.classification_conf.num_folds
         params['sample_weight'] = False
         params['families_supervision'] = True
-        params['optim_algo'] = 'sag'
+        params['optim_algo'] = 'liblinear'
         params['alerts_conf'] = None
         test_conf = TestConfiguration()
         test_conf.setUnlabeled(labels_annotations = 'annotations')

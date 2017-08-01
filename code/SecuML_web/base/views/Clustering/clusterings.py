@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
 
 from flask import jsonify
 import random
+
 from SecuML_web.base import app, db, cursor
 
 from SecuML.Tools import colors_tools
@@ -23,6 +24,7 @@ from SecuML.Tools import mysql_tools
 
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Plots.BarPlot import BarPlot
+from SecuML.Plots.PlotDataset import PlotDataset
 from SecuML.Clustering.Clustering import Clustering
 
 def randomSelection(ids, num_res = None):
@@ -150,10 +152,10 @@ def getClusterStats(project, dataset, experiment_id):
         num_instances_v.append(num_instances)
         #labels.append('c_' + str(c))
         labels.append(clustering.clusters[c].label)
-
     barplot = BarPlot(labels)
-    barplot.addDataset(num_instances_v, colors_tools.blue, 'Num. Instances')
-    return jsonify(barplot.barplot)
+    dataset = PlotDataset(num_instances_v, 'Num. Instances')
+    barplot.addDataset(dataset)
+    return jsonify(barplot.toJson())
 
 @app.route('/getClustersColors/<num_clusters>/')
 def getClustersColors(num_clusters):

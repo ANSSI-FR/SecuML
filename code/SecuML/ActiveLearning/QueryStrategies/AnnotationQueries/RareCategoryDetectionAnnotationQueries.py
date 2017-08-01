@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -105,6 +105,12 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
             AnnotationQueries.getManualAnnotations(self)
         else:
             self.categories.getManualAnnotations(self.iteration)
+
+    def checkAnnotationQueriesAnswered(self):
+        if not self.families_analysis:
+            return AnnotationQueries.checkAnnotationQueriesAnswered(self)
+        else:
+            return self.categories.checkAnnotationQueriesAnswered(self.iteration)
 
     #######################
     ### Private methods ###

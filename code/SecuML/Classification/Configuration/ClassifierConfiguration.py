@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -120,6 +120,9 @@ class ClassifierConfiguration(object):
     def generateParser(parser):
         Experiment.projectDatasetFeturesParser(parser)
 
+        parser.add_argument('--labels',
+                            type = str,
+                            default = 'true_labels.csv')
         parser.add_argument('--num-folds',
                             type = int,
                             default = 4)
@@ -151,6 +154,7 @@ class ClassifierConfiguration(object):
                 'Alerts parameters')
         alerts_group.add_argument('--top-n-alerts',
                 default = 100,
+                type = int,
                 help = 'Number of most confident alerts displayed.')
         alerts_group.add_argument('--detection-threshold',
                 type = float,
@@ -171,10 +175,10 @@ class ClassifierConfiguration(object):
 
         # Alerts configuration
         params = {}
-        params['num_clusters'] = args.num_clusters
-        params['num_results'] = None
+        params['num_clusters']    = args.num_clusters
+        params['num_results']     = None
         params['projection_conf'] = None
-        params['label'] = 'all'
+        params['label']           = 'all'
         clustering_conf = ClusteringConfFactory.getFactory().fromParam(
                 args.clustering_algo,
                 params)

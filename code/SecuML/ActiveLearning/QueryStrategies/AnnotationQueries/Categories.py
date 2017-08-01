@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 from __future__ import division
 import copy
 import json
-import numpy as np
 import random
 import warnings
 
@@ -91,6 +90,13 @@ class Categories(object):
     def getManualAnnotations(self, iteration):
         for c, category in enumerate(self.categories):
             category.getManualAnnotations(iteration)
+
+    def checkAnnotationQueriesAnswered(self, iteration):
+        for c, category in enumerate(self.categories):
+            answered = category.checkAnnotationQueriesAnswered(iteration)
+            if not answered:
+                return False
+        return True
 
     def generateAnnotationQueries(self, conf):
         self.setCategoryNumAnnotations(conf)

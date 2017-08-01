@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -76,6 +76,12 @@ class AnnotationQueries(object):
     def getManualAnnotations(self):
         for annotation_query in self.annotation_queries:
             annotation_query.getManualAnnotation(self.iteration)
+
+    def checkAnnotationQueriesAnswered(self):
+        for annotation_query in self.annotation_queries:
+            if not annotation_query.checkAnswered(self.iteration):
+                return False
+        return True
 
     def getInstanceIds(self):
         instance_ids = []

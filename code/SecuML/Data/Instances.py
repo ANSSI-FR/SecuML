@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -126,7 +126,8 @@ class Instances(object):
         dataset_dir, features_dir, init_labels_dir = dir_tools.createDataset(project, dataset)
         self.exportIdents(dataset_dir + 'idents.csv', cursor)
         self.toCsv(features_dir + features_filenames)
-        self.saveInstancesLabels(init_labels_dir + 'true_labels.csv')
+        if self.hasTrueLabels():
+            self.saveInstancesLabels(init_labels_dir + 'true_labels.csv')
 
     def exportIdents(self, output_filename, cursor):
         with open(output_filename, 'w') as f:
@@ -134,7 +135,8 @@ class Instances(object):
             ids = self.getIds()
             idents = idents_tools.getAllIdents(cursor)
             for i in range(self.numInstances()):
-                print >>f, str(ids[i]) + ','  + idents[i].encode('utf-8')
+                instance_id = ids[i]
+                print >>f, str(instance_id) + ','  + idents[str(instance_id)].encode('utf-8')
 
     def toCsv(self, output_filename):
         header = ['instance_id'] + self.features_names
@@ -379,8 +381,8 @@ class Instances(object):
 
     def getInstancesFromIds(self, instance_ids):
         X = [self.getInstance(i) for i in instance_ids]
-        y = [self.getLabel(i) for i in instance_ids]
-        z = [self.getFamily(i) for i in instance_ids]
+        y = [self.getLabel(i)    for i in instance_ids]
+        z = [self.getFamily(i)   for i in instance_ids]
         num_selected_instances = len(y)
         y_true = [None] * num_selected_instances
         z_true = [None] * num_selected_instances

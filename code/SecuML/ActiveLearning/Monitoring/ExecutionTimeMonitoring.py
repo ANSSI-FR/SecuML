@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ class ExecutionTimeMonitoring(object):
             self.data = pd.read_csv(f, header = 0, index_col = 0)
 
     def plotEvolutionMonitoring(self):
-        iterations = range(self.monitoring.iteration_number)
+        iterations = range(1, self.monitoring.iteration_number+1)
         plt.clf()
         max_value = self.data.max().max()
         annotations = self.monitoring.iteration.annotations

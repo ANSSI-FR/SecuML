@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -91,6 +91,13 @@ class Category(object):
         for k, queries in self.annotation_queries.iteritems():
             for q, query in enumerate(queries):
                 query.getManualAnnotation(iteration)
+
+    def checkAnnotationQueriesAnswered(self, iteration):
+        for k, queries in self.annotation_queries.iteritems():
+            for q, query in enumerate(queries):
+                if not query.checkAnswered(iteration):
+                    return False
+        return True
 
     def setLikelihood(self, likelihood):
         self.likelihood = likelihood

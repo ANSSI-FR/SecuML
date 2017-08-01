@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -83,6 +83,17 @@ class Ilab(QueryStrategy):
         else:
             self.global_clustering_perf = None
 
+    def checkAnnotationQueriesAnswered(self):
+        answered = self.uncertain.checkAnnotationQueriesAnswered()
+        if answered:
+            answered = self.malicious.checkAnnotationQueriesAnswered()
+            if answered:
+                return self.benign.checkAnnotationQueriesAnswered()
+            else:
+                return False
+        else:
+            return False
+
     ###############################
     ## Execution time monitoring ##
     ###############################
@@ -108,11 +119,25 @@ class Ilab(QueryStrategy):
         return [malicious, uncertain, benign]
 
     def exportAnnotationsTypes(self, malicious = True, benign = True):
-        types = {'uncertain': 'individual', 'malicious': None, 'benign': None}
+        types = {'uncertain': {'type': 'individual', 'clustering_exp': None},
+                 'malicious': None,
+                 'benign': None}
         if malicious:
-            types['malicious'] = self.malicious.annotations_type
+            types['malicious'] = {}
+            types['malicious']['type'] = self.malicious.annotations_type
+            clustering_exp = self.malicious.clustering_exp
+            if clustering_exp is not None:
+                types['malicious']['clustering_exp'] = clustering_exp.experiment_id
+            else:
+                types['malicious']['clustering_exp'] = None
         if benign:
-            types['benign'] = self.benign.annotations_type
+            types['benign'] = {}
+            types['benign']['type'] = self.benign.annotations_type
+            clustering_exp = self.benign.clustering_exp
+            if clustering_exp is not None:
+                types['benign']['clustering_exp'] = clustering_exp.experiment_id
+            else:
+                types['benign']['clustering_exp'] = None
         filename  = self.iteration.output_directory
         filename += 'annotations_types.json'
         with open(filename, 'w') as f:

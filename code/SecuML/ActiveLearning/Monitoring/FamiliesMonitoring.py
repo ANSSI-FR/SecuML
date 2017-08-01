@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
 
 import pandas as pd
 
+from SecuML.Plots.PlotDataset import PlotDataset
 from SecuML.Plots.BarPlot import BarPlot
 from SecuML.Tools import dir_tools
 
@@ -115,8 +116,9 @@ class FamiliesMonitoringOneLabel(object):
     def plotEvolutionMonitoring(self):
         barplot = BarPlot(self.families)
         for i in range(self.data.shape[0]):
-            barplot.addDataset(list(self.data.iloc[i, 1:]), 'blue', str(i))
+            dataset = PlotDataset([self.data.iloc[i, 1]], str(i))
+            barplot.addDataset(dataset)
         filename  = self.output_directory
         filename += self.label + '_families_evolution.json'
         with open(filename, 'w') as f:
-            barplot.display(f)
+            barplot.exportJson(f)

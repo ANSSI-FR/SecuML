@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -51,3 +51,7 @@ class Iterations(object):
         self.iteration_number += 1
         self.current_iteration.previous_iteration = None
         self.previous_iteration = self.current_iteration
+
+    def checkAnnotationQueriesAnswered(self):
+        self.experiment.db.commit()
+        return self.current_iteration.checkAnnotationQueriesAnswered()

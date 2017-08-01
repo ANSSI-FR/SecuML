@@ -17,6 +17,7 @@ function displayAlertsButton(buttons_group, button_label, buttons_title) {
     if (button_label != 'clustering') {
       var query = buildQuery('alerts',
                              [project, dataset, experiment_id, button_label]);
+      window.open(query);
     } else {
       var validation_project = project;
       var validation_dataset = getValidationDataset(project, dataset,
@@ -25,10 +26,14 @@ function displayAlertsButton(buttons_group, button_label, buttons_title) {
                       [project, dataset, experiment_id]);
       d3.json(query, function(error, data) {
           var clustering_experiment_id = data['grouping_exp_id'];
-          var query = buildQuery('SecuML',
-                                  [validation_project, validation_dataset,
-                                  clustering_experiment_id]);
-          window.open(query);
+          if (! clustering_experiment_id) {
+              alert('There is no clustering of the alerts.');
+          } else {
+            var query = buildQuery('SecuML',
+                                    [validation_project, validation_dataset,
+                                    clustering_experiment_id]);
+            window.open(query);
+          }
         });
     }
   });

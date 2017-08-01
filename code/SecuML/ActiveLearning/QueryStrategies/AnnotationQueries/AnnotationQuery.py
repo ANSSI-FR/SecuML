@@ -74,6 +74,16 @@ class AnnotationQuery(object):
         except labels_tools.NoLabel:
             warnings.warn('Instance %s has not been annotated.' % (str(self.instance_id)))
 
+    def checkAnswered(self, iteration):
+        try:
+            label, family, _, _ = labels_tools.getLabelDetails(
+                    iteration.experiment.cursor,
+                    self.instance_id,
+                    iteration.experiment.experiment_label_id)
+            return True
+        except labels_tools.NoLabel:
+            return False
+
     def updateDatasets(self, iteration, label, family):
         if iteration.budget <= 0:
             raise NoAnnotationBudget()

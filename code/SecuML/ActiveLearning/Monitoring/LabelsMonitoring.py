@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -233,7 +233,10 @@ class LabelsMonitoring(object):
                     color = color, linewidth = 4, marker = 'o')
         plt.ylim(0, max_value)
         plt.xlabel('Num Annotations')
-        plt.ylabel('Prop. Families Discovered')
+        if self.has_true_labels:
+            plt.ylabel('Prop. Families Discovered')
+        else:
+            plt.ylabel('Num. Families Discovered')
         lgd = plt.legend(bbox_to_anchor = (0., 1.02, 1., .102), loc = 3,
                 ncol = 2, mode = 'expand', borderaxespad = 0.,
                 fontsize = 'x-large')

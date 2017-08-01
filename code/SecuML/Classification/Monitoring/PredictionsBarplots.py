@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from SecuML.Plots.BarPlot import BarPlot
+from SecuML.Plots.PlotDataset import PlotDataset
 from SecuML.Tools import colors_tools
 
 class PredictionsBarplots(object):
@@ -39,11 +40,15 @@ class PredictionsBarplots(object):
 
     def display(self, directory):
         labels = ['0-10%', '10-20%', '20-30%', '30-40%', '40-50%', '50-60%', '60-70%', '70-80%', '80-90%', '90-100%']
+
         barplot = BarPlot(labels)
-        barplot.addDataset(map(len, self.ranges), colors_tools.getLabelColor('all'), 'numInstances')
+        dataset = PlotDataset(map(len, self.ranges), 'numInstances')
+        dataset.setColor(colors_tools.getLabelColor('all'))
+        barplot.addDataset(dataset)
         filename = directory + 'predictions_barplot.json'
         with open(filename, 'w') as f:
-            barplot.display(f)
+            barplot.exportJson(f)
+
         barplot = BarPlot(labels)
         malicious_ranges = map(
                 lambda l: filter(lambda x: x['true_label'], l),
@@ -51,11 +56,13 @@ class PredictionsBarplots(object):
         benign_ranges = map(
                 lambda l: filter(lambda x: not x['true_label'], l),
                 self.ranges)
-        barplot.addDataset(map(len, malicious_ranges),
-                           colors_tools.getLabelColor('malicious'), 'malicious')
-        barplot.addDataset(map(len, benign_ranges),
-                           colors_tools.getLabelColor('benign'), 'benign')
+        malicious_dataset = PlotDataset(map(len, malicious_ranges), 'malicious')
+        malicious_dataset.setColor(colors_tools.getLabelColor('malicious'))
+        barplot.addDataset(malicious_dataset)
+        benign_dataset = PlotDataset(map(len, benign_ranges), 'benign')
+        benign_dataset.setColor(colors_tools.getLabelColor('benign'))
+        barplot.addDataset(benign_dataset)
         filename  = directory
         filename += 'predictions_barplot_labels.json'
         with open(filename, 'w') as f:
-            barplot.display(f)
+            barplot.exportJson(f)

@@ -310,10 +310,10 @@ function displayAnnotationDiv(suggestion = false, interactive = true) {
   form.appendChild(fieldset);
 
   // Suggestion
-  var suggestion_group = createDivWithClass('', 'form-group col-md-2', fieldset);
+  var suggestion_group = createDivWithClass('', 'form-group col-md-6', fieldset);
   if (suggestion) {
      var suggestion_label = document.createElement('label');
-     suggestion_label.setAttribute('class', 'col-md-6 control-label');
+     suggestion_label.setAttribute('class', 'col-md-5 control-label');
      suggestion_label.appendChild(document.createTextNode('Suggestion'));
      suggestion_group.appendChild(suggestion_label);
      var suggestion_value = document.createElement('button');
@@ -325,7 +325,7 @@ function displayAnnotationDiv(suggestion = false, interactive = true) {
   }
 
   // Annotation
-  var label_group = createDivWithClass('', 'form-group col-md-10', fieldset);
+  var label_group = createDivWithClass('', 'form-group col-md-6', fieldset);
   label_group.setAttribute('id', 'label_group');
 
   if (interactive) {
@@ -509,6 +509,8 @@ function printWeightedFeatures(selected_id) {
         graph_div.style.height = '400px'
     });
 }
+
+
 
 
 

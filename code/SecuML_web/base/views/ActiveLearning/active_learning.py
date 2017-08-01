@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -26,11 +26,13 @@ from SecuML.Data import labels_tools
 from SecuML.Experiment.ActiveLearningExperiment import ActiveLearningExperiment
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Plots.BarPlot import BarPlot
+from SecuML.Plots.PlotDataset import PlotDataset
 from SecuML.Tools import colors_tools
 from SecuML.Tools import dir_tools
 from SecuML.Tools import matrix_tools
 
 from CeleryApp.activeLearningTasks import runNextIteration as celeryRunNextIteration
+from CeleryApp.activeLearningTasks import checkAnnotationQueriesAnswered as celeryCheckAnnotationQueriesAnswered
 
 @app.route('/currentAnnotations/<project>/<dataset>/<experiment_id>/<iteration>/')
 def currentAnnotations(project, dataset, experiment_id, iteration):
@@ -67,9 +69,10 @@ def getFamiliesBarplot(project, dataset, experiment_id, iteration, label):
                        'counts': [family_counts[k] for k in family_counts.keys()]})
     matrix_tools.sortDataFrame(df, 'families', ascending = True, inplace = True)
     barplot = BarPlot(list(df['families']))
-    barplot.addDataset(list(df['counts']), colors_tools.getLabelColor(label),
-                       'Num. Instances')
-    return jsonify(barplot.barplot)
+    dataset = PlotDataset(list(df['counts']), 'Num. Instances')
+    dataset.setColor(colors_tools.getLabelColor(label))
+    barplot.addDataset(dataset)
+    return jsonify(barplot.toJson())
 
 @app.route('/currentAnnotationIteration/<project>/<dataset>/<experiment_id>/')
 def currentAnnotationIteration(project, dataset, experiment_id):
@@ -77,7 +80,6 @@ def currentAnnotationIteration(project, dataset, experiment_id):
     experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
             db, cursor)
     return str(experiment.getCurrentIteration())
-
 
 @app.route('/getActiveLearningValidationConf/<project>/<dataset>/<experiment_id>/')
 def getActiveLearningValidationConf(project, dataset, experiment_id):
@@ -113,3 +115,8 @@ def runNextIteration(project, dataset, experiment_id, iteration_number):
         with open(filename, mode) as f:
             print >>f, to_print
     return res
+
+@app.route('/checkAnnotationQueriesAnswered/<project>/<dataset>/<experiment_id>/<iteration_number>/')
+def checkAnnotationQueriesAnswered(project, dataset, experiment_id, iteration_number):
+    res = celeryCheckAnnotationQueriesAnswered.s().apply_async().get()
+    return str(res)

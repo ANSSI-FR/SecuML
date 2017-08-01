@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -57,6 +57,7 @@ class ClassifierDatasets(object):
     def generateDatasets(self):
         instances = Instances()
         instances.initFromExperiment(self.experiment)
+        instances = instances.getAnnotatedInstances()
         test_conf = self.classification_conf.test_conf
         if test_conf.method == 'random_split':
             self.splitTrainDataset(instances, test_conf.test_size)

@@ -1,7 +1,7 @@
 var path = window.location.pathname.split('/');
-var project         = path[2];
-var dataset         = path[3];
-var experiment_id   = path[4];
+var project       = path[2];
+var dataset       = path[3];
+var experiment_id = path[4];
 
 var experiment_label_id = getExperimentLabelId(
                 project, dataset, experiment_id);
@@ -67,7 +67,7 @@ function displayClusterIdSelection() {
                   }
                   // Display the first cluster
                   select.selectedIndex = 0;
-                  callback();
+                  displayCluster(0);
               }
              );
 }
@@ -83,6 +83,7 @@ function displayClustersStats() {
     var selected_index = active_bars[0]._index;
     var selected_cluster = active_bars[0]._view.label.split('_')[1];
     document.getElementById('select_cluster_id').selectedIndex = selected_index;
+    var selected_cluster = getSelectedOption(select_cluster_id);
     displayCluster(selected_cluster);
   }
   var experiment_label_id_tmp = experiment_label_id;
@@ -171,18 +172,18 @@ function displayClusterInstancesByPosition(selected_cluster) {
               parent_div = instances_div);
       var select = createSelectList('select_' + pos + '_instances',
                       5,
-                      function() {
-                        selected_instance_id = getSelectedOption(this);
-                        printInstanceInformation(selected_instance_id, '');
-                        last_instance_selector = this;
-                        // unselect other position selectors
-                        for (var j = 0; j < titles.length; j++) {
-                          var p = selects[j];
-                          var s = document.getElementById('select_' + p + '_instances');
-                          if (s != this) {
-                            s.selectedIndex = -1;
+                      function () {
+                          selected_instance_id = getSelectedOption(this);
+                          printInstanceInformation(selected_instance_id, '');
+                          last_instance_selector = this;
+                          // unselect other position selectors
+                          for (var j = 0; j < titles.length; j++) {
+                            var p = selects[j];
+                            var s = document.getElementById('select_' + p + '_instances');
+                            if (s != this) {
+                              s.selectedIndex = -1;
+                            }
                           }
-                        }
                       },
                       select_position_div,
                       titles[i]);
@@ -222,6 +223,14 @@ function displayInstancesInOneSelector(selected_cluster, c_e_r) {
             function(data) {
               ids = data[selected_cluster];
               addElementsToSelectList(instance_selector, ids);
+              if (c_e_r == 'center') {
+                  // Display the first instance
+                  if (ids.length > 0) {
+                    instance_selector.selectedIndex = 0;
+                    printInstanceInformation(ids[0], '');
+                    last_instance_selector = instance_selector;
+                  }
+              }
             }
            );
 }
@@ -249,13 +258,19 @@ function generateClusteringDivisions() {
   var cluster_selector_panel_body = createPanel('panel-primary', 'col-md-3',
                                      'Select a Cluster',
                                      row);
-  var cluster_id_column = createDivWithClass(null, 'row ',
-          parent_div = cluster_selector_panel_body, title = 'Clusters Ids');
+  var cluster_id_column = createDivWithClass(null, 'row',
+          parent_div = cluster_selector_panel_body);
+  cluster_id_column = createDivWithClass(null, 'col-md-10',
+          parent_div = cluster_id_column);
   var cluster_id = createDiv('cluster_id',
           parent_div = cluster_id_column);
+
   var selected_cluster_row = createDivWithClass(null, 'row',
-          cluster_selector_panel_body,
+          parent_div = cluster_selector_panel_body);
+  var selected_cluster_row = createDivWithClass(null, 'col-md-10',
+          parent_div = selected_cluster_row,
           title = 'Selected Cluster');
+
   var selected_cluster_info = createDiv('selected_cluster_info',
           parent_div = selected_cluster_row);
   var ul = document.createElement('ul');
@@ -296,9 +311,11 @@ function generateClusteringDivisions() {
 
   // Third row
   var row = createDivWithClass(null,  'row', parent_div = main);
-  displayInstancePanel(row);
+  // TODO update depending on use of clustering, annotation = true/false
+  displayInstancePanel(row, annotation = false);
   displayInstanceInformationStructure();
-  displayAnnotationDiv();
+  // TODO update depending on use of clustering
+  //displayAnnotationDiv();
 }
 
 function createPerLabelSelectors(labels_families) {

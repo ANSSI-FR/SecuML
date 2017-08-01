@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -125,20 +125,24 @@ class FeatureDescriptiveStatistics(object):
         barplot = BarPlot(x_labels)
         for label, dataset in self.plot_datasets.iteritems():
             hist, bin_edges = np.histogram(dataset.values, bins = bin_edges, density = False)
-            barplot.addDataset(hist, dataset.color, dataset.label)
+            hist_dataset = PlotDataset(hist, dataset.label)
+            hist_dataset.setColor(dataset.color)
+            barplot.addDataset(hist_dataset)
         output_filename = self.output_directory + 'histogram.json'
         with open(output_filename, 'w') as f:
-            barplot.display(f)
+            barplot.exportJson(f)
 
     def generateBinaryHistogram(self):
         barplot = BarPlot(['0', '1'])
         for label, dataset in self.plot_datasets.iteritems():
             num_0 = sum(dataset.values == 0)
             num_1 = sum(dataset.values == 1)
-            barplot.addDataset([num_0, num_1], dataset.color, dataset.label)
+            hist_dataset = PlotDataset([num_0, num_1], dataset.label)
+            hist_dataset.setColor(dataset.color)
+            barplot.addDataset(hist_dataset)
         output_filename = self.output_directory + 'binary_histogram.json'
         with open(output_filename, 'w') as f:
-            barplot.display(f)
+            barplot.exportJson(f)
 
     def generateDensity(self):
         density = Density(num_points = 200, bandwidth = 0.3, title = 'Feature ' + self.feature)

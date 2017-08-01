@@ -4,9 +4,9 @@ var dataset       = path[3];
 var experiment_id = path[4];
 var analysis      = path[5];
 
-var instances_list           = null;
-var num_instances            = null;
-var current_instance_index   = null;
+var instances_list         = null;
+var num_instances          = null;
+var current_instance_index = null;
 
 function getCurrentInstance() {
   return instances_list[current_instance_index];
@@ -35,10 +35,10 @@ function loadConfigurationFile(callback) {
 
 function callback() {
   displayDivisions();
-  displayInstancesToAnnotate(project, dataset, experiment_id, analysis);
+  displayAlerts(project, dataset, experiment_id, analysis);
 }
 
-function displayInstancesToAnnotate(project, dataset, experiment_id, analysis) {
+function displayAlerts(project, dataset, experiment_id, analysis) {
   var query = buildQuery('getAlerts',
                          [project, dataset, experiment_id, analysis]);
   $.getJSON(query,
@@ -47,9 +47,13 @@ function displayInstancesToAnnotate(project, dataset, experiment_id, analysis) {
                 current_instance_index = 0;
                 num_instances = instances_list.length;
                 var iter_label = cleanDiv('iter_label');
-                iter_label.appendChild(
-                 document.createTextNode((current_instance_index+1) + ' / ' + num_instances));
-                printInstanceInformation(instances_list[current_instance_index]);
+                if (num_instances > 0) {
+                  iter_label.appendChild(
+                   document.createTextNode((current_instance_index+1) + ' / ' + num_instances));
+                  printInstanceInformation(instances_list[current_instance_index]);
+                } else {
+                  iter_label.appendChild(document.createTextNode('0 / 0'));
+                }
             }
            );
 }

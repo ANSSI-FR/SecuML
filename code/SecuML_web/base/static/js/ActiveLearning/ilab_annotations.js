@@ -62,8 +62,9 @@ function displayInstancesToAnnotate(label, type) {
     current_label = label;
     current_type  = type;
     label_method  = 'annotation_' + label;
-    var annotations_type = annotations_types[label];
-    displayNavbars(type, annotations_type);
+    var annotations_type = annotations_types[label]['type'];
+    var clustering_exp = annotations_types[label]['clustering_exp'];
+    displayNavbars(type, annotations_type, clustering_exp);
     if (annotations_type == 'families') {
       var query = buildQuery('getFamiliesInstancesToAnnotate',
                              [project, dataset, experiment_id, label_iteration, label]);
@@ -105,8 +106,6 @@ function displayNextInstance() {
   if (current_instance_index <= num_instances-2) {
     current_instance_index += 1;
     updateInstanceNavbar();
-  } else {
-    displayNextFamily();
   }
 }
 
@@ -234,15 +233,38 @@ function displayButtons() {
   var nav_bars = createDivWithClass('nav_bars', 'col-md-12', parent_div = main);
 }
 
-function displayNavbars(type, annotations_type) {
+function displayNavbars(type, annotations_type, clustering_exp) {
   var nav_bars = cleanDiv('nav_bars');
   var panel_body = createPanel('panel-' + type, 'row',
           'Annotation Queries',
           nav_bars);
+  var col = createDivWithClass(null, 'col-md-10', panel_body);
   if (annotations_type == 'families') {
-    displayFamiliesBar(panel_body, type);
+    displayFamiliesBar(col, type);
   }
-  displayAnnotationQueriesBar(panel_body, type);
+  displayAnnotationQueriesBar(col, type);
+  if (annotations_type == 'families') {
+    var col = createDivWithClass(null, 'col-md-2', panel_body);
+    clusteringVisualization(col, clustering_exp);
+  }
+}
+
+function clusteringVisualization(row, clustering_exp) {
+  function displayClustering(clustering_exp) {
+    return function() {
+      var query = buildQuery('SecuML', [project, dataset, clustering_exp]);
+      window.open(query);
+    }
+  }
+  var group = createDivWithClass('', 'row', row);
+  var button = document.createElement('button');
+  button.setAttribute('class', 'btn btn-default');
+  button.setAttribute('type', 'button');
+  button.setAttribute('id', 'button_clustering');
+  var button_text = document.createTextNode('Display Families');
+  button.appendChild(button_text);
+  button.addEventListener('click', displayClustering(clustering_exp));
+  group.appendChild(button);
 }
 
 function displayFamiliesBar(panel_body, type) {
@@ -253,7 +275,7 @@ function displayFamiliesBar(panel_body, type) {
   family_label.appendChild(document.createTextNode('Family'));
   row.appendChild(family_label);
 
-  var current_family = createDivWithClass(null, 'col-md-1 control-label', parent_div = row);
+  var current_family = createDivWithClass(null, 'col-md-2 control-label', parent_div = row);
   current_family.setAttribute('id', 'current_family');
 
   var iter_family = document.createElement('label');
@@ -286,7 +308,7 @@ function displayFamiliesBar(panel_body, type) {
 function displayAnnotationQueriesBar(panel_body, type) {
   var row = createDivWithClass(null,  'row', parent_div = panel_body);
   var annotation_query_label = document.createElement('label');
-  annotation_query_label.setAttribute('class', 'col-md-2 control-label');
+  annotation_query_label.setAttribute('class', 'col-md-3 control-label');
   annotation_query_label.appendChild(document.createTextNode('Annotation Query'));
   row.appendChild(annotation_query_label);
   var iter_label = document.createElement('label');

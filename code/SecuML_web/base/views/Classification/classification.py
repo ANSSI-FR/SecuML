@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ from SecuML_web.base import app, db, cursor
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Experiment.ClassificationExperiment import ClassificationExperiment
 from SecuML.Plots.BarPlot import BarPlot
+from SecuML.Plots.PlotDataset import PlotDataset
 from SecuML.Tools import colors_tools
 from SecuML.Tools import dir_tools
 from SecuML.Tools import matrix_tools
@@ -129,8 +130,9 @@ def getFamiliesPerformance(project, dataset, experiment, train_test, label, thre
         threshold_value = min(enumerate(thresholds), key=lambda x: abs(x[1]-threshold))[1]
         perf = list(perf.loc[threshold_value])
         barplot = BarPlot(families)
-        barplot.addDataset(perf, colors_tools.getLabelColor('all'), tp_fp)
-    return jsonify(barplot.barplot);
+        dataset = PlotDataset(perf, tp_fp)
+        barplot.addDataset(PlotDataset(perf, tp_fp))
+    return jsonify(barplot.toJson())
 
 @app.route('/getSupervisedValidationConf/<project>/<dataset>/<experiment_id>/')
 def getSupervisedValidationConf(project, dataset, experiment_id):
@@ -157,9 +159,10 @@ def getTopWeightedFeatures(project, dataset, experiment, instance_dataset, inst_
     features = features[:-int(size)-1:-1]
     tooltips = [x[1] for x in features]
     barplot = BarPlot([x[0] for x in features])
-    barplot.addDataset([x[2] for x in features], colors_tools.red, None)
-    barplot.addTooltips(tooltips)
-    return jsonify(barplot.barplot)
+    dataset = PlotDataset([x[2] for x in features], None)
+    dataset.setColor(colors_tools.red)
+    barplot.addDataset(dataset)
+    return jsonify(barplot.toJson(tooltip_data = tooltips))
 
 @app.route('/getTopModelCoefficients/<project>/<dataset>/<experiment>/<size>/')
 def getTopModelCoefficients(project, dataset, experiment, size):
@@ -173,5 +176,7 @@ def getTopModelCoefficients(project, dataset, experiment, size):
     coefficients.sort(key = lambda tup: abs(tup[1]))
     coefficients = coefficients[:-size-1:-1]
     barplot = BarPlot([x[0] for x in coefficients])
-    barplot.addDataset([x[1] for x in coefficients], colors_tools.red, None)
-    return jsonify(barplot.barplot)
+    dataset = PlotDataset([x[1] for x in coefficients], None)
+    dataset.setColor(colors_tools.red)
+    barplot.addDataset(dataset)
+    return jsonify(barplot.toJson())

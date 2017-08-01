@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -104,7 +104,7 @@ class TrainTestValidationPerformanceMonitoring(object):
             self.plotPerfEvolution(['fscore', 'precision', 'recall'], 'fscore')
 
     def plotPerfEvolution(self, estimators, output_filename):
-        iterations = range(self.monitoring.iteration_number)
+        iterations = range(1, self.monitoring.iteration_number+1)
         plt.clf()
         for estimator in estimators:
             plot = PlotDataset(self.data[estimator], estimator)
