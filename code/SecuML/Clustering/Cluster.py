@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -94,32 +94,19 @@ class Cluster(object):
             c_e_r['r'] = []
         return c_e_r
 
-    def getClusterLabelsFamilies(self, cursor, label_experiment_id):
-        labels_family = labels_tools.getLabelsFamilies(cursor, label_experiment_id, self.instances_ids)
+    def getClusterLabelsFamilies(self, session, label_experiment_id):
+        labels_family = labels_tools.getLabelsFamilies(session, label_experiment_id, self.instances_ids)
         return labels_family
 
-    def getClusterLabelFamilyIds(self, label, family, cursor, experiment_label_id):
+    def getClusterLabelFamilyIds(self, label, family, session, experiment_label_id):
         if label == 'unknown' and (family is None or family == 'unknown'):
-            ids = labels_tools.getUnlabeledIds(cursor, experiment_label_id,
+            ids = labels_tools.getUnlabeledIds(session, experiment_label_id,
                     instance_ids = self.instances_ids)
         else:
-            ids = labels_tools.getLabelFamilyIds(cursor,
+            ids = labels_tools.getLabelFamilyIds(session,
                     experiment_label_id, label, family,
                     instance_ids = self.instances_ids)
         return ids
-
-    ## Remove semi automatic labels
-    ## Annotations are preserved
-    def removeClusterLabel(self, num_results, cursor, experiment_label_id):
-        for instance_id in self.instances_ids:
-            if not labels_tools.hasAnnotation(cursor, instance_id, experiment_label_id):
-                labels_tools.removeLabel(cursor, experiment_label_id, instance_id)
-
-    def addClusterLabel(self, num_results, label, family, cursor,
-            experiment_label_id, label_iteration, label_method):
-        for instance_id in self.instances_ids:
-            labels_tools.addLabel(cursor, experiment_label_id, instance_id, label, family,
-                    label_iteration, label_method, False)
 
     def toJson(self, drop_instances = None):
         obj = {}

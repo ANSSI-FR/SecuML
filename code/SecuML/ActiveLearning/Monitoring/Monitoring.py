@@ -20,8 +20,6 @@ from LabelsMonitoring            import LabelsMonitoring
 from ModelsPerformanceMonitoring import ModelsPerformanceMonitoring
 from SuggestionsAccuracy         import SuggestionsAccuracy
 
-from SecuML.Tools import dir_tools
-
 class Monitoring(object):
 
     def __init__(self, datasets, experiment, iteration, validation_monitoring):
@@ -40,8 +38,7 @@ class Monitoring(object):
         self.suggestions               = SuggestionsAccuracy(self)
 
     def setDirectories(self):
-        self.AL_directory = dir_tools.getExperimentOutputDirectory(
-                self.experiment)
+        self.AL_directory = self.experiment.getOutputDirectory()
         self.iteration_dir  = self.AL_directory
         self.iteration_dir += str(self.iteration_number) + '/'
 

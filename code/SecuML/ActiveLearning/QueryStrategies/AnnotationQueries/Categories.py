@@ -41,7 +41,7 @@ class Categories(object):
         return self.num_categories
 
     def setOutputDirectory(self):
-        self.output_directory = dir_tools.getExperimentOutputDirectory(self.experiment)
+        self.output_directory = self.experiment.getOutputDirectory()
 
     def generateCategories(self, assigned_categories, assignment_proba, label, category_labels):
         self.assigned_categories = assigned_categories
@@ -263,10 +263,9 @@ class Categories(object):
                          'Iter' + str(iteration_number),
                          'all',
                          'NaiveBayes'])
-        naive_bayes_exp = ClassificationExperiment(exp.project, exp.dataset, exp.db, exp.cursor,
-                experiment_name = name,
-                experiment_label = exp.experiment_label,
-                parent = exp.experiment_id)
+        naive_bayes_exp = ClassificationExperiment(exp.project, exp.dataset, exp.session,
+                                                   experiment_name = name,
+                                                   parent = exp.experiment_id)
         naive_bayes_exp.setFeaturesFilenames(exp.features_filenames)
         test_conf = TestConfiguration()
         test_conf.setUnlabeled(labels_annotations = 'annotations')

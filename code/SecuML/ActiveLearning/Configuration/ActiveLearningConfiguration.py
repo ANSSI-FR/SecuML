@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,9 +16,9 @@
 
 import abc
 
+from SecuML import db_tables
 from SecuML.Classification.Configuration import ClassifierConfFactory
 from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
-from SecuML.Data import labels_tools
 from SecuML.Experiment.Experiment import Experiment
 
 class InvalidInputArguments(Exception):
@@ -31,9 +31,10 @@ class InvalidInputArguments(Exception):
 
 class ActiveLearningConfiguration(object):
 
-    def __init__(self, auto, budget):
-        self.auto   = auto
-        self.budget = budget
+    def __init__(self, auto, budget, validation_conf):
+        self.auto            = auto
+        self.budget          = budget
+        self.validation_conf = validation_conf
 
     @abc.abstractmethod
     def getStrategy(self, iteration):
@@ -55,10 +56,20 @@ class ActiveLearningConfiguration(object):
         conf['models_conf'] = {}
         for key, model_conf in self.models_conf.iteritems():
             conf['models_conf'][key] = model_conf.toJson()
+        if self.validation_conf is not None:
+            conf['validation_conf'] = self.validation_conf.toJson()
+        else:
+            conf['validation_conf'] = None
         return conf
 
     def setModelsConf(self, models_conf):
         self.models_conf = models_conf
+
+    def checkInputParams(self, experiment):
+        if self.auto:
+            # Check true labels are available for the oracle
+            if not db_tables.hasTrueLabels(experiment):
+                raise InvalidInputArguments('true_labels.csv must be provided to run Active Learning with an oracle.')
 
     @staticmethod
     def generateSupervisedLearningArguments(parser, binary = True):
@@ -66,7 +77,7 @@ class ActiveLearningConfiguration(object):
                 'Supervised learning parameters')
         choices = ['LogisticRegression', 'Svc', 'GaussianNaiveBayes']
         if binary:
-            choices += 'Sssvdd'
+            choices += ['Sssvdd']
         supervised_group.add_argument('--model-class',
                 choices = choices,
                 default = 'LogisticRegression')
@@ -80,9 +91,6 @@ class ActiveLearningConfiguration(object):
                 action = 'store_true',
                 default = False,
                 help = sample_weight_help)
-        supervised_group.add_argument('--validation-dataset',
-                default = None,
-                help = 'The validation dataset must contain true labels.')
 
     @staticmethod
     def generateActiveLearningArguments(parser):
@@ -105,37 +113,41 @@ class ActiveLearningConfiguration(object):
                 type = int,
                 default = 2000,
                 help = 'Total number of annotations asked from the user during the labeling procedure.')
+        al_group.add_argument('--validation-dataset',
+                default = None,
+                help = 'The validation dataset must contain true labels.')
         return al_group
 
     @staticmethod
-    def generateParser(parser, binary = True):
+    def generateParser(parser, classifier_conf = True, binary = True):
         Experiment.projectDatasetFeturesParser(parser)
         al_group = ActiveLearningConfiguration.generateActiveLearningArguments(parser)
-        ActiveLearningConfiguration.generateSupervisedLearningArguments(parser, binary = binary)
+        if classifier_conf:
+            ActiveLearningConfiguration.generateSupervisedLearningArguments(parser, binary = binary)
         return al_group
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        supervised_args = {}
-        supervised_args['num_folds']            = args.num_folds
-        supervised_args['sample_weight']        = args.sample_weight
-        supervised_args['families_supervision'] = False
-        test_conf = TestConfiguration()
-        test_conf.setUnlabeled(labels_annotations = 'annotations')
-        supervised_args['test_conf'] = test_conf
-        binary_model_conf = ClassifierConfFactory.getFactory().fromParam(
-                args.model_class, supervised_args)
+    def generateParamsFromArgs(args, experiment, binary_model_conf = None):
+        if binary_model_conf is None:
+            supervised_args = {}
+            supervised_args['num_folds']            = args.num_folds
+            supervised_args['sample_weight']        = args.sample_weight
+            supervised_args['families_supervision'] = False
+            test_conf = TestConfiguration()
+            test_conf.setUnlabeled(labels_annotations = 'annotations')
+            supervised_args['test_conf'] = test_conf
+            binary_model_conf = ClassifierConfFactory.getFactory().fromParam(
+                    args.model_class, supervised_args)
 
         active_learning_params = {}
         active_learning_params['auto']              = args.auto
         active_learning_params['budget']            = args.budget
         active_learning_params['binary_model_conf'] = binary_model_conf
 
-        return active_learning_params
+        validation_conf = None
+        if args.validation_dataset is not None:
+            validation_conf = TestConfiguration()
+            validation_conf.setTestDataset(args.validation_dataset, experiment)
+        active_learning_params['validation_conf'] = validation_conf
 
-    @staticmethod
-    def checkInputParams(args, cursor):
-        if  args.auto:
-            # Check true labels are available for the oracle
-            if not labels_tools.hasTrueLabels(cursor):
-                raise InvalidInputArguments('true_labels.csv must be provided to run Active Learning with an oracle.')
+        return active_learning_params

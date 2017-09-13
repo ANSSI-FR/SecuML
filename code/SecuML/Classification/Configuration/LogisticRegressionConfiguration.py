@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -74,7 +74,6 @@ class LogisticRegressionConfiguration(ClassifierConfiguration):
         conf = LogisticRegressionConfiguration(obj['num_folds'], obj['sample_weight'],
                                                obj['families_supervision'], obj['optim_algo'],
                                                test_conf)
-        ClassifierConfiguration.setTestConfiguration(conf, obj, exp)
         conf.c          = LearningParameter.fromJson(obj['c'])
         conf.penalty    = LearningParameter.fromJson(obj['penalty'])
         conf.optim_algo = obj['optim_algo']

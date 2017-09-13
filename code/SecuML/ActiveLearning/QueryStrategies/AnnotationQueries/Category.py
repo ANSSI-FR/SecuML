@@ -49,8 +49,8 @@ class Category(object):
         if label != 'all':
             self.label = label
         else:
-            self.label = labels_tools.getAssociatedLabel(family, self.experiment.cursor,
-                                                         self.experiment.experiment_label_id)
+            self.label = labels_tools.getAssociatedLabel(self.experiment.session, family,
+                                                         self.experiment.oldest_parent)
 
     def numInstances(self):
         return len(self.instances_ids)

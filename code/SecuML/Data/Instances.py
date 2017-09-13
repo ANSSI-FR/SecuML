@@ -18,7 +18,8 @@ from __future__ import division
 import csv
 import numpy as np
 from scipy.sparse import csr_matrix
-from sklearn.preprocessing import StandardScaler
+
+from SecuML import db_tables
 
 from SecuML.Data import idents_tools
 from SecuML.Data import labels_tools
@@ -69,10 +70,19 @@ class Instances(object):
     def checkValidity(self):
         message = None
         num_instances = len(self.ids)
-        if self.features.shape[0] != num_instances:
-            message  = 'There are ' + str(num_instances) + ' instances '
-            message += 'but the features of ' + str(self.features.shape[0]) + ' instances are provided.'
-        elif len(self.labels) != num_instances:
+
+        if num_instances != 0:
+            if self.features.shape[0] != num_instances:
+                message  = 'There are ' + str(num_instances) + ' instances '
+                message += 'but the features of ' + str(self.features.shape[0]) + ' instances are provided.'
+            elif len(self.features_names) != self.features.shape[1]:
+                message  = 'There are ' + str(self.features.shape[1]) + ' features '
+                message += 'but ' + str(len(self.features_names)) + ' features names are provided.'
+        else:
+            if self.features.size != 0:
+                message  = 'There is 0 instance but some features are provided.'
+
+        if len(self.labels) != num_instances:
             message  = 'There are ' + str(num_instances) + ' instances '
             message += 'but ' + str(len(self.labels)) + ' labels are provided.'
         elif  len(self.true_labels) != num_instances:
@@ -87,9 +97,8 @@ class Instances(object):
         elif len(self.annotations) != num_instances:
             message  = 'There are ' + str(num_instances) + ' instances '
             message += 'but ' + str(len(self.annotations)) + ' annotations are provided.'
-        elif len(self.features_names) != self.features.shape[1]:
-            message  = 'There are ' + str(self.features.shape[1]) + ' features '
-            message += 'but ' + str(len(self.features_names)) + ' features names are provided.'
+
+
         if message is not None:
             raise InvalidInstances(message)
 
@@ -112,28 +121,44 @@ class Instances(object):
     # The union must be used on instances coming from the same dataset.
     # Otherwise, there may be some collisions on the ids.
     def union(self, instances_1, instances_2):
-        self.initFromMatrix(
-                instances_1.ids + instances_2.ids,
-                np.vstack((instances_1.features, instances_2.features)),
-                instances_1.features_names,
-                labels = instances_1.labels + instances_2.labels,
-                families = instances_1.families + instances_2.families,
-                true_labels = instances_1.true_labels + instances_2.true_labels,
-                true_families = instances_1.true_families + instances_2.true_families,
-                annotations = instances_1.annotations + instances_2.annotations)
+        is_empty = None
+        if instances_1.numInstances() == 0:
+            is_empty = instances_1
+        elif instances_2.numInstances() == 0:
+            is_empty = instances_2
+        if is_empty is not None:
+            self.initFromMatrix(
+                    is_empty.ids,
+                    is_empty.features,
+                    is_empty.features_names,
+                    labels = is_empty.labels,
+                    families = is_empty.families,
+                    true_labels = is_empty.true_labels,
+                    true_families = is_empty.true_families,
+                    annotations = is_empty.annotations)
+        else:
+            self.initFromMatrix(
+                    instances_1.ids + instances_2.ids,
+                    np.vstack((instances_1.features, instances_2.features)),
+                    instances_1.features_names,
+                    labels = instances_1.labels + instances_2.labels,
+                    families = instances_1.families + instances_2.families,
+                    true_labels = instances_1.true_labels + instances_2.true_labels,
+                    true_families = instances_1.true_families + instances_2.true_families,
+                    annotations = instances_1.annotations + instances_2.annotations)
 
-    def createDataset(self, project, dataset, features_filenames, cursor):
+    def createDataset(self, project, dataset, features_filenames, session):
         dataset_dir, features_dir, init_labels_dir = dir_tools.createDataset(project, dataset)
-        self.exportIdents(dataset_dir + 'idents.csv', cursor)
+        self.exportIdents(dataset_dir + 'idents.csv', session)
         self.toCsv(features_dir + features_filenames)
         if self.hasTrueLabels():
             self.saveInstancesLabels(init_labels_dir + 'true_labels.csv')
 
-    def exportIdents(self, output_filename, cursor):
+    def exportIdents(self, output_filename, session):
         with open(output_filename, 'w') as f:
             print >>f, 'instance_id,ident'
             ids = self.getIds()
-            idents = idents_tools.getAllIdents(cursor)
+            idents = idents_tools.getAllIdents(session)
             for i in range(self.numInstances()):
                 instance_id = ids[i]
                 print >>f, str(instance_id) + ','  + idents[str(instance_id)].encode('utf-8')
@@ -169,22 +194,24 @@ class Instances(object):
         self.true_labels   = [None] * num_instances
         self.true_families = [None] * num_instances
         ## Labels/Families
-        benign_ids = labels_tools.getLabelIds(experiment.cursor, 'benign',
-                experiment_label_id = experiment.experiment_label_id)
-        malicious_ids = labels_tools.getLabelIds(experiment.cursor, 'malicious',
-                experiment_label_id = experiment.experiment_label_id)
+        benign_ids = labels_tools.getLabelIds(experiment.session, 'benign',
+                experiment_id = experiment.oldest_parent)
+        malicious_ids = labels_tools.getLabelIds(experiment.session, 'malicious',
+                experiment_id = experiment.oldest_parent)
         for instance_id in benign_ids + malicious_ids:
             label, family, method, annotation = labels_tools.getLabelDetails(
-                    experiment.cursor, instance_id,
-                    experiment.experiment_label_id)
+                    experiment.session, instance_id,
+                    experiment.oldest_parent)
             self.setLabel(instance_id, label == 'malicious')
             self.setFamily(instance_id, family)
             self.setAnnotation(instance_id, annotation)
         ## True Labels
-        if labels_tools.hasTrueLabels(experiment.cursor):
-            labels, families = labels_tools.getExperimentLabelsFamilies(experiment.cursor,
-                    experiment_label_id = 1)
-            self.true_labels    = labels
+        true_labels_exp = db_tables.hasTrueLabels(experiment)
+        if true_labels_exp is not None:
+            labels, families = labels_tools.getExperimentLabelsFamilies(
+                                   experiment.session,
+                                   true_labels_exp)
+            self.true_labels   = labels
             self.true_families = families
 
     def getLabels(self, true_labels = False):
@@ -215,25 +242,25 @@ class Instances(object):
         index = self.getIndex(instance_id)
         return self.annotations[index]
 
-    def checkLabelsWithDB(self, cursor, experiment_label_id):
+    def checkLabelsWithDB(self, experiment):
         for instance_id in self.getAnnotatedIds():
             label  = self.getLabel(instance_id)
             family = self.getFamily(instance_id)
-            try:
-                DB_label, DB_family, m, annotation = labels_tools.getLabelDetails(
-                        cursor,
-                        instance_id,
-                        experiment_label_id)
+            details = labels_tools.getLabelDetails(experiment.session,
+                                                   instance_id,
+                                                   experiment.oldest_parent)
+            if details is None:
+                ## The instance is not annotated anymore
+                self.setLabel(instance_id, None)
+                self.setFamily(instance_id, None)
+                self.setAnnotation(instance_id, None)
+            else:
+                DB_label, DB_family, m, annotation = details
                 DB_label = labels_tools.labelStringToBoolean(DB_label)
                 if DB_label != label or DB_family != family:
                     self.setLabel(instance_id, DB_label)
                     self.setFamily(instance_id, DB_family)
                     self.setAnnotation(instance_id, annotation)
-            except labels_tools.NoLabel:
-                ## The instance is not annotated anymore
-                self.setLabel(instance_id, None)
-                self.setFamily(instance_id, None)
-                self.setAnnotation(instance_id, None)
 
     def numLabelingErrors(self, label = 'all'):
         if not self.hasTrueLabels():

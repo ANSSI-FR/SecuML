@@ -58,36 +58,36 @@ class AnnotationQuery(object):
         self.updateDatasets(iteration, label, family)
         # Update in the database
         method    = kind + '__annotation'
-        labels_tools.addLabel(iteration.experiment.cursor,
-                              iteration.experiment.experiment_label_id,
+        labels_tools.addLabel(iteration.experiment.session,
+                              iteration.experiment.oldest_parent,
+                              iteration.experiment.dataset_id,
                               self.instance_id, label, family,
                               iteration.iteration_number, method, True)
-        iteration.experiment.db.commit()
+        iteration.experiment.session.commit()
 
     def getManualAnnotation(self, iteration):
-        try:
-            label, family, _, _ = labels_tools.getLabelDetails(
-                    iteration.experiment.cursor,
-                    self.instance_id,
-                    iteration.experiment.experiment_label_id)
-            self.updateDatasets(iteration, label, family)
-        except labels_tools.NoLabel:
+        details = labels_tools.getLabelDetails(
+                iteration.experiment.session,
+                self.instance_id,
+                iteration.experiment.oldest_parent)
+        if details is None:
             warnings.warn('Instance %s has not been annotated.' % (str(self.instance_id)))
+        else:
+            label, family, _, _ = details
+            self.updateDatasets(iteration, label, family)
 
     def checkAnswered(self, iteration):
-        try:
-            label, family, _, _ = labels_tools.getLabelDetails(
-                    iteration.experiment.cursor,
-                    self.instance_id,
-                    iteration.experiment.experiment_label_id)
-            return True
-        except labels_tools.NoLabel:
-            return False
+        details = labels_tools.getLabelDetails(
+                iteration.experiment.session,
+                self.instance_id,
+                iteration.experiment.oldest_parent)
+        return details is not None
 
     def updateDatasets(self, iteration, label, family):
         if iteration.budget <= 0:
             raise NoAnnotationBudget()
         iteration.budget -= 1
         iteration.datasets.update(self.instance_id, label, family, True)
-        iteration.monitoring.suggestions.addAnnotation(self.suggested_label, self.suggested_family,
+        iteration.monitoring.suggestions.addAnnotation(self.suggested_label,
+                                                       self.suggested_family,
                                                        label, family, self.confidence)

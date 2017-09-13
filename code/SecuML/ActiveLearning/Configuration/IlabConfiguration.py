@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -23,8 +23,9 @@ from SecuML.Classification.Configuration.TestConfiguration import TestConfigurat
 
 class IlabConfiguration(ActiveLearningConfiguration):
 
-    def __init__(self, auto, budget, rare_category_detection_conf, num_uncertain, eps, binary_model_conf):
-        ActiveLearningConfiguration.__init__(self, auto, budget)
+    def __init__(self, auto, budget, rare_category_detection_conf, num_uncertain, eps, binary_model_conf,
+                 validation_conf):
+        ActiveLearningConfiguration.__init__(self, auto, budget, validation_conf)
         self.labeling_method              = 'Ilab'
         self.eps                          = eps
         self.num_uncertain                = num_uncertain
@@ -47,12 +48,17 @@ class IlabConfiguration(ActiveLearningConfiguration):
 
     @staticmethod
     def fromJson(obj, experiment):
+        validation_conf = None
+        if obj['validation_conf'] is not None:
+            validation_conf = TestConfiguration.fromJson(obj['validation_conf'],
+                                                         experiment)
         rare_category_detection_conf = RareCategoryDetectionStrategy.fromJson(obj['rare_category_detection_conf'])
         binary_model_conf = ClassifierConfFactory.getFactory().fromJson(obj['models_conf']['binary'], experiment)
         conf = IlabConfiguration(obj['auto'], obj['budget'],
                                  rare_category_detection_conf,
                                  obj['num_uncertain'], obj['eps'],
-                                 binary_model_conf)
+                                 binary_model_conf,
+                                 validation_conf)
         return conf
 
     def toJson(self):
@@ -78,8 +84,8 @@ class IlabConfiguration(ActiveLearningConfiguration):
                 default = 'center_anomalous')
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ActiveLearningConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, experiment):
+        params = ActiveLearningConfiguration.generateParamsFromArgs(args, experiment)
         multiclass_classifier_args = {}
         multiclass_classifier_args['num_folds']            = args.num_folds
         multiclass_classifier_args['sample_weight']        = False
@@ -98,4 +104,5 @@ class IlabConfiguration(ActiveLearningConfiguration):
         return params
 
 
-ActiveLearningConfFactory.getFactory().registerClass('IlabConfiguration', IlabConfiguration)
+ActiveLearningConfFactory.getFactory().registerClass('IlabConfiguration',
+                                                      IlabConfiguration)

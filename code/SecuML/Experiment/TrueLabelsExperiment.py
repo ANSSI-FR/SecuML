@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,26 +17,25 @@
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Experiment.Experiment import Experiment
 
-class ValidationExperiment(Experiment):
+class TrueLabelsExperiment(Experiment):
 
-    def __init__(self, project, dataset, session, experiment_name = None):
-        Experiment.__init__(self, project, dataset, session,
-                experiment_name = experiment_name)
-        self.kind = 'Validation'
+    def __init__(self, project, dataset, session):
+        Experiment.__init__(self, project, dataset, session)
+        self.experiment_name = 'true_labels'
+        self.kind            = 'TrueLabels'
 
     def generateSuffix(self):
-        suffix = ''
-        return suffix
+        return ''
 
     @staticmethod
     def fromJson(obj, session):
-        experiment = ValidationExperiment(obj['project'], obj['dataset'], session)
+        experiment = TrueLabelsExperiment(obj['project'], obj['dataset'], session)
         Experiment.expParamFromJson(experiment, obj)
         return experiment
 
     def toJson(self):
         conf = Experiment.toJson(self)
-        conf['__type__'] = 'ValidationExperiment'
+        conf['__type__'] = 'TrueLabelsExperiment'
         return conf
 
-ExperimentFactory.getFactory().registerClass('ValidationExperiment', ValidationExperiment)
+ExperimentFactory.getFactory().registerClass('TrueLabelsExperiment', TrueLabelsExperiment)

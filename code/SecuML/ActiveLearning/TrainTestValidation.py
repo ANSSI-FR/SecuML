@@ -37,10 +37,9 @@ class TrainTestValidation(object):
         # Create the experiment
         exp = self.iteration.experiment
         name = 'AL' + str(exp.experiment_id) + '-Iter' + str(self.iteration.iteration_number) + '-' + kind
-        model_exp = ClassificationExperiment(exp.project, exp.dataset, exp.db, exp.cursor,
-                experiment_name = name,
-                experiment_label = exp.experiment_label,
-                parent = exp.experiment_id)
+        model_exp = ClassificationExperiment(exp.project, exp.dataset, exp.session,
+                                             experiment_name = name,
+                                             parent = exp.experiment_id)
         model_exp.setFeaturesFilenames(exp.features_filenames)
         model_exp.setClassifierConf(conf)
         model_exp.createExperiment()

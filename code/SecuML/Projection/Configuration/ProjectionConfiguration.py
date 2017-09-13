@@ -58,4 +58,3 @@ class ProjectionConfiguration(object):
         params['families_supervision'] = args.families_supervision
         params['num_components']       = args.num_components
         return params
-

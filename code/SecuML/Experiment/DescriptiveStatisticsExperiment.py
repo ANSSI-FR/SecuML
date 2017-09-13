@@ -19,8 +19,8 @@ from SecuML.Experiment.Experiment import Experiment
 
 class DescriptiveStatisticsExperiment(Experiment):
 
-    def __init__(self, project, dataset, db, cursor):
-        Experiment.__init__(self, project, dataset, db, cursor)
+    def __init__(self, project, dataset, session):
+        Experiment.__init__(self, project, dataset, session)
         self.kind = 'DescriptiveStatistics'
 
     def setClassifierConf(self, classification_conf):
@@ -30,8 +30,8 @@ class DescriptiveStatisticsExperiment(Experiment):
         return ''
 
     @staticmethod
-    def fromJson(obj, db, cursor):
-        experiment = DescriptiveStatisticsExperiment(obj['project'], obj['dataset'], db, cursor)
+    def fromJson(obj, session):
+        experiment = DescriptiveStatisticsExperiment(obj['project'], obj['dataset'], session)
         Experiment.expParamFromJson(experiment, obj)
         return experiment
 

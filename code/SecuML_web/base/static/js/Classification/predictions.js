@@ -1,9 +1,7 @@
 var path = window.location.pathname.split('/');
-var project        = path[2];
-var dataset        = path[3];
-var experiment_id  = path[4];
-var train_test     = path[5];
-var selected_index = path[6];
+var experiment_id  = path[2];
+var train_test     = path[3];
+var selected_index = path[4];
 
 var instances_list           = null;
 var num_instances            = null;
@@ -16,34 +14,31 @@ function getCurrentInstance() {
 
 var label_method    = 'predictionsAnalysis';
 var label_iteration = 'None';
-var experiment_label_id = getExperimentLabelId(
-                project, dataset, experiment_id);
 
 var conf = {};
 
-loadConfigurationFile(function () {
-  setInstancesSettings(train_test, project, dataset, experiment_id,
-          experiment_label_id, callback);
+loadConfigurationFile(function (conf) {
+  setInstancesSettings(train_test, experiment_id,
+                       conf.oldest_parent, callback);
 });
 
 function loadConfigurationFile(callback) {
-    $.getJSON(buildQuery('getConf',
-                       [project, dataset, experiment_id]),
+    $.getJSON(buildQuery('getConf', [experiment_id]),
             function(data) {
               conf = data;
-              callback();
+              callback(conf);
             });
 }
 
 function callback() {
   displayDivisions(selected_index);
   displayPredictionBarplot();
-  updateInstancesDisplay(project, dataset, experiment_id, selected_index);
+  updateInstancesDisplay(experiment_id, selected_index);
 }
 
-function updateInstancesDisplay(project, dataset, experiment_id, selected_index) {
+function updateInstancesDisplay(experiment_id, selected_index) {
   var query = buildQuery('getPredictions',
-                         [project, dataset, experiment_id, train_test, selected_index]);
+                         [experiment_id, train_test, selected_index]);
   $.getJSON(query,
             function(data) {
                 instances_list = data['instances'];
@@ -82,7 +77,7 @@ function displayPrevInstance() {
 function updateDisplay(selected_bar) {
     var selected_index = selected_bar[0]._index;
     displayNavigationPanel(selected_index);
-    updateInstancesDisplay(project, dataset, experiment_id, selected_index);
+    updateInstancesDisplay(experiment_id, selected_index);
 }
 
 function displayPredictionBarplot() {
@@ -94,7 +89,7 @@ function displayPredictionBarplot() {
       var get_function = 'predictions_barplot_labels';
     }
     var query = buildQuery('supervisedLearningMonitoring',
-                           [conf.project, conf.dataset, experiment_id, train_test, get_function]);
+                           [experiment_id, train_test, get_function]);
     $.getJSON(query, function (data) {
         var options = barPlotOptions(data);
         var barPlot = drawBarPlot(div_obj.id,
@@ -162,6 +157,6 @@ function displayDivisions(selected_index) {
   displayInstancePanel(row);
 
   displayInstanceInformationStructure();
-  var interactive = !hasTrueLabels(project, inst_dataset);
+  var interactive = !hasTrueLabels(experiment_id);
   displayAnnotationDiv(false, interactive);
 }

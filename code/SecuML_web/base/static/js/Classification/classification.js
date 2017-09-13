@@ -1,19 +1,18 @@
 var path = window.location.pathname.split('/');
-var project       = path[2];
-var dataset       = path[3];
-var experiment_id = path[4];
+var experiment_id = path[2];
 
 var exp_type = 'Classification';
 
-loadConfigurationFile(project, dataset, experiment_id, callback);
+loadConfigurationFile(experiment_id, callback);
 
-function loadConfigurationFile(project, dataset, experiment_id, callback) {
-  $.getJSON(buildQuery('getConf', [project, dataset, experiment_id]),
+function loadConfigurationFile(experiment_id, callback) {
+  $.getJSON(buildQuery('getConf', [experiment_id]),
             function(data) {
                 var conf = data;
                 if (conf.classification_conf.test_conf.method == 'test_dataset') {
                     var test_dataset = conf.classification_conf.test_conf.test_dataset;
-                    conf.validation_has_true_labels = hasTrueLabels(project, test_dataset);
+                    var validation_exp = conf.classification_conf.test_conf.test_exp.experiment_id
+                    conf.validation_has_true_labels = hasTrueLabels(validation_exp);
                 } else {
                     conf.validation_has_true_labels = conf.has_true_labels;
                 }
@@ -27,8 +26,8 @@ function displaySettings(conf) {
   var body = createTable('settings', ['', ''], width = 'width:280px');
 
   // Project Dataset
-  addRow(body, ['Project', project]);
-  addRow(body, ['Dataset', dataset]);
+  addRow(body, ['Project', conf.project]);
+  addRow(body, ['Dataset', conf.dataset]);
 
   // Classification
   var classification_conf = conf.classification_conf;
@@ -47,7 +46,9 @@ function callback(conf) {
   window.iteration = 'None';
   displayMonitoring(conf, 'train');
   displayMonitoring(conf, 'test');
-  displayAlertsButtons();
+  if (conf.classification_conf.test_conf.alerts_conf) {
+    displayAlertsButtons();
+  }
 }
 
 function generateDivisions(conf) {

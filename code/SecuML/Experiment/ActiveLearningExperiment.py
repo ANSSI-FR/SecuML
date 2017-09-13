@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,20 +17,14 @@
 from SecuML.ActiveLearning.Configuration import ActiveLearningConfFactory
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Experiment.Experiment import Experiment
-from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
+from SecuML.Experiment import experiment_db_tools
 
 class ActiveLearningExperiment(Experiment):
 
-    def __init__(self, project, dataset, db, cursor):
-        Experiment.__init__(self, project, dataset, db, cursor)
+    def __init__(self, project, dataset, session):
+        Experiment.__init__(self, project, dataset, session)
         self.kind = 'ActiveLearning'
         self.labeling_method = None
-
-    def setValidation(self, validation_dataset):
-        self.validation_conf = None
-        if validation_dataset is not None:
-            self.validation_conf = TestConfiguration()
-            self.validation_conf.setTestDataset(validation_dataset, self)
 
     def setConfiguration(self, conf):
         self.conf = conf
@@ -40,31 +34,24 @@ class ActiveLearningExperiment(Experiment):
         suffix = ''
         suffix += '__' + self.labeling_method
         suffix += self.conf.generateSuffix()
-        if self.validation_conf is not None:
-            suffix += '__Validation' + self.validation_conf.test_dataset
-            suffix += str(self.validation_conf.test_exp.experiment_id)
         return suffix
 
+    def checkInputParams(self):
+        self.conf.checkInputParams(self)
+
     @staticmethod
-    def fromJson(obj, db, cursor):
-        experiment = ActiveLearningExperiment(obj['project'], obj['dataset'], db, cursor)
+    def fromJson(obj, session):
+        experiment = ActiveLearningExperiment(obj['project'], obj['dataset'], session)
         Experiment.expParamFromJson(experiment, obj)
         experiment.labeling_method  = obj['labeling_method']
-        # Validation configuration
-        experiment.validation_conf = None
-        if obj['validation_conf'] is not None:
-            experiment.validation_conf = TestConfiguration.fromJson(obj['validation_conf'], experiment)
-        experiment.conf = ActiveLearningConfFactory.getFactory().fromJson(obj['conf'], experiment)
+        experiment.conf = ActiveLearningConfFactory.getFactory().fromJson(
+                obj['conf'], experiment)
         return experiment
 
     def toJson(self):
         conf = Experiment.toJson(self)
         conf['__type__'] = 'ActiveLearningExperiment'
         conf['labeling_method'] = self.labeling_method
-        if self.validation_conf is not None:
-            conf['validation_conf'] = self.validation_conf.toJson()
-        else:
-            conf['validation_conf'] = None
         conf['conf'] = self.conf.toJson()
         return conf
 
@@ -72,10 +59,7 @@ class ActiveLearningExperiment(Experiment):
         return 'ActiveLearning/active_learning.html'
 
     def getCurrentIteration(self):
-        query  = 'SELECT current_iter FROM InteractiveExperiments '
-        query += 'WHERE id = ' + str(self.experiment_id) + ';'
-        self.cursor.execute(query)
-        current_iter = self.cursor.fetchone()[0]
-        return current_iter
+        return experiment_db_tools.getCurrentIteration(self.session, self.experiment_id)
 
-ExperimentFactory.getFactory().registerClass('ActiveLearningExperiment', ActiveLearningExperiment)
+ExperimentFactory.getFactory().registerClass('ActiveLearningExperiment',
+                                             ActiveLearningExperiment)

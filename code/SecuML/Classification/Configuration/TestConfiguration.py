@@ -17,7 +17,6 @@
 from SecuML.Data.Dataset import Dataset
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Experiment.ValidationExperiment import ValidationExperiment
-from SecuML.Tools import mysql_tools
 
 from AlertsConfiguration import AlertsConfiguration
 
@@ -42,14 +41,12 @@ class TestConfiguration(object):
         self.labels_annotations = labels_annotations
 
     def createTestExperiment(self, exp):
-        db, cursor = mysql_tools.getDbConnection()
-        if not mysql_tools.databaseExists(cursor, exp.project, self.test_dataset):
-            load_dataset = Dataset(exp.project, self.test_dataset,
-                    db, cursor)
+        load_dataset = Dataset(exp.project, self.test_dataset, exp.session)
+        if not load_dataset.isLoaded():
             load_dataset.load()
         ## Check if the validation experiments already exists
         self.test_exp = ValidationExperiment(exp.project, self.test_dataset,
-                                             db, cursor)
+                                             exp.session)
         self.test_exp.setFeaturesFilenames(exp.features_filenames)
         try:
             self.test_exp.initLabels('true_labels.csv', overwrite = False)
@@ -81,12 +78,11 @@ class TestConfiguration(object):
         elif obj['method'] == 'unlabeled':
             conf.setUnlabeled(obj['labels_annotations'])
         elif obj['method'] == 'test_dataset':
-            conf.setTestDataset(obj['test_dataset'], exp)
-            db, cursor = mysql_tools.getDbConnection()
+            conf.method = 'test_dataset'
+            conf.test_dataset = obj['test_dataset']
             experiment_id = obj['test_exp']['experiment_id']
             conf.test_exp = ExperimentFactory.getFactory().fromJson(
-                    exp.project, conf.test_dataset,
-                    experiment_id, db, cursor)
+                    experiment_id, exp.session)
         return conf
 
     def toJson(self):

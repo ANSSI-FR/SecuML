@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,25 +16,22 @@
 
 from flask import send_file
 
-from SecuML_web.base import app, db, cursor
+from SecuML_web.base import app
+from SecuML_web.base.views.experiments import updateCurrentExperiment
 
 from SecuML.Experiment.DescriptiveStatisticsExperiment import DescriptiveStatisticsExperiment
-from SecuML.Experiment import ExperimentFactory
-from SecuML.Tools import dir_tools
 
-@app.route('/getFeaturesTypes/<project>/<dataset>/<experiment_id>/')
-def getFeaturesTypes(project, dataset, experiment_id):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    filename  = dir_tools.getExperimentOutputDirectory(experiment)
+@app.route('/getFeaturesTypes/<experiment_id>/')
+def getFeaturesTypes(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
+    filename  = experiment.getOutputDirectory()
     filename += 'features_types.json'
     return send_file(filename)
 
-@app.route('/getStatsPlot/<project>/<dataset>/<experiment_id>/<plot_type>/<feature>/')
-def getStatsPlot(project, dataset, experiment_id, plot_type, feature):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    filename  = dir_tools.getExperimentOutputDirectory(experiment) + feature + '/'
+@app.route('/getStatsPlot/<experiment_id>/<plot_type>/<feature>/')
+def getStatsPlot(experiment_id, plot_type, feature):
+    experiment = updateCurrentExperiment(experiment_id)
+    filename  = experiment.getOutputDirectory() + feature + '/'
     if plot_type.find('histogram') >= 0:
         filename += plot_type + '.json'
     else:

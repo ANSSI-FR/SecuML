@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ import argparse
 import matplotlib
 matplotlib.use('Agg')
 
+from SecuML import db_tables
 from SecuML.Classification.Configuration import ClassifierConfFactory
 from SecuML.Classification.ClassifierDatasets import ClassifierDatasets
 from SecuML.Data.Dataset import Dataset
@@ -33,22 +34,21 @@ if __name__ == '__main__':
             'The labels must be stored in labels/true_labels.csv.')
     models = ['LogisticRegression', 'Svc', 'GaussianNaiveBayes']
     subparsers = parser.add_subparsers(dest = 'model')
+    factory = ClassifierConfFactory.getFactory()
     for model in models:
         model_parser = subparsers.add_parser(model)
-        factory = ClassifierConfFactory.getFactory()
         factory.generateParser(model, model_parser)
     args = parser.parse_args()
 
-    db, cursor = mysql_tools.getDbConnection()
-    ## Check whether the dataset has been loaded before
-    if not mysql_tools.databaseExists(cursor, args.project, args.dataset):
-        load_dataset = Dataset(args.project, args.dataset,
-                db, cursor)
+    engine, session = mysql_tools.getSecuMLSession()
+    db_tables.createTables(engine)
+
+    load_dataset = Dataset(args.project, args.dataset, session)
+    if not load_dataset.isLoaded():
         load_dataset.load()
 
-    experiment = ClassificationExperiment(args.project, args.dataset, db, cursor)
+    experiment = ClassificationExperiment(args.project, args.dataset, session)
     experiment.setFeaturesFilenames(args.features_files)
-    factory = ClassifierConfFactory.getFactory()
     conf = factory.fromArgs(args.model, args, experiment)
     experiment.setClassifierConf(conf)
     try:
@@ -65,8 +65,4 @@ if __name__ == '__main__':
     learning = experiment.classification_conf.model_class(experiment, datasets)
     learning.run()
 
-    mysql_tools.closeDb(db, cursor)
-    if args.validation_dataset is not None:
-        mysql_tools.closeDb(
-                experiment.classification_conf.test_conf.test_exp.db,
-                experiment.classification_conf.test_conf.test_exp.cursor)
+    mysql_tools.closeSqlAlchemySession(session)

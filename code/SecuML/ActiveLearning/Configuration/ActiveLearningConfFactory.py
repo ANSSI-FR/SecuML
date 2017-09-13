@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -45,9 +45,9 @@ class ActiveLearningConfFactory():
         obj = self.register[labeling_strategy + 'Configuration'](**args)
         return obj
 
-    def fromArgs(self, labeling_strategy, args):
+    def fromArgs(self, labeling_strategy, args, experiment):
         class_ = self.register[labeling_strategy + 'Configuration']
-        params = class_.generateParamsFromArgs(args)
+        params = class_.generateParamsFromArgs(args, experiment)
         return self.fromParam(labeling_strategy, params)
 
     def generateParser(self, labeling_strategy, parser):
@@ -55,6 +55,6 @@ class ActiveLearningConfFactory():
         parser = class_.generateParser(parser)
         return parser
 
-    def checkInputParams(self, args, cursor):
+    def checkInputParams(self, args, session):
         class_ = self.register[args.strategy + 'Configuration']
-        class_.checkInputParams(args, cursor)
+        class_.checkInputParams(args, session)

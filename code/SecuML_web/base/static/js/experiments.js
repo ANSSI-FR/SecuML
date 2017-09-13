@@ -16,16 +16,18 @@ $.getJSON(query,
             var experiments = Object.keys(data);
             for (var i in experiments) {
                 var experiment = experiments[i];
-                var id = data[experiment]
-                var li = document.createElement('li');
-                var e_elem = document.createElement('a');
-                var e_text = document.createTextNode(experiment);
-                e_elem.appendChild(e_text);
-                var exp_query = buildQuery('SecuML',
-                                [project, dataset, id]);
-                e_elem.setAttribute('href', exp_query);
-                li.appendChild(e_elem);
-                ul.appendChild(li);
+                var ids = data[experiment];
+                for (var i = 0; i < ids.length; i++) {
+                  var id = ids[i];
+                  var li = document.createElement('li');
+                  var e_elem = document.createElement('a');
+                  var e_text = document.createTextNode(experiment);
+                  e_elem.appendChild(e_text);
+                  var exp_query = buildQuery('SecuML', [id]);
+                  e_elem.setAttribute('href', exp_query);
+                  li.appendChild(e_elem);
+                  ul.appendChild(li);
+                }
             }
           });
 menu.appendChild(ul);

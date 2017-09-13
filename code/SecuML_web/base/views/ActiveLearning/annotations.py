@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,48 +17,47 @@
 from flask import jsonify, render_template, send_file
 import pandas as pd
 
-from SecuML_web.base import app, db, cursor
+from SecuML_web.base import app
+from SecuML_web.base.views.experiments import updateCurrentExperiment
 from SecuML_web.base.views.nocache import nocache
 
 from SecuML.Experiment.ActiveLearningExperiment import ActiveLearningExperiment
-from SecuML.Experiment import ExperimentFactory
-from SecuML.Tools import dir_tools
 
-@app.route('/getAnnotationsTypes/<project>/<dataset>/<experiment_id>/<iteration>/')
+@app.route('/getAnnotationsTypes/<experiment_id>/<iteration>/')
 @nocache
-def getAnnotationsTypes(project, dataset, experiment_id, iteration):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    filename  = dir_tools.getExperimentOutputDirectory(experiment) + str(iteration) + '/'
+def getAnnotationsTypes(experiment_id, iteration):
+    experiment = updateCurrentExperiment(experiment_id)
+    filename  = experiment.getOutputDirectory() + str(iteration) + '/'
     filename += 'annotations_types.json'
     return send_file(filename)
 
-@app.route('/getFamiliesInstancesToAnnotate/<project>/<dataset>/<experiment_id>/<iteration>/<predicted_label>/')
-def getFamiliesInstancesToAnnotate(project, dataset, experiment_id, iteration, predicted_label):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    filename  = dir_tools.getExperimentOutputDirectory(experiment) + str(iteration) + '/'
+@app.route('/getFamiliesInstancesToAnnotate/<experiment_id>/<iteration>/<predicted_label>/')
+def getFamiliesInstancesToAnnotate(experiment_id, iteration, predicted_label):
+    experiment = updateCurrentExperiment(experiment_id)
+    filename  = experiment.getOutputDirectory() + str(iteration) + '/'
     filename += 'toannotate_' + predicted_label + '.json'
     return send_file(filename)
 
-@app.route('/getInstancesToAnnotate/<project>/<dataset>/<experiment_id>/<iteration>/<predicted_label>/')
-def getInstancesToAnnotate(project, dataset, experiment_id, iteration, predicted_label):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    filename  = dir_tools.getExperimentOutputDirectory(experiment) + str(iteration) + '/'
+@app.route('/getInstancesToAnnotate/<experiment_id>/<iteration>/<predicted_label>/')
+def getInstancesToAnnotate(experiment_id, iteration, predicted_label):
+    experiment = updateCurrentExperiment(experiment_id)
+    filename  = experiment.getOutputDirectory() + str(iteration) + '/'
     filename += 'toannotate_' + predicted_label + '.csv'
     df = pd.read_csv(filename)
     queries = list(df.instance_id)
     return jsonify({'instances': queries})
 
-@app.route('/individualAnnotations/<project>/<dataset>/<experiment_id>/<iteration>/<predicted_label>/')
-def individualAnnotations(project, dataset, experiment_id, iteration, predicted_label):
-    return render_template('ActiveLearning/individual_annotations.html', project = project)
+@app.route('/individualAnnotations/<experiment_id>/<iteration>/<predicted_label>/')
+def individualAnnotations(experiment_id, iteration, predicted_label):
+    experiment = updateCurrentExperiment(experiment_id)
+    return render_template('ActiveLearning/individual_annotations.html', project = experiment.project)
 
-@app.route('/ilabAnnotations/<project>/<dataset>/<experiment_id>/<iteration>/')
-def ilabAnnotations(project, dataset, experiment_id, iteration):
-    return render_template('ActiveLearning/ilab_annotations.html', project = project)
+@app.route('/ilabAnnotations/<experiment_id>/<iteration>/')
+def ilabAnnotations(experiment_id, iteration):
+    experiment = updateCurrentExperiment(experiment_id)
+    return render_template('ActiveLearning/ilab_annotations.html', project = experiment.project)
 
-@app.route('/rareCategoryDetectionAnnotations/<project>/<dataset>/<experiment_id>/<iteration>/')
-def rareCategoryDetectionAnnotations(project, dataset, experiment_id, iteration):
-    return render_template('ActiveLearning/rare_category_detection_annotations.html', project = project)
+@app.route('/rareCategoryDetectionAnnotations/<experiment_id>/<iteration>/')
+def rareCategoryDetectionAnnotations(experiment_id, iteration):
+    experiment = updateCurrentExperiment(experiment_id)
+    return render_template('ActiveLearning/rare_category_detection_annotations.html', project = experiment.project)

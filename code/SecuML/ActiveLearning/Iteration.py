@@ -16,8 +16,8 @@
 
 import time
 
+from SecuML.db_tables import ExperimentsAlchemy
 from SecuML.Tools import dir_tools
-from SecuML.Tools import mysql_tools
 
 from Monitoring.Monitoring import Monitoring
 from QueryStrategies.AnnotationQueries.AnnotationQuery import NoAnnotationBudget
@@ -47,8 +47,7 @@ class Iteration(object):
             self.iteration_number = previous_iter + 1
 
     def setOutputDirectory(self):
-        self.AL_directory = dir_tools.getExperimentOutputDirectory(
-                self.experiment)
+        self.AL_directory = self.experiment.getOutputDirectory()
         self.output_directory  = self.AL_directory
         self.output_directory += str(self.iteration_number) + '/'
 
@@ -63,11 +62,16 @@ class Iteration(object):
         return self.budget
 
     def generateAnnotationQueries(self):
+        query = self.experiment.session.query(ExperimentsAlchemy)
+        query = query.filter(ExperimentsAlchemy.id == self.experiment.experiment_id)
+        exp_db = query.one()
         self.trainTestValidation()
-        self.createDbLine()
+        exp_db.current_iter = self.iteration_number
+        self.experiment.session.commit()
         self.annotations = self.experiment.conf.getStrategy(self)
         self.annotations.generateAnnotationQueries()
-        self.updateDbLine()
+        exp_db.annotations = True
+        self.experiment.session.commit()
 
     def initializeMonitoring(self):
         if self.previous_iteration is not None:
@@ -75,7 +79,7 @@ class Iteration(object):
         dir_tools.createDirectory(self.output_directory)
         self.monitoring = Monitoring(self.datasets, self.experiment,
                                      self,
-                                     self.experiment.validation_conf is not None)
+                                     self.experiment.conf.validation_conf is not None)
         self.monitoring.generateStartMonitoring()
 
     def answerAnnotationQueries(self):
@@ -114,34 +118,11 @@ class Iteration(object):
     def updateLabeledInstances(self):
         self.datasets.new_labels = False
         # Update the datasets according to the new labels
-        self.experiment.db.commit()
-        self.datasets.checkLabelsWithDB(
-                self.experiment.cursor,
-                self.experiment.experiment_label_id)
+        self.experiment.session.commit()
+        self.datasets.checkLabelsWithDB(self.experiment)
         self.annotations.getManualAnnotations()
         # Save the current labelled instances
         self.datasets.saveLabeledInstances(self.iteration_number)
-
-    def createDbLine(self):
-        if self.iteration_number == 1:
-            types = ['INT UNSIGNED', 'INT UNSIGNED', 'BIT(1)']
-            values = [self.experiment.experiment_id, self.iteration_number, False]
-            mysql_tools.insertRowIntoTable(self.experiment.cursor, 'InteractiveExperiments',
-                    values, types)
-        else:
-            query  = 'UPDATE InteractiveExperiments '
-            query += 'SET current_iter = ' + str(self.iteration_number) + ', '
-            query += 'annotations = 0 '
-            query += 'WHERE id = ' + str(self.experiment.experiment_id) + ';'
-            self.experiment.cursor.execute(query)
-        self.experiment.db.commit()
-
-    def updateDbLine(self):
-        query  = 'UPDATE InteractiveExperiments '
-        query += 'SET annotations = 1 '
-        query += 'WHERE id = ' + str(self.experiment.experiment_id) + ';'
-        self.experiment.cursor.execute(query)
-        self.experiment.db.commit()
 
     def checkAnnotationQueriesAnswered(self):
         return self.annotations.checkAnnotationQueriesAnswered()

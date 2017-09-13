@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
 
 import json
 
+from SecuML.Experiment import experiment_db_tools
 from SecuML.Tools import dir_tools
 
 experiment_factory = None
@@ -34,10 +35,14 @@ class ExperimentFactory(object):
     def registerClass(self, class_name, class_obj):
         self.register[class_name] = class_obj
 
-    def fromJson(self, project, dataset, experiment_id, db, cursor):
-        obj_filename = dir_tools.getExperimentConfigurationFilename(project, dataset, experiment_id)
+    def fromJson(self, experiment_id, session):
+        project, dataset = experiment_db_tools.getProjectDataset(session,
+                                                                 experiment_id)
+        obj_filename = dir_tools.getExperimentConfigurationFilename(project,
+                                                                    dataset,
+                                                                    experiment_id)
         with open(obj_filename, 'r') as obj_file:
             obj_dict = json.load(obj_file)
             class_name = obj_dict['__type__']
-            obj = self.register[class_name].fromJson(obj_dict, db, cursor)
+            obj = self.register[class_name].fromJson(obj_dict, session)
         return obj

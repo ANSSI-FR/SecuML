@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ import argparse
 import matplotlib
 matplotlib.use('Agg')
 
+from SecuML import db_tables
 from SecuML.Data.Dataset import Dataset
 from SecuML.Data.DescriptiveStatistics import DescriptiveStatistics
 from SecuML.Experiment.DescriptiveStatisticsExperiment \
@@ -32,15 +33,15 @@ if __name__ == '__main__':
     DescriptiveStatisticsExperiment.projectDatasetFeturesParser(parser)
     args = parser.parse_args()
 
-    db, cursor = mysql_tools.getDbConnection(buffered = True)
-    ## Check whether the dataset has been loaded before
-    if not mysql_tools.databaseExists(cursor, args.project, args.dataset):
-        load_dataset = Dataset(args.project, args.dataset,
-                db, cursor)
+    engine, session = mysql_tools.getSecuMLSession()
+    db_tables.createTables(engine)
+
+    load_dataset = Dataset(args.project, args.dataset, session)
+    if not load_dataset.isLoaded():
         load_dataset.load()
 
     experiment = DescriptiveStatisticsExperiment(
-            args.project, args.dataset, db, cursor)
+            args.project, args.dataset, session)
     experiment.setFeaturesFilenames(args.features_files)
     try:
         experiment.initLabels('true_labels.csv')
@@ -51,4 +52,4 @@ if __name__ == '__main__':
     stats = DescriptiveStatistics(experiment)
     stats.generateDescriptiveStatistics()
 
-    mysql_tools.closeDb(db, cursor)
+    mysql_tools.closeSqlAlchemySession(session)

@@ -54,7 +54,7 @@ class ClusteringAlgorithm(object):
     def run(self, quick = False, drop_annotated_instances = False):
         if self.experiment.conf.projection_conf is not None:
             try:
-                self.projectInstances(quick)
+                self.projectInstances(quick, self.instances.numFeatures())
             except FewerThanTwoLabels:
                 warnings.warn('There are too few class labels.'
                               'The instances are not projected before building the clustering.')
@@ -66,8 +66,8 @@ class ClusteringAlgorithm(object):
                                            drop_annotated_instances = drop_annotated_instances)
         self.clustering.generateEvaluation(quick = quick)
 
-    def projectInstances(self, quick):
-        projection_exp = self.createProjectionExperiment()
+    def projectInstances(self, quick, num_features):
+        projection_exp = self.createProjectionExperiment(num_features)
         algo = projection_exp.conf.algo
         projection = algo(projection_exp)
         instances = projection.getFittingInstances(self.instances)
@@ -80,15 +80,17 @@ class ClusteringAlgorithm(object):
             ('clustering', self.algo)])
         self.pipeline.fit(self.instances.getFeatures())
 
-    def createProjectionExperiment(self):
+    def createProjectionExperiment(self, num_features):
         exp = self.experiment
         name = '-'.join([exp.experiment_name, 'projection'])
         projection_conf = exp.conf.projection_conf
-        projection_exp = ProjectionExperiment(
-                exp.project, exp.dataset, exp.db, exp.cursor,
-                experiment_name = name,
-                experiment_label = exp.experiment_label,
-                parent = exp.experiment_id)
+        if projection_conf.num_components is not None:
+            if projection_conf.num_components > num_features:
+                projection_conf.num_components = num_features
+        projection_exp = ProjectionExperiment(exp.project, exp.dataset,
+                                              exp.session,
+                                              experiment_name = name,
+                                              parent = exp.experiment_id)
         projection_exp.setConf(projection_conf)
         projection_exp.setFeaturesFilenames(exp.features_filenames)
         projection_exp.createExperiment()

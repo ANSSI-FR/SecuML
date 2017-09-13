@@ -52,5 +52,5 @@ class ClusteringConfFactory():
 
     def generateParser(self, clustering_algo, parser):
         class_ = self.register[clustering_algo + 'Configuration']
-        parser = self.register[clustering_algo + 'Configuration'].generateParser(parser)
+        parser = class_.generateParser(parser)
         return parser

@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,12 +16,10 @@
 
 from __future__ import division
 import json
-import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
 
 from Evaluation.ClusteringEvaluation import ClusteringEvaluation
 from Cluster import Cluster
-from SecuML.Tools import dir_tools
 
 class Clustering(object):
 
@@ -43,8 +41,7 @@ class Clustering(object):
         return self.num_clusters
 
     def setOutputDirectory(self):
-        self.output_directory = dir_tools.getExperimentOutputDirectory(
-                self.experiment)
+        self.output_directory = self.experiment.getOutputDirectory()
 
     def generateClustering(self, assignment_proba, centroids, drop_annotated_instances = False,
             cluster_labels = None):
@@ -120,20 +117,9 @@ class Clustering(object):
         return self.clusters[selected_cluster].getClusterInstancesVisu(num_instances, random, drop_instances)
 
     def getClusterLabelsFamilies(self, selected_cluster):
-        return self.clusters[selected_cluster].getClusterLabelsFamilies(self.experiment.cursor,
-                self.experiment.experiment_label_id)
+        return self.clusters[selected_cluster].getClusterLabelsFamilies(self.experiment.session,
+                self.experiment.oldest_parent)
 
     def getClusterLabelFamilyIds(self, selected_cluster, label, family):
         return self.clusters[selected_cluster].getClusterLabelFamilyIds(label, family,
-                self.experiment.cursor, self.experiment.experiment_label_id)
-
-    ## Remove semi automatic labels
-    ## Annotations are preserved
-    def removeClusterLabel(self, selected_cluster, num_results):
-        self.clusters[selected_cluster].removeClusterLabel(num_results,
-                self.experiment.cursor, self.experiment.experiment_label_id)
-
-    def addClusterLabel(self, selected_cluster, num_results,
-            label, family, label_iteration, label_method):
-        self.clusters[selected_cluster].addClusterLabel(num_results, label, family, self.experiment.cursor,
-                self.experiment.experiment_label_id, label_iteration, label_method)
+                self.experiment.session, self.experiment.oldest_parent)

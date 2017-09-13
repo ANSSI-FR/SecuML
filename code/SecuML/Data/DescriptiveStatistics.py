@@ -32,7 +32,7 @@ class DescriptiveStatistics(object):
     def __init__(self, experiment):
         self.instances = Instances()
         self.instances.initFromExperiment(experiment)
-        self.output_directory = dir_tools.getExperimentOutputDirectory(experiment)
+        self.output_directory = experiment.getOutputDirectory()
 
     # The file features_types.csv contains the list of features with their corresponding type (numeric or binary).
     # This file is updated after the processing of each feature to allow the user to display the results.

@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ class Datasets(object):
         self.experiment = experiment
         self.instances = Instances()
         self.instances.initFromExperiment(experiment)
-        self.setValidationInstances(experiment.validation_conf)
+        self.setValidationInstances(experiment.conf.validation_conf)
         self.initCounts()
 
     def setValidationInstances(self, validation_conf):
@@ -41,8 +41,8 @@ class Datasets(object):
         if annotation:
             self.num_annotations[label] += 1
 
-    def checkLabelsWithDB(self, cursor, experiment_label_id):
-        self.instances.checkLabelsWithDB(cursor, experiment_label_id)
+    def checkLabelsWithDB(self, experiment):
+        self.instances.checkLabelsWithDB(experiment)
 
     def saveLabeledInstances(self, iteration_number):
         for i in ['annotations', 'labels']:

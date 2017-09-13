@@ -123,10 +123,9 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
                          'Iter' + str(self.iteration.iteration_number),
                          self.label,
                          'analysis'])
-        multiclass_exp = ClassificationExperiment(exp.project, exp.dataset, exp.db, exp.cursor,
-                experiment_name = name,
-                experiment_label = exp.experiment_label,
-                parent = exp.experiment_id)
+        multiclass_exp = ClassificationExperiment(exp.project, exp.dataset, exp.session,
+                                                  experiment_name = name,
+                                                  parent = exp.experiment_id)
         multiclass_exp.setFeaturesFilenames(exp.features_filenames)
         multiclass_exp.setClassifierConf(conf)
         multiclass_exp.createExperiment()
@@ -199,11 +198,10 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
                          'Iter' + str(self.iteration.iteration_number),
                          self.label,
                          'clustering'])
-        clustering_exp = ClusteringExperiment(exp.project, exp.dataset, exp.db,
-                exp.cursor, conf,
-                experiment_name = name,
-                experiment_label = exp.experiment_label,
-                parent = exp.experiment_id)
+        clustering_exp = ClusteringExperiment(exp.project, exp.dataset, exp.session,
+                                              conf,
+                                              experiment_name = name,
+                                              parent = exp.experiment_id)
         clustering_exp.setFeaturesFilenames(exp.features_filenames)
         clustering_exp.createExperiment()
         clustering_exp.export()

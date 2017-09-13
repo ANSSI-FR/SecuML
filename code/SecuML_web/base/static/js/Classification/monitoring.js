@@ -16,22 +16,18 @@ function displayAlertsButton(buttons_group, button_label, buttons_title) {
   label_button.addEventListener('click', function() {
     if (button_label != 'clustering') {
       var query = buildQuery('alerts',
-                             [project, dataset, experiment_id, button_label]);
+                             [experiment_id, button_label]);
       window.open(query);
     } else {
-      var validation_project = project;
-      var validation_dataset = getValidationDataset(project, dataset,
-                      experiment_id);
       var query = buildQuery('getAlertsClusteringExperimentId',
-                      [project, dataset, experiment_id]);
+                             [experiment_id]);
       d3.json(query, function(error, data) {
           var clustering_experiment_id = data['grouping_exp_id'];
           if (! clustering_experiment_id) {
               alert('There is no clustering of the alerts.');
           } else {
             var query = buildQuery('SecuML',
-                                    [validation_project, validation_dataset,
-                                    clustering_experiment_id]);
+                                    [clustering_experiment_id]);
             window.open(query);
           }
         });
@@ -106,13 +102,13 @@ function displayCoefficients(conf, sup_exp = null) {
     var selected_index = active_bars[0]._index;
     var selected_feature = active_bars[0]._view.label;
     var query = buildQuery('getDescriptiveStatsExp',
-            [project, dataset, conf.features_filenames]);
+                           [conf.experiment_id]);
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open('GET', query, false);
     xmlHttp.send(null);
     var stats_exp_id = xmlHttp.responseText;
     var page_query = buildQuery('SecuML',
-            [conf.project, conf.dataset, stats_exp_id, selected_feature]);
+            [stats_exp_id, selected_feature]);
     window.open(page_query);
   }
 
@@ -125,7 +121,7 @@ function displayCoefficients(conf, sup_exp = null) {
   }
   var model_coefficients_div = cleanDiv('model_coefficients');
   var query = buildQuery('getTopModelCoefficients',
-    [conf.project, conf.dataset, exp, num_coeff_model]);
+                         [exp, num_coeff_model]);
   $.getJSON(query, function (data) {
       var options = barPlotOptions(data);
       barPlotAddBands(options, true);

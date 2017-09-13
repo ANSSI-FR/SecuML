@@ -33,8 +33,8 @@ def gornitzBinaryModelConf():
 
 class GornitzConfiguration(ActiveLearningConfiguration):
 
-    def __init__(self, auto, budget, batch):
-        ActiveLearningConfiguration.__init__(self, auto, budget)
+    def __init__(self, auto, budget, batch, validation_conf):
+        ActiveLearningConfiguration.__init__(self, auto, budget, validation_conf)
         self.labeling_method = 'Gornitz'
         self.batch           = batch
         self.setBinaryModelConf()
@@ -54,7 +54,11 @@ class GornitzConfiguration(ActiveLearningConfiguration):
 
     @staticmethod
     def fromJson(obj, experiment):
-        conf = GornitzConfiguration(obj['auto'], obj['budget'], obj['batch'])
+        validation_conf = None
+        if obj['validation_conf'] is not None:
+            validation_conf = TestConfiguration.fromJson(obj['validation_conf'],
+                                                         experiment)
+        conf = GornitzConfiguration(obj['auto'], obj['budget'], obj['batch'], validation_conf)
         return conf
 
     def toJson(self):
@@ -65,17 +69,27 @@ class GornitzConfiguration(ActiveLearningConfiguration):
 
     @staticmethod
     def generateParser(parser):
-        al_group = ActiveLearningConfiguration.generateParser(parser)
+        al_group = ActiveLearningConfiguration.generateParser(parser, classifier_conf = False)
         al_group.add_argument('--batch',
                 type = int,
                 default = 100,
                 help = 'Number of annotations asked from the user at each iteration.')
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ActiveLearningConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, experiment):
+        supervised_args = {}
+        supervised_args['num_folds']            = 4
+        supervised_args['sample_weight']        = False
+        supervised_args['families_supervision'] = False
+        test_conf = TestConfiguration()
+        test_conf.setUnlabeled(labels_annotations = 'annotations')
+        supervised_args['test_conf'] = test_conf
+        binary_model_conf = ClassifierConfFactory.getFactory().fromParam(
+                'Sssvdd', supervised_args)
+        params = ActiveLearningConfiguration.generateParamsFromArgs(args, experiment,
+                binary_model_conf = binary_model_conf)
         params['batch'] = args.batch
         return params
 
 ActiveLearningConfFactory.getFactory().registerClass('GornitzConfiguration',
-        GornitzConfiguration)
+                                                     GornitzConfiguration)

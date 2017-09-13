@@ -52,9 +52,8 @@ class AlertsMonitoring(object):
 
     def alertsGrouping(self, alerts_ids, directory):
         if len(alerts_ids) > 0:
-            has_families = labels_tools.datasetHasFamilies(self.supervised_exp.cursor,
-                    self.supervised_exp.project, self.supervised_exp.dataset,
-                    self.supervised_exp.experiment_label_id)
+            has_families = labels_tools.datasetHasFamilies(self.supervised_exp.session,
+                                                           self.supervised_exp.oldest_parent)
             if has_families:
                 self.alertsClassification(alerts_ids)
             else:
@@ -97,10 +96,9 @@ class AlertsMonitoring(object):
         else:
             clustering_conf = ClusteringConfiguration(num_clusters)
         clustering_experiment = ClusteringExperiment(
-                exp.project, test_exp.dataset, exp.db, exp.cursor,
+                exp.project, test_exp.dataset, exp.session,
                 clustering_conf,
                 experiment_name = name,
-                experiment_label = test_exp.experiment_label,
                 parent = test_exp.experiment_id)
         clustering_experiment.setFeaturesFilenames(test_exp.features_filenames)
         clustering_experiment.createExperiment()
@@ -135,10 +133,9 @@ class AlertsMonitoring(object):
     def createMulticlassExperiment(self):
         exp  = self.supervised_exp
         name = exp.experiment_name + '_alertsMulticlassClassifier'
-        multiclass_exp = ClassificationExperiment(exp.project, exp.dataset, exp.db, exp.cursor,
-                experiment_name = name,
-                experiment_label = exp.experiment_label,
-                parent = exp.experiment_id)
+        multiclass_exp = ClassificationExperiment(exp.project, exp.dataset, exp.session,
+                                                  experiment_name = name,
+                                                  parent = exp.experiment_id)
         multiclass_exp.setFeaturesFilenames(exp.features_filenames)
         params = {}
         params['num_folds'] = exp.classification_conf.num_folds

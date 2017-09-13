@@ -133,8 +133,10 @@ class ModelPerformanceMonitoring(object):
 
     def __init__(self, monitoring, model_name, validation_monitoring):
         self.monitorings = {}
-        train_test_validation = ['train', 'cv']
+        train_test_validation = ['train']
         model = monitoring.iteration.train_test_validation.models[model_name]
+        if model.cv_monitoring is not None:
+            train_test_validation.append('cv')
         if model.testing_monitoring.has_true_labels:
             train_test_validation.append('test')
         if validation_monitoring:

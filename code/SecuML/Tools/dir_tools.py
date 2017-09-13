@@ -66,13 +66,6 @@ def removeDatasetOutputDirectory(project, dataset):
     dataset_dir = getDatasetOutputDirectory(project, dataset)
     removeDirectory(dataset_dir)
 
-def getExperimentOutputDirectory(experiment):
-    experiment_dir  = getDatasetOutputDirectory(
-            experiment.project,
-            experiment.dataset)
-    experiment_dir += str(experiment.experiment_id) + '/'
-    return experiment_dir
-
 ## If the input directory does not exist
 ## it is created
 def checkDirectoryExists(directory):

@@ -32,7 +32,7 @@ function updateEvolutionMonitoringDisplay(conf, iteration) {
 function displayModelsEvolutionMonitoringTabs(conf) {
   var menu_titles = ['Train', 'CV'];
   var menu_labels = ['train', 'cv'];
-  if (conf.validation_conf) {
+  if (conf.conf.validation_conf) {
       menu_titles.push('Validation');
       menu_labels.push('validation');
   }
@@ -49,7 +49,7 @@ function updateSuggestionsEvolutionMonitoring(conf, iteration) {
                   'No estimation of the accuracy of the suggestions at the first iteration.'));
     } else {
       var query = buildQuery('activeLearningSuggestionsMonitoring',
-                             [conf.project, conf.dataset, conf.experiment_id,
+                             [conf.experiment_id,
                               iteration]);
       var picture = document.createElement('img');
       picture.setAttribute('class', 'img-responsive');
@@ -61,7 +61,7 @@ function updateSuggestionsEvolutionMonitoring(conf, iteration) {
 function updateExecutionTimeEvolutionMonitoring(conf, iteration) {
   var time_evolution = cleanDiv('time_evolution');
   var query = buildQuery('activeLearningMonitoring',
-                         [conf.project, conf.dataset, conf.experiment_id,
+                         [conf.experiment_id,
                           iteration, 'time', 'all']);
   var picture = document.createElement('img');
   picture.setAttribute('class', 'img-responsive');
@@ -72,7 +72,7 @@ function updateExecutionTimeEvolutionMonitoring(conf, iteration) {
 function updateFamiliesEvolutionMonitoring(conf, iteration) {
   var families_evolution = cleanDiv('families_evolution');
   var query = buildQuery('activeLearningMonitoring',
-                         [conf.project, conf.dataset, conf.experiment_id,
+                         [conf.experiment_id,
                           iteration, 'families', 'all']);
   var picture = document.createElement('img');
   picture.setAttribute('class', 'img-responsive');
@@ -86,7 +86,7 @@ function updateClusteringEvolutionMonitoring(conf, iteration) {
       var estimator = estimators[i];
       var div = cleanDiv(estimator);
       var query = buildQuery('activeLearningMonitoring',
-                             [conf.project, conf.dataset, conf.experiment_id,
+                             [conf.experiment_id,
                               iteration, 'clustering', estimator]);
       var picture = document.createElement('img');
       picture.setAttribute('class', 'img-responsive');
@@ -97,14 +97,14 @@ function updateClusteringEvolutionMonitoring(conf, iteration) {
 
 function updateModelsEvolutionMonitoring(conf, iteration) {
       var types = ['train', 'cv'];
-      if (conf.validation_conf) {
+      if (conf.conf.validation_conf) {
           types.push('validation');
       }
       for (var t in types) {
         var type = types[t];
         var div = cleanDiv(type);
         var query = buildQuery('activeLearningModelsMonitoring',
-                               [conf.project, conf.dataset, conf.experiment_id,
+                               [conf.experiment_id,
                                 iteration, type]);
         var picture = document.createElement('img');
         picture.setAttribute('class', 'img-responsive');

@@ -22,11 +22,13 @@ It supports binary labels (malicious vs. benign) and categorical labels which re
 * Python packages:
   * celery (>= 3.1.13) (only for active learning and rare category detection)
   * flask (>= 0.10.1)
+  * flask_sqlalchemy (>= 1.0)
   * metric-learn (>= 0.3.0)
-  * mysql.connector (>=2.1.3)
+  * mysql.connector (>= 2.1.3)
   * numpy (>= 1.8.2)
   * pandas (>= 0.14.1)
   * scikit-learn (>= 0.18.1)
+  * sqlalchemy (>= 0.9.8)
 
 #### Initial Configurations
 
@@ -38,7 +40,7 @@ MySQL must be configured with a `my.cnf` file with the following format:
 	user=<user>
 	password=<password>
 
-The MySQL user must have the following permissions: SELECT, INSERT, UPDATE, DELETE, CREATE and DROP.
+The MySQL user must have the following permissions: SELECT, INSERT, UPDATE, DELETE on the database SecuML (which must be created).
 
 ##### JS and CSS libraries
 The required librairies can be dowloaded with the script `download_libraries`.

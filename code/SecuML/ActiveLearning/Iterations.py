@@ -17,7 +17,6 @@
 ## Package for float division (/)
 ## In order to perform integer division (//)
 from __future__ import division
-import time
 
 from Datasets import Datasets
 from Iteration import Iteration, NoLabelAdded
@@ -53,5 +52,5 @@ class Iterations(object):
         self.previous_iteration = self.current_iteration
 
     def checkAnnotationQueriesAnswered(self):
-        self.experiment.db.commit()
+        self.experiment.session.commit()
         return self.current_iteration.checkAnnotationQueriesAnswered()

@@ -20,13 +20,11 @@ from SecuML.Clustering.Configuration import ClusteringConfFactory
 
 class ClusteringExperiment(Experiment):
 
-    def __init__(self, project, dataset, db, cursor, conf,
-            experiment_name = None, experiment_label = None,
-            parent = None):
-        Experiment.__init__(self, project, dataset, db, cursor,
-                experiment_name = experiment_name,
-                experiment_label = experiment_label,
-                parent = parent)
+    def __init__(self, project, dataset, session, conf, experiment_name = None,
+                 parent = None):
+        Experiment.__init__(self, project, dataset, session,
+                            experiment_name = experiment_name,
+                            parent = parent)
         self.kind = 'Clustering'
         self.conf = conf
 
@@ -36,10 +34,10 @@ class ClusteringExperiment(Experiment):
         return suffix
 
     @staticmethod
-    def fromJson(obj, db, cursor):
+    def fromJson(obj, session):
         conf = ClusteringConfFactory.getFactory().fromJson(obj['conf'])
         experiment = ClusteringExperiment(
-                obj['project'], obj['dataset'], db, cursor,
+                obj['project'], obj['dataset'], session,
                 conf)
         Experiment.expParamFromJson(experiment, obj)
         return experiment

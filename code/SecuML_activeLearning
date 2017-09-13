@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -21,12 +21,12 @@ import matplotlib
 matplotlib.use('Agg')
 import sys
 
+from SecuML import db_tables
 from SecuML.ActiveLearning.Configuration import ActiveLearningConfFactory
 from SecuML.ActiveLearning.Configuration.ActiveLearningConfiguration import InvalidInputArguments
 from SecuML.ActiveLearning.Iterations import Iterations
 from SecuML.Data.Dataset import Dataset
 from SecuML.Experiment.ActiveLearningExperiment import ActiveLearningExperiment
-
 from SecuML.Tools import mysql_tools
 
 if __name__ == '__main__':
@@ -42,27 +42,25 @@ if __name__ == '__main__':
         factory.generateParser(strategy, strategy_parser)
     args = parser.parse_args()
 
-    db, cursor = mysql_tools.getDbConnection()
-    ## Check whether the dataset has been loaded before
-    if not mysql_tools.databaseExists(cursor, args.project, args.dataset):
-        load_dataset = Dataset(args.project, args.dataset,
-                db, cursor)
+    engine, session = mysql_tools.getSecuMLSession()
+    db_tables.createTables(engine)
+
+    load_dataset = Dataset(args.project, args.dataset, session)
+    if not load_dataset.isLoaded():
         load_dataset.load()
 
     try:
-        factory.checkInputParams(args, cursor)
+        experiment = ActiveLearningExperiment(args.project, args.dataset, session)
+        experiment.setFeaturesFilenames(args.features_files)
+        active_learning_conf = factory.fromArgs(args.strategy, args, experiment)
+        experiment.setConfiguration(active_learning_conf)
+        experiment.checkInputParams()
+        experiment.initLabels(args.init_labels_file)
+        experiment.export()
     except InvalidInputArguments as e:
         print e
-        mysql_tools.closeDb(db, cursor)
+        mysql_tools.closeSqlAlchemySession(session)
         sys.exit()
-
-    experiment = ActiveLearningExperiment(args.project, args.dataset, db, cursor)
-    active_learning_conf = factory.fromArgs(args.strategy, args)
-    experiment.setConfiguration(active_learning_conf)
-    experiment.setFeaturesFilenames(args.features_files)
-    experiment.setValidation(args.validation_dataset)
-    experiment.initLabels(args.init_labels_file)
-    experiment.export()
 
     iterations = Iterations(experiment)
     if not args.auto:
@@ -78,4 +76,4 @@ if __name__ == '__main__':
     else:
         iterations.runIterations()
 
-    mysql_tools.closeDb(db, cursor)
+    mysql_tools.closeSqlAlchemySession(session)

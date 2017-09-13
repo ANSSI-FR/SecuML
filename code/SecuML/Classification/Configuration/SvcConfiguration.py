@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -19,10 +19,11 @@ import numpy as np
 from SecuML.Classification.Classifiers.Svc import Svc
 import ClassifierConfFactory
 from ClassifierConfiguration import ClassifierConfiguration, LearningParameter
+from TestConfiguration import TestConfiguration
 
 class SvcConfiguration(ClassifierConfiguration):
 
-    def __init__(self, num_folds, sample_weight, families_supervision, test_conf = None):
+    def __init__(self, num_folds, sample_weight, families_supervision, test_conf):
         ClassifierConfiguration.__init__(self, num_folds, sample_weight,
                                          families_supervision, test_conf = test_conf)
         self.model_class = Svc
@@ -47,9 +48,9 @@ class SvcConfiguration(ClassifierConfiguration):
 
     @staticmethod
     def fromJson(obj, exp):
+        test_conf = TestConfiguration.fromJson(obj['test_conf'], exp)
         conf = SvcConfiguration(obj['num_folds'], obj['sample_weight'],
-                                obj['families_supervision'])
-        ClassifierConfiguration.setTestConfiguration(conf, obj, exp)
+                                obj['families_supervision'], test_conf)
         conf.c = LearningParameter.fromJson(obj['c'])
         return conf
 

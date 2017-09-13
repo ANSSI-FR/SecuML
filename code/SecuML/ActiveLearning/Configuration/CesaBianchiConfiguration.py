@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -18,11 +18,12 @@ import ActiveLearningConfFactory
 from ActiveLearningConfiguration import ActiveLearningConfiguration
 from SecuML.ActiveLearning.QueryStrategies.CesaBianchi import CesaBianchi
 from SecuML.Classification.Configuration import ClassifierConfFactory
+from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 
 class CesaBianchiConfiguration(ActiveLearningConfiguration):
 
-    def __init__(self, auto, budget, batch, b, binary_model_conf):
-        ActiveLearningConfiguration.__init__(self, auto, budget)
+    def __init__(self, auto, budget, batch, b, binary_model_conf, validation_conf):
+        ActiveLearningConfiguration.__init__(self, auto, budget, validation_conf)
         self.labeling_method = 'CesaBianchi'
         self.b               = b
         self.batch           = batch
@@ -44,10 +45,15 @@ class CesaBianchiConfiguration(ActiveLearningConfiguration):
 
     @staticmethod
     def fromJson(obj, experiment):
+        validation_conf = None
+        if obj['validation_conf'] is not None:
+            validation_conf = TestConfiguration.fromJson(obj['validation_conf'],
+                                                         experiment)
         binary_model_conf = ClassifierConfFactory.getFactory().fromJson(obj['models_conf']['binary'], experiment)
         conf = CesaBianchiConfiguration(obj['auto'], obj['budget'],
                                         obj['batch'], obj['b'],
-                                        binary_model_conf)
+                                        binary_model_conf,
+                                        validation_conf)
         return conf
 
     def toJson(self):
@@ -69,8 +75,8 @@ class CesaBianchiConfiguration(ActiveLearningConfiguration):
                 default = 0.1)
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ActiveLearningConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, experiment):
+        params = ActiveLearningConfiguration.generateParamsFromArgs(args, experiment)
         params['batch'] = args.batch
         params['b'] = args.b
         return params

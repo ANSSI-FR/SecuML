@@ -23,7 +23,6 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from SecuML.Data.Instances       import Instances
-from SecuML.Tools                import dir_tools
 
 from Performance.PerformanceMonitoring import PerformanceMonitoring
 from Visualization.Visualization import Visualization
@@ -34,7 +33,7 @@ class Projection(object):
         self.experiment       = experiment
         self.conf             = experiment.conf
         self.num_components   = self.conf.num_components
-        self.output_directory = dir_tools.getExperimentOutputDirectory(experiment)
+        self.output_directory = experiment.getOutputDirectory()
 
     @abc.abstractmethod
     def setProjectionMatrix(self):

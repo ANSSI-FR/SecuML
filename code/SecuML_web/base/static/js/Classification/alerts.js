@@ -1,8 +1,6 @@
 var path = window.location.pathname.split('/');
-var project       = path[2];
-var dataset       = path[3];
-var experiment_id = path[4];
-var analysis      = path[5];
+var experiment_id = path[2];
+var analysis      = path[3];
 
 var instances_list         = null;
 var num_instances          = null;
@@ -14,33 +12,28 @@ function getCurrentInstance() {
 
 var label_method    = 'alert';
 var label_iteration = 'None';
-var experiment_label_id = getExperimentLabelId(
-                project, dataset, experiment_id);
 
 var conf = {};
 
-loadConfigurationFile(function () {
-  setInstancesSettings('test', project, dataset, experiment_id,
-          experiment_label_id, callback);
+loadConfigurationFile(function (conf) {
+  setInstancesSettings('test', experiment_id, conf.oldest_parent, callback);
 });
 
 function loadConfigurationFile(callback) {
-    $.getJSON(buildQuery('getConf',
-                       [project, dataset, experiment_id]),
+    $.getJSON(buildQuery('getConf', [experiment_id]),
             function(data) {
               conf = data;
-              callback();
+              callback(conf);
             });
 }
 
 function callback() {
   displayDivisions();
-  displayAlerts(project, dataset, experiment_id, analysis);
+  displayAlerts(experiment_id, analysis);
 }
 
-function displayAlerts(project, dataset, experiment_id, analysis) {
-  var query = buildQuery('getAlerts',
-                         [project, dataset, experiment_id, analysis]);
+function displayAlerts(experiment_id, analysis) {
+  var query = buildQuery('getAlerts', [experiment_id, analysis]);
   $.getJSON(query,
             function(data) {
                 instances_list = data['instances'];
@@ -114,6 +107,6 @@ function displayDivisions() {
   displayInstancePanel(row);
 
   displayInstanceInformationStructure();
-  var interactive = !hasTrueLabels(project, inst_dataset);
+  var interactive = !hasTrueLabels(experiment_id);
   displayAnnotationDiv(false, interactive);
 }

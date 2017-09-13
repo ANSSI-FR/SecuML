@@ -1,11 +1,8 @@
 var path = window.location.pathname.split('/');
-var project           = path[2];
-var dataset           = path[3];
-var experiment_id     = path[4];
-var label_iteration   = path[5];
+var experiment_id     = path[2];
+var label_iteration   = path[3];
 
 var label_method        = null;
-var experiment_label_id = getExperimentLabelId(project, dataset, experiment_id);
 
 var current_label        = null;
 var families_instances   = null;
@@ -17,10 +14,10 @@ var instances_list         = null;
 var num_instances          = null;
 var current_instance_index = null;
 
-var inst_dataset = dataset;
 var inst_exp_id = experiment_id;
-var inst_exp_label_id = experiment_label_id;
-var has_families = datasetHasFamilies(project, inst_dataset, inst_exp_label_id);
+var inst_exp_label_id = null;
+
+var has_families = datasetHasFamilies(experiment_id);
 
 $(document).keypress(function (e) {
    var key = e.keyCode;
@@ -50,9 +47,10 @@ function callback() {
 }
 
 function loadConfigurationFile(callback) {
-    d3.json(buildQuery('getConf', [project, dataset, experiment_id]),
+    d3.json(buildQuery('getConf', [experiment_id]),
             function(error, data) {
                 conf = data;
+                inst_exp_label_id = conf.oldest_parent;
                 callback();
             }
            );
@@ -149,7 +147,7 @@ function displayNavbars(type) {
   displayFamiliesBar(panel_body, type);
   displayInstancesBar(panel_body, type);
   var query = buildQuery('getFamiliesInstances',
-                         [project, dataset, experiment_label_id,
+                         [experiment_id,
                           current_label, label_iteration-1]);
   d3.json(query, function(error, data) {
       families_instances = data;
@@ -174,7 +172,7 @@ function displayLabelBarplot(type) {
           nav_bars,
           collapse_id = 'barplot');
   var query = buildQuery('getFamiliesBarplot',
-                         [project, dataset, experiment_id, label_iteration, current_label]);
+                         [experiment_id, label_iteration, current_label]);
   var div = document.getElementById('barplot');
   $.getJSON(query, function (data) {
       var options = barPlotOptions(data, 'Families');

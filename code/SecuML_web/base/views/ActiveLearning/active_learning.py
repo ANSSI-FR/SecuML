@@ -18,13 +18,14 @@ import datetime
 from flask import render_template, jsonify
 import json
 import pandas as pd
+import sys
 
-from SecuML_web.base import app, db, cursor, user_exp
+from SecuML_web.base import app, user_exp
+from SecuML_web.base.views.experiments import updateCurrentExperiment
 
 from SecuML.ActiveLearning.Iteration import Iteration
 from SecuML.Data import labels_tools
 from SecuML.Experiment.ActiveLearningExperiment import ActiveLearningExperiment
-from SecuML.Experiment import ExperimentFactory
 from SecuML.Plots.BarPlot import BarPlot
 from SecuML.Plots.PlotDataset import PlotDataset
 from SecuML.Tools import colors_tools
@@ -34,13 +35,12 @@ from SecuML.Tools import matrix_tools
 from CeleryApp.activeLearningTasks import runNextIteration as celeryRunNextIteration
 from CeleryApp.activeLearningTasks import checkAnnotationQueriesAnswered as celeryCheckAnnotationQueriesAnswered
 
-@app.route('/currentAnnotations/<project>/<dataset>/<experiment_id>/<iteration>/')
-def currentAnnotations(project, dataset, experiment_id, iteration):
-    page = render_template('ActiveLearning/current_annotations.html', project = project)
+@app.route('/currentAnnotations/<experiment_id>/<iteration>/')
+def currentAnnotations(experiment_id, iteration):
+    experiment = updateCurrentExperiment(experiment_id)
+    page = render_template('ActiveLearning/current_annotations.html', project = experiment.project)
     if user_exp:
-        experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-                                                             db, cursor)
-        filename  = dir_tools.getExperimentOutputDirectory(experiment)
+        filename  = experiment.getOutputDirectory()
         filename += 'user_actions.log'
         file_exists = dir_tools.checkFileExists(filename)
         mode = 'a' if file_exists else 'w'
@@ -51,18 +51,17 @@ def currentAnnotations(project, dataset, experiment_id, iteration):
             print >>f, to_print
     return page
 
-@app.route('/editFamilies/<project>/<dataset>/<experiment_id>/')
-def editFamilies(project, dataset, experiment_id):
+@app.route('/editFamilies/<experiment_id>/')
+def editFamilies(experiment_id):
     return render_template('ActiveLearning/edit_families.html')
 
-@app.route('/getFamiliesBarplot/<project>/<dataset>/<experiment_id>/<iteration>/<label>/')
-def getFamiliesBarplot(project, dataset, experiment_id, iteration, label):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-                                                         db, cursor)
-    experiment_label_id = experiment.experiment_label_id
+@app.route('/getFamiliesBarplot/<experiment_id>/<iteration>/<label>/')
+def getFamiliesBarplot(experiment_id, iteration, label):
+    experiment = updateCurrentExperiment(experiment_id)
+    experiment_label_id = experiment.oldest_parent
     if iteration == 'None':
         iteration = None
-    family_counts = labels_tools.getFamiliesCounts(cursor, experiment_label_id,
+    family_counts = labels_tools.getFamiliesCounts(experiment.session, experiment_label_id,
                                                    iteration_max = iteration,
                                                    label = label)
     df = pd.DataFrame({'families': family_counts.keys(),
@@ -74,22 +73,21 @@ def getFamiliesBarplot(project, dataset, experiment_id, iteration, label):
     barplot.addDataset(dataset)
     return jsonify(barplot.toJson())
 
-@app.route('/currentAnnotationIteration/<project>/<dataset>/<experiment_id>/')
-def currentAnnotationIteration(project, dataset, experiment_id):
-    db.commit()
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
+@app.route('/currentAnnotationIteration/<experiment_id>/')
+def currentAnnotationIteration(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
     return str(experiment.getCurrentIteration())
 
-@app.route('/getActiveLearningValidationConf/<project>/<dataset>/<experiment_id>/')
-def getActiveLearningValidationConf(project, dataset, experiment_id):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    return jsonify(experiment.validation_conf.toJson())
+@app.route('/getActiveLearningValidationConf/<experiment_id>/')
+def getActiveLearningValidationConf(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
+    parent = experiment.parent
+    parent_exp = updateCurrentExperiment(parent)
+    return jsonify(parent_exp.conf.validation_conf.toJson())
 
-@app.route('/getIterationSupervisedExperiment/<project>/<dataset>/<experiment_id>/<iteration>/')
-def getIterationSupervisedExperiment(project, dataset, experiment_id, iteration):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id, db, cursor)
+@app.route('/getIterationSupervisedExperiment/<experiment_id>/<iteration>/')
+def getIterationSupervisedExperiment(experiment_id, iteration):
+    experiment = updateCurrentExperiment(experiment_id)
     active_learning = Iteration(experiment, int(iteration))
     binary_multiclass = 'multiclass'
     if 'binary' in experiment.conf.models_conf.keys():
@@ -99,13 +97,12 @@ def getIterationSupervisedExperiment(project, dataset, experiment_id, iteration)
         models_exp = json.load(f)
     return str(models_exp[binary_multiclass])
 
-@app.route('/runNextIteration/<project>/<dataset>/<experiment_id>/<iteration_number>/')
-def runNextIteration(project, dataset, experiment_id, iteration_number):
+@app.route('/runNextIteration/<experiment_id>/<iteration_number>/')
+def runNextIteration(experiment_id, iteration_number):
     res = str(celeryRunNextIteration.s().apply_async())
     if user_exp:
-        experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-                                                             db, cursor)
-        filename  = dir_tools.getExperimentOutputDirectory(experiment)
+        experiment = updateCurrentExperiment(experiment_id)
+        filename  = experiment.getOutputDirectory()
         filename += 'user_actions.log'
         file_exists = dir_tools.checkFileExists(filename)
         mode = 'a' if file_exists else 'w'
@@ -116,7 +113,7 @@ def runNextIteration(project, dataset, experiment_id, iteration_number):
             print >>f, to_print
     return res
 
-@app.route('/checkAnnotationQueriesAnswered/<project>/<dataset>/<experiment_id>/<iteration_number>/')
-def checkAnnotationQueriesAnswered(project, dataset, experiment_id, iteration_number):
+@app.route('/checkAnnotationQueriesAnswered/<experiment_id>/<iteration_number>/')
+def checkAnnotationQueriesAnswered(experiment_id, iteration_number):
     res = celeryCheckAnnotationQueriesAnswered.s().apply_async().get()
     return str(res)

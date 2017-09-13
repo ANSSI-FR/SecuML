@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -19,16 +19,13 @@ from sklearn.externals import joblib
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Experiment.Experiment import Experiment
 from SecuML.Classification.Configuration import ClassifierConfFactory
-from SecuML.Tools import dir_tools
 
 class ClassificationExperiment(Experiment):
 
-    def __init__(self, project, dataset, db, cursor,
-            experiment_name = None, experiment_label = None,
-            parent = None):
-        Experiment.__init__(self, project, dataset, db, cursor,
+    def __init__(self, project, dataset, session, experiment_name = None,
+                 parent = None):
+        Experiment.__init__(self, project, dataset, session,
                 experiment_name = experiment_name,
-                experiment_label = experiment_label,
                 parent = parent)
         self.kind = 'Classification'
 
@@ -40,13 +37,13 @@ class ClassificationExperiment(Experiment):
         return suffix
 
     def getModelPipeline(self):
-        experiment_dir = dir_tools.getExperimentOutputDirectory(self)
+        experiment_dir = self.getOutputDirectory()
         pipeline = joblib.load(experiment_dir + '/model/model.out')
         return pipeline
 
     @staticmethod
-    def fromJson(obj, db, cursor):
-        experiment = ClassificationExperiment(obj['project'], obj['dataset'], db, cursor)
+    def fromJson(obj, session):
+        experiment = ClassificationExperiment(obj['project'], obj['dataset'], session)
         Experiment.expParamFromJson(experiment, obj)
         classification_conf = ClassifierConfFactory.getFactory().fromJson(
                 obj['classification_conf'], experiment)
@@ -62,4 +59,5 @@ class ClassificationExperiment(Experiment):
     def webTemplate(self):
         return 'Classification/classification.html'
 
-ExperimentFactory.getFactory().registerClass('ClassificationExperiment', ClassificationExperiment)
+ExperimentFactory.getFactory().registerClass('ClassificationExperiment',
+                                             ClassificationExperiment)

@@ -55,11 +55,19 @@ class BarPlot(object):
         num_datasets = len(self.datasets)
         for i in range(num_datasets):
             dataset = self.datasets[i]
-            rect = plt.bar(index + i*bar_width,
-                           dataset.values,
-                           bar_width,
-                           color = dataset.color,
-                           label = dataset.label)
+            if dataset.error_bars is not None:
+                plt.bar(index + i*bar_width,
+                        dataset.values,
+                        bar_width,
+                        color = dataset.color,
+                        label = dataset.label,
+                        yerr = dataset.error_bars)
+            else:
+                plt.bar(index + i*bar_width,
+                        dataset.values,
+                        bar_width,
+                        color = dataset.color,
+                        label = dataset.label)
         if self.xlabel is not None:
             plt.xlabel(self.xlabel)
         if self.ylabel is not None:
@@ -97,11 +105,19 @@ class BarPlot(object):
 
             legend = []
             for i, dataset in enumerate(self.datasets):
-                print >>f, '\t\\addplot[fill=' + dataset.color + ', color=' + dataset.color + '] coordinates {'
+                if dataset.error_bars is None:
+                    print >>f, '\t\\addplot[fill=' + dataset.color + ', color=' + dataset.color + '] coordinates {'
+                    for l, label in enumerate(self.labels):
+                        print >>f, '\t\t(' + label + ',' + str(dataset.values[l]) + ')'
+                    print >>f, '\t};'
+                else:
+                    print >>f, '\t\\addplot[style={fill=' + dataset.color + ', color=' + dataset.color + '}, error bars/.cd, error bar style={black}, y dir=both, y explicit] coordinates {'
+                    for l, label in enumerate(self.labels):
+                        print >>f, '\t\t(' + label + ',' + str(dataset.values[l]) + ') +- (' + str(dataset.error_bars[l]) + ',' + str(dataset.error_bars[l]) + ')'
+                    print >>f, '\t};'
                 legend.append(dataset.label)
-                for l, label in enumerate(self.labels):
-                    print >>f, '\t\t(' + label + ',' + str(dataset.values[l]) + ')'
-                print >>f, '\t};'
+
+
 
             print >>f, '\t\legend{' + ','.join(legend) + '}'
             print >>f, '\t\end{axis}'

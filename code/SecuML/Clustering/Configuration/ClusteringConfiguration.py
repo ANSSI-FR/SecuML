@@ -118,10 +118,8 @@ class ClusteringConfiguration(object):
         params['num_results']     = 5
         params['projection_conf'] = projection_conf
         params['label']           = args.label
-        clustering_conf = ClusteringConfFactory.getFactory().fromParam(
-                args.algo, params)
 
         return params
 
 ClusteringConfFactory.getFactory().registerClass('ClusteringConfiguration',
-        ClusteringConfiguration)
+                                                 ClusteringConfiguration)

@@ -48,8 +48,7 @@ class Classifier(object):
             self.validation()
 
     def setOutputDirectory(self):
-        self.output_directory = dir_tools.getExperimentOutputDirectory(
-                self.experiment)
+        self.output_directory = self.experiment.getOutputDirectory()
 
     def getSupervision(self, instances, true_labels = False):
         if self.conf.families_supervision:

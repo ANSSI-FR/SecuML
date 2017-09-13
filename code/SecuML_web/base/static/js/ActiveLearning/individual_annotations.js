@@ -1,22 +1,17 @@
 var path = window.location.pathname.split('/');
-var project           = path[2];
-var dataset           = path[3];
-var experiment_id     = path[4];
-var label_iteration   = path[5];
-var predicted_label   = path[6];
+var experiment_id     = path[2];
+var label_iteration   = path[3];
+var predicted_label   = path[4];
 
 var label_method = 'annotation_' + predicted_label;
-var experiment_label_id = getExperimentLabelId(
-                project, dataset, experiment_id);
 
 var instances_list           = null;
 var num_instances            = null;
 var current_instance_index   = null;
 
-var inst_dataset = dataset;
 var inst_exp_id = experiment_id;
-var inst_exp_label_id = experiment_label_id;
-var has_families = datasetHasFamilies(project, inst_dataset, inst_exp_label_id);
+var inst_exp_label_id = null;
+var has_families = datasetHasFamilies(inst_exp_id);
 
 $(document).keypress(function (e) {
    var key = e.keyCode;
@@ -45,13 +40,13 @@ function callback(conf) {
 }
 
 function loadConfigurationFile(callback) {
-    d3.json(buildQuery('getConf', [project, dataset, experiment_id]),
+    d3.json(buildQuery('getConf', [experiment_id]),
             function(error, data) {
                 conf = data;
+                inst_exp_label_id = conf.oldest_parent;
                 conf.interactive = false;
                 if (!conf.conf.auto) {
-                    var current_iteration = currentAnnotationIteration(project, dataset,
-                            experiment_id);
+                    var current_iteration = currentAnnotationIteration(experiment_id);
                     conf.interactive = label_iteration == current_iteration;
                 }
                 callback(conf);
@@ -61,7 +56,7 @@ function loadConfigurationFile(callback) {
 
 function displayInstancesToAnnotate() {
   var query = buildQuery('getInstancesToAnnotate',
-                         [project, dataset, experiment_id, label_iteration, predicted_label]);
+                         [experiment_id, label_iteration, predicted_label]);
   d3.json(query, function(error, data) {
       instances_list = data['instances'];
       current_instance_index = 0;

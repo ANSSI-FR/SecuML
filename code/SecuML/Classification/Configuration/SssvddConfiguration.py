@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 from SecuML.Classification.Classifiers.Sssvdd import Sssvdd
 import ClassifierConfFactory
 from ClassifierConfiguration import ClassifierConfiguration
+from TestConfiguration import TestConfiguration
 
 class SssvddConfiguration(ClassifierConfiguration):
 
@@ -38,8 +39,8 @@ class SssvddConfiguration(ClassifierConfiguration):
 
     @staticmethod
     def fromJson(obj, exp):
-        conf = SssvddConfiguration(obj['num_folds'])
-        ClassifierConfiguration.setTestConfiguration(conf, obj, exp)
+        test_conf = TestConfiguration.fromJson(obj['test_conf'], exp)
+        conf = SssvddConfiguration(obj['num_folds'], test_conf)
         return conf
 
     def toJson(self):

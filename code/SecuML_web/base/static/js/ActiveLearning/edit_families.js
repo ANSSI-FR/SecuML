@@ -1,13 +1,8 @@
 var path = window.location.pathname.split('/');
-var project           = path[2];
-var dataset           = path[3];
-var experiment_id     = path[4];
+var experiment_id     = path[2];
 
-var experiment_label_id = getExperimentLabelId(project, dataset, experiment_id);
-
-var inst_dataset = dataset;
 var inst_exp_id = experiment_id;
-var inst_exp_label_id = experiment_label_id;
+var inst_exp_label_id = null;
 
 var conf = {};
 loadConfigurationFile(callback);
@@ -17,9 +12,10 @@ function callback() {
 }
 
 function loadConfigurationFile(callback) {
-    d3.json(buildQuery('getConf', [project, dataset, experiment_id]),
+    d3.json(buildQuery('getConf', [experiment_id]),
             function(error, data) {
                 conf = data;
+                inst_exp_label_id = conf.oldest_parent;
                 callback();
             }
            );
@@ -61,7 +57,7 @@ function displayFamiliesSelectors(panel, multiple = false) {
   label_div.appendChild(form);
   var fieldset = document.createElement('fieldset');
   form.appendChild(fieldset);
-  var query = buildQuery('getLabelsFamilies', [project, inst_dataset, inst_exp_label_id, 'None']);
+  var query = buildQuery('getLabelsFamilies', [inst_exp_label_id, 'None']);
   jQuery.getJSON(query, function(data) {
         var malicious_col = displayFamilySelector(fieldset, 'malicious', multiple, data);
         var col = createDivWithClass(null, 'col-md-1', parent_div = fieldset);
@@ -98,8 +94,7 @@ function displayRename(modif_div) {
     var selected_label  = label_family[0];
     var selected_family = label_family[1];
     var new_family_name = $('#rename_field').val();
-    var query = buildQuery('changeFamilyName', [project, dataset, experiment_id,
-                                                experiment_label_id,
+    var query = buildQuery('changeFamilyName', [experiment_id,
                                                 selected_label, selected_family,
                                                 new_family_name]);
     $.ajax({url: query, async: true});
@@ -146,8 +141,7 @@ function displayChange(modif_div) {
     var label_family    = getSelectedFamily();
     var selected_label  = label_family[0];
     var selected_family = label_family[1];
-    var query = buildQuery('changeFamilyLabel', [project, dataset, experiment_id,
-                                                 experiment_label_id,
+    var query = buildQuery('changeFamilyLabel', [experiment_id,
                                                  selected_label, selected_family]);
     $.ajax({url: query, async: true});
     displayChange(modif_div);
@@ -179,8 +173,7 @@ function displayMerge(modif_div) {
     var selected_label    = label_family[0];
     var selected_families = label_family[1];
     var new_family_name   = $('#merge_field').val();
-    var query = buildQuery('mergeFamilies', [project, dataset, experiment_id,
-                                             experiment_label_id,
+    var query = buildQuery('mergeFamilies', [experiment_id,
                                              selected_label, selected_families,
                                              new_family_name]);
     $.ajax({url: query, async: true});
@@ -242,7 +235,7 @@ function updateFamiliesStats(label = null) {
   }
   var stats_panel = cleanDiv('stats_panel_' + label);
   var query = buildQuery('getFamiliesBarplot',
-                         [project, dataset, experiment_id, 'None', label]);
+                         [experiment_id, 'None', label]);
   $.getJSON(query, function (data) {
       var options = barPlotOptions(data, 'Families');
       var barPlot = drawBarPlot(stats_panel.id,

@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -14,82 +14,76 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML_web.base import app, db, cursor
+from SecuML_web.base import app, session
 
 from flask import jsonify, render_template
 
-from SecuML.Tools import mysql_tools
-from SecuML.Data import labels_tools
+from SecuML import db_tables
 from SecuML.Experiment import experiment_db_tools
 from SecuML.Experiment import ExperimentFactory
+
+def updateCurrentExperiment(experiment_id):
+    #if experiment is None or experiment.experiment_id != experiment_id:
+    experiment = ExperimentFactory.getFactory().fromJson(experiment_id, session)
+    return experiment
 
 @app.route('/SecuML/<project>/<dataset>/<exp_type>/menu/')
 def expMenu(project, dataset, exp_type):
     return render_template('experiments_menu.html')
 
-@app.route('/SecuML/<project>/<dataset>/<experiment_id>/')
-def getExperiment(project, dataset, experiment_id):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id, db, cursor)
-    return render_template(experiment.webTemplate(), project = project)
+@app.route('/SecuML/<experiment_id>/')
+def getExperiment(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
+    return render_template(experiment.webTemplate(), project = experiment.project)
 
-@app.route('/SecuML/<project>/<dataset>/<experiment_id>/<feature>/')
-def getDescriptiveStatsExperiment(project, dataset, experiment_id, feature):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id, db, cursor)
-    return render_template(experiment.webTemplate(), feature = {'feature': feature})
+
+
+
+
+
+@app.route('/hasTrueLabels/<experiment_id>/')
+def hasTrueLabels(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
+    true_labels_exp_id =  db_tables.hasTrueLabels(experiment)
+    return str(true_labels_exp_id is not None)
+
+@app.route('/getTrueLabelsExperiment/<experiment_id>/')
+def getTrueLabelsExperiment(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
+    true_labels_exp_id =  db_tables.hasTrueLabels(experiment)
+    return str(true_labels_exp_id)
+
+@app.route('/getConf/<experiment_id>/')
+def getConf(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
+    conf = experiment.toJson()
+    conf['has_true_labels'] = db_tables.hasTrueLabels(experiment)
+    return jsonify(conf)
 
 @app.route('/getExperimentsNames/<project>/<dataset>/<exp_kind>/')
 def getExperimentsNames(project, dataset, exp_kind):
-    db.commit()
-    mysql_tools.useDatabase(cursor, project, dataset)
-    experiments = experiment_db_tools.getExperiments(cursor, exp_kind)
-    experience_dict = {}
-    for e in experiments:
-        experience_dict[e] = experiment_db_tools.getExperimentId(
-                cursor, e)
-    return jsonify(experience_dict)
+    experiments = experiment_db_tools.getExperiments(session, project, dataset, exp_kind)
+    return jsonify(experiments)
 
-@app.route('/getExperimentName/<project>/<dataset>/<experiment_id>/')
-def getExperimentName(project, dataset, experiment_id):
-    db.commit()
-    mysql_tools.useDatabase(cursor, project, dataset)
-    return experiment_db_tools.getExperimentName(cursor, experiment_id)
+@app.route('/getExperimentLabelId/<experiment_id>/')
+def getExperimentLabelId(experiment_id):
+    experiment_label_id = experiment_db_tools.getExperimentLabelId(session, experiment_id)
+    return str(experiment_label_id)
 
-@app.route('/getExperimentId/<project>/<dataset>/<experiment_name>/')
-def getExperimentId(project, dataset, experiment_name):
-    db.commit()
-    mysql_tools.useDatabase(cursor, project, dataset)
-    return str(experiment_db_tools.getExperimentId(
-        cursor, experiment_name))
+@app.route('/getExperimentName/<experiment_id>/')
+def getExperimentName(experiment_id):
+    return experiment_db_tools.getExperimentName(session, experiment_id)
 
-@app.route('/getExperimentLabelId/<project>/<dataset>/<experiment_id>/')
-def getExperimentLabelId(project, dataset, experiment_id):
-    db.commit()
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id, db, cursor)
-    experiment_label_id = str(experiment.experiment_label_id)
-    return experiment_label_id
 
-@app.route('/getChildren/<project>/<dataset>/<experiment_id>/')
-def getChildren(project, dataset, experiment_id):
-    db.commit()
-    mysql_tools.useDatabase(cursor, project, dataset)
-    return ' '.join(map(str, experiment_db_tools.getChildren(cursor, experiment_id)))
 
-@app.route('/hasTrueLabels/<project>/<dataset>/')
-def hasTrueLabels(project, dataset):
-    mysql_tools.useDatabase(cursor, project, dataset)
-    has_true_labels = labels_tools.hasTrueLabels(cursor)
-    return str(has_true_labels)
 
-@app.route('/getConf/<project>/<dataset>/<experiment_id>/')
-def getConf(project, dataset, experiment_id):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    conf = experiment.toJson()
-    mysql_tools.useDatabase(cursor, project, dataset)
-    conf['has_true_labels'] = labels_tools.hasTrueLabels(cursor)
-    return jsonify(conf)
+@app.route('/getDescriptiveStatsExp/<experiment_id>/')
+def getDescriptiveStatsExp(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
+    return str(experiment_db_tools.getDescriptiveStatsExp(experiment.session, experiment))
 
-@app.route('/getDescriptiveStatsExp/<project>/<dataset>/<features_filenames>/')
-def getDescriptiveStatsExp(project, dataset, features_filenames):
-    mysql_tools.useDatabase(cursor, project, dataset)
-    return str(experiment_db_tools.getDescriptiveStatsExp(cursor, features_filenames))
+
+@app.route('/SecuML/<experiment_id>/<feature>/')
+def getDescriptiveStatsExperiment(experiment_id, feature):
+    experiment = updateCurrentExperiment(experiment_id)
+    return render_template(experiment.webTemplate(), feature = {'feature': feature})

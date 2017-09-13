@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -14,9 +14,13 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.config import INPUTDATA_DIR
+from SecuML_web.base import session
 
-def getInstance(dataset, instance_id, ident):
+from SecuML.config import INPUTDATA_DIR
+from SecuML.Experiment import experiment_db_tools
+
+def getInstance(experiment, view_id, instance_id, ident):
+    dataset = experiment.dataset
     filename  = INPUTDATA_DIR + '/' + 'SpamHam' + '/'
     filename += dataset + '/raw_mail/' + ident
     with open(filename, 'r') as f:

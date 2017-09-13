@@ -1,16 +1,13 @@
 var path = window.location.pathname.split('/');
-var project       = path[2];
-var dataset       = path[3];
-var experiment_id = path[4];
-var init_feature  = path[5];
+var experiment_id = path[2];
+var init_feature  = path[3];
 
 var features_types =  null;
 
-loadConfigurationFile(project, dataset, experiment_id, callback);
+loadConfigurationFile(experiment_id, callback);
 
-function loadConfigurationFile(project, dataset, experiment_id, callback) {
-  $.getJSON(buildQuery('getConf',
-                     [project, dataset, experiment_id]),
+function loadConfigurationFile(experiment_id, callback) {
+  $.getJSON(buildQuery('getConf', [experiment_id]),
           function(data) {
               var conf = data;
               callback(conf);
@@ -41,8 +38,7 @@ function generateDivisions(conf) {
 }
 
 function loadFeaturesNames() {
-  var query = buildQuery('getFeaturesTypes',
-                         [project, dataset, experiment_id]);
+  var query = buildQuery('getFeaturesTypes', [experiment_id]);
   $.getJSON(query, function(data) {
       var features = data['features'];
       addElementsToSelectList('features_selector', features);
@@ -68,7 +64,7 @@ function displayBinaryFeatureAnalysis(feature, menu_div) {
                             menu_div);
   // Histogram
   var query = buildQuery('getStatsPlot',
-                         [project, dataset, experiment_id, 'binary_histogram', feature]);
+                         [experiment_id, 'binary_histogram', feature]);
   var bin_hist = $('#bin_hist')[0];
   $.getJSON(query, function (data) {
       var options = barPlotOptions(data);
@@ -85,7 +81,7 @@ function displayNumericFeatureAnalysis(feature, menu_div) {
   // BoxPlot
   var boxplot = document.getElementById('boxplot');
   var path = buildQuery('getStatsPlot',
-                        [project, dataset, experiment_id, 'boxplot', feature]);
+                        [experiment_id, 'boxplot', feature]);
   var picture = document.createElement('img');
   picture.src = path;
   picture.style.width = '80%';
@@ -95,7 +91,7 @@ function displayNumericFeatureAnalysis(feature, menu_div) {
   var hist = document.getElementById('hist');
   hist.setAttribute('class', 'tab-pane fade');
   var query = buildQuery('getStatsPlot',
-                         [project, dataset, experiment_id, 'histogram', feature]);
+                         [experiment_id, 'histogram', feature]);
   var hist = $('#hist')[0];
   $.getJSON(query, function (data) {
       var options = barPlotOptions(data);
@@ -106,7 +102,7 @@ function displayNumericFeatureAnalysis(feature, menu_div) {
   // Density
   var density = document.getElementById('density');
   var path = buildQuery('getStatsPlot',
-                        [project, dataset, experiment_id, 'density', feature]);
+                        [experiment_id, 'density', feature]);
   var picture = document.createElement('img');
   picture.src = path;
   picture.style.width = '80%';

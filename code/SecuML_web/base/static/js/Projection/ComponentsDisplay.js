@@ -1,5 +1,4 @@
-function drawComponentsInterpretation(project, dataset, experiment,
-        c_x, c_y) {
+function drawComponentsInterpretation(experiment, c_x, c_y) {
 
   var C_x = 'C_' + c_x;
   var C_y = 'C_' + c_y;
@@ -7,7 +6,7 @@ function drawComponentsInterpretation(project, dataset, experiment,
   cleanDiv('components_interpretation_graph');
 
   var components_coefficient_file = buildQuery('getProjectionMatrix',
-          [project, dataset, experiment]);
+                                               [experiment]);
   d3.csv(components_coefficient_file, function(error, data) {
 
     var margin = {top: 20, right: 20, bottom: 30, left: 40};
@@ -88,8 +87,7 @@ function drawComponentsInterpretation(project, dataset, experiment,
   });
 }
 
-function drawProjectionOnComponents(project, dataset, experiment,
-        c_x, c_y) {
+function drawProjectionOnComponents(experiment, c_x, c_y) {
 
   if (c_y <= c_x) {
     alert('C_x must be smaller than C_y');
@@ -102,7 +100,7 @@ function drawProjectionOnComponents(project, dataset, experiment,
   cleanDiv('projected_data_graph');
 
   hex_bin_file = buildQuery('getHexBin',
-          [project, dataset, experiment, c_x, c_y]);
+                            [experiment, c_x, c_y]);
 
   var margin = {top: 20, right: 20, bottom: 30, left: 40};
   var width = 500 - margin.left - margin.right;
@@ -232,7 +230,7 @@ function drawProjectionOnComponents(project, dataset, experiment,
 
 }
 
-function drawComponents(project, dataset, experiment, c_x, c_y) {
-  drawProjectionOnComponents(project, dataset, experiment, c_x, c_y);
-  //drawComponentsInterpretation(project, dataset, experiment, c_x, c_y);
+function drawComponents(experiment, c_x, c_y) {
+  drawProjectionOnComponents(experiment, c_x, c_y);
+  //drawComponentsInterpretation(experiment, c_x, c_y);
 }

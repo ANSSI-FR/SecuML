@@ -46,7 +46,8 @@ function generateFirstRowDivisions(conf) {
 function generateSecondRowDivisions(conf) {
   var row = $('#row_3')[0];
   var col_size = 'col-md-4';
-  if (conf.validation_conf) {
+  console.log(conf);
+  if (conf.conf.validation_conf) {
     monitorings = ['train', 'test', 'validation'];
   } else {
     monitorings = ['train', 'cv', 'test'];

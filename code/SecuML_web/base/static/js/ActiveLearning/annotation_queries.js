@@ -8,26 +8,22 @@ function displayAnnotationQueries(conf, iteration) {
   results.addEventListener('click', function() {
       if (conf.labeling_method == 'Ilab') {
         var query = buildQuery('ilabAnnotations',
-            [project, dataset, experiment_id, iteration]);
+            [experiment_id, iteration]);
       } else if(conf.labeling_method == 'RareCategoryDetection') {
         var query = buildQuery('rareCategoryDetectionAnnotations',
-            [project, dataset, experiment_id, iteration]);
+            [experiment_id, iteration]);
       } else if(conf.labeling_method == 'RandomSampling') {
         var query = buildQuery('individualAnnotations',
-            [project, dataset, experiment_id,
-            iteration, 'random']);
+            [experiment_id, iteration, 'random']);
       } else if(conf.labeling_method == 'CesaBianchi') {
         var query = buildQuery('individualAnnotations',
-            [project, dataset, experiment_id,
-            iteration, 'CesaBianchi']);
+            [experiment_id, iteration, 'CesaBianchi']);
       } else if (conf.labeling_method == 'Aladin'){
         var query = buildQuery('individualAnnotations',
-            [project, dataset, experiment_id,
-            iteration, 'aladin']);
+            [experiment_id, iteration, 'aladin']);
       } else {
         var query = buildQuery('individualAnnotations',
-            [project, dataset, experiment_id,
-            iteration, 'uncertain']);
+            [experiment_id, iteration, 'uncertain']);
       }
       window.open(query);
   });

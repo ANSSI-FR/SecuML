@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,32 +16,30 @@
 
 from flask import send_file
 
-from SecuML_web.base import app, db, cursor
+from SecuML_web.base import app
+from SecuML_web.base.views.experiments import updateCurrentExperiment
 
 from SecuML.ActiveLearning.Iteration import Iteration
-from SecuML.Experiment import ExperimentFactory
-from SecuML.Tools import dir_tools
 
-@app.route('/getLabelsMonitoring/<project>/<dataset>/<experiment_id>/<iteration>/')
-def getLabelsMonitoring(project, dataset, experiment_id, iteration):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    filename  = dir_tools.getExperimentOutputDirectory(experiment) + str(iteration) + '/'
+@app.route('/getLabelsMonitoring/<experiment_id>/<iteration>/')
+def getLabelsMonitoring(experiment_id, iteration):
+    experiment = updateCurrentExperiment(experiment_id)
+    filename  = experiment.getOutputDirectory() + str(iteration) + '/'
     filename += 'labels_monitoring/labels_monitoring.json'
     return send_file(filename)
 
-@app.route('/activeLearningSuggestionsMonitoring/<project>/<dataset>/<experiment_id>/<iteration>/')
-def activeLearningSuggestionsMonitoring(project, dataset, experiment_id, iteration):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id, db, cursor)
-    filename  = dir_tools.getExperimentOutputDirectory(experiment) + str(int(iteration) - 1) + '/'
+@app.route('/activeLearningSuggestionsMonitoring/<experiment_id>/<iteration>/')
+def activeLearningSuggestionsMonitoring(experiment_id, iteration):
+    experiment = updateCurrentExperiment(experiment_id)
+    filename  = experiment.getOutputDirectory() + str(int(iteration) - 1) + '/'
     filename += 'suggestions_accuracy/'
     filename += 'labels_families'
     filename += '_high_confidence_suggestions.png'
     return send_file(filename)
 
-@app.route('/activeLearningModelsMonitoring/<project>/<dataset>/<experiment_id>/<iteration>/<train_cv_validation>/')
-def activeLearningModelsMonitoring(project, dataset, experiment_id, iteration, train_cv_validation):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id, db, cursor)
+@app.route('/activeLearningModelsMonitoring/<experiment_id>/<iteration>/<train_cv_validation>/')
+def activeLearningModelsMonitoring(experiment_id, iteration, train_cv_validation):
+    experiment = updateCurrentExperiment(experiment_id)
     active_learning = Iteration(experiment, int(iteration))
     binary_multiclass = 'multiclass'
     estimator = 'accuracy'
@@ -54,9 +52,9 @@ def activeLearningModelsMonitoring(project, dataset, experiment_id, iteration, t
     filename += binary_multiclass + '_' + train_cv_validation + '_' + estimator + '_monitoring.png'
     return send_file(filename, mimetype='image/png')
 
-@app.route('/activeLearningMonitoring/<project>/<dataset>/<experiment_id>/<iteration>/<kind>/<sub_kind>/')
-def activeLearningMonitoring(project, dataset, experiment_id, iteration, kind, sub_kind):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id, db, cursor)
+@app.route('/activeLearningMonitoring/<experiment_id>/<iteration>/<kind>/<sub_kind>/')
+def activeLearningMonitoring(experiment_id, iteration, kind, sub_kind):
+    experiment = updateCurrentExperiment(experiment_id)
     active_learning = Iteration(experiment, int(iteration))
     directory = active_learning.output_directory
     if kind == 'labels':

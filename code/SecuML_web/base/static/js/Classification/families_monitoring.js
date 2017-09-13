@@ -1,4 +1,4 @@
-function displayFamiliesTabs(div_name, project, dataset, experiment_id, train_test) {
+function displayFamiliesTabs(div_name, experiment_id, train_test) {
   var global_div = cleanDiv(div_name);
 
   // Tabs menu
@@ -18,21 +18,21 @@ function displayFamiliesTabs(div_name, project, dataset, experiment_id, train_te
           'malicious_families',
           'tab-pane fade in active',
           parent_div = tabs_content);
-  displayFamiliesPerformance(project, dataset, experiment_id, train_test, 'malicious');
+  displayFamiliesPerformance(experiment_id, train_test, 'malicious');
   // Benign
   var benign_families = createDivWithClass(
           'benign_families',
           'tab-pane fade',
           parent_div = tabs_content);
-  displayFamiliesPerformance(project, dataset, experiment_id, train_test, 'benign');
+  displayFamiliesPerformance(experiment_id, train_test, 'benign');
 }
 
-function displayFamiliesPerformance(project, dataset, experiment_id, train_test, label) {
+function displayFamiliesPerformance(experiment_id, train_test, label) {
     var threshold = $('#slider').slider('value');
     var perf_div_name = label + '_families';
     var perf_div = cleanDiv(perf_div_name);
     var query = buildQuery('getFamiliesPerformance',
-                           [project, dataset, experiment_id, train_test, label, threshold]);
+                           [experiment_id, train_test, label, threshold]);
   $.getJSON(query, function (data) {
       var options = barPlotOptions(data);
       var barPlot = drawBarPlot(perf_div_name,
@@ -40,7 +40,6 @@ function displayFamiliesPerformance(project, dataset, experiment_id, train_test,
       var div_height = Math.round(window.screen.availHeight * 0.75) + 'px';
       perf_div.style.height = div_height;
   });
-
 }
 
 function displayFamiliesMonitoring(conf, train_test, sup_exp) {
@@ -53,7 +52,7 @@ function displayFamiliesMonitoring(conf, train_test, sup_exp) {
   var text = document.createTextNode('Display detection rates / false alarm rates');
   elem.appendChild(text);
   var query = buildQuery('familiesPerformance',
-                         [conf.project, conf.dataset, exp, train_test]);
+                         [exp, train_test]);
   elem.setAttribute('href', query);
   div.appendChild(elem);
 }

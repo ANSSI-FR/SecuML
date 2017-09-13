@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,58 +16,50 @@
 
 from flask import send_file
 
-from SecuML_web.base import app, db, cursor
+from SecuML_web.base import app
+from SecuML_web.base.views.experiments import updateCurrentExperiment
 
-from SecuML.Experiment import ExperimentFactory
-from SecuML.Tools import dir_tools
-
-@app.route('/getNumComponents/<project>/<dataset>/<experiment_id>/')
-def getNumComponents(project, dataset, experiment_id):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    directory = dir_tools.getExperimentOutputDirectory(experiment)
+@app.route('/getNumComponents/<experiment_id>/')
+def getNumComponents(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
+    directory = experiment.getOutputDirectory()
     filename = directory + 'projection_matrix.csv'
     with open(filename, 'r') as f:
         header = f.readline()
         num_components = len(header.split(',')) - 1
     return str(num_components)
 
-@app.route('/getHexBin/<project>/<dataset>/<experiment_id>/<x>/<y>/')
-def getHexBin(project, dataset, experiment_id, x, y):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    directory = dir_tools.getExperimentOutputDirectory(experiment)
+@app.route('/getHexBin/<experiment_id>/<x>/<y>/')
+def getHexBin(experiment_id, x, y):
+    experiment = updateCurrentExperiment(experiment_id)
+    directory = experiment.getOutputDirectory()
     filename = directory + 'c_'+ x + '_' + y + '_hexbin.json'
     return send_file(filename)
 
-@app.route('/getProjectionMatrix/<project>/<dataset>/<experiment_id>/')
-def getProjectionMatrix(project, dataset, experiment_id):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    directory = dir_tools.getExperimentOutputDirectory(experiment)
+@app.route('/getProjectionMatrix/<experiment_id>/')
+def getProjectionMatrix(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
+    directory = experiment.getOutputDirectory()
     filename = directory + 'projection_matrix.csv'
     return send_file(filename)
 
-@app.route('/getExplVar/<project>/<dataset>/<experiment_id>/')
-def getExplVar(project, dataset, experiment_id):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    directory = dir_tools.getExperimentOutputDirectory(experiment)
+@app.route('/getExplVar/<experiment_id>/')
+def getExplVar(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
+    directory = experiment.getOutputDirectory()
     filename = directory + 'explained_variance.csv'
     return send_file(filename)
 
-@app.route('/getCumExplVar/<project>/<dataset>/<experiment_id>/')
-def getCumExplVar(project, dataset, experiment_id):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    directory = dir_tools.getExperimentOutputDirectory(experiment)
+@app.route('/getCumExplVar/<experiment_id>/')
+def getCumExplVar(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
+    directory = experiment.getOutputDirectory()
     filename = directory + 'cumuled_explained_variance.csv'
     return send_file(filename)
 
-@app.route('/getReconsErrors/<project>/<dataset>/<experiment_id>/')
-def getReconsErrors(project, dataset, experiment_id):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    directory = dir_tools.getExperimentOutputDirectory(experiment)
+@app.route('/getReconsErrors/<experiment_id>/')
+def getReconsErrors(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
+    directory = experiment.getOutputDirectory()
     filename = directory + 'reconstruction_errors.csv'
     return send_file(filename)

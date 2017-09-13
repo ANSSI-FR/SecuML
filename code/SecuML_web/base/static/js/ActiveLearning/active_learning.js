@@ -1,8 +1,6 @@
 var path = window.location.pathname.split('/');
-var project       = path[2];
-var dataset       = path[3];
-var experiment_id = path[4];
-var view          = path[5];
+var experiment_id = path[2];
+var view          = path[3];
 
 if (view == '') {
     view = 'ml';
@@ -12,18 +10,19 @@ var exp_type          = 'ActiveLearning';
 var monitorings       = null;
 var current_iteration = null;
 
-loadConfigurationFile(project, dataset, experiment_id, callback);
+loadConfigurationFile(experiment_id, callback);
 
-function loadConfigurationFile(project, dataset, experiment_id, callback) {
-  d3.json(buildQuery('getConf', [project, dataset, experiment_id]),
+function loadConfigurationFile(experiment_id, callback) {
+  d3.json(buildQuery('getConf', [experiment_id]),
           function(error, data) {
               var conf = data;
-              if (conf['validation_conf']) {
-                  conf['validation_has_true_labels'] = hasTrueLabels(project, conf['validation_conf']['test_dataset']);
+              if (conf['conf']['validation_conf']) {
+                  conf['validation_has_true_labels'] = hasTrueLabels(
+                                   conf['conf']['validation_conf']['test_exp']['experiment_id']);
               }
               if (conf.conf.models_conf['binary']) {
                   conf.classification_conf = conf.conf.models_conf['binary'];
-              } else if (conf.conf.models_conf['multiclass']){
+              } else if (conf.conf.models_conf['multiclass']) {
                   conf.classification_conf = conf.conf.models_conf['multiclass'];
               }
               callback(conf);
@@ -33,7 +32,7 @@ function loadConfigurationFile(project, dataset, experiment_id, callback) {
 
 function displayIteration(conf) {
   var iteration = getIteration();
-  displayLabelsInformation(project, dataset, experiment_id, iteration);
+  displayLabelsInformation(experiment_id, iteration);
   updateEvolutionMonitoringDisplay(conf, iteration);
   displayAnnotationQueries(conf, iteration);
   if (view == 'ml') {
@@ -57,8 +56,7 @@ function callback(conf) {
 
 function displayIterations(conf) {
   return function() {
-    var current_iteration_db = currentAnnotationIteration(conf.project,
-            conf.dataset, conf.experiment_id);
+    var current_iteration_db = currentAnnotationIteration(conf.experiment_id);
     if (!current_iteration) {
         current_iteration = current_iteration_db;
     } else {

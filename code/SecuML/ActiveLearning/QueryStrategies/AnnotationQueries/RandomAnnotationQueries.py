@@ -32,7 +32,7 @@ class RandomAnnotationQueries(AnnotationQueries):
         if len(self.predictions.index) > self.num_annotations:
             df_queries = self.predictions.loc[random.sample(list(self.predictions.index), self.num_annotations)]
         else:
-            df_queries = self.predictions.index
+            df_queries = self.predictions
         for index, row in df_queries.iterrows():
             query = AnnotationQuery(index, row['predicted_proba'], None, None)
             self.annotation_queries.append(query)

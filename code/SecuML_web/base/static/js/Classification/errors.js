@@ -1,9 +1,6 @@
 var path = window.location.pathname.split('/');
-var project             = path[2];
-var dataset             = path[3];
-var experiment_id       = path[4];
-var train_test          = path[5];
-var experiment_label_id = path[6];
+var experiment_id       = path[2];
+var train_test          = path[3];
 
 var label_method = 'confusion_matrix';
 var label_iteration = 0;
@@ -24,38 +21,25 @@ function getCurrentInstance() {
 
 var conf = {};
 
-loadConfigurationFile(function () {
-    if (train_test == 'train') {
-        inst_dataset = dataset;
-        inst_exp_id = experiment_id;
-        inst_exp_label_id = experiment_label_id;
-        has_families = datasetHasFamilies(project, inst_dataset, inst_exp_label_id);
-        callback();
-    } else {
-        setInstancesSettings(train_test, project, dataset, experiment_id, experiment_label_id,
-            callback);
-    }
-});
-
-function loadConfigurationFile(callback) {
-    $.getJSON(buildQuery('getConf',
-                         [project, dataset, experiment_id]),
-            function(data) {
-                conf = data;
-                callback();
-            }
-           );
-}
+loadConfigurationFile();
 
 function callback() {
   displayDivisions();
   getMisclassifiedInstances();
 }
 
+function loadConfigurationFile() {
+    $.getJSON(buildQuery('getConf', [experiment_id]),
+            function(data) {
+                conf = data;
+                setInstancesSettings(train_test, experiment_id, conf.oldest_parent, callback);
+            }
+           );
+}
+
 function getMisclassifiedInstances() {
   var query = buildQuery('supervisedLearningMonitoring',
-                         [conf.project, conf.dataset,
-                          conf.experiment_id, train_test, 'errors']);
+                         [conf.experiment_id, train_test, 'errors']);
   $.getJSON(query,
             function(data) {
                errors['fp'] = Object.keys(data['FP']);
@@ -154,9 +138,12 @@ function displayNavList(type) {
 
 function displayInstanceRow() {
   var row = $('#instance')[0];
-  displayInstancePanel(row, annotation = false);
+  var annotation = true;
+  displayInstancePanel(row, annotation = annotation);
   displayInstanceInformationStructure();
-  //displayAnnotationDiv(false, false);
+  if (annotation) {
+    displayAnnotationDiv(false, false);
+  }
 }
 
 function displayNextInstance() {

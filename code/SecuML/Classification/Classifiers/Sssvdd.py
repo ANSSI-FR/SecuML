@@ -18,6 +18,7 @@ import numpy as np
 import scipy
 from sklearn.preprocessing import StandardScaler
 import time
+import warnings
 
 from SecuML.Classification.Classifier import Classifier
 from SecuML.Classification.Monitoring.TestingMonitoring import TestingMonitoring
@@ -36,8 +37,12 @@ class Sssvdd(Classifier):
         self.nu_L  = 1.
         self.nu_U  = 1.
         self.kappa = 1.
-        # No cross validation monitoring
-        self.cv_monitoring = None
+        self.checkCvMonitoring()
+
+    def checkCvMonitoring(self):
+        if self.cv_monitoring:
+            warnings.warn('Sssvdd does not support cv_monitoring.\n')
+            self.cv_monitoring = None
 
     def training(self):
         self.training_execution_time = 0

@@ -1,20 +1,32 @@
 function runNextIteration(conf) {
     return function() {
-      // Generate the next annotation queries
-      var query = buildQuery('runNextIteration',
-                             [conf.project, conf.dataset, conf.experiment_id, label_iteration]);
-      var xmlHttp = new XMLHttpRequest();
-      xmlHttp.open('GET', query, false);
-      xmlHttp.send(null);
-      // Close the current tab
-      window.close();
+      //// Check all the annotation queries have been aswered
+      //var query = buildQuery('checkAnnotationQueriesAnswered',
+      //        [conf.experiment_id, label_iteration]);
+      //var xmlHttp = new XMLHttpRequest();
+      //xmlHttp.open('GET', query, false);
+      //xmlHttp.send(null);
+      //var ok = xmlHttp.responseText == 'True';
+      var ok = true;
+      if (ok) {
+        // Generate the next annotation queries
+        var query = buildQuery('runNextIteration',
+                               [conf.experiment_id, label_iteration]);
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open('GET', query, false);
+        xmlHttp.send(null);
+        // Close the current tab
+        window.close();
+      } else {
+          alert('Some annotation queries have not been answered.');
+      }
     }
 }
 
-function currentAnnotationIteration(project, dataset, experiment_id) {
+function currentAnnotationIteration(experiment_id) {
     var xmlHttp = new XMLHttpRequest();
     var query = buildQuery('currentAnnotationIteration',
-                           [project, dataset, experiment_id]);
+                           [experiment_id]);
     xmlHttp.open('GET', query, false);
     xmlHttp.send(null);
     var current_iteration = xmlHttp.responseText;

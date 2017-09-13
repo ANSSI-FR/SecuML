@@ -1,13 +1,9 @@
 var path = window.location.pathname.split('/');
-var project           = path[2];
-var dataset           = path[3];
-var experiment_id     = path[4];
-var label_iteration   = path[5];
+var experiment_id     = path[2];
+var label_iteration   = path[3];
 
 var annotations_types = null;
 var label_method      = null;
-var experiment_label_id = getExperimentLabelId(
-                project, dataset, experiment_id);
 
 var current_label        = null;
 var families_list        = null;
@@ -19,10 +15,9 @@ var confidence_list        = null;
 var num_instances          = null;
 var current_instance_index = null;
 
-var inst_dataset = dataset;
 var inst_exp_id = experiment_id;
-var inst_exp_label_id = experiment_label_id;
-var has_families = datasetHasFamilies(project, inst_dataset, inst_exp_label_id);
+var inst_exp_label_id = null;
+var has_families = datasetHasFamilies(inst_exp_id);
 
 addShortcuts();
 
@@ -38,16 +33,16 @@ function callback() {
 }
 
 function loadConfigurationFile(callback) {
-    d3.json(buildQuery('getConf', [project, dataset, experiment_id]),
+    d3.json(buildQuery('getConf', [experiment_id]),
             function(error, data) {
                 conf = data;
+                inst_exp_label_id = conf.oldest_parent;
                 conf.interactive = false;
                 if (!conf.conf.auto) {
-                    var current_iteration = currentAnnotationIteration(project, dataset,
-                            experiment_id);
+                    var current_iteration = currentAnnotationIteration(experiment_id);
                     conf.interactive = label_iteration == current_iteration;
                 }
-                d3.json(buildQuery('getAnnotationsTypes', [project, dataset, experiment_id, label_iteration]),
+                d3.json(buildQuery('getAnnotationsTypes', [experiment_id, label_iteration]),
                   function(error, data) {
                     annotations_types = data;
                     callback();
@@ -67,7 +62,7 @@ function displayInstancesToAnnotate(label, type) {
     displayNavbars(type, annotations_type, clustering_exp);
     if (annotations_type == 'families') {
       var query = buildQuery('getFamiliesInstancesToAnnotate',
-                             [project, dataset, experiment_id, label_iteration, label]);
+                             [experiment_id, label_iteration, label]);
       d3.json(query, function(error, data) {
           annotation_queries = data;
           families_list = Object.keys(data);
@@ -79,7 +74,7 @@ function displayInstancesToAnnotate(label, type) {
       });
     } else if (annotations_type == 'individual') {
       var query = buildQuery('getInstancesToAnnotate',
-                             [project, dataset, experiment_id, label_iteration, label]);
+                             [experiment_id, label_iteration, label]);
       d3.json(query, function(error, data) {
           instances_list = data['instances'];
           families_list = null;
@@ -159,7 +154,7 @@ function updateInstanceNavbar() {
 }
 
 function updateAnnotationTypesButtons() {
-    d3.json(buildQuery('getAnnotationsTypes', [project, dataset, experiment_id, label_iteration]),
+    d3.json(buildQuery('getAnnotationsTypes', [experiment_id, label_iteration]),
       function(error, data) {
         annotations_types = data;
       });
@@ -252,7 +247,7 @@ function displayNavbars(type, annotations_type, clustering_exp) {
 function clusteringVisualization(row, clustering_exp) {
   function displayClustering(clustering_exp) {
     return function() {
-      var query = buildQuery('SecuML', [project, dataset, clustering_exp]);
+      var query = buildQuery('SecuML', [clustering_exp]);
       window.open(query);
     }
   }

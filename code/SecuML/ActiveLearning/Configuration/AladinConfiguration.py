@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -30,13 +30,15 @@ def aladinMulticlassModelConf():
     test_conf = TestConfiguration()
     test_conf.setUnlabeled(labels_annotations = 'annotations')
     classifier_args['test_conf'] = test_conf
-    multiclass_model_conf = ClassifierConfFactory.getFactory().fromParam('LogisticRegression', classifier_args)
+    factory = ClassifierConfFactory.getFactory()
+    multiclass_model_conf = factory.fromParam('LogisticRegression',
+                                              classifier_args)
     return multiclass_model_conf
 
 class AladinConfiguration(ActiveLearningConfiguration):
 
-    def __init__(self, auto, budget, num_annotations, binary_model_conf):
-        ActiveLearningConfiguration.__init__(self, auto, budget)
+    def __init__(self, auto, budget, num_annotations, binary_model_conf, validation_conf):
+        ActiveLearningConfiguration.__init__(self, auto, budget, validation_conf)
         self.labeling_method = 'Aladin'
         self.num_annotations = num_annotations
         self.setModelsConf(binary_model_conf)
@@ -57,11 +59,15 @@ class AladinConfiguration(ActiveLearningConfiguration):
 
     @staticmethod
     def fromJson(obj, experiment):
+        validation_conf = None
+        if obj['validation_conf'] is not None:
+            validation_conf = TestConfiguration.fromJson(obj['validation_conf'],
+                                                         experiment)
         binary_model_conf = ClassifierConfFactory.getFactory().fromJson(
                 obj['models_conf']['binary'],
                 experiment)
         conf = AladinConfiguration(obj['auto'], obj['budget'],
-                                   obj['num_annotations'], binary_model_conf)
+                                   obj['num_annotations'], binary_model_conf, validation_conf)
         return conf
 
     def toJson(self):
@@ -72,16 +78,28 @@ class AladinConfiguration(ActiveLearningConfiguration):
 
     @staticmethod
     def generateParser(parser):
-        al_group = ActiveLearningConfiguration.generateParser(parser)
+        al_group = ActiveLearningConfiguration.generateParser(parser,
+                                                              classifier_conf = False)
         al_group.add_argument('--num-annotations',
                 type = int,
                 default = 100,
                 help = 'Number of annotations asked from the user at each iteration.')
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ActiveLearningConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, experiment):
+        supervised_args = {}
+        supervised_args['num_folds']            = 4
+        supervised_args['sample_weight']        = False
+        supervised_args['families_supervision'] = False
+        test_conf = TestConfiguration()
+        test_conf.setUnlabeled(labels_annotations = 'annotations')
+        supervised_args['test_conf'] = test_conf
+        binary_model_conf = ClassifierConfFactory.getFactory().fromParam(
+                'LogisticRegression', supervised_args)
+        params = ActiveLearningConfiguration.generateParamsFromArgs(args, experiment,
+                binary_model_conf = binary_model_conf)
         params['num_annotations'] = args.num_annotations
         return params
 
-ActiveLearningConfFactory.getFactory().registerClass('AladinConfiguration', AladinConfiguration)
+ActiveLearningConfFactory.getFactory().registerClass('AladinConfiguration',
+                                                     AladinConfiguration)

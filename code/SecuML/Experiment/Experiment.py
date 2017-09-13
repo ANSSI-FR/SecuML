@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,45 +17,40 @@
 import csv
 import json
 
+from SecuML import db_tables
+
 from SecuML.Data import labels_tools
 from SecuML.Data import idents_tools
 
 from SecuML.Experiment import experiment_db_tools
-from SecuML.Experiment import ExperimentFactory
 
 from SecuML.Tools import dir_tools
 from SecuML.Tools import mysql_tools
 
-class InvalidLabels(Exception):
-
-    def __init__(self, invalid_values):
-        self.message  = 'The labels must be "malicious" or "benign". '
-        self.message += 'Invalid values encountered: '
-        self.message += ','.join(invalid_values) + '.'
-
-    def __str__(self):
-        return self.message
-
 class Experiment(object):
 
-    def __init__(self, project, dataset, db, cursor,
-            experiment_name = None,
-            experiment_label = None,
-            parent = None):
-        self.project = project
-        self.dataset = dataset
-        self.setDbConnection(db, cursor)
-        self.parent = parent
-        self.kind = 'Experiment'
+    def __init__(self, project, dataset, session, experiment_name = None,
+                 parent = None):
+        self.session         = session
+        self.project         = project
+        self.dataset         = dataset
+        self.dataset_id      = self.setDatasetId()
+        self.kind            = 'Experiment'
         self.experiment_name = experiment_name
-        self.experiment_id = None
-        self.experiment_label = experiment_label
-        self.experiment_label_id = None
+        self.experiment_id   = None
+        self.parent          = parent
+        self.oldest_parent   = None
 
-    def setDbConnection(self, db, cursor):
-        self.db = db
-        self.cursor = cursor
-        mysql_tools.useDatabase(self.cursor, self.project, self.dataset)
+    def setDatasetId(self):
+        project_id = db_tables.checkProject(self.session, self.project)
+        dataset_id = db_tables.checkDataset(self.session, project_id, self.dataset)
+        return dataset_id
+
+    def getOutputDirectory(self):
+        output_dir = dir_tools.getDatasetOutputDirectory(self.project,
+                                                         self.dataset)
+        output_dir += str(self.experiment_id) + '/'
+        return output_dir
 
     def getFeaturesFilenames(self):
         return self.features_filenames
@@ -78,7 +73,7 @@ class Experiment(object):
         return features_names
 
     def getFeatures(self, instance_id):
-        row_number = idents_tools.getRowNumber(self.cursor, instance_id)
+        row_number = idents_tools.getRowNumber(self.session, self.dataset_id, instance_id)
         features_path = self.getFeaturesFilesFullpaths()
         features_names = []
         features_values = []
@@ -106,8 +101,7 @@ class Experiment(object):
             self.initFromFile(labels_filename)
 
     def initFromFile(self, labels_filename):
-        filename  = dir_tools.getDatasetDirectory(self.project,
-                self.dataset)
+        filename  = dir_tools.getDatasetDirectory(self.project, self.dataset)
         filename += 'labels/' + labels_filename
         if not dir_tools.checkFileExists(filename):
             raise ValueError('The labels file %s does not exist.' % filename)
@@ -126,24 +120,19 @@ class Experiment(object):
             query += '(instance_id, label, family) '
         else:
             query += '(instance_id, label) '
-        query += 'SET experiment_label_id = ' + str(self.experiment_label_id) + ', '
+        query += 'SET experiment_id = ' + str(self.oldest_parent) + ', '
+        query += 'dataset_id =  ' + str(self.dataset_id) + ','
         if not families:
             query += 'family = "other",'
         query += 'iteration = 0, '
         query += 'method = "init", '
-        query += 'annotation = "0"'
+        query += 'annotation = "1"'
         query += ';'
-        self.cursor.execute(query);
-        self.db.commit()
-        self.checkLabelsValidity()
+        db, cursor = mysql_tools.getSecuMLConnection()
+        cursor.execute(query);
 
-    def checkLabelsValidity(self):
-        query = 'SELECT DISTINCT label from Labels;'
-        self.cursor.execute(query)
-        labels_values = set([x[0] for x in self.cursor.fetchall()])
-        other_values = list(labels_values.difference(set(['malicious', 'benign'])))
-        if len(other_values) != 0:
-            raise InvalidLabels(other_values)
+        mysql_tools.closeConnection(db, cursor)
+        labels_tools.checkLabelsValidity(self.session)
 
     def generateExperimentName(self, labels_filename):
         if self.experiment_name is None:
@@ -153,93 +142,42 @@ class Experiment(object):
             self.experiment_name += self.generateSuffix()
 
     def createExperiment(self, overwrite = True):
-        if self.experiment_label is None:
-            self.experiment_label = self.experiment_name
-        # Check whether the experiment already exists
-        self.cursor.execute('SELECT id, label_id FROM Experiments \
-                WHERE name = %s AND kind = %s', (self.experiment_name, self.kind))
-        experiment_details = self.cursor.fetchone()
-        if experiment_details is not None and not overwrite:
-            self.experiment_id, self.experiment_label_id = experiment_details
-            return
-        else:
-            self.removeExperimentDB()
-            self.addExperimentDB()
-            self.db.commit()
+        if self.kind == 'Validation':
+            validation = experiment_db_tools.checkValidationExperiment(self.session,
+                                                                          self.dataset_id,
+                                                                          self.experiment_name)
+            if validation is not None:
+                self.experiment_id = validation.id
+                self.oldest_parent = validation.oldest_parent
+                return
 
-    # If the experiment already exists (same name and same kind),
-    # it is removed from the database
-    # All the labels corresponding to this experiment are deleted
-    def addExperimentDB(self):
-        ## Get the experiment_label id
-        self.cursor.execute('SELECT id FROM ExperimentsLabels \
-                WHERE label = %s', (self.experiment_label,))
-        experiment_label_id = self.cursor.fetchone()
-        if experiment_label_id is not None:
-            self.experiment_label_id = experiment_label_id[0]
-        else:
-            self.experiment_label_id = experiment_db_tools.addExperimentLabel(
-                    self.cursor,
-                    self.experiment_label)
-        types = ['INT UNSIGNED', 'VARCHAR(200)', 'VARCHAR(1000)',
-                'INT UNSIGNED', 'INT UNSIGNED']
-        values = [0, self.kind, self.experiment_name,
-                self.experiment_label_id, self.parent]
-        mysql_tools.insertRowIntoTable(self.cursor, 'Experiments',
-                values, types)
-        self.experiment_id = mysql_tools.getLastInsertedId(self.cursor)
-
-    ## The labels are deleted only if the experiment has no parent
-    def removeExperimentDB(self):
-        experiment_id, experiment_label_id = self.isInDB()
-        if experiment_id is None:
-            return
+        experiment_id, oldest_parent = experiment_db_tools.addExperiment(self.session,
+                                                                         self.kind,
+                                                                         self.experiment_name,
+                                                                         self.dataset_id,
+                                                                         self.parent)
         self.experiment_id = experiment_id
-        self.experiment_label_id = experiment_label_id
-        ## Remove children experiments
-        children = experiment_db_tools.getChildren(self.cursor, experiment_id)
-        for child in children:
-            child_exp = ExperimentFactory.getFactory().fromJson(self.project, self.dataset, child,
-                    self.db, self.cursor)
-            child_exp.removeExperimentDB()
-        if self.parent is None:
-            labels_tools.removeExperimentLabels(self.cursor,
-                    experiment_label_id)
-        self.cursor.execute('DELETE FROM Experiments \
-                WHERE name = %s \
-                AND kind = %s', (self.experiment_name,
-                    self.kind, ))
-        self.db.commit()
-        experiment_dir = dir_tools.getExperimentOutputDirectory(self)
-        dir_tools.removeDirectory(experiment_dir)
+        self.oldest_parent = oldest_parent
 
-    def isInDB(self):
-        experiment_id, experiment_label_id = None, None
-        query  = 'SELECT id, label_id FROM Experiments '
-        query += 'WHERE name = "' + self.experiment_name + '" '
-        query += 'AND kind = "' + self.kind + '";'
-        self.cursor.execute(query)
-        row = self.cursor.fetchone()
-        if row is not None:
-            experiment_id = row[0]
-            experiment_label_id = row[1]
-        return experiment_id, experiment_label_id
+    def remove(self):
+        experiment_db_tools.removeExperiment(self.session, self.experiment_id)
+        dir_tools.removeDirectory(self.getOutputDirectory())
 
     def generateSuffix(self):
         return ''
 
     @staticmethod
     def expParamFromJson(experiment, obj):
-        experiment.kind                = obj['kind']
-        experiment.experiment_name     = obj['experiment_name']
-        experiment.experiment_id       = obj['experiment_id']
-        experiment.experiment_label    = obj['experiment_label']
-        experiment.experiment_label_id = obj['experiment_label_id']
-        experiment.features_filenames  = obj['features_filenames']
+        experiment.kind               = obj['kind']
+        experiment.experiment_name    = obj['experiment_name']
+        experiment.experiment_id      = obj['experiment_id']
+        experiment.features_filenames = obj['features_filenames']
+        experiment.parent             = obj['parent']
+        experiment.oldest_parent      = obj['oldest_parent']
 
     @staticmethod
-    def fromJson(obj, db, cursor):
-        experiment = Experiment(obj['project'], obj['dataset'], db, cursor)
+    def fromJson(obj, session):
+        experiment = Experiment(obj['project'], obj['dataset'], session)
         Experiment.expParamFromJson(experiment, obj)
         return experiment
 
@@ -249,20 +187,19 @@ class Experiment(object):
         conf['project'] = self.project
         conf['dataset'] = self.dataset
         conf['kind']  = self.kind
-        conf['experiment_name']     = self.experiment_name
-        conf['experiment_id']       = self.experiment_id
-        conf['experiment_label']    = self.experiment_label
-        conf['experiment_label_id'] = self.experiment_label_id
-        conf['features_filenames']  = self.features_filenames
+        conf['experiment_name']    = self.experiment_name
+        conf['experiment_id']      = self.experiment_id
+        conf['features_filenames'] = self.features_filenames
+        conf['parent']             = self.parent
+        conf['oldest_parent']      = self.oldest_parent
         return conf
 
     def export(self):
-        experiment_dir = dir_tools.getExperimentOutputDirectory(self)
+        experiment_dir = self.getOutputDirectory()
         dir_tools.createDirectory(experiment_dir)
         conf_filename = experiment_dir + 'conf.json'
         with open(conf_filename, 'w') as f:
-            json.dump(self.toJson(), f,
-                    indent = 2)
+            json.dump(self.toJson(), f, indent = 2)
 
     @staticmethod
     def projectDatasetFeturesParser(parser):

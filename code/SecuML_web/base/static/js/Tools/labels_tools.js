@@ -6,8 +6,8 @@ function otherLabel(label) {
     }
 }
 
-function hasTrueLabels(project, dataset) {
-  var query = buildQuery('hasTrueLabels', [project, dataset]);
+function hasTrueLabels(experiment_id) {
+  var query = buildQuery('hasTrueLabels', [experiment_id]);
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.open('GET', query, false);
   xmlHttp.send(null);

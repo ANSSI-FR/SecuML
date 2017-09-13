@@ -6,9 +6,9 @@ function familiesMonitoring(conf, train_test) {
         return false;
     }
     if (train_test == 'validation') {
-        return datasetHasFamilies(conf.project, conf.validation_conf.test_dataset, 1);
+        return datasetHasFamilies(conf.conf.validation_conf.test_exp.experiment_id);
     } else {
-        return datasetHasFamilies(conf.project, conf.dataset, conf.experiment_label_id);
+        return datasetHasFamilies(conf.experiment_id);
     }
 }
 
@@ -62,7 +62,7 @@ function sliderCallback(conf, train_test, sup_exp, event, ui) {
     var value = $('#slider_' + train_test).slider('value');
     threshold_col.appendChild(document.createTextNode('Detection threshold: ' + value + '%'));
     var performance_path = buildQuery('supervisedLearningMonitoring',
-            [conf.project, conf.dataset, sup_exp, train_test, 'perf_indicators']);
+                                      [sup_exp, train_test, 'perf_indicators']);
     $.getJSON(performance_path,
               function(data) {
                   fields_names = ['recall', 'false_positive', 'f-score'];
@@ -91,7 +91,7 @@ function displayPerfIndicators(div_obj, conf, train_test, exp) {
 
 function displayNoThresholdPerfIndicators(div_obj, conf, train_test, exp) {
   var train_performance_path = buildQuery('supervisedLearningMonitoring',
-          [conf.project, conf.dataset, exp, train_test, 'perf_indicators']);
+                                          [exp, train_test, 'perf_indicators']);
   var header = null;
   if (train_test == 'cv') {
       header = ['Indicator', 'Mean', 'Std'];
@@ -133,7 +133,7 @@ function displayNoThresholdPerfIndicators(div_obj, conf, train_test, exp) {
 
 function displayThresholdPerfIndicators(div_obj, conf, train_test, exp) {
   var train_performance_path = buildQuery('supervisedLearningMonitoring',
-          [conf.project, conf.dataset, exp, train_test, 'perf_indicators']);
+                                          [exp, train_test, 'perf_indicators']);
   // Slider to select the detection threshold
   var slider_row = createDivWithClass('slider_row_' + train_test, 'row', parent_div = div_obj);
   var threshold_col = createDivWithClass('threshold_col_' + train_test, 'col-md-6', parent_div = slider_row);
@@ -191,18 +191,15 @@ function displayConfusionMatrix(div_obj, conf, train_test, exp) {
     var benign_label = 'ok';
     var malicious_label = 'alert';
     var confusion_matrix_path = buildQuery('supervisedLearningMonitoring',
-            [conf.project, conf.dataset, exp, train_test, 'confusion_matrix']);
+                                           [exp, train_test, 'confusion_matrix']);
     var table = createTable(div_obj.id, null,
                     ['', '', malicious_label, benign_label],
                     table_id = null);
-    var experiment_label_id = getExperimentLabelId(
-            conf.project, conf.dataset, exp);
     $.getJSON(confusion_matrix_path,
               function(data) {
 
                 var errors_query = buildQuery('errors',
-                        [conf.project, conf.dataset, exp, train_test, experiment_label_id]);
-
+                        [exp, train_test]);
 
                 var row = table.insertRow(0);
                 var cell = row.insertCell(0);
@@ -261,7 +258,7 @@ function displayConfusionMatrix(div_obj, conf, train_test, exp) {
 
 function displayROC(div, conf, train_test, exp) {
   var ROC_path = buildQuery('supervisedLearningMonitoring',
-          [conf.project, conf.dataset, exp, train_test, 'ROC']);
+                            [exp, train_test, 'ROC']);
   var picture = document.createElement('img');
   picture.setAttribute('class', 'img-responsive');
   picture.src = ROC_path;

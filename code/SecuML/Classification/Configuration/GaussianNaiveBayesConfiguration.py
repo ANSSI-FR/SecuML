@@ -45,7 +45,6 @@ class GaussianNaiveBayesConfiguration(ClassifierConfiguration):
         test_conf = TestConfiguration.fromJson(obj['test_conf'], exp)
         conf = GaussianNaiveBayesConfiguration(obj['num_folds'], obj['sample_weight'],
                                                obj['families_supervision'], test_conf)
-        ClassifierConfiguration.setTestConfiguration(conf, obj, exp)
         return conf
 
     def toJson(self):

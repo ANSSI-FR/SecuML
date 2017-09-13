@@ -1,5 +1,7 @@
 function drawComponentsSelectors(num_components, callback) {
 
+  console.log(num_components);
+
   var select_comp_div = cleanDiv('select_components');
 
   // Add the selector lists for c_x and c_y
@@ -21,6 +23,9 @@ function drawComponentsSelectors(num_components, callback) {
   }
   c_x.value = 0;
   c_y.value = 1;
+
+  console.log(c_x.options);
+  console.log(c_y.options);
 
   c_x_selected = c_x.options[c_x.selectedIndex].text;
   c_y_selected = c_y.options[c_y.selectedIndex].text;

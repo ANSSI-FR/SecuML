@@ -22,13 +22,11 @@ from SecuML.Projection.Configuration.SemiSupervisedProjectionConfiguration \
 
 class ProjectionExperiment(Experiment):
 
-    def __init__(self, project, dataset, db, cursor,
-            experiment_name = None, experiment_label = None,
-            parent = None):
-        Experiment.__init__(self, project, dataset, db, cursor,
-                experiment_name = experiment_name,
-                experiment_label = experiment_label,
-                parent = parent)
+    def __init__(self, project, dataset, session, experiment_name = None,
+                 parent = None):
+        Experiment.__init__(self, project, dataset, session,
+                            experiment_name = experiment_name,
+                            parent = parent)
         self.kind = 'Projection'
 
     def setConf(self, conf):
@@ -48,10 +46,10 @@ class ProjectionExperiment(Experiment):
         Experiment.initLabels(self, labels_filename = labels_filename, overwrite = overwrite)
 
     @staticmethod
-    def fromJson(obj, db, cursor):
+    def fromJson(obj, session):
         conf = ProjectionConfFactory.getFactory().fromJson(obj['conf'])
-        experiment = ProjectionExperiment(
-                obj['project'], obj['dataset'], db, cursor)
+        experiment = ProjectionExperiment(obj['project'], obj['dataset'],
+                                          session)
         Experiment.expParamFromJson(experiment, obj)
         experiment.setConf(conf)
         return experiment

@@ -1,27 +1,13 @@
 var path = window.location.pathname.split('/');
-var project       = path[2];
-var dataset       = path[3];
-var experiment_id = path[4];
+var experiment_id = path[2];
 
-var experiment_label_id = getExperimentLabelId(
-                project, dataset, experiment_id);
-var experiment_name     = getExperimentName(project, dataset, experiment_id);
-var experiment_splitted = experiment_name.split('-')
-len = experiment_splitted.length
-if (len > 1) {
-    var label_iteration = experiment_splitted[len-2];
-    var predicted_label = experiment_splitted[len-1];
-    var label_method = 'AL_checking_clustering_' + predicted_label;
-} else {
-    var label_iteration = 0;
-    var label_method = 'clustering';
-}
+var label_iteration = 0;
+var label_method = 'clustering';
 
-var has_families = datasetHasFamilies(project, dataset, experiment_label_id);
+var has_families = datasetHasFamilies(experiment_id);
 
-var inst_dataset = dataset;
 var inst_exp_id = experiment_id;
-var inst_exp_label_id = experiment_label_id;
+var inst_exp_label_id = null;
 
 var last_instance_selector = null;
 var current_cluster_label  = null;
@@ -33,18 +19,18 @@ function getCurrentInstance() {
   return getSelectedOption(last_instance_selector);
 }
 
-function loadConfigurationFile(project, dataset, experiment_id, callback) {
-  $.getJSON(buildQuery('getConf', [project, dataset, experiment_id]),
+function loadConfigurationFile(experiment_id, callback) {
+  $.getJSON(buildQuery('getConf', [experiment_id]),
             function(data) {
               conf = data;
-              callback();
+              inst_exp_label_id = conf.oldest_parent;
+              callback(conf);
             }
            );
 }
 
 var conf = {}
-loadConfigurationFile(project, dataset, experiment_id,
-        onceConfigurationIsLoaded);
+loadConfigurationFile(experiment_id, onceConfigurationIsLoaded);
 
 function displayClusterIdSelection() {
     var callback = function() {
@@ -54,7 +40,7 @@ function displayClusterIdSelection() {
     var cluster_id_div = cleanDiv('cluster_id');
     var select = createSelectList('select_cluster_id',
             5, callback, parent_div = cluster_id_div);
-    var get_labels  = buildQuery('getClustersLabels', [project, dataset, experiment_id]);
+    var get_labels  = buildQuery('getClustersLabels', [experiment_id]);
     $.getJSON(get_labels,
               function(data) {
                   clusters_labels = data.clusters;
@@ -72,13 +58,13 @@ function displayClusterIdSelection() {
              );
 }
 
-function onceConfigurationIsLoaded() {
+function onceConfigurationIsLoaded(conf) {
   generateClusteringDivisions();
   displayClusterIdSelection();
-  displayClustersStats();
+  displayClustersStats(conf);
 }
 
-function displayClustersStats() {
+function displayClustersStats(conf) {
   var callback = function(active_bars) {
     var selected_index = active_bars[0]._index;
     var selected_cluster = active_bars[0]._view.label.split('_')[1];
@@ -86,9 +72,7 @@ function displayClustersStats() {
     var selected_cluster = getSelectedOption(select_cluster_id);
     displayCluster(selected_cluster);
   }
-  var experiment_label_id_tmp = experiment_label_id;
-  var query = buildQuery('getClusterStats',
-          [project, dataset, experiment_id]);
+  var query = buildQuery('getClusterStats', [experiment_id]);
   var clusters_stats = $('#clusters_labels_stats')[0];
   $.getJSON(query, function (data) {
       var options = barPlotOptions(data);
@@ -104,7 +88,7 @@ function displayClustersStats() {
 
 function displayCluster(selected_cluster) {
   cleanCluster();
-  displayNumElements(project, dataset, experiment_id, selected_cluster);
+  displayNumElements(experiment_id, selected_cluster);
   displayClusterInstances(selected_cluster);
 }
 
@@ -125,7 +109,7 @@ function displayClusterInstancesByFamily(selected_cluster) {
   var label_selector = $('#select_labels')[0];
   var instance_selector = $('#select_instances_label_family')[0];
   var query = buildQuery('getClusterLabelsFamilies',
-                         [project, dataset, experiment_id, selected_cluster]);
+                         [experiment_id, selected_cluster]);
   $.getJSON(query,
             function(data) {
                 labels_families = [];
@@ -148,7 +132,7 @@ function displayClusterInstancesByFamily(selected_cluster) {
       var selected_label = split[0];
       var selected_family = split.slice(1, split.length).join('-');
       var query = buildQuery('getClusterLabelFamilyIds',
-                             [project, dataset, experiment_id,
+                             [experiment_id,
                               selected_cluster, selected_label,
                               selected_family, conf.conf.num_results]);
       $.getJSON(query,
@@ -191,8 +175,8 @@ function displayClusterInstancesByPosition(selected_cluster) {
     }
 }
 
-function displayNumElements(project, dataset, experiment, selected_cluster) {
-    var query = buildQuery('getNumElements', [project, dataset, experiment_id, selected_cluster]);
+function displayNumElements(experiment, selected_cluster) {
+    var query = buildQuery('getNumElements', [experiment_id, selected_cluster]);
     $.getJSON(query,
               function(data) {
                 var num_elements = data.num_elements;
@@ -218,7 +202,7 @@ function displayInstancesInOneSelector(selected_cluster, c_e_r) {
       instance_selector = 'select_random_instances';
   }
   var query = buildQuery('getClusterInstancesVisu',
-          [project, dataset, experiment_id, selected_cluster, c_e_r[0], conf.conf.num_results]);
+          [experiment_id, selected_cluster, c_e_r[0], conf.conf.num_results]);
   $.getJSON(query,
             function(data) {
               ids = data[selected_cluster];

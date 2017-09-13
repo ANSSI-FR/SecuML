@@ -82,17 +82,6 @@ class ClassifierConfiguration(object):
     def getBestValues(self):
         return
 
-    @staticmethod
-    def setTestConfiguration(conf, obj, exp):
-        conf.test_conf = TestConfiguration.fromJson(obj['test_conf'], exp)
-
-    @staticmethod
-    def fromJson(obj, exp):
-        conf = ClassifierConfiguration(obj['num_folds'], obj['sample_weight'],
-                                       obj['families_supervision'])
-        ClassifierConfiguration.setTestConfiguration(conf, obj, exp)
-        return conf
-
     def toJson(self):
         conf = {}
         conf['__type__'] = 'ClassifierConfiguration'
@@ -201,4 +190,4 @@ class ClassifierConfiguration(object):
         return params
 
 ClassifierConfFactory.getFactory().registerClass('ClassifierConfiguration',
-        ClassifierConfiguration)
+                                                 ClassifierConfiguration)

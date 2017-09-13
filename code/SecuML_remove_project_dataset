@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -19,8 +19,10 @@
 import argparse
 
 from SecuML.Data.Dataset import Dataset
+from SecuML.Experiment import ExperimentFactory
 from SecuML.Tools import dir_tools
 from SecuML.Tools import mysql_tools
+from SecuML import db_tables
 
 if __name__ == '__main__':
     description  = 'Delete the experiments for a given dataset in a project. '
@@ -30,18 +32,22 @@ if __name__ == '__main__':
     parser.add_argument('project')
     parser.add_argument('--dataset',
             default = None)
+    parser.add_argument('--experiment-id',
+            type = int,
+            default = None)
     args = parser.parse_args()
 
-    db, cursor = mysql_tools.getDbConnection()
+    engine, session = mysql_tools.getSecuMLSession()
+    db_tables.createTables(engine)
 
-    if args.dataset is not None:
-        dataset = Dataset(args.project, args.dataset, db, cursor)
+    if args.experiment_id is not None:
+        experiment = ExperimentFactory.getFactory().fromJson(args.experiment_id, session)
+        experiment.remove()
+    elif args.dataset is not None:
+        dataset = Dataset(args.project, args.dataset, session)
         dataset.remove()
     else:
-        datasets = dir_tools.getDatasets(args.project)
-        for dataset in datasets:
-            dataset = Dataset(args.project, dataset, db, cursor)
-            dataset.remove()
+        db_tables.removeProject(session, args.project)
         dir_tools.removeProjectOutputDirectory(args.project)
 
-    mysql_tools.closeDb(db, cursor)
+    mysql_tools.closeSqlAlchemySession(session)

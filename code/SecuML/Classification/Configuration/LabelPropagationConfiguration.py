@@ -17,12 +17,13 @@
 from SecuML.Classification.Classifiers.LabelPropagation import LabelPropagation
 import ClassifierConfFactory
 from ClassifierConfiguration import ClassifierConfiguration
+from TestConfiguration import TestConfiguration
 
 class LabelPropagationConfiguration(ClassifierConfiguration):
 
-    def __init__(self, num_folds, families_supervision, alerts_conf = None):
+    def __init__(self, num_folds, families_supervision, test_conf, alerts_conf = None):
         ClassifierConfiguration.__init__(self, num_folds, False, families_supervision,
-                alerts_conf = alerts_conf)
+                                         test_conf)
         self.model_class = LabelPropagation
 
     def getModelClassName(self):
@@ -39,8 +40,8 @@ class LabelPropagationConfiguration(ClassifierConfiguration):
 
     @staticmethod
     def fromJson(obj, exp):
-        conf = LabelPropagationConfiguration(obj['num_folds'], obj['families_supervision'])
-        ClassifierConfiguration.setTestConfiguration(conf, obj, exp)
+        test_conf = TestConfiguration.fromJson(obj['test_conf'], exp)
+        conf = LabelPropagationConfiguration(obj['num_folds'], obj['families_supervision'], test_conf)
         return conf
 
     def toJson(self):

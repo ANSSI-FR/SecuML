@@ -24,6 +24,9 @@ class PlotDataset(object):
         self.label  = label
         self.setDefaultValues()
 
+    def addErrorBars(self, errors):
+        self.error_bars = errors
+
     def setColor(self, color):
         self.color = color
 
@@ -41,3 +44,4 @@ class PlotDataset(object):
         self.linewidth = 3
         self.linestyle = 'solid'
         self.marker    = 'o'
+        self.error_bars = None

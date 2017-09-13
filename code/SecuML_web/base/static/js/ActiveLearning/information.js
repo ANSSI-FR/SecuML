@@ -2,8 +2,9 @@ function displaySettings(conf) {
   var body = createTable('settings', ['', ''], width = 'width:280px');
 
   // Project Dataset
-  addRow(body, ['Project', project]);
-  addRow(body, ['Dataset', dataset]);
+  addRow(body, ['Project', conf.project]);
+  addRow(body, ['Dataset', conf.dataset]);
+
 
   // Classifier
   if (conf.classification_conf) {
@@ -29,10 +30,10 @@ function displaySettings(conf) {
   }
 }
 
-function displayLabelsInformation(project, dataset, experiment_id, iteration) {
+function displayLabelsInformation(experiment_id, iteration) {
   // Labels stats
   var stats_div = cleanDiv('stats');
-  var path = buildQuery('getLabelsMonitoring', [project, dataset, experiment_id, iteration]);
+  var path = buildQuery('getLabelsMonitoring', [experiment_id, iteration]);
   d3.json(path, function(error, data) {
     var ul = document.createElement('ul');
     ul.setAttribute('class', 'list-group');
@@ -56,7 +57,7 @@ function displayLabelsInformation(project, dataset, experiment_id, iteration) {
   button.setAttribute('class', 'btn btn-default')
   button.appendChild(document.createTextNode('Annotated Instances'));
   button.addEventListener('click', function() {
-    var path = buildQuery('currentAnnotations', [project, dataset, experiment_id, iteration]);
+    var path = buildQuery('currentAnnotations', [experiment_id, iteration]);
     window.open(path);
   });
   buttons_div.appendChild(button);
@@ -67,7 +68,7 @@ function displayLabelsInformation(project, dataset, experiment_id, iteration) {
   button.setAttribute('class', 'btn btn-default');
   button.appendChild(document.createTextNode('Family Editor'));
   button.addEventListener('click', function() {
-    var path = buildQuery('editFamilies', [project, dataset, experiment_id]);
+    var path = buildQuery('editFamilies', [experiment_id]);
     window.open(path);
   });
 

@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,32 +17,35 @@
 from flask import jsonify
 import importlib
 
-from SecuML_web.base import app, db, cursor
+from SecuML_web.base import app, session
+from SecuML_web.base.views.experiments import updateCurrentExperiment
 
 from SecuML.Data import idents_tools
-from SecuML.Experiment import ExperimentFactory
-from SecuML.Tools import mysql_tools
+from SecuML.Experiment import experiment_db_tools
 
-@app.route('/getInstance/<project>/<dataset>/<instance_id>/<path:ident>/')
-def getInstance(project, dataset, instance_id, ident):
+@app.route('/getInstance/<experiment_id>/<view_id>/<instance_id>/<path:ident>/')
+def getInstance(experiment_id, view_id, instance_id, ident):
     try:
+        if view_id == 'None':
+            view_id = None
+        experiment = updateCurrentExperiment(experiment_id)
+        project = experiment.project
         module = importlib.import_module('SecuML_web.base.views.Projects.' + project)
-        return module.getInstance(dataset, instance_id, ident)
+        return module.getInstance(experiment, view_id, instance_id, ident)
     except IOError as e:
         app.logger.error(e)
         return 'Unable to display the instance', ident
 
-@app.route('/getIdent/<project>/<dataset>/<instance_id>/')
-def getIdent(project, dataset, instance_id):
-    mysql_tools.useDatabase(cursor, project, dataset)
-    ident = idents_tools.getIdent(cursor, instance_id)
+@app.route('/getIdent/<experiment_id>/<instance_id>/')
+def getIdent(experiment_id, instance_id):
+    dataset_id = experiment_db_tools.getExperimentRow(session, experiment_id).dataset_id
+    ident = idents_tools.getIdent(session, dataset_id, instance_id)
     return ident
 
-@app.route('/getFeatures/<project>/<dataset>/<experiment>/<instance_dataset>/<instance_id>/')
-def getFeatures(project, dataset, experiment, instance_dataset, instance_id):
+@app.route('/getFeatures/<experiment_id>/<instance_id>/')
+def getFeatures(experiment_id, instance_id):
     instance_id = int(instance_id)
-    mysql_tools.useDatabase(cursor, project, dataset)
-    experiment_obj = ExperimentFactory.getFactory().fromJson(project, instance_dataset, experiment, db, cursor)
-    features_names, features_values = experiment_obj.getFeatures(instance_id)
+    experiment = updateCurrentExperiment(experiment_id)
+    features_names, features_values = experiment.getFeatures(instance_id)
     features = zip(features_names, features_values)
     return jsonify(features)

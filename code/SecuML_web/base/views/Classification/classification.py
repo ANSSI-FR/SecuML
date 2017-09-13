@@ -19,60 +19,56 @@ import numpy as np
 import pandas as pd
 import random
 
-from SecuML_web.base import app, db, cursor
+from SecuML_web.base import app, session
+from SecuML_web.base.views.experiments import updateCurrentExperiment
 
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Experiment.ClassificationExperiment import ClassificationExperiment
 from SecuML.Plots.BarPlot import BarPlot
 from SecuML.Plots.PlotDataset import PlotDataset
 from SecuML.Tools import colors_tools
-from SecuML.Tools import dir_tools
 from SecuML.Tools import matrix_tools
 
-def getDir(project, dataset, experiment_id):
-    exp = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-                                                  db, cursor)
-    return dir_tools.getExperimentOutputDirectory(exp)
+@app.route('/predictionsAnalysis/<experiment_id>/<train_test>/<index>/')
+def predictionsAnalysis(experiment_id, train_test, index):
+    experiment = updateCurrentExperiment(experiment_id)
+    return render_template('Classification/predictions.html', project = experiment.project)
 
-@app.route('/predictionsAnalysis/<project>/<dataset>/<experiment>/<train_test>/<index>/')
-def predictionsAnalysis(project, dataset, experiment, train_test, index):
-    return render_template('Classification/predictions.html', project = project)
+@app.route('/alerts/<experiment_id>/<analysis_type>/')
+def displayAlerts(experiment_id, analysis_type):
+    experiment = updateCurrentExperiment(experiment_id)
+    return render_template('Classification/alerts.html', project = experiment.project)
 
-@app.route('/alerts/<project>/<dataset>/<experiment>/<analysis_type>/')
-def displayAlerts(project, dataset, experiment, analysis_type):
-    return render_template('Classification/alerts.html', project = project)
+@app.route('/familiesPerformance/<experiment_id>/<train_test>/')
+def displayFamiliesPerformance(experiment_id, train_test):
+    experiment = updateCurrentExperiment(experiment_id)
+    return render_template('Classification/families_performance.html', project = experiment.project)
 
-@app.route('/familiesPerformance/<project>/<dataset>/<experiment>/<train_test>/')
-def displayFamiliesPerformance(project, dataset, experiment, train_test):
-    return render_template('Classification/families_performance.html', project = project)
+@app.route('/errors/<experiment_id>/<train_test>/')
+def displayErrors(experiment_id, train_test):
+    experiment = updateCurrentExperiment(experiment_id)
+    return render_template('Classification/errors.html', project = experiment.project)
 
-@app.route('/errors/<project>/<dataset>/<experiment>/<train_test>/<experiment_label_id>/')
-def displayErrors(project, dataset, experiment, train_test, experiment_label_id):
-    return render_template('Classification/errors.html', project = project)
-
-@app.route('/getValidationDataset/<project>/<dataset>/<experiment_id>/')
-def getValidationDataset(project, dataset, experiment_id):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
+@app.route('/getValidationDataset/<experiment_id>/')
+def getValidationDataset(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
     test_conf = experiment.classification_conf.test_conf
     if test_conf.method == 'test_dataset':
         return test_conf.test_dataset
     else:
-        return dataset
+        return experiment.dataset
 
-@app.route('/getAlertsClusteringExperimentId/<project>/<dataset>/<experiment_id>/')
-def getAlertsClusteringExperimentId(project, dataset, experiment_id):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
-    filename  = dir_tools.getExperimentOutputDirectory(experiment)
+@app.route('/getAlertsClusteringExperimentId/<experiment_id>/')
+def getAlertsClusteringExperimentId(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
+    filename  = experiment.getOutputDirectory()
     filename += 'grouping.json'
     return send_file(filename)
 
-@app.route('/getAlerts/<project>/<dataset>/<experiment_id>/<analysis_type>/')
-def getAlerts(project, dataset, experiment_id, analysis_type):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-                                                         db, cursor)
-    filename  = dir_tools.getExperimentOutputDirectory(experiment)
+@app.route('/getAlerts/<experiment_id>/<analysis_type>/')
+def getAlerts(experiment_id, analysis_type):
+    experiment = updateCurrentExperiment(experiment_id)
+    filename  = experiment.getOutputDirectory()
     filename += 'alerts.csv'
     with open(filename, 'r') as f:
         data = pd.read_csv(f, header = 0, index_col = 0)
@@ -85,11 +81,10 @@ def getAlerts(project, dataset, experiment_id, analysis_type):
                 alerts = random.sample(alerts, num_max_alerts)
     return jsonify({'instances': [alert[0] for alert in alerts], 'proba': dict(alerts)})
 
-@app.route('/getPredictions/<project>/<dataset>/<experiment_id>/<train_test>/<index>/')
-def getPredictions(project, dataset, experiment_id, train_test, index):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-                                                         db, cursor)
-    filename  = dir_tools.getExperimentOutputDirectory(experiment)
+@app.route('/getPredictions/<experiment_id>/<train_test>/<index>/')
+def getPredictions(experiment_id, train_test, index):
+    experiment = updateCurrentExperiment(experiment_id)
+    filename  = experiment.getOutputDirectory()
     filename += train_test + '/predictions.csv'
     index = int(index)
     min_value = index * 0.1
@@ -102,9 +97,10 @@ def getPredictions(project, dataset, experiment_id, train_test, index):
         proba              = list(data['predicted_proba'])
     return jsonify({'instances': selected_instances, 'proba': proba})
 
-@app.route('/supervisedLearningMonitoring/<project>/<dataset>/<experiment>/<train_test>/<kind>/')
-def supervisedLearningMonitoring(project, dataset, experiment, train_test, kind):
-    filename  = getDir(project, dataset, experiment) + train_test + '/'
+@app.route('/supervisedLearningMonitoring/<experiment_id>/<train_test>/<kind>/')
+def supervisedLearningMonitoring(experiment_id, train_test, kind):
+    experiment = updateCurrentExperiment(experiment_id)
+    filename  = experiment.getOutputDirectory() + train_test + '/'
     filename += kind
     if kind == 'ROC':
         filename += '.png'
@@ -112,9 +108,10 @@ def supervisedLearningMonitoring(project, dataset, experiment, train_test, kind)
         filename += '.json'
     return send_file(filename)
 
-@app.route('/getFamiliesPerformance/<project>/<dataset>/<experiment>/<train_test>/<label>/<threshold>/')
-def getFamiliesPerformance(project, dataset, experiment, train_test, label, threshold):
-    filename  = getDir(project, dataset, experiment) + train_test + '/families/'
+@app.route('/getFamiliesPerformance/<experiment_id>/<train_test>/<label>/<threshold>/')
+def getFamiliesPerformance(experiment_id, train_test, label, threshold):
+    experiment = updateCurrentExperiment(experiment_id)
+    filename  = experiment.getOutputDirectory() + train_test + '/families/'
     if label == 'malicious':
         filename += 'tp_'
         tp_fp = 'Detection Rate'
@@ -130,21 +127,19 @@ def getFamiliesPerformance(project, dataset, experiment, train_test, label, thre
         threshold_value = min(enumerate(thresholds), key=lambda x: abs(x[1]-threshold))[1]
         perf = list(perf.loc[threshold_value])
         barplot = BarPlot(families)
-        dataset = PlotDataset(perf, tp_fp)
         barplot.addDataset(PlotDataset(perf, tp_fp))
     return jsonify(barplot.toJson())
 
-@app.route('/getSupervisedValidationConf/<project>/<dataset>/<experiment_id>/')
-def getSupervisedValidationConf(project, dataset, experiment_id):
-    experiment = ExperimentFactory.getFactory().fromJson(project, dataset, experiment_id,
-            db, cursor)
+@app.route('/getSupervisedValidationConf/<experiment_id>/')
+def getSupervisedValidationConf(experiment_id):
+    experiment = updateCurrentExperiment(experiment_id)
     return jsonify(experiment.classification_conf.test_conf.toJson())
 
-@app.route('/getTopWeightedFeatures/<project>/<dataset>/<experiment>/<instance_dataset>/<inst_exp_id>/<instance_id>/<size>/')
-def getTopWeightedFeatures(project, dataset, experiment, instance_dataset, inst_exp_id, instance_id, size):
+@app.route('/getTopWeightedFeatures/<experiment_id>/<inst_exp_id>/<instance_id>/<size>/')
+def getTopWeightedFeatures(experiment_id, inst_exp_id, instance_id, size):
     instance_id = int(instance_id)
-    model_experiment_obj = ExperimentFactory.getFactory().fromJson(project, dataset, experiment, db, cursor)
-    validation_experiment = ExperimentFactory.getFactory().fromJson(project, instance_dataset, inst_exp_id, db, cursor)
+    model_experiment_obj = ExperimentFactory.getFactory().fromJson(experiment_id, session)
+    validation_experiment = ExperimentFactory.getFactory().fromJson(inst_exp_id, session)
     #get the features
     features_names, features_values = validation_experiment.getFeatures(instance_id)
     features_values = [float(value) for value in features_values]
@@ -164,10 +159,10 @@ def getTopWeightedFeatures(project, dataset, experiment, instance_dataset, inst_
     barplot.addDataset(dataset)
     return jsonify(barplot.toJson(tooltip_data = tooltips))
 
-@app.route('/getTopModelCoefficients/<project>/<dataset>/<experiment>/<size>/')
-def getTopModelCoefficients(project, dataset, experiment, size):
+@app.route('/getTopModelCoefficients/<experiment_id>/<size>/')
+def getTopModelCoefficients(experiment_id, size):
     size = int(size)
-    model_experiment_obj = ExperimentFactory.getFactory().fromJson(project, dataset, experiment, db, cursor)
+    model_experiment_obj = ExperimentFactory.getFactory().fromJson(experiment_id, session)
     pipeline = model_experiment_obj.getModelPipeline()
     model_coefficients = pipeline.named_steps['model'].coef_[0]
     features_names = model_experiment_obj.getFeaturesNames()

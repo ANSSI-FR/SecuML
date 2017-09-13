@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -18,11 +18,12 @@ import ActiveLearningConfFactory
 from ActiveLearningConfiguration import ActiveLearningConfiguration
 from SecuML.ActiveLearning.QueryStrategies.RandomSampling import RandomSampling
 from SecuML.Classification.Configuration import ClassifierConfFactory
+from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 
 class RandomSamplingConfiguration(ActiveLearningConfiguration):
 
-    def __init__(self, auto, budget, batch, binary_model_conf):
-        ActiveLearningConfiguration.__init__(self, auto, budget)
+    def __init__(self, auto, budget, batch, binary_model_conf, validation_conf):
+        ActiveLearningConfiguration.__init__(self, auto, budget, validation_conf)
         self.labeling_method = 'RandomSampling'
         self.batch           = batch
         self.setBinaryModelConf(binary_model_conf)
@@ -42,10 +43,14 @@ class RandomSamplingConfiguration(ActiveLearningConfiguration):
 
     @staticmethod
     def fromJson(obj, experiment):
+        validation_conf = None
+        if obj['validation_conf'] is not None:
+            validation_conf = TestConfiguration.fromJson(obj['validation_conf'],
+                                                         experiment)
         binary_model_conf = ClassifierConfFactory.getFactory().fromJson(
                 obj['models_conf']['binary'], experiment)
         conf = RandomSamplingConfiguration(obj['auto'], obj['budget'], obj['batch'],
-                                           binary_model_conf)
+                                           binary_model_conf, validation_conf)
         return conf
 
     def toJson(self):
@@ -63,8 +68,8 @@ class RandomSamplingConfiguration(ActiveLearningConfiguration):
                 help = 'Number of annotations asked from the user at each iteration.')
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ActiveLearningConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, experiment):
+        params = ActiveLearningConfiguration.generateParamsFromArgs(args, experiment)
         params['batch'] = args.batch
         return params
 

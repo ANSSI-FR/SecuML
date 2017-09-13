@@ -18,11 +18,8 @@ function displayPredictionsBarplot(div_obj, conf, train_test, exp) {
     var get_function = 'predictions_barplot_labels';
   }
   var query = buildQuery('supervisedLearningMonitoring',
-                         [conf.project, conf.dataset, exp, train_test, get_function]);
-  callback = null;
-  if (conf.exp_type == 'Classification') {
-    callback = displayPredictionsAnalysis(train_test);
-  }
+                         [exp, train_test, get_function]);
+  callback = displayPredictionsAnalysis(exp, train_test);
   $.getJSON(query, function (data) {
       var options = barPlotOptions(data);
       var barPlot = drawBarPlot(div_obj.id,
@@ -36,11 +33,11 @@ function displayPredictionsBarplot(div_obj, conf, train_test, exp) {
   });
 }
 
-function displayPredictionsAnalysis(train_test) {
+function displayPredictionsAnalysis(exp, train_test) {
   return function (selected_bar) {
     var index = selected_bar[0]._index;
     var query = buildQuery('predictionsAnalysis',
-                           [project, dataset, experiment_id, train_test, index]);
+                           [exp, train_test, index]);
     window.open(query);
   }
 }

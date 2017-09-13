@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -14,78 +14,124 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.Tools import mysql_tools
+from sqlalchemy.orm.exc import NoResultFound
 
-def createExperimentsTable(cursor):
-    fields = ['id', 'kind', 'name', 'label_id', 'parent']
-    types = ['INT UNSIGNED', 'VARCHAR(200)', 'VARCHAR(1000)',
-            'INT UNSIGNED', 'INT UNSIGNED']
-    mysql_tools.createTableFromFields(cursor, 'Experiments',
-            fields, types, ['id'], auto_increment = True)
+from SecuML import db_tables
+from SecuML.db_tables import ExperimentsAlchemy
 
-def createInteractiveExperimentsTable(cursor):
-    fields = ['id', 'current_iter', 'annotations']
-    types = ['INT UNSIGNED', 'INT UNSIGNED', 'BIT(1)']
-    mysql_tools.createTableFromFields(cursor, 'InteractiveExperiments',
-            fields, types, ['id'])
 
-def createExperimentsLabelsTable(cursor):
-    fields = ['id', 'label']
-    types = ['INT UNSIGNED', 'VARCHAR(1000)']
-    mysql_tools.createTableFromFields(cursor, 'ExperimentsLabels',
-            fields, types, ['id'], auto_increment = True)
+def getExperimentRow(session, experiment_id):
+    query = session.query(ExperimentsAlchemy)
+    query = query.filter(ExperimentsAlchemy.id == experiment_id)
+    return query.first()
 
-def addExperimentLabel(cursor, experiment_label):
-    types = ['INT UNSIGNED', 'VARCHAR(1000)']
-    values = [0, experiment_label]
-    mysql_tools.insertRowIntoTable(cursor, 'ExperimentsLabels',
-            values, types)
-    experiment_label_id = mysql_tools.getLastInsertedId(cursor)
-    return experiment_label_id
+def getExperimentDetails(session, name, kind):
+    query = session.query(ExperimentsAlchemy)
+    query = query.filter(ExperimentsAlchemy.name == name)
+    query = query.filter(ExperimentsAlchemy.kind == kind)
+    try:
+        exp = query.one()
+        return exp.id, exp.oldest_parent
+    except NoResultFound:
+        return None
 
-def getExperiments(cursor, exp_kind = None):
-    query  = 'SELECT name from Experiments'
+def checkValidationExperiment(session, dataset_id, experiment_name):
+    query = session.query(ExperimentsAlchemy)
+    query = query.filter(ExperimentsAlchemy.kind == 'Validation')
+    query = query.filter(ExperimentsAlchemy.dataset_id == dataset_id)
+    query = query.filter(ExperimentsAlchemy.name == experiment_name)
+    try:
+        exp = query.one()
+        return exp
+    except NoResultFound:
+        return None
+
+def getExperimentId(session, experiment_name):
+    query = session.query(ExperimentsAlchemy)
+    query = query.filter(ExperimentsAlchemy.name == experiment_name)
+    return query.first().id
+
+def getProjectDataset(session, experiment_id):
+    query = session.query(ExperimentsAlchemy)
+    query = query.filter(ExperimentsAlchemy.id == experiment_id)
+    exp_obj = query.one()
+    dataset_obj = exp_obj.dataset
+    project_obj = dataset_obj.project
+    dataset = dataset_obj.dataset
+    project = project_obj.project
+    return project, dataset
+
+def getExperimentName(session, experiment_id):
+    query = session.query(ExperimentsAlchemy)
+    query = query.filter(ExperimentsAlchemy.id == experiment_id)
+    return query.first().name
+
+def getExperimentLabelId(session, experiment_id):
+    query = session.query(ExperimentsAlchemy)
+    query = query.filter(ExperimentsAlchemy.id == experiment_id)
+    return query.first().oldest_parent
+
+def addExperiment(session, kind, name, dataset_id, parent):
+    exp = ExperimentsAlchemy(kind = kind, name = name, dataset_id = dataset_id,
+                             parent = parent)
+    session.add(exp)
+    session.commit()
+    experiment_id = exp.id
+    if parent is None:
+        oldest_parent = experiment_id
+    else:
+        query = session.query(ExperimentsAlchemy)
+        query = query.filter(ExperimentsAlchemy.id == parent)
+        parent = query.one()
+        oldest_parent = parent.oldest_parent
+    exp.oldest_parent = oldest_parent
+    session.commit()
+    return experiment_id, oldest_parent
+
+def removeExperiment(session, experiment_id):
+    query = session.query(ExperimentsAlchemy)
+    query = query.filter(ExperimentsAlchemy.id == experiment_id)
+    experiment = query.one()
+    session.delete(experiment)
+    session.commit()
+
+def getChildren(session, experiment_id):
+    query = session.query(ExperimentsAlchemy)
+    query = query.filter(ExperimentsAlchemy.parent == experiment_id)
+    children = [r.id for r in query.all()]
+    return children
+
+def getDescriptiveStatsExp(session, experiment):
+    features_filenames = experiment.features_filenames
+    features_filenames = [f.split('.')[0] for f in features_filenames]
+    features_filenames = '_'.join(features_filenames)
+    exp_name = features_filenames + '__labelsFile_true_labels'
+    query = session.query(ExperimentsAlchemy)
+    query = query.filter(ExperimentsAlchemy.dataset_id == experiment.dataset_id)
+    query = query.filter(ExperimentsAlchemy.kind == 'DescriptiveStatistics')
+    query = query.filter(ExperimentsAlchemy.name == exp_name)
+    try:
+        return query.first().id
+    except NoResultFound:
+        return None
+
+def getExperiments(session, project, dataset, exp_kind = None):
+    project_id = db_tables.checkProject(session, project)
+    dataset_id = db_tables.checkDataset(session, project_id, dataset)
+    query = session.query(ExperimentsAlchemy)
+    query = query.filter(ExperimentsAlchemy.dataset_id == dataset_id)
     if exp_kind is not None:
-        query += ' WHERE kind = "' + exp_kind + '"'
-        query += ' AND parent IS NULL'
-    query += ';'
-    cursor.execute(query)
-    experiments = [x[0] for x in cursor.fetchall()]
+        query = query.filter(ExperimentsAlchemy.kind == exp_kind)
+    query = query.filter(ExperimentsAlchemy.parent == None)
+    experiments = {}
+    for exp in query.all():
+        if exp.name not in experiments.keys():
+            experiments[exp.name] = []
+        experiments[exp.name].append(exp.id)
     return experiments
 
-def getExperimentId(cursor, experiment_name):
-    cursor.execute('SELECT id \
-            FROM Experiments \
-            WHERE name = %s', (experiment_name, ))
-    return cursor.fetchone()[0]
-
-def getExperimentName(cursor, experiment_id):
-    cursor.execute('SELECT name \
-            FROM Experiments \
-            WHERE id = %s', (experiment_id, ))
-    return cursor.fetchone()[0]
-
-def getChildren(cursor, experiment_id):
-    cursor.execute('SELECT id \
-            FROM Experiments \
-            WHERE parent = %s',
-            (experiment_id, ))
-    return [x[0] for x in cursor.fetchall()]
-
-def getChildExperimentId(cursor, parent_id, child_name):
-    cursor.execute('SELECT id '
-                   'FROM Experiments '
-                   'WHERE parent = %s '
-                   'AND name = %s',
-                   (parent_id, child_name))
-    return cursor.fetchone()[0]
-
-def getDescriptiveStatsExp(cursor, features_filenames):
-    features_filenames = features_filenames.split('.')[0]
-    exp_name = features_filenames + '__labelsFile_true_labels'
-    query  = 'SELECT id '
-    query += 'FROM Experiments '
-    query += 'WHERE kind = "DescriptiveStatistics" '
-    query += 'AND name = "' + exp_name + '";'
-    cursor.execute(query)
-    return cursor.fetchone()[0]
+def getCurrentIteration(session, experiment_id):
+    query = session.query(ExperimentsAlchemy)
+    query = query.filter(ExperimentsAlchemy.id == experiment_id)
+    experiment = query.one()
+    return experiment.current_iter

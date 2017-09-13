@@ -1,6 +1,5 @@
 var last_selected_id = null;
 
-
 function specificTabs() {
     var menu_titles = ['Mail'];
     var menu_labels = ['mail'];
@@ -21,7 +20,7 @@ function printMail(selected_id, ident) {
   var div_height = Math.round(window.screen.availHeight * 0.4) + 'px';
   div_object.style.height = div_height;
   var query = buildQuery('getInstance',
-              [project, inst_dataset, selected_id, ident]);
+              [inst_exp_id, 'None', selected_id, ident]);
   $.get(query, function(data) {
       var mail = document.createTextNode(data);
       div_object.appendChild(mail);
