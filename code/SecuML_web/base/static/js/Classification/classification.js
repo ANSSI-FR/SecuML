@@ -61,8 +61,13 @@ function generateDivisions(conf) {
   // Row for model coefficients and train/test monitoring
   var row = createDivWithClass(null, 'row', main);
   var col_size = 'col-md-4';
-  if (conf.classification_conf.feature_coefficients) {
-    var model_coefficients = createPanel('panel-primary', col_size, 'Model Coefficients', row);
+  if (conf.classification_conf.feature_importance) {
+    if (conf.classification_conf.feature_importance == 'weight') {
+        var title = 'Model Coefficients';
+    } else if (conf.classification_conf.feature_importance == 'score') {
+        var title = 'Feature Importances';
+    }
+    var model_coefficients = createPanel('panel-primary', col_size, title, row);
     model_coefficients.setAttribute('id', 'model_coefficients');
   }
   createTrainTestMonitoring('train', col_size, row);

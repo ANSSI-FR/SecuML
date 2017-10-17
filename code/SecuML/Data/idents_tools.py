@@ -19,13 +19,13 @@ from SecuML.db_tables import InstancesAlchemy
 def getIdent(session, dataset_id, instance_id):
     query = session.query(InstancesAlchemy)
     query = query.filter(InstancesAlchemy.dataset_id  == dataset_id)
-    query = query.filter(InstancesAlchemy.instance_id == instance_id)
+    query = query.filter(InstancesAlchemy.id == instance_id)
     return query.one().ident
 
 def getRowNumber(session, dataset_id, instance_id):
     query = session.query(InstancesAlchemy)
     query = query.filter(InstancesAlchemy.dataset_id  == dataset_id)
-    query = query.filter(InstancesAlchemy.instance_id == instance_id)
+    query = query.filter(InstancesAlchemy.id == instance_id)
     return query.one().row_number
 
 def getAllIdents(session):

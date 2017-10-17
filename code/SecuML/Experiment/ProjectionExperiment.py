@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -14,18 +14,20 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.Experiment import ExperimentFactory
-from SecuML.Experiment.Experiment import Experiment
-from SecuML.Projection.Configuration import ProjectionConfFactory
-from SecuML.Projection.Configuration.SemiSupervisedProjectionConfiguration \
-        import SemiSupervisedProjectionConfiguration
+import argparse
 
-class ProjectionExperiment(Experiment):
+from SecuML.DimensionReduction.Configuration import DimensionReductionConfFactory
+
+import ExperimentFactory
+from DimensionReductionExperiment import DimensionReductionExperiment
+
+class ProjectionExperiment(DimensionReductionExperiment):
 
     def __init__(self, project, dataset, session, experiment_name = None,
-                 parent = None):
-        Experiment.__init__(self, project, dataset, session,
+                 labels_id = None, parent = None):
+        DimensionReductionExperiment.__init__(self, project, dataset, session,
                             experiment_name = experiment_name,
+                            labels_id = labels_id,
                             parent = parent)
         self.kind = 'Projection'
 
@@ -37,30 +39,45 @@ class ProjectionExperiment(Experiment):
         suffix += self.conf.generateSuffix()
         return suffix
 
-    def initLabels(self, labels_filename = None, overwrite = True):
-        if isinstance(self.conf, SemiSupervisedProjectionConfiguration):
-            if labels_filename is None:
-                message  = 'Semi supervised projections require annotated instances. '
-                message += 'labels_filename must be specified.'
-                raise ValueError(message)
-        Experiment.initLabels(self, labels_filename = labels_filename, overwrite = overwrite)
-
     @staticmethod
     def fromJson(obj, session):
-        conf = ProjectionConfFactory.getFactory().fromJson(obj['conf'])
+        conf = DimensionReductionConfFactory.getFactory().fromJson(obj['conf'])
         experiment = ProjectionExperiment(obj['project'], obj['dataset'],
                                           session)
-        Experiment.expParamFromJson(experiment, obj)
+        DimensionReductionExperiment.expParamFromJson(experiment, obj)
         experiment.setConf(conf)
         return experiment
 
     def toJson(self):
-        conf = Experiment.toJson(self)
+        conf = DimensionReductionExperiment.toJson(self)
         conf['__type__'] = 'ProjectionExperiment'
         conf['conf'] = self.conf.toJson()
         return conf
 
-    def webTemplate(self):
-        return 'Projection/projection.html'
+    @staticmethod
+    def generateParser():
+        parser = argparse.ArgumentParser(
+                description = 'Projection of the data for data visualization.')
+        DimensionReductionExperiment.projectDatasetFeturesParser(parser)
+        DimensionReductionExperiment.generateDimensionReductionParser(parser)
+        algos = ['Pca', 'Rca', 'Lda', 'Lmnn', 'Nca', 'Itml']
+        subparsers = parser.add_subparsers(dest = 'algo')
+        factory = DimensionReductionConfFactory.getFactory()
+        for algo in algos:
+            algo_parser = subparsers.add_parser(algo)
+            factory.generateParser(algo, algo_parser)
+        return parser
 
-ExperimentFactory.getFactory().registerClass('ProjectionExperiment', ProjectionExperiment)
+    def webTemplate(self):
+        return 'DimensionReduction/projection.html'
+
+    def setExperimentFromArgs(self, args):
+        self.setFeaturesFilenames(args.features_files)
+        factory = DimensionReductionConfFactory.getFactory()
+        conf = factory.fromArgs(args.algo, args)
+        self.setConf(conf)
+        self.initLabels(args.labels_file)
+        self.export()
+
+ExperimentFactory.getFactory().registerClass('ProjectionExperiment',
+                                             ProjectionExperiment)

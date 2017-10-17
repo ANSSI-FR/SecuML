@@ -54,8 +54,8 @@ class SssvddConfiguration(ClassifierConfiguration):
     def semiSupervisedModel(self):
         return True
 
-    def featureCoefficients(self):
-        return False
+    def featureImportance(self):
+        return None
 
 ClassifierConfFactory.getFactory().registerClass('SssvddConfiguration',
         SssvddConfiguration)

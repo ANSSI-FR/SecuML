@@ -22,8 +22,9 @@ from SecuML import db_tables
 from SecuML.Experiment import experiment_db_tools
 from SecuML.Experiment import ExperimentFactory
 
+from SecuML.Experiment.FeatureSelectionExperiment import FeatureSelectionExperiment
+
 def updateCurrentExperiment(experiment_id):
-    #if experiment is None or experiment.experiment_id != experiment_id:
     experiment = ExperimentFactory.getFactory().fromJson(experiment_id, session)
     return experiment
 
@@ -35,11 +36,6 @@ def expMenu(project, dataset, exp_type):
 def getExperiment(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
     return render_template(experiment.webTemplate(), project = experiment.project)
-
-
-
-
-
 
 @app.route('/hasTrueLabels/<experiment_id>/')
 def hasTrueLabels(experiment_id):

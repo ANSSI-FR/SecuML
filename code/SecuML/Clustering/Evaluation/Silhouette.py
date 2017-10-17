@@ -29,7 +29,7 @@ class Silhouette(object):
         self.instances = instances
         self.distances = None
 
-    def generateEvaluation(self, assigned_clusters, quick = False):
+    def generateEvaluation(self, output_dir, assigned_clusters, quick = False):
         if quick:
             self.silhouette_avg = 0
             return
@@ -41,11 +41,11 @@ class Silhouette(object):
             self.sample_silhouette_values = silhouette_samples(self.instances.getFeatures(),
                     assigned_clusters)
         self.silhouette_avg = np.mean(self.sample_silhouette_values)
-        self.printSilhouette(assigned_clusters)
+        self.printSilhouette(output_dir, assigned_clusters)
 
     # Code from a scikit-learn example:
     # Selecting the number of clusters with silhouette analysis on KMeans clustering
-    def printSilhouette(self, assigned_clusters):
+    def printSilhouette(self, output_dir, assigned_clusters):
         num_clusters = len(set(assigned_clusters))
         plt.clf()
         y_lower = 10
@@ -73,7 +73,7 @@ class Silhouette(object):
         plt.axvline(x=self.silhouette_avg, color='red', linestyle='--')
         plt.yticks([])  # Clear the yaxis labels / ticks
         plt.xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
-        plt.savefig(self.outputFilename('silhouette', '.png'))
+        plt.savefig(output_dir + 'silhouette.png')
         plt.clf()
 
     def toJson(self):

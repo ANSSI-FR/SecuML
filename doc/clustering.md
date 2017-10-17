@@ -2,7 +2,7 @@
 
 The instances are clustered into a number of clusters specified by the user. Then, the user interface allows to display the instances in each cluster and to annotate instances individually or whole clusters at once.
 
-    ./SecuML_clustering <algo> <project> <dataset> -f <features_files> --num-clusters <num_clusters>
+    ./SecuML_clustering <project> <dataset> <algo> --num-clusters <num_clusters>
 
 To display the available clustering algorithms:
 
@@ -10,7 +10,7 @@ To display the available clustering algorithms:
 
 For more information about the available options for a given clustering algorithm:
 
-	./SecuML_clustering <algo> -h
+	./SecuML_clustering <project> <dataset> <algo> -h
 
 Web interface to display the results:
 

@@ -16,22 +16,17 @@
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-import os
+
+from SecuML.Tools import db_tools
+from SecuML.config import DB_URI
 
 user_exp = True
 
 app = Flask(__name__)
 
-home = os.environ['HOME']
-with open(home + '/.my.cnf', 'r') as f:
-    f.readline() # skip the header
-    host = f.readline().split('=')[1].strip()
-    user = f.readline().split('=')[1].strip()
-    password = f.readline().split('=')[1].strip()
-connector  = 'mysql+mysqlconnector://' + user + ':'
-connector += password + '@' + host + '/'
-connector += 'SecuML'
-app.config['SQLALCHEMY_DATABASE_URI'] = connector
+db_tools.checkURI()
+app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 session = SQLAlchemy(app).session
 
 import SecuML_web.base.views.instances

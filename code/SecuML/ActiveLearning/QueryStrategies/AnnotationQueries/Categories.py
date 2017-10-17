@@ -21,20 +21,23 @@ import random
 import warnings
 
 from SecuML.Classification.ClassifierDatasets import ClassifierDatasets
-from SecuML.Classification.Configuration.GaussianNaiveBayesConfiguration import GaussianNaiveBayesConfiguration
+from SecuML.Classification.Configuration.GaussianNaiveBayesConfiguration \
+        import GaussianNaiveBayesConfiguration
 from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 from SecuML.Classification.Classifiers.GaussianNaiveBayes import GaussianNaiveBayes
 from SecuML.Experiment.ClassificationExperiment import ClassificationExperiment
-from SecuML.Tools import dir_tools, floats_tools
+from SecuML.Tools import floats_tools
 
 from Category import Category
 
 class Categories(object):
 
-    def __init__(self, experiment, instances, assigned_categories, assignment_proba, label, category_labels):
+    def __init__(self, experiment, instances, assigned_categories, assignment_proba,
+                 label, category_labels):
         self.experiment          = experiment
         self.instances           = instances
-        self.generateCategories(assigned_categories, assignment_proba, label, category_labels)
+        self.generateCategories(assigned_categories, assignment_proba, label,
+                                category_labels)
         self.setOutputDirectory()
 
     def numCategories(self):
@@ -244,14 +247,14 @@ class Categories(object):
     def trainNaiveBayes(self, iteration_number):
         naive_bayes_exp = self.createNaiveBayesExperiment(iteration_number)
         # Train the naive Bayes detection model and predict
-        datasets = ClassifierDatasets(naive_bayes_exp, naive_bayes_exp.classification_conf)
+        datasets = ClassifierDatasets(naive_bayes_exp.classification_conf)
         current_families = copy.deepcopy(self.instances.families)
         # families are altered
         self.instances.families = self.assigned_categories
         datasets.train_instances = self.instances
         datasets.test_instances  = None
         datasets.setSampleWeights()
-        naive_bayes = GaussianNaiveBayes(naive_bayes_exp, datasets)
+        naive_bayes = GaussianNaiveBayes(naive_bayes_exp.classification_conf, datasets)
         naive_bayes.training()
         # families are restored
         self.instances.families = current_families
@@ -265,6 +268,7 @@ class Categories(object):
                          'NaiveBayes'])
         naive_bayes_exp = ClassificationExperiment(exp.project, exp.dataset, exp.session,
                                                    experiment_name = name,
+                                                   labels_id = exp.labels_id,
                                                    parent = exp.experiment_id)
         naive_bayes_exp.setFeaturesFilenames(exp.features_filenames)
         test_conf = TestConfiguration()

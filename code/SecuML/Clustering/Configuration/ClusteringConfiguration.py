@@ -14,8 +14,7 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.Experiment.Experiment import Experiment
-from SecuML.Projection.Configuration import ProjectionConfFactory
+from SecuML.DimensionReduction.Configuration import DimensionReductionConfFactory
 
 import ClusteringConfFactory
 
@@ -30,7 +29,7 @@ class ClusteringConfiguration(object):
         self.projection_conf = projection_conf
         self.label = label
 
-    def setProjectionConf(self, projection_conf):
+    def setDimensionReductionConf(self, projection_conf):
         self.projection_conf = projection_conf
 
     def setNumClusters(self, num_clusters):
@@ -49,8 +48,8 @@ class ClusteringConfiguration(object):
     def fromJson(obj):
         conf = ClusteringConfiguration(obj['num_clusters'], num_results = obj['num_results'], label = obj['label'])
         if obj['projection_conf'] is not None:
-            projection_conf = ProjectionConfFactory.getFactory().fromJson(obj['projection_conf'])
-            conf.setProjectionConf(projection_conf)
+            projection_conf = DimensionReductionConfFactory.getFactory().fromJson(obj['projection_conf'])
+            conf.setDimensionReductionConf(projection_conf)
         return conf
 
     def toJson(self):
@@ -66,8 +65,6 @@ class ClusteringConfiguration(object):
 
     @staticmethod
     def generateParser(parser):
-        # Generic arguments
-        Experiment.projectDatasetFeturesParser(parser)
         # Clustering arguments
         parser.add_argument('--num-clusters',
                 type = int,
@@ -81,13 +78,13 @@ class ClusteringConfiguration(object):
                 choices = ['all', 'malicious', 'benign'],
                 default = 'all',
                 help = label_help)
-        # Projection arguments
+        # DimensionReduction arguments
         projection_group = parser.add_argument_group(
-                'Projection parameters')
+                'DimensionReduction parameters')
         projection_group.add_argument('--projection-algo',
                 choices = ['Pca', 'Rca', 'Lda', 'Lmnn', 'Nca', 'Itml', None],
                 default = None,
-                help = 'Projection performed before building the clustering. ' +
+                help = 'DimensionReduction performed before building the clustering. ' +
                 'By default the instances are not projected.')
         projection_group.add_argument('--families-supervision',
                 action = 'store_true',
@@ -103,13 +100,13 @@ class ClusteringConfiguration(object):
     @staticmethod
     def generateParamsFromArgs(args):
 
-        # Projection parameters
+        # DimensionReduction parameters
         projection_conf = None
         if args.projection_algo is not None:
             projection_args = {}
             projection_args['families_supervision'] = args.families_supervision
             projection_args['num_components']       = None
-            projection_conf = ProjectionConfFactory.getFactory().fromParam(
+            projection_conf = DimensionReductionConfFactory.getFactory().fromParam(
                     args.projection_algo, projection_args)
 
         # Clustering parameters

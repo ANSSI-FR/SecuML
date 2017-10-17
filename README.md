@@ -1,7 +1,6 @@
 # SecuML
 SecuML is a Python tool that aims to foster the use of Machine Learning in Computer Security. It is distributed under the GPL2+ license.
-It allows security experts to train models easily and
-comes up with a web user interface to visualize the results and interact with the models.
+It allows security experts to train models easily and comes up with a web user interface to visualize the results and interact with the models.
 SecuML can be applied to any detection problem. It requires as input numerical features representing each instance.
 It supports binary labels (malicious vs. benign) and categorical labels which represent families of malicious or benign behaviours.
 
@@ -13,61 +12,52 @@ It supports binary labels (malicious vs. benign) and categorical labels which re
 * [Projecting data](doc/projection.md)
 * [Computing descriptive statistics of each feature](doc/stats.md)
 
+See the [documentation](doc/main.md) for more detail.
 
-## Requirements and Configurations
 
-#### Requirements
+## Requirements
 * rabbit-mq server (>= 3.3.5) (only for active learning and rare category detection)
-* MySQL server (>= 5.5.49)
-* Python packages:
+* Python packages :
   * celery (>= 3.1.13) (only for active learning and rare category detection)
   * flask (>= 0.10.1)
   * flask_sqlalchemy (>= 1.0)
   * metric-learn (>= 0.3.0)
-  * mysql.connector (>= 2.1.3)
   * numpy (>= 1.8.2)
   * pandas (>= 0.14.1)
   * scikit-learn (>= 0.18.1)
-  * sqlalchemy (>= 0.9.8)
+  * sqlalchemy (>= 1.0.12)
 
-#### Initial Configurations
+#### Database
+SecuML requires an access to a database (MySQL or PostgreSQL)
+where the user has the following permissions: SELECT, INSERT, UPDATE, DELETE.
 
-##### MySQL
-MySQL must be configured with a `my.cnf` file with the following format:
+###### MySQL database
+* MySQL server (>= 5.5.49)
+* Python package :
+  * mysql.connector (>= 2.1.3)
 
-	[client]
-	host=<host>
-	user=<user>
-	password=<password>
+###### PostgreSQL database
+* PostgreSQL server (>= 9.4.13)
+* Python package :
+  * psycopg2 (>= 2.5.4)
 
-The MySQL user must have the following permissions: SELECT, INSERT, UPDATE, DELETE on the database SecuML (which must be created).
-
-##### JS and CSS libraries
+#### JS and CSS libraries
 The required librairies can be dowloaded with the script `download_libraries`.
 
-## Datasets
-SecuML considers projects which correspond to different detection problems (PDF files , PE, Android applications or Spam for instance).
-For a given project, several datasets can be used.
-The directory `SecuML/input_data/<project>/<dataset>/` must contain the following informations about a given dataset:
+## Configuration
 
-* `idents.csv`: A csv file containing the identifiers of the instances (header: `instance_id, ident`).
-* a `features` directory: It contains csv files with the features of the instances (header: `instance_id, names of the features`).
-* a `labels` directory: It contains csv files with the labels associated to the instances (header: `instance_id,label`, or `instance_id,label,family`, and the end of line character must be LF).
-Labels are either `malicious` or `benign`.  Families regroup similar malicious or benign instances.
-If the ground truth labels are known, they must be stored in the file `true_labels.csv`.
+The environment variable `̀SECUMLCONF` must be set to the path of the configuration file which must follow the following format (see `SecuML_travis_conf.yml`):
 
-See `SecuML/input_data/SpamHam/lingspam/` for an example of dataset ([Lingspam Dataset](input_data/SpamHam/lingspam/README.md)).
+    input_data_dir: <directory containing the input datasets>
+    output_data_dir: <directory where the results of the experiments are stored>
+    db_uri: <URI of the database>
 
-## Experiments
+## Papers and Presentations
+* Beaugnon, Anaël, Pierre Chifflier, and Francis Bach. ["ILAB: An Interactive Labelling Strategy for Intrusion Detection."](https://www.ssi.gouv.fr/en/publication/ilab-an-interractive-labelling-strategy-for-intrusion-detection/) International Symposium on Research in Attacks, Intrusions, and Defenses. Springer, Cham, 2017.
+* Bonneton, Anaël. ["Machine Learning for Computer Security Experts using Python & scikit-learn"](http://pyparis.org/talks.html#39d62c68337f89d3c879fff02b88e23b), PyParis, 2017.
+* Bonneton, Anaël, and Antoine Husson. ["Le Machine Learning confronté aux contraintes opérationnelles des systèmes de détection."](https://www.sstic.org/2017/presentation/le_machine_learning_confront_aux_contraintes_oprationnelles_des_systmes_de_dtection/), SSTIC, 2017.
 
-To display the results of the experiments in the web user interface the server must be launched
-
-    ./SecuML_server
-
-To remove all the experiments carried out for a given project
-
-    ./SecuML_remove_project_dataset <project>
-
-To remove all the experiments carried out for a given dataset
-
-    ./SecuML_remove_project_dataset <project> --dataset <dataset>
+## Authors
+* Anaël Beaugnon (anael.beaugnon@ssi.gouv.fr)
+* Pierre Collet (pierre.collet@ssi.gouv.fr)
+* Antoine Husson (antoine.husson@ssi.gouv.fr)

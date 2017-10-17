@@ -21,7 +21,7 @@ import argparse
 from SecuML.Data.Dataset import Dataset
 from SecuML.Experiment import ExperimentFactory
 from SecuML.Tools import dir_tools
-from SecuML.Tools import mysql_tools
+from SecuML.Tools import db_tools
 from SecuML import db_tables
 
 if __name__ == '__main__':
@@ -37,7 +37,7 @@ if __name__ == '__main__':
             default = None)
     args = parser.parse_args()
 
-    engine, session = mysql_tools.getSecuMLSession()
+    engine, session = db_tools.getSqlalchemySession()
     db_tables.createTables(engine)
 
     if args.experiment_id is not None:
@@ -50,4 +50,4 @@ if __name__ == '__main__':
         db_tables.removeProject(session, args.project)
         dir_tools.removeProjectOutputDirectory(args.project)
 
-    mysql_tools.closeSqlAlchemySession(session)
+    db_tools.closeSqlalchemySession(session)

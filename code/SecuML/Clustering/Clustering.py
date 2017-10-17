@@ -23,27 +23,23 @@ from Cluster import Cluster
 
 class Clustering(object):
 
-    def __init__(self, experiment, instances, assigned_clusters, clustering_algo = None):
-        self.experiment        = experiment
+    def __init__(self, instances, assigned_clusters, clustering_algo = None):
         self.instances         = instances
         self.assigned_clusters = assigned_clusters
         if assigned_clusters == []:
             self.num_clusters = 0
         else:
-            self.num_clusters      = max(assigned_clusters) + 1
-        self.clustering_algo   = clustering_algo
-        self.evaluation        = ClusteringEvaluation(self.instances,
+            self.num_clusters = max(assigned_clusters) + 1
+        self.clustering_algo = clustering_algo
+        self.evaluation      = ClusteringEvaluation(self.instances,
                                                       self.assigned_clusters,
                                                       self.clustering_algo)
-        self.setOutputDirectory()
 
     def numClusters(self):
         return self.num_clusters
 
-    def setOutputDirectory(self):
-        self.output_directory = self.experiment.getOutputDirectory()
-
-    def generateClustering(self, assignment_proba, centroids, drop_annotated_instances = False,
+    def generateClustering(self, output_directory, assignment_proba, centroids,
+                           drop_annotated_instances = False,
             cluster_labels = None):
         self.clusters = [Cluster() for x in range(self.num_clusters)]
         if cluster_labels is not None:
@@ -71,12 +67,12 @@ class Clustering(object):
         unknown_cluster_id = 0
         for c in range(self.num_clusters):
             unknown_cluster_id = self.clusters[c].finalComputation(unknown_cluster_id)
-        self.clusteringToJson(drop_annotated_instances = drop_annotated_instances)
+        self.clusteringToJson(output_directory, drop_annotated_instances = drop_annotated_instances)
 
-    def generateEvaluation(self, quick = False):
-        self.evaluation.generateEvaluation(quick = quick)
+    def generateEvaluation(self, output_directory, quick = False):
+        self.evaluation.generateEvaluation(output_directory, quick = quick)
         obj = self.evaluation.toJson()
-        filename = self.output_directory + 'clustering_evaluation.json'
+        filename = output_directory + 'clustering_evaluation.json'
         with open(filename, 'w') as f:
             json.dump(obj, f, indent = 2)
 
@@ -92,7 +88,7 @@ class Clustering(object):
                 clustering.clusters[c] = Cluster.fromJson(obj[str(c)])
         return clustering
 
-    def clusteringToJson(self, drop_annotated_instances = False):
+    def clusteringToJson(self, output_directory, drop_annotated_instances = False):
         obj = {}
         obj['assigned_clusters'] = list(map(int, self.assigned_clusters))
         if drop_annotated_instances:
@@ -101,7 +97,7 @@ class Clustering(object):
             drop_instances = None
         for c in range(self.num_clusters):
             obj[str(c)] = self.clusters[c].toJson(drop_instances = drop_instances)
-        filename = self.output_directory + 'clusters.json'
+        filename = output_directory + 'clusters.json'
         with open(filename, 'w') as f:
             json.dump(obj, f, indent = 2)
 
@@ -118,8 +114,8 @@ class Clustering(object):
 
     def getClusterLabelsFamilies(self, selected_cluster):
         return self.clusters[selected_cluster].getClusterLabelsFamilies(self.experiment.session,
-                self.experiment.oldest_parent)
+                self.experiment.labels_id)
 
     def getClusterLabelFamilyIds(self, selected_cluster, label, family):
         return self.clusters[selected_cluster].getClusterLabelFamilyIds(label, family,
-                self.experiment.session, self.experiment.oldest_parent)
+                self.experiment.session, self.experiment.labels_id)

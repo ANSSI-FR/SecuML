@@ -50,7 +50,7 @@ class Category(object):
             self.label = label
         else:
             self.label = labels_tools.getAssociatedLabel(self.experiment.session, family,
-                                                         self.experiment.oldest_parent)
+                                                         self.experiment.labels_id)
 
     def numInstances(self):
         return len(self.instances_ids)

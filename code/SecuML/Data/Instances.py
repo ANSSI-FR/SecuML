@@ -15,15 +15,10 @@
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import division
-import csv
 import numpy as np
 from scipy.sparse import csr_matrix
 
-from SecuML import db_tables
-
-from SecuML.Data import idents_tools
 from SecuML.Data import labels_tools
-from SecuML.Tools import dir_tools
 
 class InvalidInstances(Exception):
 
@@ -35,37 +30,21 @@ class InvalidInstances(Exception):
 
 class Instances(object):
 
-    def __init__(self):
-        self.features       = None
-        self.features_names = None
-        self.ids            = None
-        ## labels and true_labels contain booleans
-        ## (True -> Malicious, False -> Benign)
-        ## None if the instance is unlabeled
-        self.labels        = None
-        self.families      = None
-        self.true_labels   = None
-        self.true_families = None
-        self.annotations   = None
-
-    def initFromExperiment(self, experiment):
-        self.initFromCsvFiles(experiment.getFeaturesFilesFullpaths())
-        self.setLabelsFromExperiment(experiment)
-        self.checkValidity()
-
-    def initFromMatrix(self, ids, matrix, features_names,
-                       labels = None, families = None,
-                       true_labels = None, true_families = None,
-                       annotations = None):
+    def __init__(self, ids, features, features_names, labels, families,
+                 true_labels, true_families, annotations):
         self.setIds(ids)
-        self.features       = np.array(matrix)
+        self.features       = np.array(features)
         self.features_names = features_names
         self.labels         = labels
         self.families       = families
         self.true_labels    = true_labels
         self.true_families  = true_families
         self.annotations    = annotations
+        self.idents        = None         ## TODO
         self.checkValidity()
+
+    def setIdents(self, idents):
+        self.idents = idents
 
     def checkValidity(self):
         message = None
@@ -98,86 +77,27 @@ class Instances(object):
             message  = 'There are ' + str(num_instances) + ' instances '
             message += 'but ' + str(len(self.annotations)) + ' annotations are provided.'
 
-
         if message is not None:
             raise InvalidInstances(message)
 
-    def initFromCsvFiles(self, csv_files):
-        self.features_names = []
-        self.features = None
-        for csv_file in csv_files:
-            with open(csv_file, 'r') as f:
-                features = f.readline().strip('\n').split(',')[1:]
-                self.features_names += features
-                features = list(list(rec) for rec in csv.reader(f,
-                    quoting = csv.QUOTE_NONNUMERIC))
-                self.setIds([int(l[0]) for l in features])
-                if self.features is None:
-                    self.features = [l[1:] for l in features]
-                else:
-                    self.features = [f1 + f2[1:] for f1, f2 in zip(self.features, features)]
-        self.features = np.array(self.features)
-
     # The union must be used on instances coming from the same dataset.
     # Otherwise, there may be some collisions on the ids.
-    def union(self, instances_1, instances_2):
-        is_empty = None
-        if instances_1.numInstances() == 0:
-            is_empty = instances_1
-        elif instances_2.numInstances() == 0:
-            is_empty = instances_2
-        if is_empty is not None:
-            self.initFromMatrix(
-                    is_empty.ids,
-                    is_empty.features,
-                    is_empty.features_names,
-                    labels = is_empty.labels,
-                    families = is_empty.families,
-                    true_labels = is_empty.true_labels,
-                    true_families = is_empty.true_families,
-                    annotations = is_empty.annotations)
+    def union(self, instances):
+        if instances.numInstances() == 0:
+            return
+        # TODO: check consitent dimensions
+        if self.numInstances() == 0:
+            self.features = instances.features
         else:
-            self.initFromMatrix(
-                    instances_1.ids + instances_2.ids,
-                    np.vstack((instances_1.features, instances_2.features)),
-                    instances_1.features_names,
-                    labels = instances_1.labels + instances_2.labels,
-                    families = instances_1.families + instances_2.families,
-                    true_labels = instances_1.true_labels + instances_2.true_labels,
-                    true_families = instances_1.true_families + instances_2.true_families,
-                    annotations = instances_1.annotations + instances_2.annotations)
-
-    def createDataset(self, project, dataset, features_filenames, session):
-        dataset_dir, features_dir, init_labels_dir = dir_tools.createDataset(project, dataset)
-        self.exportIdents(dataset_dir + 'idents.csv', session)
-        self.toCsv(features_dir + features_filenames)
-        if self.hasTrueLabels():
-            self.saveInstancesLabels(init_labels_dir + 'true_labels.csv')
-
-    def exportIdents(self, output_filename, session):
-        with open(output_filename, 'w') as f:
-            print >>f, 'instance_id,ident'
-            ids = self.getIds()
-            idents = idents_tools.getAllIdents(session)
-            for i in range(self.numInstances()):
-                instance_id = ids[i]
-                print >>f, str(instance_id) + ','  + idents[str(instance_id)].encode('utf-8')
-
-    def toCsv(self, output_filename):
-        header = ['instance_id'] + self.features_names
-        with open(output_filename, 'w') as f:
-            print >>f, ','.join(header)
-            for instance_id in self.getIds():
-                print >>f, str(instance_id) + ',' + ','.join(map(str, self.getInstance(instance_id)))
-
-    def saveInstancesLabels(self, output_filename):
-        with open(output_filename, 'w') as f:
-            print >>f, 'instance_id,label,family'
-            for i in range(self.numInstances()):
-                instance_id = self.ids[i]
-                label = labels_tools.labelBooleanToString(self.labels[i])
-                family = self.families[i]
-                print >>f, str(instance_id) + ',' + label + ',' + family
+            self.features = np.vstack((self.features, instances.features))
+        self.setIds(self.ids + instances.ids)
+        self.labels         = self.labels + instances.labels
+        self.families       = self.families + instances.families
+        self.true_labels    = self.true_labels + instances.true_labels
+        self.true_families  = self.true_families + instances.true_families
+        self.annotations    = self.annotations + instances.annotations
+        self.idents         = None # TODO
+        self.checkValidity()
 
     ##############
     ### Labels ###
@@ -185,34 +105,6 @@ class Instances(object):
 
     def hasTrueLabels(self):
         return all(l is not None for l in self.true_labels)
-
-    def setLabelsFromExperiment(self, experiment):
-        num_instances      = self.numInstances()
-        self.labels        = [None] * num_instances
-        self.families      = [None] * num_instances
-        self.annotations   = [None] * num_instances
-        self.true_labels   = [None] * num_instances
-        self.true_families = [None] * num_instances
-        ## Labels/Families
-        benign_ids = labels_tools.getLabelIds(experiment.session, 'benign',
-                experiment_id = experiment.oldest_parent)
-        malicious_ids = labels_tools.getLabelIds(experiment.session, 'malicious',
-                experiment_id = experiment.oldest_parent)
-        for instance_id in benign_ids + malicious_ids:
-            label, family, method, annotation = labels_tools.getLabelDetails(
-                    experiment.session, instance_id,
-                    experiment.oldest_parent)
-            self.setLabel(instance_id, label == 'malicious')
-            self.setFamily(instance_id, family)
-            self.setAnnotation(instance_id, annotation)
-        ## True Labels
-        true_labels_exp = db_tables.hasTrueLabels(experiment)
-        if true_labels_exp is not None:
-            labels, families = labels_tools.getExperimentLabelsFamilies(
-                                   experiment.session,
-                                   true_labels_exp)
-            self.true_labels   = labels
-            self.true_families = families
 
     def getLabels(self, true_labels = False):
         if true_labels:
@@ -246,9 +138,7 @@ class Instances(object):
         for instance_id in self.getAnnotatedIds():
             label  = self.getLabel(instance_id)
             family = self.getFamily(instance_id)
-            details = labels_tools.getLabelDetails(experiment.session,
-                                                   instance_id,
-                                                   experiment.oldest_parent)
+            details = labels_tools.getLabelDetails(experiment, instance_id)
             if details is None:
                 ## The instance is not annotated anymore
                 self.setLabel(instance_id, None)
@@ -416,12 +306,9 @@ class Instances(object):
         if self.hasTrueLabels():
             y_true = [self.getLabel(i, true_labels = True) for i in instance_ids]
             z_true = [self.getFamily(i, true_labels = True) for i in instance_ids]
-        selected_instances = Instances()
         annotations = [self.isAnnotated(i) for i in instance_ids]
-        selected_instances.initFromMatrix(instance_ids, X, self.getFeaturesNames(),
-                labels = y, families = z,
-                true_labels = y_true, true_families = z_true,
-                annotations = annotations)
+        selected_instances = Instances(instance_ids, X, self.getFeaturesNames(),
+                                       y, z, y_true, z_true, annotations)
         return selected_instances
 
     ################
@@ -454,4 +341,7 @@ class Instances(object):
 
     def getFeatureValues(self, feature_name):
         feature_index = self.getFeatureIndex(feature_name)
+        return self.getFeatureValuesFromIndex(feature_index)
+
+    def getFeatureValuesFromIndex(self, feature_index):
         return [self.features[i][feature_index] for i in range(self.numInstances())]

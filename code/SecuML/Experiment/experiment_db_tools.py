@@ -69,7 +69,7 @@ def getExperimentName(session, experiment_id):
 def getExperimentLabelId(session, experiment_id):
     query = session.query(ExperimentsAlchemy)
     query = query.filter(ExperimentsAlchemy.id == experiment_id)
-    return query.first().oldest_parent
+    return query.first().labels_id
 
 def addExperiment(session, kind, name, dataset_id, parent):
     exp = ExperimentsAlchemy(kind = kind, name = name, dataset_id = dataset_id,

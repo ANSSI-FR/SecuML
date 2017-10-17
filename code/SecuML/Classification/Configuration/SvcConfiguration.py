@@ -66,8 +66,8 @@ class SvcConfiguration(ClassifierConfiguration):
     def semiSupervisedModel(self):
         return False
 
-    def featureCoefficients(self):
-        return True
+    def featureImportance(self):
+        return None
 
     @staticmethod
     def generateParser(parser):

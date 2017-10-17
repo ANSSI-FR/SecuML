@@ -16,44 +16,17 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
 import matplotlib
 matplotlib.use('Agg')
 
-from SecuML import db_tables
-from SecuML.Data.Dataset import Dataset
 from SecuML.Experiment.ProjectionExperiment import ProjectionExperiment
-from SecuML.Projection.Configuration import ProjectionConfFactory
-from SecuML.Tools import mysql_tools
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(
-            description = 'Projection of the data for data visualization.')
-    algos = ['Pca', 'Rca', 'Lda', 'Lmnn', 'Nca', 'Itml']
-    subparsers = parser.add_subparsers(dest = 'algo')
-    for algo in algos:
-        algo_parser = subparsers.add_parser(algo)
-        factory = ProjectionConfFactory.getFactory()
-        factory.generateParser(algo, algo_parser)
+    parser = ProjectionExperiment.generateParser()
     args = parser.parse_args()
 
-    engine, session = mysql_tools.getSecuMLSession()
-    db_tables.createTables(engine)
-
-    load_dataset = Dataset(args.project, args.dataset, session)
-    if not load_dataset.isLoaded():
-        load_dataset.load()
-
-
-    experiment = ProjectionExperiment(args.project, args.dataset, session)
-    experiment.setFeaturesFilenames(args.features_files)
-    conf = factory.fromArgs(args.algo, args)
-    experiment.setConf(conf)
-    experiment.initLabels(args.labels_file)
-    experiment.export()
-
-    projection = conf.algo(experiment)
-    projection.run(visu = True, performance = True)
-
-    mysql_tools.closeSqlAlchemySession(session)
+    experiment = ProjectionExperiment(args.project, args.dataset, None)
+    experiment.setExperimentFromArgs(args)
+    experiment.run()
+    experiment.closeSession()

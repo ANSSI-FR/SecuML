@@ -16,40 +16,18 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
 import matplotlib
 matplotlib.use('Agg')
 
-from SecuML import db_tables
-from SecuML.Data.Dataset import Dataset
-from SecuML.Data.DescriptiveStatistics import DescriptiveStatistics
 from SecuML.Experiment.DescriptiveStatisticsExperiment \
         import DescriptiveStatisticsExperiment
-from SecuML.Tools import mysql_tools
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-            description = 'Descriptive Statistics of the Dataset')
-    DescriptiveStatisticsExperiment.projectDatasetFeturesParser(parser)
+    parser = DescriptiveStatisticsExperiment.generateParser()
     args = parser.parse_args()
 
-    engine, session = mysql_tools.getSecuMLSession()
-    db_tables.createTables(engine)
-
-    load_dataset = Dataset(args.project, args.dataset, session)
-    if not load_dataset.isLoaded():
-        load_dataset.load()
-
-    experiment = DescriptiveStatisticsExperiment(
-            args.project, args.dataset, session)
-    experiment.setFeaturesFilenames(args.features_files)
-    try:
-        experiment.initLabels('true_labels.csv')
-    except:
-        pass
-    experiment.export()
-
-    stats = DescriptiveStatistics(experiment)
-    stats.generateDescriptiveStatistics()
-
-    mysql_tools.closeSqlAlchemySession(session)
+    experiment = DescriptiveStatisticsExperiment(args.project, args.dataset,
+                                                 None)
+    experiment.setExperimentFromArgs(args)
+    experiment.run()
+    experiment.closeSession()

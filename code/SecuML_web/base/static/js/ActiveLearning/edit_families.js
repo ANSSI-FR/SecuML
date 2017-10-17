@@ -15,7 +15,7 @@ function loadConfigurationFile(callback) {
     d3.json(buildQuery('getConf', [experiment_id]),
             function(error, data) {
                 conf = data;
-                inst_exp_label_id = conf.oldest_parent;
+                inst_exp_label_id = conf.labels_id;
                 callback();
             }
            );
@@ -57,7 +57,7 @@ function displayFamiliesSelectors(panel, multiple = false) {
   label_div.appendChild(form);
   var fieldset = document.createElement('fieldset');
   form.appendChild(fieldset);
-  var query = buildQuery('getLabelsFamilies', [inst_exp_label_id, 'None']);
+  var query = buildQuery('getLabelsFamilies', [inst_exp_id, 'None']);
   jQuery.getJSON(query, function(data) {
         var malicious_col = displayFamilySelector(fieldset, 'malicious', multiple, data);
         var col = createDivWithClass(null, 'col-md-1', parent_div = fieldset);

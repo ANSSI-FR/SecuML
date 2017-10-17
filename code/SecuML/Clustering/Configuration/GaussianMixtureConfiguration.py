@@ -15,7 +15,7 @@
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from SecuML.Clustering.Algorithms.GaussianMixture import GaussianMixture
-from SecuML.Projection.Configuration import ProjectionConfFactory
+from SecuML.DimensionReduction.Configuration import DimensionReductionConfFactory
 
 import ClusteringConfFactory
 from ClusteringConfiguration import ClusteringConfiguration
@@ -37,8 +37,8 @@ class GaussianMixtureConfiguration(ClusteringConfiguration):
         conf.init_params = obj['init_params']
         conf.max_iter = obj['max_iter']
         if obj['projection_conf'] is not None:
-            projection_conf = ProjectionConfFactory.getFactory().fromJson(obj['projection_conf'])
-            conf.setProjectionConf(projection_conf)
+            projection_conf = DimensionReductionConfFactory.getFactory().fromJson(obj['projection_conf'])
+            conf.setDimensionReductionConf(projection_conf)
         return conf
 
     def toJson(self):
@@ -50,4 +50,4 @@ class GaussianMixtureConfiguration(ClusteringConfiguration):
         return conf
 
 ClusteringConfFactory.getFactory().registerClass('GaussianMixtureConfiguration',
-        GaussianMixtureConfiguration)
+                                                 GaussianMixtureConfiguration)

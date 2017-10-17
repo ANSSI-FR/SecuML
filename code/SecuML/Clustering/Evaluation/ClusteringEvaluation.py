@@ -27,9 +27,9 @@ class ClusteringEvaluation(object):
         self.silhouette        = Silhouette(instances)
         self.performance       = PerformanceIndicators()
 
-    def generateEvaluation(self, quick = False):
+    def generateEvaluation(self, output_dir, quick = False):
         self.distortion.generateEvaluation()
-        self.silhouette.generateEvaluation(self.assigned_clusters, quick = quick)
+        self.silhouette.generateEvaluation(output_dir, self.assigned_clusters, quick = quick)
         if self.instances.true_labels is not None:
             true_labels = self.instances.getLabels(true_labels = True)
             true_families = self.instances.getFamilies(true_labels = True)

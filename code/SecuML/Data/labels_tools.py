@@ -17,67 +17,77 @@
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import func
 
-from SecuML.db_tables import LabelsAlchemy
+from SecuML.db_tables import LabelsAlchemy, TrueLabelsAlchemy
 
-class InvalidLabels(Exception):
-
-    def __init__(self, invalid_values):
-        self.message  = 'The labels must be "malicious" or "benign". '
-        self.message += 'Invalid values encountered: '
-        self.message += ','.join(invalid_values) + '.'
-
-    def __str__(self):
-        return self.message
+MALICIOUS = 'malicious'
+BENIGN    = 'benign'
 
 def labelBooleanToString(label):
     if label:
-        return 'malicious'
+        return MALICIOUS
     else:
-        return 'benign'
+        return BENIGN
 
 def labelStringToBoolean(label):
-    return label == 'malicious'
+    return label == MALICIOUS
 
-def checkLabelsValidity(session):
-    query = session.query(LabelsAlchemy).distinct(LabelsAlchemy.label)
-    labels_values = set([r.label for r in query.all()])
-    other_values = list(labels_values.difference(set(['malicious', 'benign'])))
-    if len(other_values) != 0:
-        raise InvalidLabels(other_values)
-
-def getLabel(session, instance_id, experiment_id):
+def getLabel(session, instance_id, labels_id):
     query = session.query(LabelsAlchemy)
     query = query.filter(LabelsAlchemy.instance_id == instance_id)
-    query = query.filter(LabelsAlchemy.experiment_id == experiment_id)
+    query = query.filter(LabelsAlchemy.labels_id == labels_id)
     try:
         res = query.one()
         return res.label, res.family
     except NoResultFound:
         return None
 
-def getLabelDetails(session, instance_id, experiment_id):
-    query = session.query(LabelsAlchemy).filter(LabelsAlchemy.instance_id == int(instance_id),
-                                                LabelsAlchemy.experiment_id == int(experiment_id))
-    try:
-        res = query.one()
-        return res.label, res.family, res.method, res.annotation
-    except NoResultFound:
-        return None
+def getLabelDetails(experiment, instance_id):
+    if experiment.labels_type == 'partial_labels':
+        query = experiment.session.query(LabelsAlchemy)
+        query = query.filter(LabelsAlchemy.instance_id == int(instance_id))
+        query = query.filter(LabelsAlchemy.labels_id == int(experiment.labels_id))
+        try:
+            res = query.one()
+            return res.label, res.family, res.method, res.annotation
+        except NoResultFound:
+            return None
+    if experiment.labels_type == 'true_labels':
+        query = experiment.session.query(TrueLabelsAlchemy)
+        query = query.filter(TrueLabelsAlchemy.instance_id == int(instance_id))
+        try:
+            res = query.one()
+            return res.label, res.family, 'true_labels', True
+        except NoResultFound:
+            return None
+    return None
 
-def getExperimentLabelsFamilies(session, experiment_id):
-    query = session.query(LabelsAlchemy).filter(LabelsAlchemy.experiment_id == experiment_id).order_by(LabelsAlchemy.instance_id)
+def getTrueLabelsFamilies(experiment):
+    query = experiment.session.query(TrueLabelsAlchemy)
+    query = query.filter(TrueLabelsAlchemy.dataset_id == experiment.dataset_id)
+    query = query.order_by(TrueLabelsAlchemy.instance_id)
     res = query.all()
     labels = [labelStringToBoolean(r.label) for r in res]
     families = [r.family for r in res]
     return labels, families
 
-def getDatasetFamilies(session, experiment_id):
-    query = session.query(LabelsAlchemy).distinct(LabelsAlchemy.family).filter(LabelsAlchemy.experiment_id == experiment_id)
+def getExperimentLabelsFamilies(session, labels_id):
+    query = session.query(LabelsAlchemy)
+    query = query.filter(LabelsAlchemy.labels_id == labels_id)
+    query = query.order_by(LabelsAlchemy.instance_id)
+    res = query.all()
+    labels = [labelStringToBoolean(r.label) for r in res]
+    families = [r.family for r in res]
+    return labels, families
+
+def getDatasetFamilies(session, labels_id):
+    query = session.query(LabelsAlchemy.family)
+    query = query.filter(LabelsAlchemy.labels_id == labels_id)
+    query = query.distinct(LabelsAlchemy.family)
     families = [r.family for r in query.all()]
     return families
 
-def datasetHasFamilies(session, experiment_id):
-    families = getDatasetFamilies(session, experiment_id)
+def datasetHasFamilies(session, labels_id):
+    families = getDatasetFamilies(session, labels_id)
     if (len(families) == 0):
         return False
     if (len(families) == 1):
@@ -85,10 +95,11 @@ def datasetHasFamilies(session, experiment_id):
             return False
     return True
 
-def getLabelsFamilies(session, experiment_id, instance_ids = None,
+def getLabelsFamilies(session, labels_id, instance_ids = None,
                       iteration_max = None):
-    query = session.query(LabelsAlchemy).distinct(LabelsAlchemy.label, LabelsAlchemy.family)
-    query = query.filter(LabelsAlchemy.experiment_id == experiment_id)
+    query = session.query(LabelsAlchemy)
+    query = query.distinct(LabelsAlchemy.label, LabelsAlchemy.family)
+    query = query.filter(LabelsAlchemy.labels_id == labels_id)
     if iteration_max is not None:
         query = query.filter(LabelsAlchemy.iteration <= iteration_max)
     if instance_ids is not None:
@@ -100,9 +111,9 @@ def getLabelsFamilies(session, experiment_id, instance_ids = None,
         labels[r.label][r.family] = 0
     return labels
 
-def getFamiliesCounts(session, experiment_id, iteration_max = None, label = None):
+def getFamiliesCounts(session, labels_id, iteration_max = None, label = None):
     query = session.query(LabelsAlchemy.family, func.count(LabelsAlchemy.family))
-    query = query.filter(LabelsAlchemy.experiment_id == experiment_id)
+    query = query.filter(LabelsAlchemy.labels_id == labels_id)
     if iteration_max is not None:
         query = query.filter(LabelsAlchemy.iteration <= iteration_max)
     if label is not None:
@@ -113,10 +124,10 @@ def getFamiliesCounts(session, experiment_id, iteration_max = None, label = None
         family_counts[r[0]] = r[1]
     return family_counts
 
-def getLabelFamilyIds(session, experiment_id, label, family = None,
+def getLabelFamilyIds(session, labels_id, label, family = None,
                       iteration_max = None, instance_ids = None):
     query = session.query(LabelsAlchemy)
-    query = query.filter(LabelsAlchemy.experiment_id == experiment_id)
+    query = query.filter(LabelsAlchemy.labels_id == labels_id)
     query = query.filter(LabelsAlchemy.label == label)
     if family is not None:
         query = query.filter(LabelsAlchemy.family == family)
@@ -127,28 +138,34 @@ def getLabelFamilyIds(session, experiment_id, label, family = None,
     instance_ids = [r.instance_id for r in query.all()]
     return instance_ids
 
-def getLabelIds(session, label, experiment_id, annotation = False):
-    query = session.query(LabelsAlchemy)
-    query = query.filter(LabelsAlchemy.label == label)
-    if experiment_id is not None:
-        query = query.filter(LabelsAlchemy.experiment_id == experiment_id)
+def getLabelIds(experiment, label, annotation = False):
+    if experiment.labels_type == 'none':
+        return []
+    if experiment.labels_type == 'true_labels':
+        query = experiment.session.query(TrueLabelsAlchemy)
+        query = query.filter(TrueLabelsAlchemy.label == label)
+        query = query.filter(TrueLabelsAlchemy.dataset_id == experiment.dataset_id)
+    elif experiment.labels_type == 'partial_labels':
+        query = experiment.session.query(LabelsAlchemy)
+        query = query.filter(LabelsAlchemy.label == label)
+        query = query.filter(LabelsAlchemy.labels_id == experiment.labels_id)
         if annotation:
             query= query.filter(LabelsAlchemy.annotation)
     instance_ids = [r.instance_id for r in query.all()]
     return instance_ids
 
-def getAssociatedLabel(session, family, experiment_id):
+def getAssociatedLabel(session, family, labels_id):
     query = session.query(LabelsAlchemy)
-    query = query.filter(LabelsAlchemy.experiment_id == experiment_id)
+    query = query.filter(LabelsAlchemy.labels_id == labels_id)
     query = query.filter(LabelsAlchemy.family == str(family)) # MySQL does not support unicode_ type
     query = query.limit(1)
     res = query.one()
     return res.label
 
-def getUnlabeledIds(session, experiment_id, instance_ids = None,
+def getUnlabeledIds(session, labels_id, instance_ids = None,
                     iteration_max = None):
     query = session.query(LabelsAlchemy)
-    query = query.filter(LabelsAlchemy.experiment_id == experiment_id)
+    query = query.filter(LabelsAlchemy.labels_id == labels_id)
     if iteration_max is not None:
         query = query.filter(LabelsAlchemy.iteration <= iteration_max)
     if instance_ids is not None:
@@ -160,10 +177,9 @@ def getUnlabeledIds(session, experiment_id, instance_ids = None,
 ### Update Labels ###
 #####################
 
-def addLabel(session, experiment_id, dataset_id, instance_id, label,
-        family, iteration_number, method, annotation):
-    label = LabelsAlchemy(experiment_id = experiment_id,
-                          dataset_id = dataset_id,
+def addLabel(session, labels_id, instance_id, label, family,
+             iteration_number, method, annotation):
+    label = LabelsAlchemy(labels_id = labels_id,
                           instance_id = int(instance_id), # MySQL does not support numpy types (int64)
                           label = label,
                           family = family,
@@ -173,10 +189,10 @@ def addLabel(session, experiment_id, dataset_id, instance_id, label,
     session.add(label)
     session.commit()
 
-def removeLabel(session, experiment_id, instance_id):
+def removeLabel(session, labels_id, instance_id):
     query = session.query(LabelsAlchemy)
     query = query.filter(LabelsAlchemy.instance_id == instance_id)
-    query = query.filter(LabelsAlchemy.experiment_id == experiment_id)
+    query = query.filter(LabelsAlchemy.labels_id == labels_id)
     try:
         label = query.one()
         session.delete(label)
@@ -188,27 +204,27 @@ def removeLabel(session, experiment_id, instance_id):
 ### Edit Families ###
 #####################
 
-def changeFamilyName(session, label, family, new_family_name, experiment_id):
+def changeFamilyName(session, label, family, new_family_name, labels_id):
     query = session.query(LabelsAlchemy)
     query = query.filter(LabelsAlchemy.label == label)
     query = query.filter(LabelsAlchemy.family == family)
-    query = query.filter(LabelsAlchemy.experiment_id == experiment_id)
+    query = query.filter(LabelsAlchemy.labels_id == labels_id)
     instances = query.all()
     for instance in instances:
         instance.family = new_family_name
     session.commit()
 
-def changeFamilyLabel(session, label, family, experiment_id):
+def changeFamilyLabel(session, label, family, labels_id):
     query = session.query(LabelsAlchemy)
     query = query.filter(LabelsAlchemy.label == label)
     query = query.filter(LabelsAlchemy.family == family)
-    query = query.filter(LabelsAlchemy.experiment_id == experiment_id)
+    query = query.filter(LabelsAlchemy.labels_id == labels_id)
     instances = query.all()
     new_label = labelBooleanToString(not(labelStringToBoolean(label)))
     for instance in instances:
         instance.label = new_label
     session.commit()
 
-def mergeFamilies(session, label, families, new_family_name, experiment_id):
+def mergeFamilies(session, label, families, new_family_name, labels_id):
     for family in families:
-        changeFamilyName(session, label, family, new_family_name, experiment_id)
+        changeFamilyName(session, label, family, new_family_name, labels_id)

@@ -17,7 +17,6 @@
 import abc
 
 from SecuML.Clustering.Configuration import ClusteringConfFactory
-from SecuML.Experiment.Experiment import Experiment
 
 import ClassifierConfFactory
 from AlertsConfiguration import AlertsConfiguration
@@ -55,7 +54,7 @@ class ClassifierConfiguration(object):
         self.test_conf            = test_conf
         self.probabilist_model    = self.probabilistModel()
         self.semi_supervised      = self.semiSupervisedModel()
-        self.feature_coefficients = self.featureCoefficients()
+        self.feature_importance   = self.featureImportance()
 
     def generateSuffix(self):
         suffix  = '__' + self.getModelClassName()
@@ -90,7 +89,7 @@ class ClassifierConfiguration(object):
         conf['test_conf']            = self.test_conf.toJson()
         conf['families_supervision'] = self.families_supervision
         conf['probabilist_model']    = self.probabilist_model
-        conf['feature_coefficients'] = self.feature_coefficients
+        conf['feature_importance']   = self.feature_importance
         return conf
 
     @abc.abstractmethod
@@ -102,16 +101,15 @@ class ClassifierConfiguration(object):
         return
 
     @abc.abstractmethod
-    def featureCoefficients(self):
+    def featureImportance(self):
         return
 
     @staticmethod
     def generateParser(parser):
-        Experiment.projectDatasetFeturesParser(parser)
-
         parser.add_argument('--labels',
                             type = str,
                             default = 'true_labels.csv')
+
         parser.add_argument('--num-folds',
                             type = int,
                             default = 4)

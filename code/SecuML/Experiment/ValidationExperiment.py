@@ -14,14 +14,14 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.Experiment import ExperimentFactory
-from SecuML.Experiment.Experiment import Experiment
+import ExperimentFactory
+from Experiment import Experiment
 
 class ValidationExperiment(Experiment):
 
     def __init__(self, project, dataset, session, experiment_name = None):
         Experiment.__init__(self, project, dataset, session,
-                experiment_name = experiment_name)
+                            experiment_name = experiment_name)
         self.kind = 'Validation'
 
     def generateSuffix(self):

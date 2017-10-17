@@ -18,7 +18,6 @@ import datetime
 from flask import render_template, jsonify
 import json
 import pandas as pd
-import sys
 
 from SecuML_web.base import app, user_exp
 from SecuML_web.base.views.experiments import updateCurrentExperiment
@@ -58,7 +57,7 @@ def editFamilies(experiment_id):
 @app.route('/getFamiliesBarplot/<experiment_id>/<iteration>/<label>/')
 def getFamiliesBarplot(experiment_id, iteration, label):
     experiment = updateCurrentExperiment(experiment_id)
-    experiment_label_id = experiment.oldest_parent
+    experiment_label_id = experiment.labels_id
     if iteration == 'None':
         iteration = None
     family_counts = labels_tools.getFamiliesCounts(experiment.session, experiment_label_id,

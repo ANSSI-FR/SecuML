@@ -36,19 +36,16 @@ class TrainingMonitoring(object):
             if self.conf.getModelClassName() != 'Sssvdd':
                 self.families_monitoring    = FamiliesMonitoring()
 
-    def addFold(self, fold, true_labels, true_families, instances_ids, predicted_proba_all,
-            predicted_proba, predicted_scores, predicted_labels, coef):
+    def addFold(self, fold, true_labels, true_families, instances_ids, predictions, coef):
         true = true_labels
         if self.conf.families_supervision:
             true = true_families
-        self.performance_monitoring.addFold(fold, true, instances_ids, predicted_proba,
-                                            predicted_scores, predicted_labels)
+        self.performance_monitoring.addFold(fold, true, instances_ids, predictions)
         if not self.conf.families_supervision:
-            self.predictions_monitoring.addFold(instances_ids,
-                    predicted_proba_all, predicted_proba, predicted_scores, predicted_labels, true_labels)
+            self.predictions_monitoring.addFold(instances_ids, predictions, true_labels)
             self.coefficients.addFold(fold, coef)
             if self.families_monitoring is not None:
-                self.families_monitoring.addFold(predicted_proba, true_labels, true_families)
+                self.families_monitoring.addFold(predictions.predicted_proba, true_labels, true_families)
 
     def finalComputations(self):
         self.performance_monitoring.finalComputations()

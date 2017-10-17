@@ -16,8 +16,9 @@
 
 import json
 
-from SecuML.Experiment import experiment_db_tools
 from SecuML.Tools import dir_tools
+
+import experiment_db_tools
 
 experiment_factory = None
 

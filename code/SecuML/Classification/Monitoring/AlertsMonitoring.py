@@ -33,7 +33,7 @@ class AlertsMonitoring(object):
         self.datasets               = datasets
         self.predictions_monitoring = predictions_monitoring
         self.supervised_exp         = supervised_exp
-        self.alerts_conf = supervised_exp.classification_conf.test_conf.alerts_conf
+        self.alerts_conf            = supervised_exp.classification_conf.test_conf.alerts_conf
 
     def generateAlerts(self, directory):
         alerts_ids = self.generateAlertsCsvFile(directory)
@@ -68,10 +68,10 @@ class AlertsMonitoring(object):
         self.checkNumClustersValidity(alerts_ids)
         clustering_exp = self.createClusteringExperiment()
         self.grouping_exp_id = clustering_exp.experiment_id
-        clustering_conf = self.alerts_conf.clustering_conf
-        clustering_analysis = clustering_conf.algo(self.datasets.test_instances.getInstancesFromIds(alerts_ids),
-                                                   clustering_exp)
-        clustering_analysis.run(quick = True, drop_annotated_instances = False)
+        clustering_exp.run(self.datasets.test_instances.getInstancesFromIds(alerts_ids),
+                           'all',
+                           quick = True,
+                           drop_annotated_instances = False)
 
     def checkNumClustersValidity(self, alerts_ids):
         num_alerts = len(alerts_ids)
@@ -99,6 +99,7 @@ class AlertsMonitoring(object):
                 exp.project, test_exp.dataset, exp.session,
                 clustering_conf,
                 experiment_name = name,
+                labels_id = test_exp.labels_id,
                 parent = test_exp.experiment_id)
         clustering_experiment.setFeaturesFilenames(test_exp.features_filenames)
         clustering_experiment.createExperiment()
@@ -135,6 +136,7 @@ class AlertsMonitoring(object):
         name = exp.experiment_name + '_alertsMulticlassClassifier'
         multiclass_exp = ClassificationExperiment(exp.project, exp.dataset, exp.session,
                                                   experiment_name = name,
+                                                  labels_id = exp.labels_id,
                                                   parent = exp.experiment_id)
         multiclass_exp.setFeaturesFilenames(exp.features_filenames)
         params = {}

@@ -97,8 +97,7 @@ function displayNoThresholdPerfIndicators(div_obj, conf, train_test, exp) {
       header = ['Indicator', 'Mean', 'Std'];
   }
   var body = createTable(div_obj.id, header,
-          table_id = 'perf_ind_table_' + train_test,
-          width = 'width:250px');
+          table_id = 'perf_ind_table_' + train_test);
   $.getJSON(train_performance_path,
             function(data) {
                 if (conf.classification_conf.families_supervision) {

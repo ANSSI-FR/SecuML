@@ -32,22 +32,21 @@ class PredictionsMonitoring(object):
         self.predicted_proba_all = None
         self.predictions = None
 
-    def addFold(self, instances_ids, predicted_proba_all, predicted_proba, predicted_scores, predicted_labels,
-            true_labels):
+    def addFold(self, instances_ids, predictions, true_labels):
         if self.predictions_barplots is not None:
-            self.predictions_barplots.addFold(instances_ids, predicted_proba, true_labels)
+            self.predictions_barplots.addFold(instances_ids, predictions.predicted_proba, true_labels)
         fold_predictions = pd.DataFrame(
                 np.zeros((len(instances_ids), 4)),
                 index = instances_ids,
                 columns = ['predicted_proba', 'predicted_labels', 'true_labels', 'scores'])
-        fold_predictions['predicted_proba'] = predicted_proba
-        fold_predictions['predicted_labels'] = predicted_labels
+        fold_predictions['predicted_proba'] = predictions.predicted_proba
+        fold_predictions['predicted_labels'] = predictions.predicted_labels
         fold_predictions['true_labels'] = true_labels
-        fold_predictions['scores'] = predicted_scores
+        fold_predictions['scores'] = predictions.predicted_scores
         if self.predicted_proba_all is None:
-            self.predicted_proba_all = predicted_proba_all
+            self.predicted_proba_all = predictions.predicted_proba_all
         else:
-            self.predicted_proba_all = np.vstack((self.predicted_proba_all[0], predicted_proba_all))
+            self.predicted_proba_all = np.vstack((self.predicted_proba_all[0], predictions.predicted_proba_all))
         if self.predictions is None:
             self.predictions = fold_predictions
         else:

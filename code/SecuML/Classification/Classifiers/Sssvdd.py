@@ -21,6 +21,7 @@ import time
 import warnings
 
 from SecuML.Classification.Classifier import Classifier
+from SecuML.Classification.Classifier import Predictions
 from SecuML.Classification.Monitoring.TestingMonitoring import TestingMonitoring
 from SecuML.Classification.Monitoring.TrainingMonitoring import TrainingMonitoring
 
@@ -46,8 +47,6 @@ class Sssvdd(Classifier):
 
     def training(self):
         self.training_execution_time = 0
-        self.training_monitoring = TrainingMonitoring(self.conf,
-                self.datasets.getFeaturesNames(), monitoring_type = 'train')
 
         # Scaling and training
         start = time.time()
@@ -56,10 +55,12 @@ class Sssvdd(Classifier):
         self.scaler.fit(training_features)
 
         unlabeled_instances = self.datasets.train_instances.getUnlabeledInstances()
-        unlabeled_features  = np.array(self.scaler.transform(unlabeled_instances.getFeatures()))
+        unlabeled_features  = np.array(self.scaler.transform(
+            unlabeled_instances.getFeatures()))
         labeled_instances   = self.datasets.train_instances.getLabeledInstances()
         if labeled_instances.numInstances() > 0:
-            labeled_features = np.array(self.scaler.transform(labeled_instances.getFeatures()))
+            labeled_features = np.array(self.scaler.transform(
+                labeled_instances.getFeatures()))
         else:
             labeled_features = np.array(labeled_instances.getFeatures())
         labels = np.array([-1. if x else 1. for x in labeled_instances.getLabels()])
@@ -71,61 +72,44 @@ class Sssvdd(Classifier):
         self.nu_L /= num_labeled_instances
         self.nu_U /= num_unlabeled_instances
 
-        x_init = generateXinit(unlabeled_features, labeled_features, labeled_instances.getLabels())
+        x_init = generateXinit(unlabeled_features, labeled_features,
+                               labeled_instances.getLabels())
         optim_res = scipy.optimize.fmin_bfgs(
                 objective,
                 x_init,
                 fprime = gradient,
-                args = (unlabeled_features, labeled_features, labels, self.kappa, self.nu_U, self.nu_L))
+                args = (unlabeled_features, labeled_features, labels, self.kappa,
+                        self.nu_U, self.nu_L))
         self.r, _, self.c = getValues(optim_res)
 
         self.training_execution_time = time.time() - start
 
-        # Training monitoring
-        # The model is trained on all the available data (labeled and unlabeled)
-        # but the training monitoring is performed only on the labeled instances
-        if labeled_instances.numInstances() > 0:
-            predicted_proba_all, predicted_proba, predicted_labels, predicted_scores = self.applyPipeline(
-                    labeled_instances.getFeatures())
-            coefs = [0] * len(self.datasets.getFeaturesNames())
-            self.training_monitoring.addFold(0, labeled_instances.getLabels(),
-                    labeled_instances.getFamilies(), labeled_instances.getIds(),
-                    predicted_proba_all, predicted_proba, predicted_scores, predicted_labels, coefs)
-            self.displayMonitorings()
+        self.training_predictions = self.applyPipeline(labeled_instances.getFeatures())
+        self.coefs = [0] * len(self.datasets.getFeaturesNames())
 
-    def testing(self):
-        start = time.time()
-        predicted_proba_all, predicted_proba, predicted_labels, predicted_scores = self.applyPipeline(
-                self.datasets.test_instances.getFeatures())
-        self.testing_execution_time = time.time() - start
-        self.testing_monitoring = TestingMonitoring(self.conf,
-                self.datasets.test_instances.getLabels(true_labels = True),
-                self.datasets.test_instances.getFamilies(true_labels = True))
-        self.testing_monitoring.addPredictions(predicted_proba_all, predicted_proba, predicted_scores,
-                predicted_labels, self.datasets.test_instances.getIds())
-        self.testing_monitoring.display(self.output_directory)
-        self.displayAlerts()
-
-    def validation(self):
-        if self.datasets.validation_instances is None:
-            return
-        predicted_proba_all, predicted_proba, predicted_labels, predicted_scores = self.applyPipeline(
-                self.datasets.validation_instances.getFeatures())
-        self.validation_monitoring = TestingMonitoring(self.conf,
-                self.datasets.validation_instances.getLabels(true_labels = True),
-                self.datasets.validation_instances.getFamilies(true_labels = True),
-                monitoring_type = 'validation')
-        self.validation_monitoring.addPredictions(predicted_proba_all, predicted_proba, predicted_scores, predicted_labels,
-                self.datasets.validation_instances.getIds())
-        self.validation_monitoring.display(self.output_directory)
+    # Training monitoring
+    # The model is trained on all the available data (labeled and unlabeled)
+    # but the training monitoring is performed only on the labeled instances
+    def exportTraining(self, output_directory):
+        self.training_monitoring = TrainingMonitoring(self.conf,
+                self.datasets.getFeaturesNames(), monitoring_type = 'train')
+        labeled_instances = self.datasets.train_instances.getLabeledInstances()
+        self.training_monitoring.addFold(0,
+                labeled_instances.getLabels(),
+                labeled_instances.getFamilies(), labeled_instances.getIds(),
+                self.training_predictions, self.coefs)
+        self.training_monitoring.display(output_directory)
 
     def applyPipeline(self, features):
         preprocessed_features = self.scaler.transform(features)
-        predicted_scores    = np.apply_along_axis(predictScore, 1, preprocessed_features, self.c, self.r)
+        predicted_scores    = np.apply_along_axis(predictScore, 1,
+                                                  preprocessed_features,
+                                                  self.c, self.r)
         predicted_labels    = predicted_scores > 0
         predicted_proba     = None
         predicted_proba_all = None
-        return predicted_proba_all, predicted_proba, predicted_labels, predicted_scores
+        return Predictions(predicted_proba_all, predicted_proba,
+                           predicted_labels, predicted_scores)
 
     def dumpModel(self):
         return
@@ -233,7 +217,9 @@ def gradient_c(x, unlabeled_features, labeled_features, labels, nu_U, nu_L):
 def gradient(x, unlabeled_features, labeled_features, labels, kappa, nu_U, nu_L):
     g_r = gradient_r(x, unlabeled_features, labeled_features, labels, nu_U, nu_L)
     g_gamma = gradient_gamma(x, labeled_features, labels, kappa, nu_L)
-    g = np.concatenate((np.array([g_r, g_gamma]), gradient_c(x, unlabeled_features, labeled_features, labels, nu_U, nu_L)))
+    g = np.concatenate((np.array([g_r, g_gamma]),
+                        gradient_c(x, unlabeled_features, labeled_features,
+                                   labels, nu_U, nu_L)))
     return g
 
 # the features have been scaled before
@@ -241,7 +227,8 @@ def gradient(x, unlabeled_features, labeled_features, labels, kappa, nu_U, nu_L)
 # gamma is set to 1
 def generateXinit(unlabeled_features, labeled_features, labels):
     gamma_init = 1.
-    c_init, r_init = benignInstancesCenterRadius(unlabeled_features, labeled_features, labels)
+    c_init, r_init = benignInstancesCenterRadius(unlabeled_features,
+                                                 labeled_features, labels)
     return np.array([r_init, gamma_init] + list(c_init))
 
 def benignInstancesCenterRadius(unlabeled_features, labeled_features, labels):

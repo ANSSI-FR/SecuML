@@ -50,7 +50,7 @@ function loadConfigurationFile(callback) {
     d3.json(buildQuery('getConf', [experiment_id]),
             function(error, data) {
                 conf = data;
-                inst_exp_label_id = conf.oldest_parent;
+                inst_exp_label_id = conf.labels_id;
                 callback();
             }
            );

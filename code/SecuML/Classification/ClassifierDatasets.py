@@ -17,8 +17,6 @@
 from __future__ import division
 import numpy as np
 
-from SecuML.Data.Instances import Instances
-
 def generateTrainTestIds(ids, test_size):
     msk = np.random.rand(len(ids)) < 1 - test_size
     train = []
@@ -35,10 +33,15 @@ def generateTrainTestIds(ids, test_size):
 # The true labels are used for the performance evaluation.
 class ClassifierDatasets(object):
 
-    def __init__(self, experiment, classification_conf):
-        self.experiment           = experiment
+    def __init__(self, classification_conf):
         self.classification_conf  = classification_conf
         self.validation_instances = None
+
+    def setDatasets(self, train_instances, test_instances):
+        self.train_instances = train_instances
+        self.test_instances  = test_instances
+        self.test_instances.eraseLabels()
+        self.setSampleWeights()
 
     def getFeaturesNames(self):
         return self.train_instances.getFeaturesNames()
@@ -48,21 +51,14 @@ class ClassifierDatasets(object):
         if self.validation_instances is not None:
             self.validation_instances.eraseLabels()
 
-    def setDatasets(self, train_instances, test_instances):
-        self.train_instances = train_instances
-        self.test_instances  = test_instances
-        self.test_instances.eraseLabels()
-        self.setSampleWeights()
-
-    def generateDatasets(self):
-        instances = Instances()
-        instances.initFromExperiment(self.experiment)
-        instances = instances.getAnnotatedInstances()
+    def generateDatasets(self, instances, test_instances = None):
         test_conf = self.classification_conf.test_conf
         if test_conf.method == 'random_split':
+            instances = instances.getAnnotatedInstances()
             self.splitTrainDataset(instances, test_conf.test_size)
         elif test_conf.method == 'test_dataset':
-            self.generateTrainTestDatasets(instances, test_conf.test_exp)
+            instances = instances.getAnnotatedInstances()
+            self.generateTrainTestDatasets(instances, test_instances)
         elif test_conf.method == 'unlabeled':
             self.unlabeledLabeledDatasets(instances, test_conf.labels_annotations)
         self.test_instances.eraseLabels()
@@ -80,10 +76,9 @@ class ClassifierDatasets(object):
         self.train_instances = labeled_instances.getInstancesFromIds(train)
         self.test_instances = labeled_instances.getInstancesFromIds(test)
 
-    def generateTrainTestDatasets(self, instances, validation_exp):
-        self.train_instances = instances
-        self.test_instances = Instances()
-        self.test_instances.initFromExperiment(validation_exp)
+    def generateTrainTestDatasets(self, instances, test_instances):
+        self.train_instances = instances.getLabeledInstances()
+        self.test_instances  = test_instances
 
     def unlabeledLabeledDatasets(self, instances, labels_annotations):
         if labels_annotations == 'labels':

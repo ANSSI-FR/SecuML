@@ -16,52 +16,17 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
 import matplotlib
 matplotlib.use('Agg')
 
-from SecuML import db_tables
-from SecuML.Clustering.Configuration import ClusteringConfFactory
-from SecuML.Data.Dataset import Dataset
-from SecuML.Data.Instances import Instances
 from SecuML.Experiment.ClusteringExperiment import ClusteringExperiment
-from SecuML.Tools import mysql_tools
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(
-            description = 'Clustering of the data for data exploration.')
-    algos = ['Kmeans', 'GaussianMixture']
-    subparsers = parser.add_subparsers(dest = 'algo')
-    for algo in algos:
-        algo_parser = subparsers.add_parser(algo)
-        factory = ClusteringConfFactory.getFactory()
-        factory.generateParser(algo, algo_parser)
+    parser = ClusteringExperiment.generateParser()
     args = parser.parse_args()
-
-    engine, session = mysql_tools.getSecuMLSession()
-    db_tables.createTables(engine)
-
-    load_dataset = Dataset(args.project, args.dataset, session)
-    if not load_dataset.isLoaded():
-        load_dataset.load()
-
-    clustering_conf = factory.fromArgs(args.algo, args)
-    experiment = ClusteringExperiment(args.project, args.dataset, session, clustering_conf)
-    experiment.setFeaturesFilenames(args.features_files)
-    experiment.initLabels(args.labels_file)
-    experiment.export()
-
-    instances = Instances()
-    instances.initFromExperiment(experiment)
-    if args.label != 'all':
-        if args.label == 'malicious':
-            selected_ids = instances.getMaliciousIds(true_labels = True)
-        elif args.label == 'benign':
-            selected_ids = instances.getBenignIds(true_labels = True)
-        instances = instances.getInstancesFromIds(selected_ids)
-
-    clustering = clustering_conf.algo(instances, experiment)
-    clustering.run(instances)
-
-    mysql_tools.closeSqlAlchemySession(session)
+    experiment = ClusteringExperiment(args.project, args.dataset,
+                                      None, None)
+    experiment.setExperimentFromArgs(args)
+    experiment.run(None, args.label)
+    experiment.closeSession()

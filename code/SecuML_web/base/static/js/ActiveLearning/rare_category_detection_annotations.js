@@ -59,7 +59,7 @@ function loadConfigurationFile(callback) {
             function(error, data) {
                 conf = data;
                 conf.interactive = false;
-                inst_exp_label_id = conf.oldest_parent;
+                inst_exp_label_id = conf.labels_id;
                 has_families = datasetHasFamilies(inst_exp_id);
                 if (!conf.conf.auto) {
                     var current_iteration = currentAnnotationIteration(experiment_id);

@@ -93,8 +93,11 @@ class LogisticRegressionConfiguration(ClassifierConfiguration):
     def semiSupervisedModel(self):
         return False
 
-    def featureCoefficients(self):
-        return not(self.families_supervision)
+    def featureImportance(self):
+        if (not(self.families_supervision)):
+            return 'weight'
+        else:
+            return None
 
     @staticmethod
     def generateParser(parser):

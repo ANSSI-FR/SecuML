@@ -39,19 +39,17 @@ class TestingMonitoring(object):
                 if self.conf.getModelClassName() != 'Sssvdd':
                     self.families_monitoring = FamiliesMonitoring()
 
-    def addPredictions(self, predicted_proba_all, predicted_proba, predicted_scores, predicted_labels, instances_ids):
+    def addPredictions(self, predictions, instances_ids):
         if self.has_true_labels:
             true = self.testing_labels
             if self.conf.families_supervision:
                 true = self.testing_families
-            self.performance_monitoring.addFold(0, true, instances_ids, predicted_proba,
-                                                predicted_scores, predicted_labels)
+            self.performance_monitoring.addFold(0, true, instances_ids, predictions)
             if self.families_monitoring is not None:
-                self.families_monitoring.addFold(predicted_proba,
+                self.families_monitoring.addFold(predictions.predicted_proba,
                         self.testing_labels, self.testing_families)
-        self.predictions_monitoring.addFold(instances_ids,
-                predicted_proba_all, predicted_proba, predicted_scores,
-                predicted_labels, self.testing_labels)
+        self.predictions_monitoring.addFold(instances_ids, predictions,
+                                            self.testing_labels)
 
     def finalComputations(self):
         self.predictions_monitoring.finalComputations()

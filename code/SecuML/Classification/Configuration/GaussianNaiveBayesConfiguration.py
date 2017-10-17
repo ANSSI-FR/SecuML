@@ -58,8 +58,8 @@ class GaussianNaiveBayesConfiguration(ClassifierConfiguration):
     def semiSupervisedModel(self):
         return False
 
-    def featureCoefficients(self):
-        return False
+    def featureImportance(self):
+        return None
 
     @staticmethod
     def generateParser(parser):

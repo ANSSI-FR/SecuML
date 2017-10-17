@@ -63,7 +63,7 @@ function displayInstanceInformationStructure() {
     var menu_titles = ['Features'];
     var menu_labels = ['features'];
     if (conf.kind == 'Classification') {
-        if (conf.classification_conf.feature_coefficients) {
+        if (conf.classification_conf.feature_importance == 'weight') {
           menu_titles.push('Weighted Features');
           menu_labels.push('weighted_features');
         }
@@ -227,7 +227,7 @@ function displayFamilySelector(label_row, label) {
   add_family_button.addEventListener('click', addFamilyCallback(label));
   button_span.appendChild(add_family_button);
   // Family values
-  var query = buildQuery('getLabelsFamilies', [inst_exp_label_id, 'None']);
+  var query = buildQuery('getLabelsFamilies', [inst_exp_id, 'None']);
   jQuery.getJSON(query, function(data) {
       var select = $('#' + 'instance_' + label + '_family_selector')[0];
       if (data[label]) {

@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -14,8 +14,13 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.Experiment import ExperimentFactory
-from SecuML.Experiment.Experiment import Experiment
+import argparse
+
+from SecuML.Data.DescriptiveStatistics import DescriptiveStatistics
+
+import ExperimentFactory
+from Experiment import Experiment
+from InstancesFromExperiment import InstancesFromExperiment
 
 class DescriptiveStatisticsExperiment(Experiment):
 
@@ -23,11 +28,13 @@ class DescriptiveStatisticsExperiment(Experiment):
         Experiment.__init__(self, project, dataset, session)
         self.kind = 'DescriptiveStatistics'
 
-    def setClassifierConf(self, classification_conf):
-        self.classification_conf = classification_conf
-
     def generateSuffix(self):
         return ''
+
+    def run(self):
+        instances = InstancesFromExperiment(self).getInstances()
+        stats = DescriptiveStatistics()
+        stats.generateDescriptiveStatistics(instances, self.getOutputDirectory())
 
     @staticmethod
     def fromJson(obj, session):
@@ -40,7 +47,23 @@ class DescriptiveStatisticsExperiment(Experiment):
         conf['__type__'] = 'DescriptiveStatisticsExperiment'
         return conf
 
+    @staticmethod
+    def generateParser():
+        parser = argparse.ArgumentParser(
+                description = 'Descriptive Statistics of the Dataset')
+        Experiment.projectDatasetFeturesParser(parser)
+        return parser
+
     def webTemplate(self):
         return 'DescriptiveStatistics/descriptive_statistics.html'
 
-ExperimentFactory.getFactory().registerClass('DescriptiveStatisticsExperiment', DescriptiveStatisticsExperiment)
+    def setExperimentFromArgs(self, args):
+        self.setFeaturesFilenames(args.features_files)
+        try:
+            self.initLabels('true_labels.csv')
+        except:
+            pass
+        self.export()
+
+ExperimentFactory.getFactory().registerClass('DescriptiveStatisticsExperiment',
+                                             DescriptiveStatisticsExperiment)

@@ -17,8 +17,6 @@
 import json
 import numpy as np
 
-from SecuML.Data.Instances import Instances
-
 from SecuML.Plots.PlotDataset import PlotDataset
 from SecuML.Plots.BoxPlot import BoxPlot
 from SecuML.Plots.BarPlot import BarPlot
@@ -29,25 +27,23 @@ from SecuML.Tools import dir_tools
 
 class DescriptiveStatistics(object):
 
-    def __init__(self, experiment):
-        self.instances = Instances()
-        self.instances.initFromExperiment(experiment)
-        self.output_directory = experiment.getOutputDirectory()
+    def __init__(self):
+        return
 
     # The file features_types.csv contains the list of features with their corresponding type (numeric or binary).
     # This file is updated after the processing of each feature to allow the user to display the results.
     # The features are sorted alphabetically.
-    def generateDescriptiveStatistics(self):
+    def generateDescriptiveStatistics(self, instances, output_directory):
         features_types = {}
         features_types['features'] = []
         features_types['types'] = {}
-        for feature in self.instances.features_names:
-            stats = FeatureDescriptiveStatistics(self.instances, feature, self.output_directory)
+        for feature in instances.features_names:
+            stats = FeatureDescriptiveStatistics(instances, feature, output_directory)
             stats.generateDescriptiveStatistics()
             features_types['features'].append(feature)
             features_types['features'].sort()
             features_types['types'][feature] = stats.feature_type
-            with open(self.output_directory + 'features_types.json', 'w') as f:
+            with open(output_directory + 'features_types.json', 'w') as f:
                 json.dump(features_types, f, indent = 2)
 
 class FeatureDescriptiveStatistics(object):

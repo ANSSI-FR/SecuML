@@ -14,10 +14,13 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
+
 from SecuML.ActiveLearning.Configuration import ActiveLearningConfFactory
-from SecuML.Experiment import ExperimentFactory
-from SecuML.Experiment.Experiment import Experiment
-from SecuML.Experiment import experiment_db_tools
+
+from Experiment import Experiment
+import ExperimentFactory
+import experiment_db_tools
 
 class ActiveLearningExperiment(Experiment):
 
@@ -55,11 +58,34 @@ class ActiveLearningExperiment(Experiment):
         conf['conf'] = self.conf.toJson()
         return conf
 
+    @staticmethod
+    def generateParser():
+        parser = argparse.ArgumentParser(description = 'Active Learning',
+                formatter_class = argparse.RawTextHelpFormatter)
+        Experiment.projectDatasetFeturesParser(parser)
+        strategies = ['Ilab', 'RandomSampling', 'UncertaintySampling',
+                      'CesaBianchi', 'Aladin', 'Gornitz']
+        subparsers = parser.add_subparsers(dest = 'strategy')
+        factory = ActiveLearningConfFactory.getFactory()
+        for strategy in strategies:
+            strategy_parser = subparsers.add_parser(strategy)
+            factory.generateParser(strategy, strategy_parser)
+        return parser
+
     def webTemplate(self):
         return 'ActiveLearning/active_learning.html'
 
     def getCurrentIteration(self):
         return experiment_db_tools.getCurrentIteration(self.session, self.experiment_id)
+
+    def setExperimentFromArgs(self, args):
+        self.setFeaturesFilenames(args.features_files)
+        factory = ActiveLearningConfFactory.getFactory()
+        active_learning_conf = factory.fromArgs(args.strategy, args, self)
+        self.setConfiguration(active_learning_conf)
+        self.checkInputParams()
+        self.initLabels(args.init_labels_file)
+        self.export()
 
 ExperimentFactory.getFactory().registerClass('ActiveLearningExperiment',
                                              ActiveLearningExperiment)

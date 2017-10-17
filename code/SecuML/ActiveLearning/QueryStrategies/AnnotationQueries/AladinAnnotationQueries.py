@@ -14,11 +14,10 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import copy
 import numpy as np
 import pandas as pd
 import time
-
-from SecuML.Data.Instances import Instances
 
 from SecuML.Experiment.ClassificationExperiment import ClassificationExperiment
 
@@ -70,6 +69,7 @@ class AladinAnnotationQueries(AnnotationQueries):
             'NaiveBayes'])
         naive_bayes_exp = ClassificationExperiment(exp.project, exp.dataset, exp.session,
                                                    experiment_name = name,
+                                                   labels_id = exp.labels_id,
                                                    parent = exp.experiment_id)
         naive_bayes_exp.setFeaturesFilenames(exp.features_filenames)
         test_conf = TestConfiguration()
@@ -80,15 +80,15 @@ class AladinAnnotationQueries(AnnotationQueries):
         naive_bayes_exp.export()
         # Update training data - the naive Bayes classifier is trained on all the data
         self.datasets.test_instances.families = list(self.lr_predicted_labels)
-        all_datasets = ClassifierDatasets(naive_bayes_exp, naive_bayes_exp.classification_conf)
-        train_instances = Instances()
-        train_instances.union(self.datasets.train_instances, self.datasets.test_instances)
+        all_datasets = ClassifierDatasets(naive_bayes_exp.classification_conf)
+        train_instances = copy.deepcopy(self.datasets.train_instances)
+        train_instances.union(self.datasets.test_instances)
         all_datasets.train_instances = train_instances
         all_datasets.test_instances  = None
         all_datasets.setSampleWeights()
         self.evalClusteringPerf(all_datasets.train_instances)
         # Train the naive Bayes detection model and predict
-        self.naive_bayes = GaussianNaiveBayes(naive_bayes_exp, all_datasets)
+        self.naive_bayes = GaussianNaiveBayes(naive_bayes_exp.classification_conf, all_datasets)
         self.naive_bayes.training()
         self.nb_time = self.naive_bayes.training_execution_time
         self.datasets.test_instances.families = [None] * self.datasets.test_instances.numInstances()
@@ -193,7 +193,7 @@ class AladinAnnotationQueries(AnnotationQueries):
                 selected_instances.append(query)
                 for c in ['nb', 'lr']:
                     predicted_class = self.scores.loc[query, c + '_prediction']
-                    predicted_class_index = np.where(self.lr_class_labels == predicted_class)[0]
+                    predicted_class_index = np.where(self.lr_class_labels == predicted_class)[0][0]
                     families_scores[c][predicted_class_index].set_value(query, 'queried', True)
                 self.scores.set_value(query, 'queried', True)
                 lr_predicted_proba_df.set_value(query, 'queried', True)

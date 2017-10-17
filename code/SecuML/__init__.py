@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -24,20 +24,34 @@ config.INPUTDATA_DIR = os.path.abspath(os.path.join(current_dir, os.pardir, os.p
 config.OUTPUTDATA_DIR = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir,
     config.OUTPUTDATA_DIR))
 
+# Feature Selection
+from SecuML.DimensionReduction.Configuration.FeatureSelection.ChiSquareConfiguration \
+        import ChiSquareConfiguration
+from SecuML.DimensionReduction.Configuration.FeatureSelection.FclassifConfiguration \
+        import FclassifConfiguration
+from SecuML.DimensionReduction.Configuration.FeatureSelection.MutualInfoClassifConfiguration \
+        import MutualInfoClassifConfiguration
+from SecuML.DimensionReduction.Configuration.FeatureSelection.NoneFilterConfiguration \
+        import NoneFilterConfiguration
+from SecuML.DimensionReduction.Configuration.FeatureSelection.RecursiveFeatureEliminationConfiguration \
+        import RecursiveFeatureEliminationConfiguration
+from SecuML.DimensionReduction.Configuration.FeatureSelection.VarianceFilterConfiguration \
+        import VarianceFilterConfiguration
+
 # Projection
-from SecuML.Projection.Configuration.PcaConfiguration \
+from SecuML.DimensionReduction.Configuration.Projection.PcaConfiguration \
         import PcaConfiguration
-from SecuML.Projection.Configuration.LdaConfiguration \
+from SecuML.DimensionReduction.Configuration.Projection.LdaConfiguration \
         import LdaConfiguration
-from SecuML.Projection.Configuration.LmnnConfiguration \
+from SecuML.DimensionReduction.Configuration.Projection.LmnnConfiguration \
         import LmnnConfiguration
-from SecuML.Projection.Configuration.NcaConfiguration \
+from SecuML.DimensionReduction.Configuration.Projection.NcaConfiguration \
         import NcaConfiguration
-from SecuML.Projection.Configuration.RcaConfiguration \
+from SecuML.DimensionReduction.Configuration.Projection.RcaConfiguration \
         import RcaConfiguration
-from SecuML.Projection.Configuration.ItmlConfiguration \
+from SecuML.DimensionReduction.Configuration.Projection.ItmlConfiguration \
         import ItmlConfiguration
-from SecuML.Projection.Configuration.SdmlConfiguration \
+from SecuML.DimensionReduction.Configuration.Projection.SdmlConfiguration \
         import SdmlConfiguration
 
 # Clustering
@@ -47,12 +61,16 @@ from SecuML.Clustering.Configuration.KmeansConfiguration \
         import KmeansConfiguration
 
 # Classification
+from SecuML.Classification.Configuration.DecisionTreeConfiguration \
+        import DecisionTreeConfiguration
 from SecuML.Classification.Configuration.GaussianNaiveBayesConfiguration \
         import GaussianNaiveBayesConfiguration
 from SecuML.Classification.Configuration.LabelPropagationConfiguration \
         import LabelPropagationConfiguration
 from SecuML.Classification.Configuration.LogisticRegressionConfiguration \
         import LogisticRegressionConfiguration
+from SecuML.Classification.Configuration.RandomForestConfiguration \
+        import RandomForestConfiguration
 from SecuML.Classification.Configuration.SssvddConfiguration \
         import SssvddConfiguration
 from SecuML.Classification.Configuration.SvcConfiguration \

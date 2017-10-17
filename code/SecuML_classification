@@ -16,53 +16,16 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
 import matplotlib
 matplotlib.use('Agg')
 
-from SecuML import db_tables
-from SecuML.Classification.Configuration import ClassifierConfFactory
-from SecuML.Classification.ClassifierDatasets import ClassifierDatasets
-from SecuML.Data.Dataset import Dataset
 from SecuML.Experiment.ClassificationExperiment import ClassificationExperiment
-from SecuML.Tools import mysql_tools
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(
-            description = 'Learn a detection model. ' +
-            'The labels must be stored in labels/true_labels.csv.')
-    models = ['LogisticRegression', 'Svc', 'GaussianNaiveBayes']
-    subparsers = parser.add_subparsers(dest = 'model')
-    factory = ClassifierConfFactory.getFactory()
-    for model in models:
-        model_parser = subparsers.add_parser(model)
-        factory.generateParser(model, model_parser)
+    parser = ClassificationExperiment.generateParser()
     args = parser.parse_args()
-
-    engine, session = mysql_tools.getSecuMLSession()
-    db_tables.createTables(engine)
-
-    load_dataset = Dataset(args.project, args.dataset, session)
-    if not load_dataset.isLoaded():
-        load_dataset.load()
-
-    experiment = ClassificationExperiment(args.project, args.dataset, session)
-    experiment.setFeaturesFilenames(args.features_files)
-    conf = factory.fromArgs(args.model, args, experiment)
-    experiment.setClassifierConf(conf)
-    try:
-        experiment.initLabels(args.labels)
-    except Exception as e:
-        message  = 'The ground truth labels must be provided in true_labels.csv '
-        message += 'to run SecuML_classification.'
-        print message
-        raise e
-    experiment.export()
-
-    datasets = ClassifierDatasets(experiment, experiment.classification_conf)
-    datasets.generateDatasets()
-    learning = experiment.classification_conf.model_class(experiment, datasets)
-    learning.run()
-
-    mysql_tools.closeSqlAlchemySession(session)
+    experiment = ClassificationExperiment(args.project, args.dataset, None)
+    experiment.setExperimentFromArgs(args)
+    experiment.run()
+    experiment.closeSession()

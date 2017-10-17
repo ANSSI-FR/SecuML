@@ -34,15 +34,18 @@ class PerformanceMonitoring(object):
             self.confusion_matrix = ConfusionMatrix()
             self.roc              = ROC(num_folds, conf)
 
-    def addFold(self, fold, true_labels, instances_ids, predicted_proba, predicted_scores, predicted_labels):
+    def addFold(self, fold, true_labels, instances_ids, predictions):
         if self.conf.families_supervision:
-            self.perf_indicators.addFold(fold, true_labels, predicted_labels)
-            self.errors.addFold(true_labels, instances_ids, predicted_labels)
+            self.perf_indicators.addFold(fold, true_labels, predictions.predicted_labels)
+            self.errors.addFold(true_labels, instances_ids, predictions.predicted_labels)
         else:
-            self.perf_indicators.addFold(fold, true_labels, predicted_proba, predicted_scores, predicted_labels)
-            self.errors.addFold(true_labels, instances_ids, predicted_labels, predicted_proba, predicted_scores)
-            self.confusion_matrix.addFold(true_labels, predicted_labels)
-            self.roc.addFold(fold, true_labels, predicted_proba, predicted_scores)
+            self.perf_indicators.addFold(fold, true_labels, predictions.predicted_proba,
+                                         predictions.predicted_scores, predictions.predicted_labels)
+            self.errors.addFold(true_labels, instances_ids, predictions.predicted_labels,
+                                predictions.predicted_proba, predictions.predicted_scores)
+            self.confusion_matrix.addFold(true_labels, predictions.predicted_labels)
+            self.roc.addFold(fold, true_labels, predictions.predicted_proba,
+                             predictions.predicted_scores)
 
     def finalComputations(self):
         self.perf_indicators.finalComputations()

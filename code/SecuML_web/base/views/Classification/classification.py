@@ -138,13 +138,13 @@ def getSupervisedValidationConf(experiment_id):
 @app.route('/getTopWeightedFeatures/<experiment_id>/<inst_exp_id>/<instance_id>/<size>/')
 def getTopWeightedFeatures(experiment_id, inst_exp_id, instance_id, size):
     instance_id = int(instance_id)
-    model_experiment_obj = ExperimentFactory.getFactory().fromJson(experiment_id, session)
+    exp = ExperimentFactory.getFactory().fromJson(experiment_id, session)
     validation_experiment = ExperimentFactory.getFactory().fromJson(inst_exp_id, session)
     #get the features
     features_names, features_values = validation_experiment.getFeatures(instance_id)
     features_values = [float(value) for value in features_values]
     #get the pipeline with scaler and logistic model
-    pipeline = model_experiment_obj.getModelPipeline()
+    pipeline = exp.getModelPipeline()
     #scale the features
     scaled_values = pipeline.named_steps['scaler'].transform(np.reshape(features_values,(1, -1)))
     weighted_values = np.multiply(scaled_values, pipeline.named_steps['model'].coef_)
@@ -159,19 +159,19 @@ def getTopWeightedFeatures(experiment_id, inst_exp_id, instance_id, size):
     barplot.addDataset(dataset)
     return jsonify(barplot.toJson(tooltip_data = tooltips))
 
-@app.route('/getTopModelCoefficients/<experiment_id>/<size>/')
-def getTopModelCoefficients(experiment_id, size):
+@app.route('/getTopModelFeatures/<experiment_id>/<size>/')
+def getTopModelFeatures(experiment_id, size):
     size = int(size)
-    model_experiment_obj = ExperimentFactory.getFactory().fromJson(experiment_id, session)
-    pipeline = model_experiment_obj.getModelPipeline()
-    model_coefficients = pipeline.named_steps['model'].coef_[0]
-    features_names = model_experiment_obj.getFeaturesNames()
+    exp = ExperimentFactory.getFactory().fromJson(experiment_id, session)
+    model_coefficients = exp.getTopFeatures()
+    features_names = exp.getFeaturesNames()
     coefficients = map(lambda name, coef: (name, coef),
-                          features_names, model_coefficients)
+                       features_names, model_coefficients)
     coefficients.sort(key = lambda tup: abs(tup[1]))
     coefficients = coefficients[:-size-1:-1]
     barplot = BarPlot([x[0] for x in coefficients])
     dataset = PlotDataset([x[1] for x in coefficients], None)
-    dataset.setColor(colors_tools.red)
+    if (exp.classification_conf.featureImportance() == 'weight'):
+        dataset.setColor(colors_tools.red)
     barplot.addDataset(dataset)
     return jsonify(barplot.toJson())

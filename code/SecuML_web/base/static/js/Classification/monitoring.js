@@ -112,26 +112,25 @@ function displayCoefficients(conf, sup_exp = null) {
     window.open(page_query);
   }
 
-  if (! conf.classification_conf.feature_coefficients) {
-      return;
+  if (conf.classification_conf.feature_importance) {
+    var exp = conf.experiment_id;
+    if (sup_exp) {
+      exp = sup_exp;
+    }
+    var model_coefficients_div = cleanDiv('model_coefficients');
+    var query = buildQuery('getTopModelFeatures',
+                           [exp, num_coeff_model]);
+    $.getJSON(query, function (data) {
+        var options = barPlotOptions(data);
+        barPlotAddBands(options, true);
+        options.legend.display = false;
+        var barPlot = drawBarPlot('model_coefficients',
+                                   options,
+                                   data,
+                                   type = 'horizontalBar',
+                                   width = null,
+                                   height = '400px',
+                                   callback = callback);
+    });
   }
-  var exp = conf.experiment_id;
-  if (sup_exp) {
-    exp = sup_exp;
-  }
-  var model_coefficients_div = cleanDiv('model_coefficients');
-  var query = buildQuery('getTopModelCoefficients',
-                         [exp, num_coeff_model]);
-  $.getJSON(query, function (data) {
-      var options = barPlotOptions(data);
-      barPlotAddBands(options, true);
-      options.legend.display = false;
-      var barPlot = drawBarPlot('model_coefficients',
-                                 options,
-                                 data,
-                                 type = 'horizontalBar',
-                                 width = null,
-                                 height = '400px',
-                                 callback = callback);
-  });
 }

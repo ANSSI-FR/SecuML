@@ -35,8 +35,13 @@ function generateFirstRowDivisions(conf) {
   // Coefficient interpretation (only if available)
   if (view == 'ml') {
     if (conf.classification_conf) {
-      if (conf.classification_conf.feature_coefficients) {
-        var model_coefficients = createPanel('panel-primary', 'col-md-4', 'Model Coefficients', main);
+      if (conf.classification_conf.feature_importance) {
+        if (conf.classification_conf.feature_importance == 'weight') {
+            var title = 'Model Coefficients';
+        } else if (conf.classification_conf.feature_importance == 'score') {
+            var title = 'Feature Importances';
+        }
+        var model_coefficients = createPanel('panel-primary', 'col-md-4', title, main);
         model_coefficients.setAttribute('id', 'model_coefficients');
       }
     }

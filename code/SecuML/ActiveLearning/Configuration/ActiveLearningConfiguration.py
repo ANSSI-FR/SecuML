@@ -19,7 +19,6 @@ import abc
 from SecuML import db_tables
 from SecuML.Classification.Configuration import ClassifierConfFactory
 from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
-from SecuML.Experiment.Experiment import Experiment
 
 class InvalidInputArguments(Exception):
 
@@ -120,7 +119,6 @@ class ActiveLearningConfiguration(object):
 
     @staticmethod
     def generateParser(parser, classifier_conf = True, binary = True):
-        Experiment.projectDatasetFeturesParser(parser)
         al_group = ActiveLearningConfiguration.generateActiveLearningArguments(parser)
         if classifier_conf:
             ActiveLearningConfiguration.generateSupervisedLearningArguments(parser, binary = binary)

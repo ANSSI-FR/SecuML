@@ -14,23 +14,22 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.Data.Instances import Instances
+from SecuML.Experiment.InstancesFromExperiment import InstancesFromExperiment
+from SecuML.Data.ExportInstances import ExportInstances
 from SecuML.Tools import dir_tools
 
 class Datasets(object):
 
     def __init__(self, experiment):
         self.experiment = experiment
-        self.instances = Instances()
-        self.instances.initFromExperiment(experiment)
+        self.instances = InstancesFromExperiment(experiment).getInstances()
         self.setValidationInstances(experiment.conf.validation_conf)
         self.initCounts()
 
     def setValidationInstances(self, validation_conf):
         self.validation_instances = None
         if validation_conf is not None:
-            self.validation_instances = Instances()
-            self.validation_instances.initFromExperiment(validation_conf.test_exp)
+            self.validation_instances = InstancesFromExperiment(validation_conf.test_exp).getInstances()
 
     def update(self, instance_id, label, family, annotation):
         self.new_labels = True
@@ -57,7 +56,8 @@ class Datasets(object):
                 instances = self.instances.getAnnotatedInstances()
             elif i == 'labels':
                 instances = self.instances.getLabeledInstances()
-            instances.saveInstancesLabels(filename)
+            export_instances = ExportInstances(instances)
+            export_instances.exportLabels(filename)
 
     def numAnnotations(self, label = 'all'):
         if label == 'all':

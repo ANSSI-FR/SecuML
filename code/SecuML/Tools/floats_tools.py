@@ -15,24 +15,7 @@
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import math
-from scipy import stats
-
-eps = 10e-10
+import sys
 
 def floatEquality(v1, v2):
-    return math.fabs(v1 - v2) < eps
-
-def log10_1(x):
-    return math.log(1+x, 10)
-
-def log10(x):
-    return math.log(x, 10)
-
-def harmonicMean(values):
-    if 0 in values:
-        return 0
-    else:
-        return stats.hmean(values)
-
-def geometricMean(values):
-    return stats.gmean(values)
+    return math.fabs(v1 - v2) < sys.float_info.epsilon

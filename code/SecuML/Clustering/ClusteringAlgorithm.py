@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -14,23 +14,18 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import division
-
 import abc
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-import warnings
 
 from Clustering import Clustering
-from SecuML.Experiment.ProjectionExperiment import ProjectionExperiment
-from SecuML.Projection.Algorithms.SemiSupervisedProjection import FewerThanTwoLabels
 
 class ClusteringAlgorithm(object):
 
-    def __init__(self, instances, experiment):
+    def __init__(self, instances, conf):
         self.instances    = instances
-        self.experiment   = experiment
-        self.num_clusters = experiment.conf.num_clusters
+        self.conf         = conf
+        self.num_clusters = self.conf.num_clusters
         self.clustering   = None
 
     @abc.abstractmethod
@@ -51,48 +46,17 @@ class ClusteringAlgorithm(object):
     def getAllProba(self):
         return None
 
-    def run(self, quick = False, drop_annotated_instances = False):
-        if self.experiment.conf.projection_conf is not None:
-            try:
-                self.projectInstances(quick, self.instances.numFeatures())
-            except FewerThanTwoLabels:
-                warnings.warn('There are too few class labels.'
-                              'The instances are not projected before building the clustering.')
-        self.compute()
-        self.clustering = Clustering(self.experiment, self.instances, self.getAssignedClusters(),
-                clustering_algo = self)
-        self.clustering.generateClustering(self.getAllProba(),
-                                           self.getCentroids(),
-                                           drop_annotated_instances = drop_annotated_instances)
-        self.clustering.generateEvaluation(quick = quick)
-
-    def projectInstances(self, quick, num_features):
-        projection_exp = self.createProjectionExperiment(num_features)
-        algo = projection_exp.conf.algo
-        projection = algo(projection_exp)
-        instances = projection.getFittingInstances(self.instances)
-        projection.fit(instances, visu = not quick)
-        self.instances = projection.transform(self.instances, visu = not quick, performance = not quick)
-
-    def compute(self):
+    def fit(self):
         self.pipeline = Pipeline([
             ('scaler', StandardScaler()),
             ('clustering', self.algo)])
         self.pipeline.fit(self.instances.getFeatures())
 
-    def createProjectionExperiment(self, num_features):
-        exp = self.experiment
-        name = '-'.join([exp.experiment_name, 'projection'])
-        projection_conf = exp.conf.projection_conf
-        if projection_conf.num_components is not None:
-            if projection_conf.num_components > num_features:
-                projection_conf.num_components = num_features
-        projection_exp = ProjectionExperiment(exp.project, exp.dataset,
-                                              exp.session,
-                                              experiment_name = name,
-                                              parent = exp.experiment_id)
-        projection_exp.setConf(projection_conf)
-        projection_exp.setFeaturesFilenames(exp.features_filenames)
-        projection_exp.createExperiment()
-        projection_exp.export()
-        return projection_exp
+    def export(self, output_directory, quick = False, drop_annotated_instances = False):
+        self.clustering = Clustering(self.instances, self.getAssignedClusters(),
+                                     clustering_algo = self)
+        self.clustering.generateClustering(output_directory,
+                                           self.getAllProba(),
+                                           self.getCentroids(),
+                                           drop_annotated_instances = drop_annotated_instances)
+        self.clustering.generateEvaluation(output_directory, quick = quick)

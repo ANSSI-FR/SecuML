@@ -16,53 +16,28 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
 import matplotlib
 matplotlib.use('Agg')
 import sys
 
-from SecuML import db_tables
-from SecuML.ActiveLearning.Configuration import ActiveLearningConfFactory
 from SecuML.ActiveLearning.Configuration.ActiveLearningConfiguration import InvalidInputArguments
-from SecuML.ActiveLearning.Iterations import Iterations
-from SecuML.Data.Dataset import Dataset
+from SecuML.ActiveLearning.ActiveLearning import ActiveLearning
 from SecuML.Experiment.ActiveLearningExperiment import ActiveLearningExperiment
-from SecuML.Tools import mysql_tools
 
 if __name__ == '__main__':
 
-    description  = 'Interactive Labeling Procedure'
-    parser = argparse.ArgumentParser(description = description,
-            formatter_class = argparse.RawTextHelpFormatter)
-    labeling_strategies = ['Ilab', 'RandomSampling', 'UncertaintySampling', 'CesaBianchi', 'Aladin', 'Gornitz']
-    subparsers = parser.add_subparsers(dest = 'strategy')
-    factory = ActiveLearningConfFactory.getFactory()
-    for strategy in labeling_strategies:
-        strategy_parser = subparsers.add_parser(strategy)
-        factory.generateParser(strategy, strategy_parser)
+    parser = ActiveLearningExperiment.generateParser()
     args = parser.parse_args()
 
-    engine, session = mysql_tools.getSecuMLSession()
-    db_tables.createTables(engine)
-
-    load_dataset = Dataset(args.project, args.dataset, session)
-    if not load_dataset.isLoaded():
-        load_dataset.load()
-
+    experiment = ActiveLearningExperiment(args.project, args.dataset, None)
     try:
-        experiment = ActiveLearningExperiment(args.project, args.dataset, session)
-        experiment.setFeaturesFilenames(args.features_files)
-        active_learning_conf = factory.fromArgs(args.strategy, args, experiment)
-        experiment.setConfiguration(active_learning_conf)
-        experiment.checkInputParams()
-        experiment.initLabels(args.init_labels_file)
-        experiment.export()
+        experiment.setExperimentFromArgs(args)
     except InvalidInputArguments as e:
         print e
-        mysql_tools.closeSqlAlchemySession(session)
+        experiment.closeSession()
         sys.exit()
 
-    iterations = Iterations(experiment)
+    iterations = ActiveLearning(experiment)
     if not args.auto:
         from CeleryApp.app import secumlworker
         from CeleryApp.activeLearningTasks import IterationTask
@@ -76,4 +51,4 @@ if __name__ == '__main__':
     else:
         iterations.runIterations()
 
-    mysql_tools.closeSqlAlchemySession(session)
+    experiment.closeSession()

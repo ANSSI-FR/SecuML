@@ -59,17 +59,14 @@ class AnnotationQuery(object):
         # Update in the database
         method    = kind + '__annotation'
         labels_tools.addLabel(iteration.experiment.session,
-                              iteration.experiment.oldest_parent,
-                              iteration.experiment.dataset_id,
+                              iteration.experiment.labels_id,
                               self.instance_id, label, family,
                               iteration.iteration_number, method, True)
         iteration.experiment.session.commit()
 
     def getManualAnnotation(self, iteration):
-        details = labels_tools.getLabelDetails(
-                iteration.experiment.session,
-                self.instance_id,
-                iteration.experiment.oldest_parent)
+        details = labels_tools.getLabelDetails(iteration.experiment,
+                                               self.instance_id)
         if details is None:
             warnings.warn('Instance %s has not been annotated.' % (str(self.instance_id)))
         else:
