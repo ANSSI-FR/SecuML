@@ -23,8 +23,8 @@ class CesaBianchi(QueryStrategy):
 
     def __init__(self, iteration):
         QueryStrategy.__init__(self, iteration)
-        b = self.iteration.experiment.conf.b
-        num_annotations = self.iteration.experiment.conf.batch
+        b = self.iteration.conf.b
+        num_annotations = self.iteration.conf.batch
         self.annotations = CesaBianchiAnnotationQueries(self.iteration, b, num_annotations)
 
     def generateAnnotationQueries(self):
@@ -47,7 +47,7 @@ class CesaBianchi(QueryStrategy):
         return header
 
     def executionTimeMonitoring(self):
-        line  = [self.iteration.train_test_validation.times['binary']]
+        line  = [self.iteration.update_model.times['binary']]
         line += QueryStrategy.executionTimeMonitoring(self)
         return line
 

@@ -65,6 +65,8 @@ from SecuML.Classification.Configuration.DecisionTreeConfiguration \
         import DecisionTreeConfiguration
 from SecuML.Classification.Configuration.GaussianNaiveBayesConfiguration \
         import GaussianNaiveBayesConfiguration
+from SecuML.Classification.Configuration.GradientBoostingConfiguration \
+        import GradientBoostingConfiguration
 from SecuML.Classification.Configuration.LabelPropagationConfiguration \
         import LabelPropagationConfiguration
 from SecuML.Classification.Configuration.LogisticRegressionConfiguration \

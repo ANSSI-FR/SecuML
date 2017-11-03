@@ -4,7 +4,9 @@ function upperCaseFirst(str) {
 
 function buildQuery(name, args) {
   query  = '/' + name + '/';
-  query += args.join('/') + '/';
+  if (args) {
+    query += args.join('/') + '/';
+  }
   return query;
 }
 

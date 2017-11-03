@@ -14,23 +14,20 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import json
-
 from SecuML.Plots.PlotDataset import PlotDataset
 from SecuML.Clustering.Evaluation.PerformanceIndicators import PerformanceIndicators
 from SecuML.Tools import colors_tools
 
-from AnnotationQueries.UncertainAnnotationQueries import UncertainAnnotationQueries
 from AnnotationQueries.RareCategoryDetectionAnnotationQueries import RareCategoryDetectionAnnotationQueries
+from AnnotationQueries.UncertainAnnotationQueries import UncertainAnnotationQueries
 from QueryStrategy import QueryStrategy
 
 class Ilab(QueryStrategy):
 
     def __init__(self, iteration):
         QueryStrategy.__init__(self, iteration)
-        conf = iteration.experiment.conf
-        eps = conf.eps
-        self.uncertain = UncertainAnnotationQueries(self.iteration, conf.num_uncertain, 0, 1)
+        eps = self.iteration.conf.eps
+        self.uncertain = UncertainAnnotationQueries(self.iteration, self.iteration.conf.num_uncertain, 0, 1)
         self.malicious = RareCategoryDetectionAnnotationQueries(self.iteration, 'malicious', 1-eps, 1)
         self.benign    = RareCategoryDetectionAnnotationQueries(self.iteration, 'benign', 0, eps)
 
@@ -38,14 +35,11 @@ class Ilab(QueryStrategy):
         self.generate_queries_time = 0
         self.uncertain.run()
         self.generate_queries_time += self.uncertain.generate_queries_time
-        self.exportAnnotationsTypes(malicious = False, benign = False)
         uncertain_queries = self.uncertain.getInstanceIds()
         self.malicious.run(already_queried = uncertain_queries)
         self.generate_queries_time += self.malicious.generate_queries_time
-        self.exportAnnotationsTypes(malicious = True, benign = False)
         self.benign.run(already_queried = uncertain_queries)
         self.generate_queries_time += self.benign.generate_queries_time
-        self.exportAnnotationsTypes()
         self.globalClusteringEvaluation()
 
     def annotateAuto(self):
@@ -104,7 +98,7 @@ class Ilab(QueryStrategy):
 
     def executionTimeMonitoring(self):
         line  = [self.malicious.analysis_time + self.malicious.generate_queries_time]
-        line += [self.iteration.train_test_validation.times['binary'] + self.uncertain.generate_queries_time]
+        line += [self.iteration.update_model.times['binary'] + self.uncertain.generate_queries_time]
         line += [self.benign.analysis_time + self.benign.generate_queries_time]
         return line
 
@@ -117,28 +111,3 @@ class Ilab(QueryStrategy):
         benign.setLinestyle('dashed')
         benign.setColor(colors_tools.getLabelColor('benign'))
         return [malicious, uncertain, benign]
-
-    def exportAnnotationsTypes(self, malicious = True, benign = True):
-        types = {'uncertain': {'type': 'individual', 'clustering_exp': None},
-                 'malicious': None,
-                 'benign': None}
-        if malicious:
-            types['malicious'] = {}
-            types['malicious']['type'] = self.malicious.annotations_type
-            clustering_exp = self.malicious.clustering_exp
-            if clustering_exp is not None:
-                types['malicious']['clustering_exp'] = clustering_exp.experiment_id
-            else:
-                types['malicious']['clustering_exp'] = None
-        if benign:
-            types['benign'] = {}
-            types['benign']['type'] = self.benign.annotations_type
-            clustering_exp = self.benign.clustering_exp
-            if clustering_exp is not None:
-                types['benign']['clustering_exp'] = clustering_exp.experiment_id
-            else:
-                types['benign']['clustering_exp'] = None
-        filename  = self.iteration.output_directory
-        filename += 'annotations_types.json'
-        with open(filename, 'w') as f:
-            json.dump(types, f, indent = 2)

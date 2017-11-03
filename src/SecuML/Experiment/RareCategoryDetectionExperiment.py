@@ -16,18 +16,37 @@
 
 import argparse
 
+from SecuML.ActiveLearning.ActiveLearningExp import ActiveLearningExp
 from SecuML.ActiveLearning.Configuration import ActiveLearningConfFactory
 
-from ActiveLearningExperiment import ActiveLearningExperiment
 import ExperimentFactory
+from ActiveLearningExperiment import ActiveLearningExperiment
+
 import experiment_db_tools
 
 class RareCategoryDetectionExperiment(ActiveLearningExperiment):
 
-    def __init__(self, project, dataset, session):
-        ActiveLearningExperiment.__init__(self, project, dataset, session)
+    def __init__(self, project, dataset, session, experiment_name = None):
+        ActiveLearningExperiment.__init__(self, project, dataset, session,
+                                          experiment_name = experiment_name)
         self.kind = 'RareCategoryDetection'
         self.labeling_method = 'RareCategoryDetection'
+
+    def run(self):
+        datasets = self.generateDatasets()
+        active_learning = ActiveLearningExp(self ,datasets)
+        if not self.conf.auto:
+            from CeleryApp.app import secumlworker
+            from CeleryApp.activeLearningTasks import IterationTask
+            options = {}
+            # bind iterations object to IterationTask class
+            active_learning.runNextIteration(output_dir = self.getOutputDirectory())
+            IterationTask.iteration_object = active_learning
+            # Start worker
+            secumlworker.enable_config_fromcmdline = False
+            secumlworker.run(**options)
+        else:
+            active_learning.runIterations(output_dir = self.getOutputDirectory())
 
     @staticmethod
     def fromJson(obj, session):
@@ -41,7 +60,7 @@ class RareCategoryDetectionExperiment(ActiveLearningExperiment):
 
     def toJson(self):
         conf = ActiveLearningExperiment.toJson(self)
-        conf['__type__'] = 'RareCategoryDetection'
+        conf['__type__'] = 'RareCategoryDetectionExperiment'
         conf['labeling_method'] = self.labeling_method
         conf['conf'] = self.conf.toJson()
         return conf

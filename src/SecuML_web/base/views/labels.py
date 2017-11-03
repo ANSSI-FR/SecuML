@@ -23,10 +23,10 @@ from SecuML_web.base.views.experiments import updateCurrentExperiment
 from SecuML.Data import labels_tools
 from SecuML.Tools import dir_tools
 
-@app.route('/getLabel/<experiment_label_id>/<instance_id>/')
-def getLabel(experiment_label_id, instance_id):
+@app.route('/getLabel/<experiment_id>/<instance_id>/')
+def getLabel(experiment_id, instance_id):
     label = labels_tools.getLabel(session, instance_id,
-                                  experiment_label_id)
+                                  experiment_id)
     if label is None:
         label = {}
     else:

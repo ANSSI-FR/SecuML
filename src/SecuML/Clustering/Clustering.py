@@ -38,9 +38,8 @@ class Clustering(object):
     def numClusters(self):
         return self.num_clusters
 
-    def generateClustering(self, output_directory, assignment_proba, centroids,
-                           drop_annotated_instances = False,
-            cluster_labels = None):
+    def generateClustering(self, assignment_proba, centroids, drop_annotated_instances = False,
+                           cluster_labels = None):
         self.clusters = [Cluster() for x in range(self.num_clusters)]
         if cluster_labels is not None:
             for x in range(self.num_clusters):
@@ -67,7 +66,6 @@ class Clustering(object):
         unknown_cluster_id = 0
         for c in range(self.num_clusters):
             unknown_cluster_id = self.clusters[c].finalComputation(unknown_cluster_id)
-        self.clusteringToJson(output_directory, drop_annotated_instances = drop_annotated_instances)
 
     def generateEvaluation(self, output_directory, quick = False):
         self.evaluation.generateEvaluation(output_directory, quick = quick)
@@ -76,19 +74,8 @@ class Clustering(object):
         with open(filename, 'w') as f:
             json.dump(obj, f, indent = 2)
 
-    @staticmethod
-    def fromJson(experiment):
-        clustering = Clustering(experiment, None, [], None)
-        with open(clustering.output_directory + 'clusters.json', 'r') as f:
-            obj = json.load(f)
-            clustering.assigned_clusters = obj['assigned_clusters']
-            clustering.num_clusters = len(obj) - 1
-            clustering.clusters = [Cluster() for x in range(clustering.num_clusters)]
-            for c in range(clustering.num_clusters):
-                clustering.clusters[c] = Cluster.fromJson(obj[str(c)])
-        return clustering
 
-    def clusteringToJson(self, output_directory, drop_annotated_instances = False):
+    def export(self, output_directory, drop_annotated_instances = False):
         obj = {}
         obj['assigned_clusters'] = list(map(int, self.assigned_clusters))
         if drop_annotated_instances:
@@ -112,10 +99,23 @@ class Clustering(object):
             drop_instances = None):
         return self.clusters[selected_cluster].getClusterInstancesVisu(num_instances, random, drop_instances)
 
-    def getClusterLabelsFamilies(self, selected_cluster):
-        return self.clusters[selected_cluster].getClusterLabelsFamilies(self.experiment.session,
-                self.experiment.labels_id)
+    def getClusterLabelsFamilies(self, selected_cluster, experiment):
+        cluster = self.clusters[selected_cluster]
+        return cluster.getClusterLabelsFamilies(experiment.session,
+                                                experiment.labels_id)
 
     def getClusterLabelFamilyIds(self, selected_cluster, label, family):
         return self.clusters[selected_cluster].getClusterLabelFamilyIds(label, family,
                 self.experiment.session, self.experiment.labels_id)
+
+    @staticmethod
+    def fromJson(experiment):
+        clustering = Clustering(None, [])
+        with open(experiment.getOutputDirectory() + 'clusters.json', 'r') as f:
+            obj = json.load(f)
+            clustering.assigned_clusters = obj['assigned_clusters']
+            clustering.num_clusters = len(obj) - 1
+            clustering.clusters = [Cluster() for x in range(clustering.num_clusters)]
+            for c in range(clustering.num_clusters):
+                clustering.clusters[c] = Cluster.fromJson(obj[str(c)])
+        return clustering

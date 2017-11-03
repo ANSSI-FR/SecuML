@@ -21,59 +21,53 @@ class ExecutionTimeMonitoring(object):
 
     def __init__(self, monitoring):
         self.monitoring = monitoring
-        self.evolution_file  = self.monitoring.AL_directory
-        self.evolution_file += 'execution_time_monitoring.csv'
 
     def generateMonitoring(self):
-        self.iterationMonitoring()
-        self.evolutionMonitoring()
+        return
 
-    def iterationMonitoring(self):
-        self.displayCsvLine()
+    def exportMonitoring(self):
+        monitoring_dir, evolution_file = self.getOutputDirectories()
+        self.displayCsvLine(evolution_file)
+        self.plotEvolutionMonitoring(evolution_file, monitoring_dir)
 
-    def evolutionMonitoring(self):
-        self.loadEvolutionMonitoring()
-        self.plotEvolutionMonitoring()
+    def getOutputDirectories(self):
+        monitoring_dir = self.monitoring.iteration_dir
+        evolution_file = self.monitoring.al_dir + 'execution_time_monitoring.csv'
+        return monitoring_dir, evolution_file
 
-    ##########################
-    ## Iteration Monitoring ##
-    ##########################
-
-    def displayCsvLine(self):
+    def displayCsvLine(self, evolution_file):
         if self.monitoring.iteration_number == 1:
-            self.displayCsvHeader()
+            self.displayCsvHeader(evolution_file)
         iteration = self.monitoring.iteration
-        with open(self.evolution_file, 'a') as f:
+        with open(evolution_file, 'a') as f:
             v = []
             v.append(self.monitoring.iteration_number)
             v += iteration.annotations.executionTimeMonitoring()
             print >>f, ','.join(map(str, v))
 
-    def displayCsvHeader(self):
+    def displayCsvHeader(self, evolution_file):
         iteration = self.monitoring.iteration
-        with open(self.evolution_file, 'w') as f:
+        with open(evolution_file, 'w') as f:
             header  = ['iteration']
             header += iteration.annotations.executionTimeHeader()
             print >>f, ','.join(header)
 
-    ##########################
-    ## Evolution Monitoring ##
-    ##########################
+    def loadEvolutionMonitoring(self, evolution_file):
+        with open(evolution_file, 'r') as f:
+            data = pd.read_csv(f, header = 0, index_col = 0)
+            return data
 
-    def loadEvolutionMonitoring(self):
-        with open(self.evolution_file, 'r') as f:
-            self.data = pd.read_csv(f, header = 0, index_col = 0)
-
-    def plotEvolutionMonitoring(self):
+    def plotEvolutionMonitoring(self, evolution_file, monitoring_dir):
+        data = self.loadEvolutionMonitoring(evolution_file)
         iterations = range(1, self.monitoring.iteration_number+1)
         plt.clf()
-        max_value = self.data.max().max()
+        max_value = data.max().max()
         annotations = self.monitoring.iteration.annotations
         monitoring = annotations.executionTimeDisplay()
         header     = annotations.executionTimeHeader()
         for i, m in enumerate(monitoring):
             label = header[i]
-            plt.plot(iterations, self.data[label],
+            plt.plot(iterations, data[label],
                     label = m.label,
                     linestyle = m.linestyle,
                     color = m.color, linewidth = m.linewidth, marker = m.marker)
@@ -83,10 +77,10 @@ class ExecutionTimeMonitoring(object):
         lgd = plt.legend(bbox_to_anchor = (0., 1.02, 1., .102), loc = 3,
                 ncol = 2, mode = 'expand', borderaxespad = 0.,
                 fontsize = 'large')
-        filename  = self.monitoring.iteration_dir
+        filename  = monitoring_dir
         filename += 'execution_time_monitoring.png'
         plt.savefig(filename, bbox_extra_artists=(lgd,), bbox_inches='tight')
-        filename  = self.monitoring.iteration_dir
+        filename  = monitoring_dir
         filename += 'execution_time_monitoring.eps'
         plt.savefig(filename, bbox_extra_artists=(lgd,), bbox_inches='tight',
                 dpi=1000, format='eps')

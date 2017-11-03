@@ -14,22 +14,15 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.Experiment.InstancesFromExperiment import InstancesFromExperiment
 from SecuML.Data.ExportInstances import ExportInstances
-from SecuML.Tools import dir_tools
 
 class Datasets(object):
 
-    def __init__(self, experiment):
-        self.experiment = experiment
-        self.instances = InstancesFromExperiment(experiment).getInstances()
-        self.setValidationInstances(experiment.conf.validation_conf)
+    def __init__(self, conf, instances, validation_instances):
+        self.conf = conf
+        self.instances = instances
+        self.validation_instances = validation_instances
         self.initCounts()
-
-    def setValidationInstances(self, validation_conf):
-        self.validation_instances = None
-        if validation_conf is not None:
-            self.validation_instances = InstancesFromExperiment(validation_conf.test_exp).getInstances()
 
     def update(self, instance_id, label, family, annotation):
         self.new_labels = True
@@ -43,21 +36,13 @@ class Datasets(object):
     def checkLabelsWithDB(self, experiment):
         self.instances.checkLabelsWithDB(experiment)
 
-    def saveLabeledInstances(self, iteration_number):
-        for i in ['annotations', 'labels']:
-            filename  = dir_tools.getDatasetDirectory(
-                    self.experiment.project,
-                    self.experiment.dataset)
-            filename += 'labels/' + i + '_'
-            filename += self.experiment.labeling_method + '_'
-            filename += 'exp' + str(self.experiment.experiment_id) + '_'
-            filename += 'it' + str(iteration_number) + '.csv'
-            if i == 'annotations':
-                instances = self.instances.getAnnotatedInstances()
-            elif i == 'labels':
-                instances = self.instances.getLabeledInstances()
-            export_instances = ExportInstances(instances)
-            export_instances.exportLabels(filename)
+    def saveLabeledInstances(self, annotation_label, output_filename):
+        if annotation_label == 'annotations':
+            instances = self.instances.getAnnotatedInstances()
+        elif annotation_label == 'labels':
+            instances = self.instances.getLabeledInstances()
+        export_instances = ExportInstances(instances)
+        export_instances.exportLabels(output_filename)
 
     def numAnnotations(self, label = 'all'):
         if label == 'all':

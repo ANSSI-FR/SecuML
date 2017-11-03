@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import json
-
 from SecuML.Plots.PlotDataset import PlotDataset
 
 from AnnotationQueries.RareCategoryDetectionAnnotationQueries import RareCategoryDetectionAnnotationQueries
@@ -25,16 +23,13 @@ class RareCategoryDetection(QueryStrategy):
 
     def __init__(self, iteration):
         QueryStrategy.__init__(self, iteration)
-        multiclass_model   = self.iteration.train_test_validation.models['multiclass']
-        multiclass_exp     = self.iteration.train_test_validation.models_exp['multiclass']
+        multiclass_model   = self.iteration.update_model.models['multiclass']
         self.all_instances = RareCategoryDetectionAnnotationQueries(self.iteration, 'all', 0, 1,
-                                                                    multiclass_model = multiclass_model,
-                                                                    multiclass_exp   = multiclass_exp)
+                                                                    multiclass_model = multiclass_model)
 
     def generateAnnotationQueries(self):
         self.all_instances.run()
         self.generate_queries_time = self.all_instances.generate_queries_time
-        self.exportAnnotationsTypes()
 
     def annotateAuto(self):
         self.all_instances.annotateAuto()
@@ -64,16 +59,3 @@ class RareCategoryDetection(QueryStrategy):
     def executionTimeDisplay(self):
         clustering = PlotDataset(None, 'Analysis')
         return [clustering] + QueryStrategy.executionTimeDisplay(self)
-
-    def exportAnnotationsTypes(self):
-        clustering_exp = self.all_instances.clustering_exp
-        if clustering_exp is not None:
-            clustering_exp = clustering_exp.experiment_id
-        types = {'all': {'type': self.all_instances.annotations_type,
-                         'clustering_exp': clustering_exp
-                        }
-                }
-        filename  = self.iteration.output_directory
-        filename += 'annotations_types.json'
-        with open(filename, 'w') as f:
-            json.dump(types, f, indent = 2)

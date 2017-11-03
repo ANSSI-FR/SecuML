@@ -1,4 +1,5 @@
 function generateDivisions(conf) {
+  generateTitle(conf);
   generateFirstRowDivisions(conf);
   if (view == 'ml') {
     generateSecondRowDivisions(conf);
@@ -6,14 +7,22 @@ function generateDivisions(conf) {
   generateTabs(conf);
 }
 
-function generateFirstRowDivisions(conf) {
-  // Experiment
-  var main = $('#row_1')[0];
-  var experiment = createExperimentDiv('col-md-4', main);
+function generateTitle(conf) {
+  var main = $('#row_title')[0];
+  var div = createDivWithClass(null, 'page-header', parent_div = main);
+  var h1 = document.createElement('h1');
+  h1.textContent = 'Active Learning - ' + conf.labeling_method;
+  div.appendChild(h1);
+}
 
+function generateFirstRowDivisions(conf) {
   var main = $('#row_2')[0];
   // Iteration Selector
-  var iteration_selector_panel = createPanel('panel-primary', 'col-md-4', 'Select an Iteration', main);
+  var col = createDivWithClass(null, 'col-md-4', parent_div = main);
+
+  var experiment = createExperimentDiv('row', col);
+
+  var iteration_selector_panel = createPanel('panel-primary', 'row', 'Select an Iteration', col);
   var iteration_selector_col = createDivWithClass('iteration_selector_col', 'col-md-4',
       parent_div = iteration_selector_panel);
   var iteration_selector = createSelectList('iteration_selector', 5, null,

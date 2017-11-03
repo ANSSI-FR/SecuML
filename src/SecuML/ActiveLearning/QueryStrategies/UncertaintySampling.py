@@ -23,7 +23,7 @@ class UncertaintySampling(QueryStrategy):
 
     def __init__(self, iteration):
         QueryStrategy.__init__(self, iteration)
-        num_annotations = self.iteration.experiment.conf.batch
+        num_annotations = self.iteration.conf.batch
         proba_min = None
         proba_max = None
         self.annotations = UncertainAnnotationQueries(self.iteration, num_annotations, proba_min, proba_max)
@@ -48,7 +48,7 @@ class UncertaintySampling(QueryStrategy):
         return header
 
     def executionTimeMonitoring(self):
-        line  = [self.iteration.train_test_validation.times['binary']]
+        line  = [self.iteration.update_model.times['binary']]
         line += QueryStrategy.executionTimeMonitoring(self)
         return line
 

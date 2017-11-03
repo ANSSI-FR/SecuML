@@ -20,15 +20,13 @@ import copy
 import pandas as pd
 import scipy
 
-from SecuML.Data import labels_tools
 from SecuML.Tools import matrix_tools
 
 from AnnotationQuery   import AnnotationQuery
 
 class Category(object):
 
-    def __init__(self, experiment, label = None, family = None):
-        self.experiment         = experiment
+    def __init__(self, label = None, family = None):
         self.assignLabelFamily(label, family)
         self.instances_ids      = []
         self.probas             = []
@@ -49,8 +47,8 @@ class Category(object):
         if label != 'all':
             self.label = label
         else:
-            self.label = labels_tools.getAssociatedLabel(self.experiment.session, family,
-                                                         self.experiment.labels_id)
+            self.label = label
+            ## TODO
 
     def numInstances(self):
         return len(self.instances_ids)

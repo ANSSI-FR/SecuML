@@ -6,17 +6,23 @@ The color of the dot in the middle of each bin (from yellow to red) corresponds 
 
     ./SecuML_projection <project> <dataset> <algo>
 
-To display the available projection algorithms:
+## Projection Algorithms Available
 
-    ./SecuML_projection -h
+### Unsupervised Algorithms
+* Pca
+
+### Semi-supervised Algorithms
+* Rca
+* Lda
+* Lmnn
+* Nca
+* Itml
+
+## Help
 
 For more information about the available options for a given projection algorithm:
 
     ./SecuML_projection <project> <dataset> <algo> -h
 
-Web interface to display the results:
-
-    http://localhost:5000/SecuML/<project>/<dataset>/Projection/menu/
-
-## Interface
+## Graphical User Interface
 ![Projection](/doc/images/projection.png)

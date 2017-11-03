@@ -23,10 +23,8 @@ import random
 import time
 
 from SecuML.Classification.ClassifierDatasets import ClassifierDatasets
-from SecuML.Clustering.Configuration.ClusteringConfiguration import ClusteringConfiguration
 from SecuML.Clustering.Clustering import Clustering
-from SecuML.Experiment.ClassificationExperiment import ClassificationExperiment
-from SecuML.Experiment.ClusteringExperiment import ClusteringExperiment
+
 from SecuML.Tools import matrix_tools
 
 from AnnotationQueries import AnnotationQueries
@@ -37,14 +35,12 @@ from Categories import Categories
 class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
 
     def __init__(self, iteration, label, proba_min, proba_max,
-            multiclass_model = None,
-            multiclass_exp = None):
+            multiclass_model = None):
         AnnotationQueries.__init__(self, iteration, label)
         self.proba_min = proba_min
         self.proba_max = proba_max
-        self.rare_category_detection_conf = self.iteration.experiment.conf.rare_category_detection_conf
+        self.rare_category_detection_conf = self.iteration.conf.rare_category_detection_conf
         self.multiclass_model = multiclass_model
-        self.multiclass_exp = multiclass_exp
 
     def run(self, already_queried = None):
         self.runModels(already_queried = already_queried)
@@ -69,7 +65,7 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
             start_time = time.time()
             self.buildCategories()
             self.analysis_time = time.time() - start_time
-            self.categories.setLikelihood(self.iteration.iteration_number)
+            self.categories.setLikelihood()
         else:
             self.annotations_type = 'individual'
             self.categories       = None
@@ -93,7 +89,7 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
         if not self.families_analysis:
             AnnotationQueries.exportAnnotationQueries(self)
         else:
-            filename  = self.iteration.output_directory
+            filename  = self.iteration.iteration_dir
             filename += 'toannotate_' + self.label + '.json'
             self.categories.exportAnnotationQueries(filename)
 
@@ -119,25 +115,8 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
     ### Private methods ###
     #######################
 
-    def createMulticlassExperiment(self):
-        conf = self.rare_category_detection_conf.classification_conf
-        exp  = self.iteration.experiment
-        name = '-'.join(['AL' + str(exp.experiment_id),
-                         'Iter' + str(self.iteration.iteration_number),
-                         self.label,
-                         'analysis'])
-        multiclass_exp = ClassificationExperiment(exp.project, exp.dataset, exp.session,
-                                                  experiment_name = name,
-                                                  labels_id = exp.labels_id,
-                                                  parent = exp.experiment_id)
-        multiclass_exp.setFeaturesFilenames(exp.features_filenames)
-        multiclass_exp.setClassifierConf(conf)
-        multiclass_exp.createExperiment()
-        multiclass_exp.export()
-        return multiclass_exp
-
     def buildCategories(self):
-        multiclass_exp = self.buildMulticlassClassifier()
+        self.buildMulticlassClassifier()
         train = self.multiclass_model.datasets.train_instances
         test  = self.multiclass_model.datasets.test_instances
         all_instances = copy.deepcopy(test)
@@ -160,30 +139,38 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
                     predicted_proba = np.vstack((predicted_proba, np.array(probas)))
         labels_values = list(self.multiclass_model.class_labels)
         assigned_categories = [labels_values.index(x) for x in all_families]
-        self.categories = Categories(multiclass_exp,
+        self.setCategories(all_instances, assigned_categories, predicted_proba)
+
+    def setCategories(self, all_instances, assigned_categories, predicted_proba):
+        self.categories = Categories(self.iteration,
                                      all_instances,
                                      assigned_categories,
                                      predicted_proba,
                                      self.label,
                                      self.multiclass_model.class_labels)
 
+    def getMulticlassConf(self):
+        multiclass_conf = self.rare_category_detection_conf.classification_conf
+        return multiclass_conf
+
     def buildMulticlassClassifier(self):
         if self.multiclass_model is not None:
-            return self.multiclass_exp
-        multiclass_exp = self.createMulticlassExperiment()
+            return
+        multiclass_conf = self.getMulticlassConf()
         datasets = self.iteration.datasets
         predicted_instances = datasets.getInstancesFromIds(self.predicted_ids)
-        multiclass_datasets = ClassifierDatasets(multiclass_exp.classification_conf)
+        multiclass_datasets = ClassifierDatasets(multiclass_conf)
         multiclass_datasets.train_instances = self.annotated_instances
         multiclass_datasets.test_instances  = predicted_instances
         multiclass_datasets.setSampleWeights()
-        self.multiclass_model = multiclass_exp.classification_conf.model_class(
-                multiclass_exp.classification_conf,
+        self.multiclass_model = multiclass_conf.model_class(
+                multiclass_conf,
                 multiclass_datasets,
                 cv_monitoring = True)
-        self.multiclass_model.run(multiclass_exp.getOutputDirectory(),
-                                  multiclass_exp)
-        return multiclass_exp
+        self.multiclass_model.training()
+        self.multiclass_model.testing()
+        if multiclass_datasets.validation_instances is not None:
+            self.multiclass_model.validation()
 
     # A multi class supervised model is learned from the annotated instances if:
     #       - there are at most 2 families
@@ -199,29 +186,10 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
             return False
         return True
 
-    def createClusteringExperiment(self):
-        conf = ClusteringConfiguration(self.categories.numCategories())
-        exp  = self.iteration.experiment
-        name = '-'.join(['AL' + str(exp.experiment_id),
-                         'Iter' + str(self.iteration.iteration_number),
-                         self.label,
-                         'clustering'])
-        clustering_exp = ClusteringExperiment(exp.project, exp.dataset, exp.session,
-                                              conf,
-                                              labels_id = exp.labels_id,
-                                              experiment_name = name,
-                                              parent = exp.experiment_id)
-        clustering_exp.setFeaturesFilenames(exp.features_filenames)
-        clustering_exp.createExperiment()
-        clustering_exp.export()
-        return clustering_exp
-
     def generateClusteringVisualization(self):
         if self.families_analysis:
-            self.clustering_exp = self.createClusteringExperiment()
             clustering = Clustering(self.categories.instances,
                                     self.categories.assigned_categories)
-            clustering.generateClustering(self.clustering_exp.getOutputDirectory(),
-                                          None, None)
+            clustering.generateClustering(None, None)
         else:
             self.clustering_exp = None

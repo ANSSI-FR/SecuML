@@ -51,7 +51,17 @@ function callback(conf) {
   }
 }
 
+function generateTitle(conf) {
+  var main = $('#row_title')[0];
+  var div = createDivWithClass(null, 'page-header', parent_div = main);
+  var h1 = document.createElement('h1');
+  h1.textContent = 'Classification - ' + conf.classification_conf.model_class;
+  div.appendChild(h1);
+}
+
 function generateDivisions(conf) {
+  generateTitle(conf);
+
   var main = $('#main')[0];
 
   // Experiment

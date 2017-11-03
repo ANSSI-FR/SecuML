@@ -22,7 +22,6 @@ import warnings
 
 from SecuML.Classification.Classifier import Classifier
 from SecuML.Classification.Classifier import Predictions
-from SecuML.Classification.Monitoring.TestingMonitoring import TestingMonitoring
 from SecuML.Classification.Monitoring.TrainingMonitoring import TrainingMonitoring
 
 # Works when no labeled instances are provided.
@@ -55,22 +54,25 @@ class Sssvdd(Classifier):
         self.scaler.fit(training_features)
 
         unlabeled_instances = self.datasets.train_instances.getUnlabeledInstances()
-        unlabeled_features  = np.array(self.scaler.transform(
-            unlabeled_instances.getFeatures()))
+        if unlabeled_instances.numInstances() > 0:
+            unlabeled_features  = self.scaler.transform(unlabeled_instances.getFeatures())
+        else:
+            unlabeled_features = unlabeled_instances.getFeatures()
         labeled_instances   = self.datasets.train_instances.getLabeledInstances()
         if labeled_instances.numInstances() > 0:
-            labeled_features = np.array(self.scaler.transform(
-                labeled_instances.getFeatures()))
+            labeled_features = self.scaler.transform(labeled_instances.getFeatures())
         else:
-            labeled_features = np.array(labeled_instances.getFeatures())
+            labeled_features = labeled_instances.getFeatures()
         labels = np.array([-1. if x else 1. for x in labeled_instances.getLabels()])
 
         num_labeled_instances   = labeled_instances.numInstances()
         num_unlabeled_instances = unlabeled_instances.numInstances()
 
         # To avoid numerical instability
-        self.nu_L /= num_labeled_instances
-        self.nu_U /= num_unlabeled_instances
+        if num_labeled_instances > 0:
+            self.nu_L /= num_labeled_instances
+        if num_unlabeled_instances > 0:
+            self.nu_U /= num_unlabeled_instances
 
         x_init = generateXinit(unlabeled_features, labeled_features,
                                labeled_instances.getLabels())
@@ -101,6 +103,8 @@ class Sssvdd(Classifier):
         self.training_monitoring.display(output_directory)
 
     def applyPipeline(self, features):
+        if len(features) == 0:
+            return Predictions([], [], [], [])
         preprocessed_features = self.scaler.transform(features)
         predicted_scores    = np.apply_along_axis(predictScore, 1,
                                                   preprocessed_features,
@@ -233,7 +237,8 @@ def generateXinit(unlabeled_features, labeled_features, labels):
 
 def benignInstancesCenterRadius(unlabeled_features, labeled_features, labels):
     benign_features = labeled_features[-np.array(labels)]
-    benign_features = np.concatenate((benign_features, unlabeled_features))
+    if unlabeled_features.shape[0] > 0:
+        benign_features = np.concatenate((benign_features, unlabeled_features))
     center = np.mean(benign_features, axis = 0)
     radius = np.mean(np.apply_along_axis(distanceToCenter, 1, benign_features, center))
     return center, radius

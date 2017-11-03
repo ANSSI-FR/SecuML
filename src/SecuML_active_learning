@@ -21,7 +21,6 @@ matplotlib.use('Agg')
 import sys
 
 from SecuML.ActiveLearning.Configuration.ActiveLearningConfiguration import InvalidInputArguments
-from SecuML.ActiveLearning.ActiveLearning import ActiveLearning
 from SecuML.Experiment.ActiveLearningExperiment import ActiveLearningExperiment
 
 if __name__ == '__main__':
@@ -29,7 +28,8 @@ if __name__ == '__main__':
     parser = ActiveLearningExperiment.generateParser()
     args = parser.parse_args()
 
-    experiment = ActiveLearningExperiment(args.project, args.dataset, None)
+    experiment = ActiveLearningExperiment(args.project, args.dataset, None,
+                                          experiment_name = args.exp_name)
     try:
         experiment.setExperimentFromArgs(args)
     except InvalidInputArguments as e:
@@ -37,18 +37,5 @@ if __name__ == '__main__':
         experiment.closeSession()
         sys.exit()
 
-    iterations = ActiveLearning(experiment)
-    if not args.auto:
-        from CeleryApp.app import secumlworker
-        from CeleryApp.activeLearningTasks import IterationTask
-        options = {}
-        # bind iterations object to IterationTask class
-        iterations.runNextIteration()
-        IterationTask.iteration_object = iterations
-        # Start worker
-        secumlworker.enable_config_fromcmdline = False
-        secumlworker.run(**options)
-    else:
-        iterations.runIterations()
-
+    experiment.run()
     experiment.closeSession()

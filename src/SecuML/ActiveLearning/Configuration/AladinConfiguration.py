@@ -17,6 +17,7 @@
 import ActiveLearningConfFactory
 from ActiveLearningConfiguration import ActiveLearningConfiguration
 from SecuML.ActiveLearning.QueryStrategies.Aladin import Aladin
+from SecuML.ActiveLearning.QueryStrategies.AladinExp import AladinExp
 from SecuML.Classification.Configuration import ClassifierConfFactory
 from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 
@@ -51,6 +52,9 @@ class AladinConfiguration(ActiveLearningConfiguration):
 
     def getStrategy(self, iteration):
         return Aladin(iteration)
+
+    def getStrategyExp(self, iteration):
+        return AladinExp(iteration)
 
     def generateSuffix(self):
         suffix  = ''

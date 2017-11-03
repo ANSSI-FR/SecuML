@@ -27,8 +27,6 @@ class SuggestionsAccuracyCounts(object):
         self.monitoring  = monitoring
         self.kind = kind
         self.labels_families = labels_families
-        self.setOutputDirectory()
-        self.setEvolutionFileName()
         self.initCounts()
 
     def initCounts(self):
@@ -37,16 +35,6 @@ class SuggestionsAccuracyCounts(object):
         self.true_suggestions  = 0
         self.false_suggestions = 0
         self.no_suggestion     = 0
-
-    def setOutputDirectory(self):
-        self.output_directory  = self.monitoring.iteration_dir
-        self.output_directory += 'suggestions_accuracy/'
-
-    def setEvolutionFileName(self):
-        self.evolution_file  = self.monitoring.AL_directory
-        self.evolution_file += 'suggestions_accuracy/'
-        self.evolution_file += self.labels_families
-        self.evolution_file +=  '_' + self.kind + '_suggestions.csv'
 
     def addAnnotation(self, suggestion, answer):
         self.num_annotations += 1
@@ -59,10 +47,16 @@ class SuggestionsAccuracyCounts(object):
             self.false_suggestions += 1
             self.num_suggestions   += 1
 
-    def displayCsvLine(self):
+    def exportMonitoring(self, monitoring_dir, evolution_dir):
+        evolution_file = evolution_dir + self.labels_families
+        evolution_file += '_' + self.kind + '_suggestions.csv'
+        self.displayCsvLine(evolution_file)
+        self.plotEvolutionMonitoring(evolution_file, monitoring_dir)
+
+    def displayCsvLine(self, evolution_file):
         if self.monitoring.iteration_number == 1:
-            self.displayCsvHeader()
-        with open(self.evolution_file, 'a') as f:
+            self.displayCsvHeader(evolution_file)
+        with open(evolution_file, 'a') as f:
             v = []
             v.append(self.monitoring.iteration_number)
             v.append(self.true_suggestions)
@@ -72,27 +66,25 @@ class SuggestionsAccuracyCounts(object):
             v.append(self.num_annotations)
             print >>f, ','.join(map(str, v))
 
-    def displayCsvHeader(self):
-        with open(self.evolution_file, 'w') as f:
+    def displayCsvHeader(self, evolution_file):
+        with open(evolution_file, 'w') as f:
             header  = ['iteration']
             header += ['true_suggestions', 'false_suggestions', 'no_suggestion',
                        'num_suggestions', 'num_annotations']
             print >>f, ','.join(header)
 
-    def evolutionMonitoring(self):
-        self.loadEvolutionMonitoring()
-        self.plotEvolutionMonitoring()
+    def loadEvolutionMonitoring(self, evolution_file):
+        with open(evolution_file, 'r') as f:
+            data = pd.read_csv(f, header = 0, index_col = 0)
+            return data
 
-    def loadEvolutionMonitoring(self):
-        with open(self.evolution_file, 'r') as f:
-            self.data = pd.read_csv(f, header = 0, index_col = 0)
-
-    def plotEvolutionMonitoring(self):
+    def plotEvolutionMonitoring(self, evolution_file, monitoring_dir):
+        data = self.loadEvolutionMonitoring(evolution_file)
         if self.labels_families == 'labels':
             title = 'Labels Suggestions Accuracy'
         elif self.labels_families == 'families':
             title = 'Families Suggestions Accuracy'
-        plot = PlotDataset(self.data['true_suggestions'] / self.data['num_suggestions'], title)
+        plot = PlotDataset(data['true_suggestions'] / data['num_suggestions'], title)
         iterations = range(self.monitoring.iteration_number)
         plt.clf()
         max_value = 1
@@ -107,10 +99,11 @@ class SuggestionsAccuracyCounts(object):
         lgd = plt.legend(bbox_to_anchor = (0., 1.02, 1., .102), loc = 3,
                 ncol = 2, mode = 'expand', borderaxespad = 0.,
                 fontsize = 'large')
-        filename  = self.output_directory
+        filename  = monitoring_dir
         filename += self.labels_families + '_' + self.kind + '_suggestions.png'
         plt.savefig(filename, bbox_extra_artists=(lgd,), bbox_inches='tight')
         plt.clf()
+        self.data = data
 
 class SuggestionsAccuracyLabelsFamilies(object):
 
@@ -131,54 +124,50 @@ class SuggestionsAccuracyLabelsFamilies(object):
         elif confidence == 'high':
             self.high_confidence_counts.addAnnotation(suggestion, answer)
 
-    def iterationMonitoring(self, kind = None):
-        if kind is None:
-            self.iterationMonitoring(kind = 'all')
-            self.iterationMonitoring(kind = 'high_confidence')
-            return
-        if kind == 'all':
-            counts = self.all_counts
-        elif kind == 'high_confidence':
-            counts = self.high_confidence_counts
-        counts.displayCsvLine()
+    def generateMonitoring(self):
+        return
 
-    def evolutionMonitoring(self, kind = None):
+    def exportMonitoring(self, monitoring_dir, evolution_dir, kind = None):
         if kind is None:
-            self.evolutionMonitoring(kind = 'all')
-            self.evolutionMonitoring(kind = 'high_confidence')
+            self.exportMonitoring(monitoring_dir, evolution_dir,
+                                  kind = 'all')
+            self.exportMonitoring(monitoring_dir, evolution_dir,
+                                  kind = 'high_confidence')
             return
         if kind == 'all':
             counts = self.all_counts
         elif kind == 'high_confidence':
             counts = self.high_confidence_counts
-        counts.evolutionMonitoring()
+        counts.exportMonitoring(monitoring_dir, evolution_dir)
+
 
 class SuggestionsAccuracy(object):
 
     def __init__(self, monitoring):
         self.monitoring        = monitoring
-        self.labels_accuracy   = SuggestionsAccuracyLabelsFamilies(monitoring, 'labels')
-        self.families_accuracy = SuggestionsAccuracyLabelsFamilies(monitoring, 'families')
-        self.createOutputDirectories()
+        self.labels_accuracy   = SuggestionsAccuracyLabelsFamilies(monitoring,
+                                                                   'labels')
+        self.families_accuracy = SuggestionsAccuracyLabelsFamilies(monitoring,
+                                                                   'families')
 
-    def addAnnotation(self, suggested_label, suggested_family, label, family, confidence):
+    def addAnnotation(self, suggested_label, suggested_family, label, family,
+                      confidence):
         self.labels_accuracy.addAnnotation(suggested_label, label, confidence)
-        self.families_accuracy.addAnnotation(suggested_family, family, confidence)
+        self.families_accuracy.addAnnotation(suggested_family, family,
+                                             confidence)
+
 
     def generateMonitoring(self):
-        self.iterationMonitoring()
-        self.evolutionMonitoring()
+        self.labels_accuracy.generateMonitoring()
+        self.families_accuracy.generateMonitoring()
 
-    def iterationMonitoring(self):
-        self.labels_accuracy.iterationMonitoring()
-        self.families_accuracy.iterationMonitoring()
+    def exportMonitoring(self):
+        monitoring_dir, evolution_dir = self.getOutputDirectories()
+        self.labels_accuracy.exportMonitoring(monitoring_dir, evolution_dir)
+        self.families_accuracy.exportMonitoring(monitoring_dir, evolution_dir)
+        self.plotEvolutionMonitoring(monitoring_dir)
 
-    def evolutionMonitoring(self):
-        self.labels_accuracy.evolutionMonitoring()
-        self.families_accuracy.evolutionMonitoring()
-        self.plotEvolutionMonitoring()
-
-    def plotEvolutionMonitoring(self):
+    def plotEvolutionMonitoring(self, monitoring_dir):
         iterations = range(1, self.monitoring.iteration_number+1)
         plt.clf()
         # Labels
@@ -208,16 +197,17 @@ class SuggestionsAccuracy(object):
         lgd = plt.legend(bbox_to_anchor = (0., 1.02, 1., .102), loc = 3,
                 ncol = 2, mode = 'expand', borderaxespad = 0.,
                 fontsize = 'large')
-        filename  = self.output_directory
+        filename  = monitoring_dir
         filename += 'labels_families_high_confidence_suggestions.png'
         plt.savefig(filename, bbox_extra_artists=(lgd,), bbox_inches='tight')
         plt.clf()
 
-    def createOutputDirectories(self):
-        self.output_directory  = self.monitoring.iteration_dir
-        self.output_directory += 'suggestions_accuracy/'
-        dir_tools.createDirectory(self.output_directory)
+    def getOutputDirectories(self):
+        monitoring_dir = self.monitoring.iteration_dir + 'suggestions_accuracy/'
+        dir_tools.createDirectory(monitoring_dir)
+
+        evolution_dir = self.monitoring.al_dir + 'suggestions_accuracy/'
         if self.monitoring.iteration_number == 1:
-            output_directory  = self.monitoring.AL_directory
-            output_directory += 'suggestions_accuracy/'
-            dir_tools.createDirectory(output_directory)
+            dir_tools.createDirectory(evolution_dir)
+
+        return monitoring_dir, evolution_dir

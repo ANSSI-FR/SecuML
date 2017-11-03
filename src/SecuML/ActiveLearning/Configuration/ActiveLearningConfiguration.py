@@ -40,6 +40,10 @@ class ActiveLearningConfiguration(object):
         return
 
     @abc.abstractmethod
+    def getStrategyExp(self, iteration):
+        return
+
+    @abc.abstractmethod
     def generateSuffix(self):
         return
 

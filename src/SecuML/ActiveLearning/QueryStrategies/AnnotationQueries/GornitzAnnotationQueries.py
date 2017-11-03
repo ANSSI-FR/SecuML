@@ -38,6 +38,8 @@ class GornitzAnnotationQueries(AnnotationQueries):
 
     def generateAnnotationQueries(self):
         predicted_scores = self.predictions['scores']
+        if len(predicted_scores) == 0:
+            return
         boundary_scores = abs(predicted_scores) / max(abs(predicted_scores))
         neighbours_scores = self.computeNeighboursScores()
         global_scores = self.delta * boundary_scores + (1 - self.delta) * neighbours_scores

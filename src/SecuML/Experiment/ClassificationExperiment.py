@@ -89,7 +89,7 @@ class ClassificationExperiment(Experiment):
                 'The labels must be stored in labels/true_labels.csv.')
         Experiment.projectDatasetFeturesParser(parser)
         models = ['LogisticRegression', 'Svc', 'GaussianNaiveBayes',
-                  'DecisionTree', 'RandomForest']
+                  'DecisionTree', 'RandomForest', 'GradientBoosting']
         subparsers = parser.add_subparsers(dest = 'model')
         factory = ClassifierConfFactory.getFactory()
         for model in models:

@@ -17,7 +17,7 @@
 class DimensionReductionConfiguration(object):
 
     def __init__(self, algo):
-        self.algo           = algo
+        self.algo = algo
 
     def generateSuffix(self):
         suffix  = '__' + self.algo.__name__
@@ -26,6 +26,7 @@ class DimensionReductionConfiguration(object):
     def toJson(self):
         conf = {}
         conf['__type__'] = 'DimensionReductionConfiguration'
+        conf['algo'] = self.algo.__name__
         return conf
 
     @staticmethod

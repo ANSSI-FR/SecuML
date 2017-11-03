@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@ import numpy as np
 import pandas as pd
 import time
 
-from SecuML.Experiment.ClassificationExperiment import ClassificationExperiment
-
 from SecuML.Classification.Configuration.GaussianNaiveBayesConfiguration import GaussianNaiveBayesConfiguration
 from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 from SecuML.Classification.Classifiers.GaussianNaiveBayes import GaussianNaiveBayes
@@ -38,7 +36,7 @@ class AladinAnnotationQueries(AnnotationQueries):
     def __init__(self, iteration, conf):
         AnnotationQueries.__init__(self, iteration, 'aladin')
         self.num_annotations = conf.num_annotations
-        self.datasets = self.iteration.train_test_validation.models['binary'].datasets
+        self.datasets = self.iteration.update_model.models['binary'].datasets
 
     def runModels(self):
         self.getLogisticRegressionResults()
@@ -53,34 +51,24 @@ class AladinAnnotationQueries(AnnotationQueries):
     #####################
 
     def getLogisticRegressionResults(self):
-        multiclass = self.iteration.train_test_validation.models['multiclass']
+        multiclass = self.iteration.update_model.models['multiclass']
         self.lr_predicted_proba  = multiclass.testing_monitoring.predictions_monitoring.predicted_proba_all
         self.lr_predicted_labels = multiclass.testing_monitoring.predictions_monitoring.predictions['predicted_labels']
         self.lr_class_labels     = multiclass.class_labels
         self.lr_time  = multiclass.training_execution_time
         self.lr_time += multiclass.testing_execution_time
 
-    def runNaiveBayes(self):
-        # Create an experiment for the naive Bayes model
-        exp = self.iteration.experiment
-        name = '-'.join(['AL' + str(exp.experiment_id),
-            'Iter' + str(self.iteration.iteration_number),
-            'all',
-            'NaiveBayes'])
-        naive_bayes_exp = ClassificationExperiment(exp.project, exp.dataset, exp.session,
-                                                   experiment_name = name,
-                                                   labels_id = exp.labels_id,
-                                                   parent = exp.experiment_id)
-        naive_bayes_exp.setFeaturesFilenames(exp.features_filenames)
+    def createNaiveBayesConf(self):
         test_conf = TestConfiguration()
         test_conf.setUnlabeled(labels_annotations = 'annotations')
-        naive_bayes_conf = GaussianNaiveBayesConfiguration(exp.conf.models_conf['multiclass'].num_folds, False, True, test_conf)
-        naive_bayes_exp.setClassifierConf(naive_bayes_conf)
-        naive_bayes_exp.createExperiment()
-        naive_bayes_exp.export()
+        naive_bayes_conf = GaussianNaiveBayesConfiguration(4, False, True, test_conf)
+        return naive_bayes_conf
+
+    def runNaiveBayes(self):
+        naive_bayes_conf = self.createNaiveBayesConf()
         # Update training data - the naive Bayes classifier is trained on all the data
         self.datasets.test_instances.families = list(self.lr_predicted_labels)
-        all_datasets = ClassifierDatasets(naive_bayes_exp.classification_conf)
+        all_datasets = ClassifierDatasets(naive_bayes_conf)
         train_instances = copy.deepcopy(self.datasets.train_instances)
         train_instances.union(self.datasets.test_instances)
         all_datasets.train_instances = train_instances
@@ -88,15 +76,22 @@ class AladinAnnotationQueries(AnnotationQueries):
         all_datasets.setSampleWeights()
         self.evalClusteringPerf(all_datasets.train_instances)
         # Train the naive Bayes detection model and predict
-        self.naive_bayes = GaussianNaiveBayes(naive_bayes_exp.classification_conf, all_datasets)
+        self.naive_bayes = GaussianNaiveBayes(naive_bayes_conf, all_datasets)
         self.naive_bayes.training()
         self.nb_time = self.naive_bayes.training_execution_time
-        self.datasets.test_instances.families = [None] * self.datasets.test_instances.numInstances()
-        self.nb_predicted_log_proba = self.naive_bayes.pipeline.predict_log_proba(
-                self.datasets.test_instances.getFeatures())
+        num_test_instances = self.datasets.test_instances.numInstances()
+        self.datasets.test_instances.families = [None] * num_test_instances
+        if num_test_instances == 0:
+            self.nb_predicted_log_proba = []
+        else:
+            self.nb_predicted_log_proba = self.naive_bayes.pipeline.predict_log_proba(
+                    self.datasets.test_instances.getFeatures())
         start_time = time.time()
-        self.nb_predicted_labels = self.naive_bayes.pipeline.predict(
-                self.datasets.test_instances.getFeatures())
+        if num_test_instances == 0:
+            self.nb_predicted_labels = []
+        else:
+            self.nb_predicted_labels = self.naive_bayes.pipeline.predict(
+                    self.datasets.test_instances.getFeatures())
         self.nb_time += time.time() - start_time
         self.nb_class_labels = self.naive_bayes.class_labels
 
@@ -187,7 +182,13 @@ class AladinAnnotationQueries(AnnotationQueries):
                     print family + ': no anomalous, no uncertain instances'
                     selected_rows = lr_predicted_proba_df.loc[lr_predicted_proba_df['queried'] == False]
                     matrix_tools.sortDataFrame(selected_rows, family, False, True)
-                    query = selected_rows.index.tolist()[0]
+                    selection = selected_rows.index.tolist()
+                    # Break condition - There is no instance left in the unlabelled pool
+                    if len(selection) == 0:
+                        stop = True
+                        break
+                    else:
+                        query = selection[0]
                 # Add annotation query and set queried = True
                 num_annotations += 1
                 selected_instances.append(query)
@@ -197,7 +198,7 @@ class AladinAnnotationQueries(AnnotationQueries):
                     families_scores[c][predicted_class_index].set_value(query, 'queried', True)
                 self.scores.set_value(query, 'queried', True)
                 lr_predicted_proba_df.set_value(query, 'queried', True)
-                # Break condition
+                # Break condition - self.num_annotations instances have been queried
                 if num_annotations >= self.num_annotations:
                     stop = True
                     break
@@ -210,8 +211,9 @@ class AladinAnnotationQueries(AnnotationQueries):
         lr_predicted_proba_df = pd.DataFrame(np.zeros((num_test_instances, len(self.lr_class_labels) + 1)),
                 index = self.datasets.test_instances.getIds(),
                 columns = list(self.lr_class_labels) + ['queried'])
-        lr_predicted_proba_df.iloc[:, :-1] = self.lr_predicted_proba
-        lr_predicted_proba_df['queried'] = [False] * num_test_instances
+        if num_test_instances > 0:
+            lr_predicted_proba_df.iloc[:, :-1] = self.lr_predicted_proba
+            lr_predicted_proba_df['queried'] = [False] * num_test_instances
         return lr_predicted_proba_df
 
     def generateFamiliesScoresTables(self, classifier = None):
@@ -222,7 +224,11 @@ class AladinAnnotationQueries(AnnotationQueries):
             return families_scores
         families_scores = []
         for i, family in enumerate(list(self.lr_class_labels)):
-            family_scores = self.scores.loc[self.scores[classifier + '_prediction'] == family]
-            matrix_tools.sortDataFrame(family_scores, classifier + '_score', True, True)
+            selection = self.scores[classifier + '_prediction']
+            if selection.shape[0] > 0:
+                family_scores = self.scores.loc[self.scores[classifier + '_prediction'] == family]
+                matrix_tools.sortDataFrame(family_scores, classifier + '_score', True, True)
+            else:
+                family_scores = pd.DataFrame(columns = self.scores.columns.values)
             families_scores.append(family_scores)
         return families_scores

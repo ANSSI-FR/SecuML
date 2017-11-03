@@ -46,7 +46,7 @@ def activeLearningModelsMonitoring(experiment_id, iteration, train_cv_validation
     if 'binary' in experiment.conf.models_conf.keys():
         binary_multiclass = 'binary'
         estimator = 'auc'
-    directory = active_learning.output_directory
+    directory = experiment.getOutputDirectory() + str(iteration) + '/'
     filename  = directory
     filename += 'models_performance/'
     filename += binary_multiclass + '_' + train_cv_validation + '_' + estimator + '_monitoring.png'
@@ -56,7 +56,7 @@ def activeLearningModelsMonitoring(experiment_id, iteration, train_cv_validation
 def activeLearningMonitoring(experiment_id, iteration, kind, sub_kind):
     experiment = updateCurrentExperiment(experiment_id)
     active_learning = Iteration(experiment, int(iteration))
-    directory = active_learning.output_directory
+    directory = experiment.getOutputDirectory() + str(iteration) + '/'
     if kind == 'labels':
         filename  = directory + 'labels_monitoring/'
         filename += 'iteration' + '_' + sub_kind + '.png'

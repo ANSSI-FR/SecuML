@@ -27,7 +27,6 @@ from Monitoring.AlertsMonitoring import AlertsMonitoring
 from Monitoring.TestingMonitoring import TestingMonitoring
 from Monitoring.TrainingMonitoring import TrainingMonitoring
 
-
 class Predictions(object):
 
     def __init__(self, predicted_proba_all, predicted_proba, predicted_labels,
@@ -95,13 +94,14 @@ class Classifier(object):
         if self.conf.families_supervision:
             self.class_labels = self.pipeline.named_steps['model'].classes_
 
-    def exportTraining(self, output_directory):
         self.training_monitoring = TrainingMonitoring(self.conf,
                 self.datasets.getFeaturesNames(), monitoring_type = 'train')
         self.training_monitoring.addFold(0, self.datasets.train_instances.getLabels(),
                 self.datasets.train_instances.getFamilies(),
                 self.datasets.train_instances.getIds(),
                 self.training_predictions, self.coefs)
+
+    def exportTraining(self, output_directory):
         self.training_monitoring.display(output_directory)
         self.dumpModel(output_directory)
 
@@ -182,35 +182,37 @@ class Classifier(object):
         return cv
 
     def testing(self):
+        # Testing
         start = time.time()
         self.testing_predictions = self.applyPipeline(
                 self.datasets.test_instances.getFeatures())
         self.testing_execution_time = time.time() - start
-
-    def exportTesting(self, output_directory):
-        if len(self.testing_predictions.predicted_labels) == 0:
-            return
+        # Monitoring
         self.testing_monitoring = TestingMonitoring(self.conf,
                 self.datasets.test_instances.getLabels(true_labels = True),
                 self.datasets.test_instances.getFamilies(true_labels = True))
         self.testing_monitoring.addPredictions(self.testing_predictions,
                                                self.datasets.test_instances.getIds())
+
+    def exportTesting(self, output_directory):
         self.testing_monitoring.display(output_directory)
 
     def exportAlerts(self, experiment):
         self.displayAlerts(experiment)
 
     def validation(self):
+        # Validation
         self.validation_predictions = self.applyPipeline(
                 self.datasets.validation_instances.getFeatures())
-
-    def exportValidation(self, output_directory):
+        # Monitoring
         self.validation_monitoring = TestingMonitoring(self.conf,
                 self.datasets.validation_instances.getLabels(true_labels = True),
                 self.datasets.validation_instances.getFamilies(true_labels = True),
                 monitoring_type = 'validation')
         self.validation_monitoring.addPredictions(self.validation_predictions,
                                                   self.datasets.validation_instances.getIds())
+
+    def exportValidation(self, output_directory):
         self.validation_monitoring.display(output_directory)
 
     def displayAlerts(self, experiment):

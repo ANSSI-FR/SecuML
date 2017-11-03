@@ -18,6 +18,7 @@ import ActiveLearningConfFactory
 from ActiveLearningConfiguration import ActiveLearningConfiguration
 from RareCategoryDetectionStrategy import RareCategoryDetectionStrategy
 from SecuML.ActiveLearning.QueryStrategies.RareCategoryDetection import RareCategoryDetection
+from SecuML.ActiveLearning.QueryStrategies.RareCategoryDetectionExp import RareCategoryDetectionExp
 from SecuML.Classification.Configuration import ClassifierConfFactory
 from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 
@@ -36,6 +37,9 @@ class RareCategoryDetectionConfiguration(ActiveLearningConfiguration):
 
     def getStrategy(self, iteration):
         return RareCategoryDetection(iteration)
+
+    def getStrategyExp(self, iteration):
+        return RareCategoryDetectionExp(iteration)
 
     def generateSuffix(self):
         suffix = ''

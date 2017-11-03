@@ -23,57 +23,57 @@ from SecuML.Tools import dir_tools
 class FamiliesMonitoring(object):
 
     def __init__(self, monitoring):
-        self.createOutputDirectories(monitoring)
+        self.monitoring = monitoring
         self.labels = ['benign', 'malicious']
         self.monitorings = {}
         for label in self.labels:
-            self.monitorings[label] = FamiliesMonitoringOneLabel(monitoring, label, self.output_directory)
+            self.monitorings[label] = FamiliesMonitoringOneLabel(monitoring, label)
 
     def generateMonitoring(self):
-        self.iterationMonitoring()
-        self.evolutionMonitoring()
-
-    def iterationMonitoring(self):
         for label in self.labels:
-            self.monitorings[label].iterationMonitoring()
+            self.monitorings[label].generateMonitoring()
 
-    def evolutionMonitoring(self):
+    def exportMonitoring(self):
+        monitoring_dir, evolution_dir = self.getOutputDirectories()
         for label in self.labels:
-            self.monitorings[label].evolutionMonitoring()
+            self.monitorings[label].exportMonitoring(monitoring_dir, evolution_dir)
 
-    def createOutputDirectories(self, monitoring):
-        self.output_directory  = monitoring.iteration_dir
-        self.output_directory += 'families_monitoring/'
-        dir_tools.createDirectory(self.output_directory)
-        if monitoring.iteration_number == 1:
-            output_directory  = monitoring.AL_directory
-            output_directory += 'families_monitoring/'
-            dir_tools.createDirectory(output_directory)
+    def getOutputDirectories(self):
+        monitoring_dir = self.monitoring.iteration_dir + 'families_monitoring/'
+        dir_tools.createDirectory(monitoring_dir)
+
+        evolution_dir  = self.monitoring.al_dir + 'families_monitoring/'
+        if self.monitoring.iteration_number == 1:
+            dir_tools.createDirectory(evolution_dir)
+
+        return monitoring_dir, evolution_dir
+
 
 class FamiliesMonitoringOneLabel(object):
 
-    def __init__(self, monitoring, label, output_directory):
+    def __init__(self, monitoring, label):
         self.monitoring = monitoring
-        self.output_directory = output_directory
         self.label = label
-        self.evolution_file  = self.monitoring.AL_directory + 'families_monitoring/'
-        self.evolution_file += self.label + '_families_monitoring.csv'
         instances = self.monitoring.iteration.datasets.instances
         if instances.hasTrueLabels():
             self.families = list(instances.getFamiliesValues(label = self.label, true_labels = True))
         else:
             self.families = list(instances.getFamiliesValues(label = self.label))
 
-    def iterationMonitoring(self):
-        self.displayCsvLine()
+    def generateMonitoring(self):
+        return
 
-    # When there is no ground truth labels, the number of families
-    # is unknown at the begining
-    def evolutionMonitoring(self):
+    def getOutputFiles(self, monitoring_dir, evolution_dir):
+        evolution_file = evolution_dir + self.label + '_families_monitoring.csv'
+        return evolution_file
+
+    def exportMonitoring(self, monitoring_dir, evolution_dir):
+        evolution_file = self.getOutputFiles(monitoring_dir, evolution_dir)
+        self.displayCsvLine(evolution_file)
+
         instances = self.monitoring.iteration.datasets.instances
         if instances.hasTrueLabels():
-            self.loadEvolutionMonitoring()
-            self.plotEvolutionMonitoring()
+            self.plotEvolutionMonitoring(evolution_file, monitoring_dir)
 
     #############################
     #############################
@@ -81,44 +81,39 @@ class FamiliesMonitoringOneLabel(object):
     #############################
     #############################
 
-    ##########################
-    ## Iteration Monitoring ##
-    ##########################
-
-    def displayCsvLine(self, label = None):
+    def displayCsvLine(self, evolution_file, label = None):
         if self.monitoring.iteration_number == 1:
-            self.displayCsvHeader()
+            self.displayCsvHeader(evolution_file)
         datasets = self.monitoring.iteration.datasets
         annotated_instances = datasets.getAnnotatedInstances(label= self.label)
         self.families_annotations = []
         for family in self.families:
             self.families_annotations.append(len(annotated_instances.getFamilyIds(family)))
-        with open(self.evolution_file, 'a') as f:
+        with open(evolution_file, 'a') as f:
             v = []
             v.append(self.monitoring.iteration_number)
             v += self.families_annotations
             print >>f, ','.join(map(str, v))
 
-    def displayCsvHeader(self):
-        with open(self.evolution_file, 'w') as f:
+    def displayCsvHeader(self, evolution_file):
+        with open(evolution_file, 'w') as f:
             header  = ['iteration']
             header += self.families
             print >>f, ','.join(header)
 
-    ##########################
-    ## Evolution Monitoring ##
-    ##########################
+    def loadEvolutionMonitoring(self, evolution_file):
+        with open(evolution_file, 'r') as f:
+            data = pd.read_csv(f, header = 0, index_col = 0)
+            return data
 
-    def loadEvolutionMonitoring(self):
-        with open(self.evolution_file, 'r') as f:
-            self.data = pd.read_csv(f, header = 0, index_col = 0)
+    def plotEvolutionMonitoring(self, evolution_file, monitoring_dir):
+        data = self.loadEvolutionMonitoring(evolution_file)
 
-    def plotEvolutionMonitoring(self):
         barplot = BarPlot(self.families)
-        for i in range(self.data.shape[0]):
-            dataset = PlotDataset([self.data.iloc[i, 1]], str(i))
+        for i in range(data.shape[0]):
+            dataset = PlotDataset([data.iloc[i, 1]], str(i))
             barplot.addDataset(dataset)
-        filename  = self.output_directory
+        filename  = monitoring_dir
         filename += self.label + '_families_evolution.json'
         with open(filename, 'w') as f:
             barplot.exportJson(f)

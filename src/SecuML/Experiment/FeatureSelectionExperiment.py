@@ -70,7 +70,7 @@ class FeatureSelectionExperiment(DimensionReductionExperiment):
         return parser
 
     def webTemplate(self):
-        return 'DimensionReduction/projection.html'
+        return 'DimensionReduction/feature_selection.html'
 
     def setExperimentFromArgs(self, args):
         self.setFeaturesFilenames(args.features_files)

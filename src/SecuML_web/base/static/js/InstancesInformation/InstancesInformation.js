@@ -163,7 +163,7 @@ function selectSuggestedFamily(label, family) {
 
 function updateInstanceLabel(selected_id) {
     var query = buildQuery('getLabel',
-                           [inst_exp_label_id, selected_id]);
+                           [inst_exp_id, selected_id]);
     jQuery.getJSON(query, function(data){
       if (Object.keys(data).length == 2) {
         var label = data.label;

@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -37,8 +37,9 @@ class ConfusionMatrix(object):
         self.confusion_matrix = np.zeros((2, 2))
 
     def addFold(self, true_labels, predicted_labels):
-        conf_matrix = confusion_matrix(true_labels, predicted_labels, [True, False])
-        self.confusion_matrix += conf_matrix
+        if len(predicted_labels) > 0:
+            conf_matrix = confusion_matrix(true_labels, predicted_labels, [True, False])
+            self.confusion_matrix += conf_matrix
 
     def getTruePositives(self):
         return self.confusion_matrix[0][0]

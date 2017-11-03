@@ -22,7 +22,7 @@ class QueryStrategy(object):
 
     def __init__(self, iteration):
         self.iteration = iteration
-        self.conf      = self.iteration.experiment.conf
+        self.conf      = self.iteration.conf
 
     @abc.abstractmethod
     def generateAnnotationQueries(self):

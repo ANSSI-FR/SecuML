@@ -22,11 +22,21 @@ from SecuML import db_tables
 from SecuML.Experiment import experiment_db_tools
 from SecuML.Experiment import ExperimentFactory
 
-from SecuML.Experiment.FeatureSelectionExperiment import FeatureSelectionExperiment
-
 def updateCurrentExperiment(experiment_id):
     experiment = ExperimentFactory.getFactory().fromJson(experiment_id, session)
     return experiment
+
+@app.route('/SecuML/')
+def secumlMenu():
+    return render_template('main_menu.html')
+
+@app.route('/SecuML/<project>/menu/')
+def projectMenu(project):
+    return render_template('project_menu.html')
+
+@app.route('/SecuML/<project>/<dataset>/menu/')
+def datasetMenu(project, dataset):
+    return render_template('dataset_menu.html')
 
 @app.route('/SecuML/<project>/<dataset>/<exp_type>/menu/')
 def expMenu(project, dataset, exp_type):
@@ -36,6 +46,16 @@ def expMenu(project, dataset, exp_type):
 def getExperiment(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
     return render_template(experiment.webTemplate(), project = experiment.project)
+
+@app.route('/getProjects/')
+def getProjects():
+    projects = db_tables.getProjects(session)
+    return jsonify({'projects': projects})
+
+@app.route('/getDatasets/<project>/')
+def getDatasets(project):
+    datasets = db_tables.getDatasets(session, project)
+    return jsonify({'datasets': datasets})
 
 @app.route('/hasTrueLabels/<experiment_id>/')
 def hasTrueLabels(experiment_id):
@@ -61,6 +81,11 @@ def getExperimentsNames(project, dataset, exp_kind):
     experiments = experiment_db_tools.getExperiments(session, project, dataset, exp_kind)
     return jsonify(experiments)
 
+@app.route('/getAllExperiments/<project>/<dataset>/')
+def getAllExperiments(project, dataset):
+    experiments = experiment_db_tools.getAllExperiments(session, project, dataset)
+    return jsonify(experiments)
+
 @app.route('/getExperimentLabelId/<experiment_id>/')
 def getExperimentLabelId(experiment_id):
     experiment_label_id = experiment_db_tools.getExperimentLabelId(session, experiment_id)
@@ -70,14 +95,10 @@ def getExperimentLabelId(experiment_id):
 def getExperimentName(experiment_id):
     return experiment_db_tools.getExperimentName(session, experiment_id)
 
-
-
-
 @app.route('/getDescriptiveStatsExp/<experiment_id>/')
 def getDescriptiveStatsExp(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
     return str(experiment_db_tools.getDescriptiveStatsExp(experiment.session, experiment))
-
 
 @app.route('/SecuML/<experiment_id>/<feature>/')
 def getDescriptiveStatsExperiment(experiment_id, feature):

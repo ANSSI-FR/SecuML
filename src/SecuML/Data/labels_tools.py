@@ -17,7 +17,9 @@
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import func
 
-from SecuML.db_tables import LabelsAlchemy, TrueLabelsAlchemy
+from SecuML.db_tables import ExperimentsLabelsAlchemy
+from SecuML.db_tables import LabelsAlchemy
+from SecuML.db_tables import TrueLabelsAlchemy
 
 MALICIOUS = 'malicious'
 BENIGN    = 'benign'
@@ -31,14 +33,30 @@ def labelBooleanToString(label):
 def labelStringToBoolean(label):
     return label == MALICIOUS
 
-def getLabel(session, instance_id, labels_id):
-    query = session.query(LabelsAlchemy)
-    query = query.filter(LabelsAlchemy.instance_id == instance_id)
-    query = query.filter(LabelsAlchemy.labels_id == labels_id)
-    try:
+def getLabel(session, instance_id, experiment_id):
+    query = session.query(ExperimentsLabelsAlchemy)
+    query = query.filter(ExperimentsLabelsAlchemy.experiment_id == experiment_id)
+    res = query.one()
+    labels_type = res.labels_type
+    labels_id   = res.labels_id
+    dataset_id  = res.experiment.dataset_id
+
+    if labels_type == 'partial_labels':
+        query = session.query(LabelsAlchemy)
+        query = query.filter(LabelsAlchemy.instance_id == instance_id)
+        query = query.filter(LabelsAlchemy.labels_id == labels_id)
+        try:
+            res = query.one()
+            return res.label, res.family
+        except NoResultFound:
+            return None
+    elif labels_type == 'true_labels':
+        query = session.query(TrueLabelsAlchemy)
+        query = query.filter(TrueLabelsAlchemy.dataset_id == dataset_id)
+        query = query.filter(TrueLabelsAlchemy.instance_id == instance_id)
         res = query.one()
         return res.label, res.family
-    except NoResultFound:
+    else:
         return None
 
 def getLabelDetails(experiment, instance_id):

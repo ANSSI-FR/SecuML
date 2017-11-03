@@ -17,6 +17,7 @@
 import ActiveLearningConfFactory
 from ActiveLearningConfiguration import ActiveLearningConfiguration
 from SecuML.ActiveLearning.QueryStrategies.UncertaintySampling import UncertaintySampling
+from SecuML.ActiveLearning.QueryStrategies.UncertaintySamplingExp import UncertaintySamplingExp
 from SecuML.Classification.Configuration import ClassifierConfFactory
 from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 
@@ -35,6 +36,9 @@ class UncertaintySamplingConfiguration(ActiveLearningConfiguration):
 
     def getStrategy(self, iteration):
         return UncertaintySampling(iteration)
+
+    def getStrategyExp(self, iteration):
+        return UncertaintySamplingExp(iteration)
 
     def generateSuffix(self):
         suffix  = ''

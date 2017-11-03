@@ -34,4 +34,4 @@ class RandomForest(Classifier):
                 max_leaf_nodes = self.conf.max_leaf_nodes,
                 min_impurity_split = self.conf.min_impurity_decrease,
                 bootstrap = self.conf.bootstrap,
-                oob_score= self.conf.oob_score))])
+                oob_score = self.conf.oob_score))])

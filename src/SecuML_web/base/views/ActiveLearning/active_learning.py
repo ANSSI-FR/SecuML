@@ -25,6 +25,7 @@ from SecuML_web.base.views.experiments import updateCurrentExperiment
 from SecuML.ActiveLearning.Iteration import Iteration
 from SecuML.Data import labels_tools
 from SecuML.Experiment.ActiveLearningExperiment import ActiveLearningExperiment
+from SecuML.Experiment.RareCategoryDetectionExperiment import RareCategoryDetectionExperiment
 from SecuML.Plots.BarPlot import BarPlot
 from SecuML.Plots.PlotDataset import PlotDataset
 from SecuML.Tools import colors_tools
@@ -91,7 +92,8 @@ def getIterationSupervisedExperiment(experiment_id, iteration):
     binary_multiclass = 'multiclass'
     if 'binary' in experiment.conf.models_conf.keys():
         binary_multiclass = 'binary'
-    models_exp_file = active_learning.output_directory + 'models_experiments.json'
+    models_exp_file = experiment.getOutputDirectory()
+    models_exp_file += str(iteration) + '/models_experiments.json'
     with open(models_exp_file, 'r') as f:
         models_exp = json.load(f)
     return str(models_exp[binary_multiclass])

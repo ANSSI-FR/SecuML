@@ -17,6 +17,7 @@
 import ActiveLearningConfFactory
 from ActiveLearningConfiguration import ActiveLearningConfiguration
 from SecuML.ActiveLearning.QueryStrategies.RandomSampling import RandomSampling
+from SecuML.ActiveLearning.QueryStrategies.RandomSamplingExp import RandomSamplingExp
 from SecuML.Classification.Configuration import ClassifierConfFactory
 from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 
@@ -35,6 +36,9 @@ class RandomSamplingConfiguration(ActiveLearningConfiguration):
 
     def getStrategy(self, iteration):
         return RandomSampling(iteration)
+
+    def getStrategyExp(self, iteration):
+        return RandomSamplingExp(iteration)
 
     def generateSuffix(self):
         suffix  = ''

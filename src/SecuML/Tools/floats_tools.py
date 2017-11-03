@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -19,3 +19,15 @@ import sys
 
 def floatEquality(v1, v2):
     return math.fabs(v1 - v2) < sys.float_info.epsilon
+
+def toPercentage(x):
+    if math.isnan(x):
+        return str(x)
+    else:
+        return str(int(x*10000)/100) + '%'
+
+def trunc(x):
+    if math.isnan(x):
+        return x
+    else:
+        return int(x*10000)/10000

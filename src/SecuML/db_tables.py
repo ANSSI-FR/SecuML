@@ -169,6 +169,20 @@ def addProject(session, project):
     session.commit()
     return project.id
 
+def getProjects(session):
+    query = session.query(ProjectsAlchemy)
+    res = query.all()
+    return [r.project for r in res]
+
+def getDatasets(session, project):
+    project_id = checkProject(session, project)
+    if project_id is None:
+        return []
+    query = session.query(DatasetsAlchemy)
+    query = query.filter(DatasetsAlchemy.project_id == project_id)
+    res = query.all()
+    return [r.dataset for r in res]
+
 def checkDataset(session, project_id, dataset):
     query = session.query(DatasetsAlchemy)
     query = query.filter(DatasetsAlchemy.project_id == project_id)

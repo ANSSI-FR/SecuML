@@ -94,20 +94,6 @@ class Cluster(object):
             c_e_r['r'] = []
         return c_e_r
 
-    def getClusterLabelsFamilies(self, session, label_experiment_id):
-        labels_family = labels_tools.getLabelsFamilies(session, label_experiment_id, self.instances_ids)
-        return labels_family
-
-    def getClusterLabelFamilyIds(self, label, family, session, experiment_label_id):
-        if label == 'unknown' and (family is None or family == 'unknown'):
-            ids = labels_tools.getUnlabeledIds(session, experiment_label_id,
-                    instance_ids = self.instances_ids)
-        else:
-            ids = labels_tools.getLabelFamilyIds(session,
-                    experiment_label_id, label, family,
-                    instance_ids = self.instances_ids)
-        return ids
-
     def toJson(self, drop_instances = None):
         obj = {}
         if drop_instances is None:
@@ -153,3 +139,17 @@ class Cluster(object):
             return random.sample(instances, num_instances)
         else:
             raise ValueError('Invalid argument value c_e_r %s' % (c_e_r))
+
+    def getClusterLabelsFamilies(self, session, label_experiment_id):
+        labels_family = labels_tools.getLabelsFamilies(session, label_experiment_id, self.instances_ids)
+        return labels_family
+
+    def getClusterLabelFamilyIds(self, label, family, session, experiment_label_id):
+        if label == 'unknown' and (family is None or family == 'unknown'):
+            ids = labels_tools.getUnlabeledIds(session, experiment_label_id,
+                    instance_ids = self.instances_ids)
+        else:
+            ids = labels_tools.getLabelFamilyIds(session,
+                    experiment_label_id, label, family,
+                    instance_ids = self.instances_ids)
+        return ids

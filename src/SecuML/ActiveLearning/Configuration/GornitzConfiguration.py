@@ -17,6 +17,7 @@
 import ActiveLearningConfFactory
 from ActiveLearningConfiguration import ActiveLearningConfiguration
 from SecuML.ActiveLearning.QueryStrategies.Gornitz import Gornitz
+from SecuML.ActiveLearning.QueryStrategies.GornitzExp import GornitzExp
 from SecuML.Classification.Configuration import ClassifierConfFactory
 from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 
@@ -46,6 +47,9 @@ class GornitzConfiguration(ActiveLearningConfiguration):
 
     def getStrategy(self, iteration):
         return Gornitz(iteration)
+
+    def getStrategyExp(self, iteration):
+        return GornitzExp(iteration)
 
     def generateSuffix(self):
         suffix  = ''

@@ -56,7 +56,7 @@ class AnnotationQuery(object):
         family    = instances.getFamily(self.instance_id, true_labels = True)
         # Update the datasets
         self.updateDatasets(iteration, label, family)
-        # Update in the database
+        # Update in the database              ## TODO: only in experiments
         method    = kind + '__annotation'
         labels_tools.addLabel(iteration.experiment.session,
                               iteration.experiment.labels_id,

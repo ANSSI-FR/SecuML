@@ -17,6 +17,7 @@
 import ActiveLearningConfFactory
 from ActiveLearningConfiguration import ActiveLearningConfiguration
 from SecuML.ActiveLearning.QueryStrategies.CesaBianchi import CesaBianchi
+from SecuML.ActiveLearning.QueryStrategies.CesaBianchiExp import CesaBianchiExp
 from SecuML.Classification.Configuration import ClassifierConfFactory
 from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 
@@ -36,6 +37,9 @@ class CesaBianchiConfiguration(ActiveLearningConfiguration):
 
     def getStrategy(self, iteration):
         return CesaBianchi(iteration)
+
+    def getStrategyExp(self, iteration):
+        return CesaBianchiExp(iteration)
 
     def generateSuffix(self):
         suffix  = ''

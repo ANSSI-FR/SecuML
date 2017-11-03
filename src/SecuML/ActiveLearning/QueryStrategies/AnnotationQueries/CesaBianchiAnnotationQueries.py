@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -36,8 +36,11 @@ class CesaBianchiAnnotationQueries(AnnotationQueries):
         proba  = [self.b / (self.b + abs(s)) for s in predicted_scores]
         sum_proba = sum(proba)
         norm_proba = [p/sum_proba for p in proba]
-        selected_instance_ids = list(np.random.choice(instances, size = self.num_annotations,
-            replace = False, p = norm_proba))
+        if len(instances) < self.num_annotations:
+            selected_instance_ids = instances
+        else:
+            selected_instance_ids = list(np.random.choice(instances, size = self.num_annotations,
+                replace = False, p = norm_proba))
         selected_df = self.predictions.loc[selected_instance_ids]
         for index, row in selected_df.iterrows():
             query = AnnotationQuery(index, row['predicted_proba'], None, None)

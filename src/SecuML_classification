@@ -25,7 +25,8 @@ if __name__ == '__main__':
 
     parser = ClassificationExperiment.generateParser()
     args = parser.parse_args()
-    experiment = ClassificationExperiment(args.project, args.dataset, None)
+    experiment = ClassificationExperiment(args.project, args.dataset, None,
+                                          experiment_name = args.exp_name)
     experiment.setExperimentFromArgs(args)
     experiment.run()
     experiment.closeSession()

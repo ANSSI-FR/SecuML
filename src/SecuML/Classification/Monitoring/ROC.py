@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -26,11 +26,14 @@ class ROC(object):
     def __init__(self, num_folds, conf):
         self.mean_tpr = 0.0
         self.mean_fpr = np.linspace(0, 1, 100)
+        self.thresholds = None
         self.fig, (self.ax1) = plt.subplots(1, 1)
         self.probabilist_model = conf.probabilistModel()
         self.num_folds = num_folds
 
     def addFold(self, fold_id, true_labels, predicted_proba, predicted_scores):
+        if len(true_labels) == 0:
+            return
         if self.probabilist_model:
             scores = predicted_proba
         else:
@@ -57,10 +60,10 @@ class ROC(object):
     def plot(self, output_file):
         self.ax1.plot([0, 1], [0, 1], '--', lw = 1,
                 color = (0.6, 0.6, 0.6), label = 'Luck')
-        self.mean_tpr /= self.num_folds
-        self.mean_tpr[-1] = 1.0
-        mean_auc = auc(self.mean_fpr, self.mean_tpr)
         if self.num_folds > 1:
+            self.mean_tpr /= self.num_folds
+            self.mean_tpr[-1] = 1.0
+            mean_auc = auc(self.mean_fpr, self.mean_tpr)
             self.ax1.plot(self.mean_fpr, self.mean_tpr, 'k--',
                      label = 'Mean ROC (area = %0.2f)' % mean_auc, lw = 2)
         self.ax1.set_xlim([-0.05, 1.05])
@@ -75,5 +78,7 @@ class ROC(object):
     def toCsv(self, output_file):
         with open(output_file, 'w') as f:
             print >>f, 'Threshold,False Alarm Rate,Detection Rate'
+            if self.thresholds is None: # The ROC is not defined
+                return
             for i in range(len(self.mean_fpr)):
                 print >>f, str(self.thresholds[i]) + ',' + str(self.mean_fpr[i]) + ',' + str(self.mean_tpr[i])

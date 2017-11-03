@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import roc_curve, auc, precision_recall_fscore_support, accuracy_score
+
+from SecuML.Tools import floats_tools
 
 # The thresholds are considered only for probabilist models
 
@@ -49,10 +51,13 @@ class BinaryPerfIndicators(object):
 
     def addAuc(self, fold_id, true_labels, predicted_proba, predicted_scores):
         scores = predicted_proba if self.probabilist_model else predicted_scores
-        fpr, tpr, thresholds = roc_curve(true_labels, scores)
-        roc_auc = auc(fpr, tpr)
-        if math.isnan(roc_auc):
+        if len(true_labels) == 0:
             roc_auc = 0
+        else:
+            fpr, tpr, thresholds = roc_curve(true_labels, scores)
+            roc_auc = auc(fpr, tpr)
+            if math.isnan(roc_auc):
+                roc_auc = 0
         self.fold_auc[fold_id] = roc_auc
 
     def addProbabilistFold(self, fold_id, true_labels, predicted_proba, threshold = None):
@@ -63,9 +68,13 @@ class BinaryPerfIndicators(object):
             predicted_labels = np.array(predicted_proba) > threshold / 100
             precision, recall, f_score, _ = precision_recall_fscore_support(true_labels, predicted_labels,
                                                                             average = 'binary')
-            conf_matrix = confusion_matrix(true_labels, predicted_labels, [True, False])
-            fp = conf_matrix[1][0]
-            tn = conf_matrix[1][1]
+            if len(predicted_labels) == 0:
+                fp = 0
+                tn = 0
+            else:
+                conf_matrix = confusion_matrix(true_labels, predicted_labels, [True, False])
+                fp = conf_matrix[1][0]
+                tn = conf_matrix[1][1]
             fp_tn = fp + tn
             if fp_tn == 0:
                 false_alarm_rate = 0
@@ -77,9 +86,13 @@ class BinaryPerfIndicators(object):
         precision, recall, f_score, _ = precision_recall_fscore_support(true_labels, predicted_labels,
                                                                         average = 'binary')
         accuracy = accuracy_score(true_labels, predicted_labels)
-        conf_matrix = confusion_matrix(true_labels, predicted_labels, [True, False])
-        fp = conf_matrix[1][0]
-        tn = conf_matrix[1][1]
+        if len(predicted_labels) == 0:
+                fp = 0
+                tn = 0
+        else:
+            conf_matrix = confusion_matrix(true_labels, predicted_labels, [True, False])
+            fp = conf_matrix[1][0]
+            tn = conf_matrix[1][1]
         fp_tn = fp + tn
         if fp_tn == 0:
             false_alarm_rate = 0
@@ -185,7 +198,6 @@ class BinaryPerfIndicators(object):
         else:
             for v in self.perf_threshold_summary.index:
                 perf[v] = {}
-                perf[v]['mean'] = str(int(self.perf_threshold_summary.loc[v, 'mean']*10000)/100)
-                perf[v]['mean'] += '%'
-                perf[v]['std']  = int(self.perf_threshold_summary.loc[v, 'std']*10000)/10000
+                perf[v]['mean'] = floats_tools.toPercentage(self.perf_threshold_summary.loc[v, 'mean'])
+                perf[v]['std']  = floats_tools.trunc(self.perf_threshold_summary.loc[v, 'std'])
         json.dump(perf, f, indent = 2)

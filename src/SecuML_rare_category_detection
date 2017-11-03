@@ -19,7 +19,6 @@
 import matplotlib
 matplotlib.use('Agg')
 
-from SecuML.ActiveLearning.ActiveLearning import ActiveLearning
 from SecuML.Experiment.RareCategoryDetectionExperiment \
         import RareCategoryDetectionExperiment
 
@@ -28,26 +27,9 @@ if __name__ == '__main__':
     parser = RareCategoryDetectionExperiment.generateParser()
     args = parser.parse_args()
 
-    experiment = RareCategoryDetectionExperiment(args.project, args.dataset, None)
+    experiment = RareCategoryDetectionExperiment(args.project, args.dataset, None,
+                                                 experiment_name = args.exp_name)
     experiment.setExperimentFromArgs(args)
 
-    iterations = ActiveLearning(experiment)
-    if not args.auto:
-        from CeleryApp.app import secumlworker
-        from CeleryApp.activeLearningTasks import IterationTask
-
-        options = {
-            # 'loglevel': 'DEBUG',
-            # 'traceback': True,
-            }
-        # bind iterations object to IterationTask class
-        iterations.runNextIteration()
-        IterationTask.iteration_object = iterations
-
-        # Start worker
-        secumlworker.enable_config_fromcmdline = False
-        secumlworker.run(**options)
-    else:
-        iterations.runIterations()
-
+    experiment.run()
     experiment.closeSession()

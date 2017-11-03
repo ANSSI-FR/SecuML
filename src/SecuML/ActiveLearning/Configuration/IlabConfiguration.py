@@ -18,6 +18,7 @@ import ActiveLearningConfFactory
 from ActiveLearningConfiguration import ActiveLearningConfiguration
 from RareCategoryDetectionStrategy import RareCategoryDetectionStrategy
 from SecuML.ActiveLearning.QueryStrategies.Ilab import Ilab
+from SecuML.ActiveLearning.QueryStrategies.IlabExp import IlabExp
 from SecuML.Classification.Configuration import ClassifierConfFactory
 from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 
@@ -39,6 +40,9 @@ class IlabConfiguration(ActiveLearningConfiguration):
 
     def getStrategy(self, iteration):
         return Ilab(iteration)
+
+    def getStrategyExp(self, iteration):
+        return IlabExp(iteration)
 
     def generateSuffix(self):
         suffix = ''

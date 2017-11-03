@@ -51,15 +51,13 @@ class Pca(UnsupervisedProjection):
 
 
 
-
-
-
     def exportFit(self, experiment, instances):
         UnsupervisedProjection.exportFit(self, experiment, instances)
         self.exportExplainedVariance(experiment)
         self.exportCumuledExplainedVariance(experiment)
 
     def exportTransform(self, experiment, instances, projected_instances):
+        UnsupervisedProjection.exportTransform(self, experiment, instances, projected_instances)
         self.exportReconstructionErrors(experiment, instances, projected_instances)
 
     ######################

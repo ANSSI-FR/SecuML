@@ -14,10 +14,7 @@
 ## You should have received a copy of the GNU General Public License along
 ## with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML_web.base import session
-
 from SecuML.config import INPUTDATA_DIR
-from SecuML.Experiment import experiment_db_tools
 
 def getInstance(experiment, view_id, instance_id, ident):
     dataset = experiment.dataset

@@ -55,8 +55,8 @@ class ClusteringAlgorithm(object):
     def export(self, output_directory, quick = False, drop_annotated_instances = False):
         self.clustering = Clustering(self.instances, self.getAssignedClusters(),
                                      clustering_algo = self)
-        self.clustering.generateClustering(output_directory,
-                                           self.getAllProba(),
+        self.clustering.generateClustering(self.getAllProba(),
                                            self.getCentroids(),
                                            drop_annotated_instances = drop_annotated_instances)
+        self.clustering.export(output_directory)
         self.clustering.generateEvaluation(output_directory, quick = quick)

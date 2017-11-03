@@ -16,6 +16,9 @@
 
 from flask import send_file
 
+from SecuML.Experiment.FeatureSelectionExperiment import FeatureSelectionExperiment
+from SecuML.Experiment.ProjectionExperiment import ProjectionExperiment
+
 from SecuML_web.base import app
 from SecuML_web.base.views.experiments import updateCurrentExperiment
 

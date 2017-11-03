@@ -26,7 +26,8 @@ if __name__ == '__main__':
     parser = ClusteringExperiment.generateParser()
     args = parser.parse_args()
     experiment = ClusteringExperiment(args.project, args.dataset,
-                                      None, None)
+                                      None, None,
+                                      experiment_name = args.exp_name)
     experiment.setExperimentFromArgs(args)
     experiment.run(None, args.label)
     experiment.closeSession()

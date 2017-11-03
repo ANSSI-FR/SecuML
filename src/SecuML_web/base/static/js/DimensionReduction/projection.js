@@ -87,15 +87,28 @@ function displaySettings(conf) {
   addRow(body, ['Projection', projection_type]);
 }
 
+function generateTitle(conf) {
+  var main = $('#row_title')[0];
+  var div = createDivWithClass(null, 'page-header', parent_div = main);
+  var h1 = document.createElement('h1');
+  h1.textContent = 'Projection - ' + conf.conf.algo;
+  div.appendChild(h1);
+}
+
+
 function generateDivisions(conf) {
+  generateTitle(conf);
+
   var main = document.getElementById('main');
-  // Experiment
-  var row = createDivWithClass(null, 'col-md-12', main);
-  var experiment = createExperimentDiv('col-md-3', row);
 
   //// Visu
   // 1st row: Select components , instances in bin and projected instances
   var row = createDivWithClass(null, 'col-md-12', main);
+
+  var col0 = createDivWithClass(null, 'col-md-3', row);
+  var experiment = createExperimentDiv('row', col0);
+  var projection_error = createDivWithClass('projection_error', 'row', col0);
+
   //// Select Components
   var col1 = createDivWithClass(null, 'col-md-3', row);
   var select_components = createPanel('panel-primary', null, 'Select the Components', col1);
@@ -106,10 +119,10 @@ function generateDivisions(conf) {
   var selector_ok = createSelectList('instances_selector_ok', 5, null, col_ok, label = 'Ok');
   var col_ko = createDivWithClass(null, 'col-md-6', instances_in_bin);
   var selector_ko = createSelectList('instances_selector_malicious', 5, null, col_ko, label = 'Malicious');
+
   //// Projected Data
   var projected_data_graph = createPanel('panel-primary', 'col-md-6', 'Projected Instances',row);
   projected_data_graph.setAttribute('id', 'projected_data_graph');
-  var projection_error = createDivWithClass('projection_error', 'col-md-3', row);
 
   // 2nd row: Selected instance - data and annotation
   var row = createDivWithClass(null, 'col-md-12', main);

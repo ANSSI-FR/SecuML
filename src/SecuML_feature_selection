@@ -26,7 +26,8 @@ if __name__ == '__main__':
     parser = FeatureSelectionExperiment.generateParser()
     args = parser.parse_args()
 
-    experiment = FeatureSelectionExperiment(args.project, args.dataset, None)
+    experiment = FeatureSelectionExperiment(args.project, args.dataset, None,
+                                            experiment_name = args.exp_name)
     experiment.setExperimentFromArgs(args)
     experiment.run()
     experiment.closeSession()

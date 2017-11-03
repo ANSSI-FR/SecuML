@@ -88,7 +88,7 @@ def getClusterLabelsFamilies(experiment_id, selected_cluster):
     selected_cluster = int(selected_cluster)
     experiment = updateCurrentExperiment(experiment_id)
     clustering = Clustering.fromJson(experiment)
-    labels_families = clustering.getClusterLabelsFamilies(selected_cluster)
+    labels_families = clustering.getClusterLabelsFamilies(selected_cluster, experiment)
     return jsonify(labels_families)
 
 @app.route('/getClusterLabelFamilyIds/<experiment_id>/<selected_cluster>/<label>/<family>/<num_results>/')

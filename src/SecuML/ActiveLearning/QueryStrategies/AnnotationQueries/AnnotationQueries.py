@@ -43,10 +43,11 @@ class AnnotationQueries(object):
         return
 
     def getPredictedProbabilities(self):
-        models_conf = self.iteration.experiment.conf.models_conf
+        models_conf = self.iteration.conf.models_conf
         if 'binary' in models_conf:
-            classifier = self.iteration.train_test_validation.models['binary']
+            classifier = self.iteration.update_model.models['binary']
             predictions = classifier.testing_monitoring.predictions_monitoring.predictions
+
         else:
             test_instances = self.iteration.datasets.getTestInstances()
             num_instances  = test_instances.numInstances()
@@ -61,7 +62,10 @@ class AnnotationQueries(object):
         return predictions
 
     def exportAnnotationQueries(self):
-        filename  = self.iteration.output_directory
+        iteration_dir = self.iteration.iteration_dir
+        if iteration_dir is None:
+            return
+        filename  = iteration_dir
         filename += 'toannotate_' + self.label + '.csv'
         with open(filename, 'w') as f:
             for i, annotation_query in enumerate(self.annotation_queries):

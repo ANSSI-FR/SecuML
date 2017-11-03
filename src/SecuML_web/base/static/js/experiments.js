@@ -6,9 +6,16 @@ var exp_type = path[4];
 var menu = $('#menu')[0];
 
 var title = $('#title')[0];
-title.appendChild(document.createTextNode(project + ' ' + dataset));
+title.appendChild(document.createTextNode(
+    project + ' - ' + dataset + ' - ' + exp_type));
+var panel = createPanel('panel-primary', null,
+                        'Select an experiment', menu);
 
-var ul = document.createElement('ul');
+
+var div = document.createElement('div');
+div.setAttribute('class', 'list-group');
+panel.appendChild(div);
+
 var query = buildQuery('getExperimentsNames',
                 [project, dataset, exp_type]);
 $.getJSON(query,
@@ -19,15 +26,18 @@ $.getJSON(query,
                 var ids = data[experiment];
                 for (var i = 0; i < ids.length; i++) {
                   var id = ids[i];
-                  var li = document.createElement('li');
-                  var e_elem = document.createElement('a');
-                  var e_text = document.createTextNode(experiment);
-                  e_elem.appendChild(e_text);
+                  var li = document.createElement('a');
+                  li.setAttribute('class', 'list-group-item');
+                  var exp_name = experiment;
+                  if (exp_name.length > 150) {
+                      exp_name = exp_name.substring(0, 150) + '...';
+                  }
+                  exp_name = id + ', ' + exp_name;
+                  li.appendChild(document.createTextNode(exp_name));
                   var exp_query = buildQuery('SecuML', [id]);
-                  e_elem.setAttribute('href', exp_query);
-                  li.appendChild(e_elem);
-                  ul.appendChild(li);
+                  li.setAttribute('href', exp_query);
+                  div.appendChild(li);
                 }
             }
-          });
-menu.appendChild(ul);
+          }
+);

@@ -4,17 +4,15 @@ The instances are clustered into a number of clusters specified by the user. The
 
     ./SecuML_clustering <project> <dataset> <algo> --num-clusters <num_clusters>
 
-To display the available clustering algorithms:
+## Clustering Algorithms Available
+* Kmeans
+* GaussiansMixture
 
-	./SecuML_clustering -h
+## Help
 
 For more information about the available options for a given clustering algorithm:
 
 	./SecuML_clustering <project> <dataset> <algo> -h
 
-Web interface to display the results:
-
-    http://localhost:5000/SecuML/<project>/<dataset>/Clustering/menu/
-
-## Interface
+## Graphical User Interface
 ![Clustering](/doc/images/clustering.png)

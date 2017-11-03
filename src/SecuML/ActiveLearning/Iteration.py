@@ -16,12 +16,11 @@
 
 import time
 
-from SecuML.db_tables import ExperimentsAlchemy
 from SecuML.Tools import dir_tools
 
 from Monitoring.Monitoring import Monitoring
 from QueryStrategies.AnnotationQueries.AnnotationQuery import NoAnnotationBudget
-from TrainTestValidation import TrainTestValidation
+from UpdateModel import UpdateModel
 
 class NoLabelAdded(Exception):
     def __str__(self):
@@ -29,32 +28,31 @@ class NoLabelAdded(Exception):
 
 class Iteration(object):
 
-    def __init__(self, experiment, iteration_number,
+    def __init__(self, conf, iteration_number,
                  datasets = None,
                  previous_iteration = None,
-                 budget = None):
+                 budget = None,
+                 output_dir = None):
         self.previous_iteration = previous_iteration
-        self.experiment = experiment
+        self.conf = conf
         self.datasets = datasets
         self.budget = budget
-        self.setIterationNumber(iteration_number)
-        self.setOutputDirectory()
-
-    def setIterationNumber(self, iteration_number):
         self.iteration_number = iteration_number
-        if self.iteration_number is None:
-            previous_iter = self.experiment.getCurrentIteration()
-            self.iteration_number = previous_iter + 1
+        self.setOutputDirectory(output_dir)
 
-    def setOutputDirectory(self):
-        self.AL_directory = self.experiment.getOutputDirectory()
-        self.output_directory  = self.AL_directory
-        self.output_directory += str(self.iteration_number) + '/'
+    def setOutputDirectory(self, output_dir):
+        self.al_dir = output_dir
+        self.iteration_dir = None
+        if self.al_dir is not None:
+            self.iteration_dir  = self.al_dir
+            self.iteration_dir += str(self.iteration_number) + '/'
+            dir_tools.createDirectory(self.iteration_dir)
 
     def runIteration(self):
         print '\n\n%%%%%%%%%%%%%% Iteration ', self.iteration_number
         start = time.time()
         self.initializeMonitoring()
+        self.updateModel()
         self.generateAnnotationQueries()
         self.answerAnnotationQueries()
         self.global_execution_time = time.time() - start
@@ -62,36 +60,19 @@ class Iteration(object):
         return self.budget
 
     def generateAnnotationQueries(self):
-        query = self.experiment.session.query(ExperimentsAlchemy)
-        query = query.filter(ExperimentsAlchemy.id == self.experiment.experiment_id)
-        exp_db = query.one()
-        self.trainTestValidation()
-        exp_db.current_iter = self.iteration_number
-        self.experiment.session.commit()
-        self.annotations = self.experiment.conf.getStrategy(self)
+        self.annotations = self.conf.getStrategy(self)
         self.annotations.generateAnnotationQueries()
-        exp_db.annotations = True
-        self.experiment.session.commit()
 
     def initializeMonitoring(self):
         if self.previous_iteration is not None:
             self.previous_iteration.finalComputations()
-        dir_tools.createDirectory(self.output_directory)
-        self.monitoring = Monitoring(self.datasets, self.experiment,
-                                     self,
-                                     self.experiment.conf.validation_conf is not None)
+        self.monitoring = Monitoring(self,
+                                     self.conf.validation_conf is not None,
+                                     self.al_dir, self.iteration_dir)
         self.monitoring.generateStartMonitoring()
 
-    def answerAnnotationQueries(self):
-        if self.experiment.conf.auto:
-            try:
-                self.annotateAuto()
-            except (NoAnnotationBudget) as e:
-                print e
-                pass
-
     def finalComputations(self):
-        if not self.experiment.conf.auto:
+        if not self.conf.auto:
             try:
                 self.updateLabeledInstances()
             except (NoAnnotationBudget) as e:
@@ -100,29 +81,21 @@ class Iteration(object):
         self.monitoring.generateEndMonitoring()
         self.checkAddedLabels()
 
-    def trainTestValidation(self):
-        self.train_test_validation = TrainTestValidation(self)
-        self.train_test_validation.run()
+    def updateModel(self):
+        self.update_model = UpdateModel(self)
+        self.update_model.run()
         self.monitoring.generateModelPerformanceMonitoring()
 
-    def annotateAuto(self):
-        self.datasets.new_labels = False
-        self.annotations.annotateAuto()
+    def answerAnnotationQueries(self):
+        try:
+            self.datasets.new_labels = False
+            self.annotations.annotateAuto()
+        except (NoAnnotationBudget) as e:
+            print e
+            pass
 
     ## Raise the exception NoLabelAdded if no new label
     ## was added during the current iteration
     def checkAddedLabels(self):
         if not self.datasets.new_labels:
             raise NoLabelAdded()
-
-    def updateLabeledInstances(self):
-        self.datasets.new_labels = False
-        # Update the datasets according to the new labels
-        self.experiment.session.commit()
-        self.datasets.checkLabelsWithDB(self.experiment)
-        self.annotations.getManualAnnotations()
-        # Save the current labelled instances
-        self.datasets.saveLabeledInstances(self.iteration_number)
-
-    def checkAnnotationQueriesAnswered(self):
-        return self.annotations.checkAnnotationQueriesAnswered()

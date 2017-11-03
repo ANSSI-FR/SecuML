@@ -225,7 +225,22 @@ function displayInstancesInOneSelector(selected_cluster, c_e_r) {
 /////////////////////////////////////////
 /////////////////////////////////////////
 
+function generateTitle(conf) {
+  var main = $('#row_title')[0];
+  var div = createDivWithClass(null, 'page-header', parent_div = main);
+  var h1 = document.createElement('h1');
+  if (conf.conf.algo) {
+    h1.textContent = 'Clustering - ' + conf.conf.algo;
+  } else {
+    h1.textContent = 'Clustering';
+  }
+  div.appendChild(h1);
+}
+
+
 function generateClusteringDivisions() {
+  generateTitle(conf);
+
   var main = $('#main')[0];
 
   // First row

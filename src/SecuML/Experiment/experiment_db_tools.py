@@ -130,6 +130,31 @@ def getExperiments(session, project, dataset, exp_kind = None):
         experiments[exp.name].append(exp.id)
     return experiments
 
+def getExperimentKinds(session, dataset_id):
+    query = session.query(ExperimentsAlchemy)
+    query = query.filter(dataset_id == dataset_id)
+    query = query.distinct(ExperimentsAlchemy.kind)
+    kinds = [r.kind for r in query.all()]
+    return kinds
+
+def getAllExperiments(session, project, dataset, exp_kind = None):
+    project_id = db_tables.checkProject(session, project)
+    dataset_id = db_tables.checkDataset(session, project_id, dataset)
+    all_kinds = getExperimentKinds(session, dataset_id)
+    experiments = {}
+    for kind in all_kinds:
+        experiments[kind] = []
+        query = session.query(ExperimentsAlchemy)
+        query = query.filter(ExperimentsAlchemy.dataset_id == dataset_id)
+        query = query.filter(ExperimentsAlchemy.kind == kind)
+        query = query.filter(ExperimentsAlchemy.parent == None)
+        for exp in query.all():
+            e = {'name': exp.name, 'id': exp.id}
+            experiments[kind].append(e)
+        if len(experiments[kind]) == 0:
+            del experiments[kind]
+    return experiments
+
 def getCurrentIteration(session, experiment_id):
     query = session.query(ExperimentsAlchemy)
     query = query.filter(ExperimentsAlchemy.id == experiment_id)

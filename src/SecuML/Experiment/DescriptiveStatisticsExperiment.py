@@ -24,8 +24,9 @@ from InstancesFromExperiment import InstancesFromExperiment
 
 class DescriptiveStatisticsExperiment(Experiment):
 
-    def __init__(self, project, dataset, session):
-        Experiment.__init__(self, project, dataset, session)
+    def __init__(self, project, dataset, session, experiment_name = None):
+        Experiment.__init__(self, project, dataset, session,
+                            experiment_name = experiment_name)
         self.kind = 'DescriptiveStatistics'
 
     def generateSuffix(self):

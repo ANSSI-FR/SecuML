@@ -84,6 +84,7 @@ class ClassifierConfiguration(object):
     def toJson(self):
         conf = {}
         conf['__type__'] = 'ClassifierConfiguration'
+        conf['model_class']          = self.model_class.__name__
         conf['num_folds']            = self.num_folds
         conf['sample_weight']        = self.sample_weight
         conf['test_conf']            = self.test_conf.toJson()

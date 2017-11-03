@@ -1,5 +1,5 @@
 ## SecuML
-## Copyright (C) 2016  ANSSI
+## Copyright (C) 2016-2017  ANSSI
 ##
 ## SecuML is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -22,14 +22,17 @@ from SuggestionsAccuracy         import SuggestionsAccuracy
 
 class Monitoring(object):
 
-    def __init__(self, datasets, experiment, iteration, validation_monitoring):
-        self.datasets = datasets
-        self.experiment = experiment
+    def __init__(self, iteration, validation_monitoring,
+                 al_dir, iteration_dir):
         self.iteration = iteration
+        self.datasets = iteration.datasets
         self.iteration_number = iteration.iteration_number
-        self.setDirectories()
-        self.init()
         self.validation_monitoring = validation_monitoring
+
+        self.al_dir = al_dir
+        self.iteration_dir = iteration_dir
+
+        self.init()
 
     def init(self):
         self.labels_monitoring         = LabelsMonitoring(self)
@@ -37,20 +40,24 @@ class Monitoring(object):
         self.execution_time_monitoring = ExecutionTimeMonitoring(self)
         self.suggestions               = SuggestionsAccuracy(self)
 
-    def setDirectories(self):
-        self.AL_directory = self.experiment.getOutputDirectory()
-        self.iteration_dir  = self.AL_directory
-        self.iteration_dir += str(self.iteration_number) + '/'
-
     def generateStartMonitoring(self):
         self.labels_monitoring.generateMonitoring()
         self.families_monitoring.generateMonitoring()
+        if self.al_dir is not None:
+            self.labels_monitoring.exportMonitoring()
+            self.families_monitoring.exportMonitoring()
 
     def generateModelPerformanceMonitoring(self):
-        self.models_performance = ModelsPerformanceMonitoring(self,
+        self.models_performance = ModelsPerformanceMonitoring(
+                self,
                 self.validation_monitoring)
         self.models_performance.generateMonitoring()
+        if self.al_dir is not None:
+            self.models_performance.exportMonitoring()
 
     def generateEndMonitoring(self):
         self.execution_time_monitoring.generateMonitoring()
         self.suggestions.generateMonitoring()
+        if self.al_dir is not None:
+            self.execution_time_monitoring.exportMonitoring()
+            self.suggestions.exportMonitoring()

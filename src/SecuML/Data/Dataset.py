@@ -16,7 +16,6 @@
 
 import sys
 
-from SecuML.Data import labels_tools
 from SecuML.Tools import dir_tools
 from SecuML.Tools import db_tools
 

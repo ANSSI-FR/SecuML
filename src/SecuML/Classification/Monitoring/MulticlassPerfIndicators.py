@@ -21,6 +21,7 @@ import numpy as np
 from sklearn.metrics import accuracy_score, f1_score
 
 from SecuML.Clustering.Evaluation.PerformanceIndicators import PerformanceIndicators
+from SecuML.Tools import floats_tools
 
 class MulticlassPerfIndicators(object):
 
@@ -54,12 +55,12 @@ class MulticlassPerfIndicators(object):
 
     def toJson(self, f):
         perf = {}
-        perf['accuracy'] = {'mean': str(int(self.accuracy_mean*10000)/100) + '%',
-                'std': int(self.accuracy_std*10000)/10000}
-        perf['f1_micro'] = {'mean': str(int(self.f1_micro_mean*10000)/100) + '%',
-                'std': int(self.f1_micro_std*10000)/10000}
-        perf['f1_macro'] = {'mean': str(int(self.f1_macro_mean*10000)/100) + '%',
-                'std': int(self.f1_macro_std*10000)/10000}
+        perf['accuracy'] = {'mean': floats_tools.toPercentage(self.accuracy_mean),
+                'std': floats_tools.trunc(self.accuracy_std)}
+        perf['f1_micro'] = {'mean': floats_tools.toPercentage(self.f1_micro_mean),
+                'std': floats_tools.trunc(self.f1_micro_std)}
+        perf['f1_macro'] = {'mean': floats_tools.toPercentage(self.f1_macro_mean),
+                'std': floats_tools.trunc(self.f1_macro_std)}
         perf['clustering_perf'] = self.clustering_perf.toJson()
         json.dump(perf, f, indent = 2)
 

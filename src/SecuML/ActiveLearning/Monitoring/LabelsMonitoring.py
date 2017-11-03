@@ -37,54 +37,38 @@ class LabelsMonitoring(object):
 
     def __init__(self, monitoring):
         self.monitoring = monitoring
-        self.createOutputDirectories()
-        self.setOutputFiles()
         self.has_true_labels = self.monitoring.datasets.instances.hasTrueLabels()
 
-    def createOutputDirectories(self):
-        self.output_directory  = self.monitoring.iteration_dir
-        self.output_directory += 'labels_monitoring/'
-        dir_tools.createDirectory(self.output_directory)
-        if self.monitoring.iteration_number == 1:
-            output_directory  = self.monitoring.AL_directory
-            output_directory += 'labels_monitoring/'
-            dir_tools.createDirectory(output_directory)
-
-    def setOutputFiles(self):
-        self.monitoring_file  = self.output_directory
-        self.monitoring_file += 'labels_monitoring.json'
-        self.evolution_file  = self.monitoring.AL_directory
-        self.evolution_file += 'labels_monitoring/labels_monitoring.csv'
-
     def generateMonitoring(self):
-        self.iterationMonitoring()
-        self.evolutionMonitoring()
+        self.labeled_monitoring = LabelsStats()
+        self.labeled_monitoring.loadStats(self)
+        self.unlabeled_monitoring = LabelsStats()
+        self.unlabeled_monitoring.loadStats(self, unlabeled = True)
+        self.families_monitoring = self.generateFamiliesMonitoring()
 
-    def iterationMonitoring(self):
-        self.iterationMonitoringJson()
-        self.displayCsvLine()
+    def exportMonitoring(self):
+        monitoring_dir, evolution_dir = self.getOutputDirectories()
+        evolution_file = evolution_dir + 'labels_monitoring.csv'
+        self.jsonExport(monitoring_dir + 'labels_monitoring.json')
+        self.displayCsvLine(evolution_file)
+        self.plotEvolutionMonitoring(evolution_file, monitoring_dir)
 
-    def evolutionMonitoring(self):
-        self.loadEvolutionMonitoring()
-        self.plotEvolutionMonitoring()
+    def getOutputDirectories(self):
+        monitoring_dir = self.monitoring.iteration_dir + 'labels_monitoring/'
+        dir_tools.createDirectory(monitoring_dir)
+
+        evolution_dir  = self.monitoring.al_dir + 'labels_monitoring/'
+        if self.monitoring.iteration_number == 1:
+            dir_tools.createDirectory(evolution_dir)
+
+        return monitoring_dir, evolution_dir
+
 
     #############################
     #############################
     ##### Private functions #####
     #############################
     #############################
-
-    ##########################
-    ## Iteration Monitoring ##
-    ##########################
-
-    def iterationMonitoringJson(self):
-        self.labeled_monitoring = LabelsStats()
-        self.labeled_monitoring.loadStats(self)
-        self.unlabeled_monitoring = LabelsStats()
-        self.unlabeled_monitoring.loadStats(self, unlabeled = True)
-        self.families_monitoring = self.generateFamiliesMonitoring()
-        self.jsonExport()
 
     def generateFamiliesMonitoring(self):
         instances = self.monitoring.datasets.instances
@@ -94,12 +78,12 @@ class LabelsMonitoring(object):
         monitoring['global'] = monitoring['malicious'] + monitoring['benign']
         return monitoring
 
-    def jsonExport(self):
+    def jsonExport(self, monitoring_file):
         labels = {}
         labels['unlabeled']   = self.unlabeled_monitoring.stats['global'].labels
         labels['annotations'] = self.labeled_monitoring.stats['global'].annotations
         labels['families']   = self.families_monitoring
-        with open(self.monitoring_file, 'w') as f:
+        with open(monitoring_file, 'w') as f:
             json.dump(labels, f, indent = 2)
 
     def generateLabelMonitoring(self, label, unlabeled = False):
@@ -119,10 +103,15 @@ class LabelsMonitoring(object):
             label_stats.annotations = datasets.num_annotations[label]
         label_stats.errors = instances.numLabelingErrors(label = label)
 
-    def displayCsvLine(self):
+
+
+
+
+
+    def displayCsvLine(self, evolution_file):
         if self.monitoring.iteration_number == 1:
-            self.displayCsvHeader()
-        with open(self.evolution_file, 'a') as f:
+            self.displayCsvHeader(evolution_file)
+        with open(evolution_file, 'a') as f:
             v = []
             v.append(self.monitoring.iteration_number)
             v += self.labeled_monitoring.vectorRepresentation()
@@ -130,20 +119,17 @@ class LabelsMonitoring(object):
                 v.append(self.families_monitoring[l])
             print >>f, ','.join(map(str, v))
 
-    def displayCsvHeader(self):
-        with open(self.evolution_file, 'w') as f:
+    def displayCsvHeader(self, evolution_file):
+        with open(evolution_file, 'w') as f:
             header  = ['iteration']
             header += self.labeled_monitoring.vectorHeader()
             for l in ['malicious', 'benign', 'global']:
                 header.append('families_' + l)
             print >>f, ','.join(header)
 
-    ##########################
-    ## Evolution Monitoring ##
-    ##########################
 
-    def loadEvolutionMonitoring(self):
-        with open(self.evolution_file, 'r') as f:
+    def loadEvolutionMonitoring(self, evolution_file):
+        with open(evolution_file, 'r') as f:
             data = pd.read_csv(f, header = 0, index_col = 0)
         self.evolutions = {}
         for l in ['global', 'malicious', 'benign']:
@@ -154,11 +140,12 @@ class LabelsMonitoring(object):
             self.evolutions[l]['auto_labels'] = [x - y for x, y in zip(
                 self.evolutions[l]['labels'], self.evolutions[l]['annotations'])]
 
-    def plotEvolutionMonitoring(self):
-        self.plotLabelsEvolutionMonitoring()
-        self.plotFamiliesEvolutionMonitoring()
+    def plotEvolutionMonitoring(self, evolution_file, iteration_dir):
+        self.loadEvolutionMonitoring(evolution_file)
+        self.plotLabelsEvolutionMonitoring(iteration_dir)
+        self.plotFamiliesEvolutionMonitoring(iteration_dir)
 
-    def plotLabelsEvolutionMonitoring(self):
+    def plotLabelsEvolutionMonitoring(self, iteration_dir):
         ## x = Iterations
         ## y = Annotations, Labels, Errors
         iterations = range(self.monitoring.iteration_number)
@@ -180,7 +167,7 @@ class LabelsMonitoring(object):
             lgd = plt.legend(bbox_to_anchor = (0., 1.02, 1., .102), loc = 3,
                     ncol = 2, mode = 'expand', borderaxespad = 0.,
                     fontsize = 'x-large')
-            filename  = self.output_directory
+            filename  = iteration_dir
             filename += 'iteration_' + l + '.png'
             plt.savefig(filename, bbox_extra_artists=(lgd,), bbox_inches = 'tight')
             plt.clf()
@@ -195,7 +182,7 @@ class LabelsMonitoring(object):
         plt.ylim(0, self.computeYmax(l, max_value))
         plt.xlabel('Annotations')
         plt.ylabel('Labels')
-        filename  = self.output_directory
+        filename  = iteration_dir
         filename += 'annotations_labels_' + 'global' + '.png'
         plt.savefig(filename)
         ## x = Annotations
@@ -209,11 +196,11 @@ class LabelsMonitoring(object):
         plt.ylim(0, 1)
         plt.xlabel('Annotations')
         plt.ylabel('Proportion of labeled instances')
-        filename  = self.output_directory
+        filename  = iteration_dir
         filename += 'annotations_prop_labels_' + 'global' + '.png'
         plt.savefig(filename)
 
-    def plotFamiliesEvolutionMonitoring(self):
+    def plotFamiliesEvolutionMonitoring(self, iteration_dir):
         annotations = self.evolutions['global']['annotations']
         plt.clf()
         if self.has_true_labels:
@@ -240,7 +227,7 @@ class LabelsMonitoring(object):
         lgd = plt.legend(bbox_to_anchor = (0., 1.02, 1., .102), loc = 3,
                 ncol = 2, mode = 'expand', borderaxespad = 0.,
                 fontsize = 'x-large')
-        filename  = self.output_directory
+        filename  = iteration_dir
         filename += 'families_monitoring.png'
         plt.savefig(filename, bbox_extra_artists=(lgd,), bbox_inches='tight')
         plt.clf()

@@ -25,31 +25,26 @@ from SecuML.Classification.Configuration.GaussianNaiveBayesConfiguration \
         import GaussianNaiveBayesConfiguration
 from SecuML.Classification.Configuration.TestConfiguration import TestConfiguration
 from SecuML.Classification.Classifiers.GaussianNaiveBayes import GaussianNaiveBayes
-from SecuML.Experiment.ClassificationExperiment import ClassificationExperiment
 from SecuML.Tools import floats_tools
 
 from Category import Category
 
 class Categories(object):
 
-    def __init__(self, experiment, instances, assigned_categories, assignment_proba,
+    def __init__(self, iteration, instances, assigned_categories, assignment_proba,
                  label, category_labels):
-        self.experiment          = experiment
+        self.iteration           = iteration
         self.instances           = instances
         self.generateCategories(assigned_categories, assignment_proba, label,
                                 category_labels)
-        self.setOutputDirectory()
 
     def numCategories(self):
         return self.num_categories
 
-    def setOutputDirectory(self):
-        self.output_directory = self.experiment.getOutputDirectory()
-
     def generateCategories(self, assigned_categories, assignment_proba, label, category_labels):
         self.assigned_categories = assigned_categories
         self.num_categories      = len(set(assigned_categories))
-        self.categories = [Category(self.experiment, label, category_labels[x]) for x in range(self.num_categories)]
+        self.categories = [Category(label, category_labels[x]) for x in range(self.num_categories)]
         ids = self.instances.getIds()
         for i in range(len(ids)):
             instance_id = ids[i]
@@ -235,8 +230,8 @@ class Categories(object):
     ### Likelihood ###
     ##################
 
-    def setLikelihood(self, iteration_number):
-        naive_bayes = self.trainNaiveBayes(iteration_number)
+    def setLikelihood(self):
+        naive_bayes = self.trainNaiveBayes()
         features = self.instances.getFeatures()
         for c in range(self.num_categories):
             indexes = [i for i, x in enumerate(self.assigned_categories) if x == c]
@@ -244,38 +239,23 @@ class Categories(object):
             c_likelihood = naive_bayes.logLikelihood(c_features, c)
             self.categories[c].setLikelihood(c_likelihood)
 
-    def trainNaiveBayes(self, iteration_number):
-        naive_bayes_exp = self.createNaiveBayesExperiment(iteration_number)
-        # Train the naive Bayes detection model and predict
-        datasets = ClassifierDatasets(naive_bayes_exp.classification_conf)
+    def trainNaiveBayes(self):
+        naive_bayes_conf = self.getNaiveBayesConf()
+        datasets = ClassifierDatasets(naive_bayes_conf)
         current_families = copy.deepcopy(self.instances.families)
         # families are altered
         self.instances.families = self.assigned_categories
         datasets.train_instances = self.instances
         datasets.test_instances  = None
         datasets.setSampleWeights()
-        naive_bayes = GaussianNaiveBayes(naive_bayes_exp.classification_conf, datasets)
+        naive_bayes = GaussianNaiveBayes(naive_bayes_conf, datasets)
         naive_bayes.training()
         # families are restored
         self.instances.families = current_families
         return naive_bayes
 
-    def createNaiveBayesExperiment(self, iteration_number):
-        exp = self.experiment
-        name = '-'.join(['AL' + str(exp.experiment_id),
-                         'Iter' + str(iteration_number),
-                         'all',
-                         'NaiveBayes'])
-        naive_bayes_exp = ClassificationExperiment(exp.project, exp.dataset, exp.session,
-                                                   experiment_name = name,
-                                                   labels_id = exp.labels_id,
-                                                   parent = exp.experiment_id)
-        naive_bayes_exp.setFeaturesFilenames(exp.features_filenames)
+    def getNaiveBayesConf(self):
         test_conf = TestConfiguration()
         test_conf.setUnlabeled(labels_annotations = 'annotations')
-        naive_bayes_conf = GaussianNaiveBayesConfiguration(
-                exp.classification_conf.num_folds, False, True, test_conf)
-        naive_bayes_exp.setClassifierConf(naive_bayes_conf)
-        naive_bayes_exp.createExperiment()
-        naive_bayes_exp.export()
-        return naive_bayes_exp
+        naive_bayes_conf = GaussianNaiveBayesConfiguration(4, False, True, test_conf)
+        return naive_bayes_conf

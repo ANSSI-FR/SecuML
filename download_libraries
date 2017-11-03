@@ -5,7 +5,7 @@ import urllib2
 
 if __name__ == '__main__':
 
-    lib_dir = 'code/SecuML_web/base/static/lib/'
+    lib_dir = 'src/SecuML_web/base/static/lib/'
     js_dir = lib_dir + 'js/'
     css_dir = lib_dir + 'css/'
 

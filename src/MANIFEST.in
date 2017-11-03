@@ -1,0 +1,2 @@
+recursive-include SecuML_web/base/templates *.html
+recursive-include SecuML_web/base/static *.js *.css

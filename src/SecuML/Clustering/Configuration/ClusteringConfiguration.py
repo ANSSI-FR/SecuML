@@ -28,6 +28,7 @@ class ClusteringConfiguration(object):
             self.num_results = 10
         self.projection_conf = projection_conf
         self.label = label
+        self.algo = None
 
     def setDimensionReductionConf(self, projection_conf):
         self.projection_conf = projection_conf
@@ -61,6 +62,9 @@ class ClusteringConfiguration(object):
         if self.projection_conf is not None:
             conf['projection_conf'] = self.projection_conf.toJson()
         conf['label'] = self.label
+        conf['algo'] = self.algo
+        if self.algo is not None:
+            conf['algo'] = self.algo.__name__
         return conf
 
     @staticmethod

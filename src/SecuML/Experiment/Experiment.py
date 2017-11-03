@@ -20,7 +20,6 @@ import json
 
 from SecuML import db_tables
 
-from SecuML.Data import labels_tools
 from SecuML.Data import idents_tools
 from SecuML.Data.Dataset import Dataset
 
@@ -290,6 +289,12 @@ class Experiment(object):
                 required = False,
                 default = ['features.csv'],
                 help = 'CSV files containing the features.')
+        help_exp_name  = 'Name of the experiment. '
+        help_exp_name += 'If not provided, a default name is automatically generated from the input parameters.'
+        parser.add_argument('--exp-name', type = str,
+                            required = False,
+                            default = None,
+                            help = help_exp_name)
 
     @abc.abstractmethod
     def setExperimentFromArgs(self, args):
