@@ -40,8 +40,8 @@ setup(
         install_requires = requires,
         test_suite = 'test',
         scripts = [
-            'SecuML_active_learning',
-            'SecuML_classification',
+            'SecuML_ILAB',
+            'SecuML_DIADEM',
             'SecuML_clustering',
             'SecuML_descriptive_statistics',
             'SecuML_feature_selection',
