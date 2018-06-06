@@ -1,0 +1,53 @@
+#!/usr/bin/python3
+
+# SecuML
+# Copyright (C) 2016-2017  ANSSI
+#
+# SecuML is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# SecuML is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with SecuML. If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+
+from SecuML.experiments import db_tables
+from SecuML.experiments import ExperimentFactory
+from SecuML.experiments.Data.Dataset import Dataset
+from SecuML.experiments.Tools import dir_exp_tools
+from SecuML.experiments.Tools import db_tools
+
+if __name__ == '__main__':
+    description = 'Delete the experiments for a given dataset in a project. '
+    description += 'If no dataset is specified, all the experiments '
+    description += 'of the project are deleted.'
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument('project')
+    parser.add_argument('--dataset',
+                        default=None)
+    parser.add_argument('--experiment-id',
+                        type=int,
+                        default=None)
+    args = parser.parse_args()
+
+    engine, session = db_tools.getSqlalchemySession()
+    db_tables.createTables(engine)
+
+    if args.experiment_id is not None:
+        experiment = ExperimentFactory.getFactory().fromJson(args.experiment_id, session)
+        experiment.remove()
+    elif args.dataset is not None:
+        dataset = Dataset(args.project, args.dataset, session)
+        dataset.remove()
+    else:
+        db_tables.removeProject(session, args.project)
+        dir_exp_tools.removeProjectOutputDirectory(args.project)
+
+    db_tools.closeSqlalchemySession(session)

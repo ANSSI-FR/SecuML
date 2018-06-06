@@ -1,0 +1,36 @@
+#!/usr/bin/python3
+
+# SecuML
+# Copyright (C) 2016-2017  ANSSI
+#
+# SecuML is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# SecuML is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with SecuML. If not, see <http://www.gnu.org/licenses/>.
+
+import logging
+import matplotlib
+matplotlib.use('Agg')
+
+from SecuML.experiments.Classification.ClassificationExperiment import ClassificationExperiment
+
+if __name__ == '__main__':
+    logger = logging.getLogger('SecuML_DIADEM')
+    logger.setLevel(logging.CRITICAL)
+
+    parser = ClassificationExperiment.generateParser()
+    args = parser.parse_args()
+    experiment = ClassificationExperiment(args.project, args.dataset, None,
+                                          experiment_name=args.exp_name,
+                                          logger=logger)
+    experiment.setExperimentFromArgs(args)
+    experiment.run()
+    experiment.closeSession()

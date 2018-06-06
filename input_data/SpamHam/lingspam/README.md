@@ -1,6 +1,6 @@
 # Lingspam Dataset
 
-This dataset provides an example of how the data should be formatted to run experiments with SecuML. This labeled dataset for spam detection has been built from the raw email dataset lingspam (see [ling-spam-datasets.html](http://csmining.org/index.php/ling-spam-datasets.html)).
+This dataset provides an example of how the data should be formatted to run experiments with SecuML. This annotated dataset for spam detection has been built from the raw email dataset lingspam (see [ling-spam-datasets.html](http://csmining.org/index.php/ling-spam-datasets.html)).
 
 In order to display the raw email messages in the web user interface you must first download the raw data with the script `download_lingpam_data`.
 

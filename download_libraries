@@ -1,16 +1,20 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
 import os
-import urllib2
+import urllib.request
+
+def create_directory(directory):
+    if not os.path.isdir(directory):
+        os.makedirs(directory)
 
 if __name__ == '__main__':
 
-    lib_dir = 'src/SecuML_web/base/static/lib/'
+    lib_dir = 'SecuML/web/static/lib/'
     js_dir = lib_dir + 'js/'
     css_dir = lib_dir + 'css/'
 
-    os.makedirs(js_dir)
-    os.makedirs(css_dir)
+    create_directory(js_dir)
+    create_directory(css_dir)
 
     js_url = ['https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js',
             'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js',
@@ -23,14 +27,15 @@ if __name__ == '__main__':
 
     for url in js_url:
         name = url.split('/')[-1]
-        print 'Download', name
-        f = urllib2.urlopen(url)
-        with open(js_dir + name, 'w') as output:
-            output.write(f.read())
+        print('Download', name)
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req) as response:
+            with open(js_dir + name, 'wb') as output:
+                output.write(response.read())
 
     for url in css_url:
         name = url.split('/')[-1]
-        print 'Download', name
-        f = urllib2.urlopen(url)
-        with open(css_dir + name, 'w') as output:
+        print('Download', name)
+        f = urllib.request.urlopen(url)
+        with open(css_dir + name, 'wb') as output:
             output.write(f.read())
