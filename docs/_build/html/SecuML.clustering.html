@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Projection &mdash; SecuML  documentation</title>
+  <title>Clustering &mdash; SecuML  documentation</title>
   
 
   
@@ -28,8 +28,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Computing Descriptive Statistics of Each Feature" href="SecuML.stats.html" />
-    <link rel="prev" title="Clustering" href="SecuML.clustering.html" /> 
+    <link rel="next" title="Projection" href="SecuML.projection.html" />
+    <link rel="prev" title="Rare Category Detection" href="SecuML.RCD.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -90,12 +90,12 @@
 <li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Projection</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Clustering</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#algorithms-available">Algorithms Available</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#graphical-user-interface">Graphical User Interface</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Computing Descriptive Statistics of Each Feature</a></li>
 </ul>
 
@@ -142,13 +142,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Projection</li>
+      <li>Clustering</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/SecuML.projection.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/SecuML.clustering.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -161,49 +161,29 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="projection">
-<h1>Projection<a class="headerlink" href="#projection" title="Permalink to this headline">¶</a></h1>
-<p>The data are projected into a lower-dimensional space for visualization. The user interface allows to display the instances in a plane defined by two components.
-The instances are not displayed individually but with an hexagonal binning (color from green to black according to the number of instances in the bin).
-The color of the dot in the middle of each bin (from yellow to red) corresponds to the proportion of known malicious instances in the bin.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_projection &lt;project&gt; &lt;dataset&gt; &lt;algo&gt;
+  <div class="section" id="clustering">
+<h1>Clustering<a class="headerlink" href="#clustering" title="Permalink to this headline">¶</a></h1>
+<p>The instances are clustered into a number of clusters specified by the user. Then, the user interface allows to display the instances in each cluster and to annotate instances individually or whole clusters at once.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_clustering &lt;project&gt; &lt;dataset&gt; &lt;algo&gt; --num-clusters &lt;num_clusters&gt;
 </pre></div>
 </div>
 <p><em>Help</em></p>
-<p>For more information about the available options for a given projection algorithm:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_projection &lt;project&gt; &lt;dataset&gt; &lt;algo&gt; -h
+<p>For more information about the available options for a given clustering algorithm:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_clustering &lt;project&gt; &lt;dataset&gt; &lt;algo&gt; -h
 </pre></div>
 </div>
 <div class="section" id="algorithms-available">
 <h2>Algorithms Available<a class="headerlink" href="#algorithms-available" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><dl class="first docutils">
-<dt>Unsupervised Algorithms</dt>
-<dd><ul class="first last">
-<li>Pca</li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>Semi-supervised Algorithms</dt>
-<dd><ul class="first last">
-<li>Rca</li>
-<li>Lda</li>
-<li>Lmnn</li>
-<li>Nca</li>
-<li>Itml</li>
-</ul>
-</dd>
-</dl>
-</li>
+<li>Kmeans</li>
+<li>GaussiansMixture</li>
 </ul>
 </div>
 <div class="section" id="graphical-user-interface">
 <h2>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Permalink to this headline">¶</a></h2>
 <div class="figure" id="id1">
-<img alt="screen_shots/projection/main.png" src="screen_shots/projection/main.png" />
-<p class="caption"><span class="caption-text">Projection Interface</span></p>
+<img alt="_images/main1.png" src="_images/main1.png" />
+<p class="caption"><span class="caption-text">Clustering Interface</span></p>
 </div>
 </div>
 </div>
@@ -216,10 +196,10 @@ The color of the dot in the middle of each bin (from yellow to red) corresponds 
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="SecuML.stats.html" class="btn btn-neutral float-right" title="Computing Descriptive Statistics of Each Feature" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="SecuML.projection.html" class="btn btn-neutral float-right" title="Projection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="SecuML.clustering.html" class="btn btn-neutral" title="Clustering" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="SecuML.RCD.html" class="btn btn-neutral" title="Rare Category Detection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

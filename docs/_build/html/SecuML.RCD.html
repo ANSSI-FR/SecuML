@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ILAB: Interactive LABeling &mdash; SecuML  documentation</title>
+  <title>Rare Category Detection &mdash; SecuML  documentation</title>
   
 
   
@@ -28,8 +28,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Rare Category Detection" href="SecuML.RCD.html" />
-    <link rel="prev" title="DIADEM: DIAgnosis of DEtection Models" href="SecuML.DIADEM.html" /> 
+    <link rel="next" title="Clustering" href="SecuML.clustering.html" />
+    <link rel="prev" title="ILAB: Interactive LABeling" href="SecuML.ILAB.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -88,12 +88,11 @@
 <p class="caption"><span class="caption-text">SecuML</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">ILAB: Interactive LABeling</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#strategies-available">Strategies Available</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Rare Category Detection</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#graphical-user-interface">Graphical User Interface</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Computing Descriptive Statistics of Each Feature</a></li>
@@ -142,13 +141,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>ILAB: Interactive LABeling</li>
+      <li>Rare Category Detection</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/SecuML.ILAB.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/SecuML.RCD.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -161,57 +160,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="ilab-interactive-labeling">
-<span id="ilab"></span><h1>ILAB: Interactive LABeling<a class="headerlink" href="#ilab-interactive-labeling" title="Permalink to this headline">¶</a></h1>
-<p>Collecting an Annotated Dataset with a Reduced Workload thanks to Active Learning</p>
-<p>ILAB allows to acquire an annotated dataset to learn a supervised detection model with a low human effort.
-It is an iterative process initialized with some annotated instances. Then, at each iteration the user is asked to annotate a few
-instances to improve the current detection model.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_ILAB &lt;project&gt; &lt;dataset&gt; &lt;strategy&gt;
+  <div class="section" id="rare-category-detection">
+<h1>Rare Category Detection<a class="headerlink" href="#rare-category-detection" title="Permalink to this headline">¶</a></h1>
+<p>SecuML allows to explore a dataset interactively with rare category detection.
+It is an iterative process, where the user is asked to annotate some instances at each iteration.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_rare_category_detection &lt;project&gt; &lt;dataset&gt; --init-annotations-file &lt;filename&gt;
 </pre></div>
 </div>
 <p><em>Help</em></p>
-<p>For more information about the available options for a given active learning strategy:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_ILAB &lt;project&gt; &lt;dataset&gt; &lt;strategy&gt; -h
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_rare_category_detection -h
 </pre></div>
-</div>
-<div class="section" id="strategies-available">
-<h2>Strategies Available<a class="headerlink" href="#strategies-available" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>Ilab [1,2]</li>
-<li>Aladin [3]</li>
-<li>Gornitz [4]</li>
-<li>CesaBianchi [5]</li>
-<li>UncertaintySampling [6]</li>
-<li>RandomSampling</li>
-</ul>
-<p><em>References</em></p>
-<ul class="simple">
-<li>[1] Beaugnon et al., <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2018/02/end-to-end-active-learning-for-computer-security-experts_abeaugnon_pchifflier_fbach_anssi_inria.pdf">“End-to-End Active Learning for Computer Security Experts”</a>, AICS 2018.</li>
-<li>[2] Beaugnon et al., <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2017/09/ilab_beaugnonchifflierbach_raid2017.pdf">“ILAB: An Interactive Labelling Strategy for Intrusion Detection”</a>, RAID 2017.</li>
-<li>[3] Stokes et al., Aladin: “Active learning of anomalies to detect intrusions”, technical report 2008.</li>
-<li>[4] Görnitz et al, “Active learning for network intrusion detection”, AISEC 2009.</li>
-<li>[5] Cesa-Bianchi et al., “Worst-case analysis of selective sampling for linear classification”, JMLR 2006.</li>
-<li>[6] Lewis et al., “A sequential algorithm for training text classifiers”, 1994.</li>
-</ul>
 </div>
 <div class="section" id="graphical-user-interface">
 <h2>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Permalink to this headline">¶</a></h2>
 <div class="figure" id="id1">
-<img alt="screen_shots/ILAB/monitoring.png" src="screen_shots/ILAB/monitoring.png" />
-<p class="caption"><span class="caption-text">Monitoring Interface</span></p>
+<img alt="_images/monitoring1.png" src="_images/monitoring1.png" />
+<p class="caption"><span class="caption-text">Rare Category Detection Monitoring Interface</span></p>
 </div>
 <div class="figure" id="id2">
-<img alt="screen_shots/ILAB/annotations.png" src="screen_shots/ILAB/annotations.png" />
-<p class="caption"><span class="caption-text">Annotation Interface</span></p>
-</div>
-<div class="figure" id="id3">
-<img alt="screen_shots/ILAB/family_editor.png" src="screen_shots/ILAB/family_editor.png" />
-<p class="caption"><span class="caption-text">Family Editor</span></p>
-</div>
-<div class="figure" id="id4">
-<img alt="screen_shots/ILAB/annotated_instances.png" src="screen_shots/ILAB/annotated_instances.png" />
-<p class="caption"><span class="caption-text">Annotated Instances</span></p>
+<img alt="_images/annotations1.png" src="_images/annotations1.png" />
+<p class="caption"><span class="caption-text">Rare Category Detection Annotation Interface</span></p>
 </div>
 </div>
 </div>
@@ -224,10 +192,10 @@ instances to improve the current detection model.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="SecuML.RCD.html" class="btn btn-neutral float-right" title="Rare Category Detection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="SecuML.clustering.html" class="btn btn-neutral float-right" title="Clustering" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="SecuML.DIADEM.html" class="btn btn-neutral" title="DIADEM: DIAgnosis of DEtection Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="SecuML.ILAB.html" class="btn btn-neutral" title="ILAB: Interactive LABeling" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
