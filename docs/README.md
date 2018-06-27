@@ -21,7 +21,7 @@ and offers the additionnal features:
 * Projection
 * Computing descriptive statistics of each feature
 
-See the [sphinx documentation](TODO) for more detail.
+See the [sphinx documentation](https://anssi-fr.github.io/SecuML/) for more detail.
 
 #### Papers
 * Beaugnon, Anaël, Pierre Chifflier, and Francis Bach. ["End-to-End Active Learning for Computer Security Experts."](https://www.ssi.gouv.fr/uploads/2018/02/end-to-end-active-learning-for-computer-security-experts_abeaugnon_pchifflier_fbach_anssi_inria.pdf)   

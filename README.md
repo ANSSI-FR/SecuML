@@ -14,18 +14,14 @@ and offers the additionnal features:
   automation of data loading, feature standardization, and search of the best hyperparameters
 
 #### What you can do with SecuML
-* [Training and diagnosing a detection model before deployment with DIADEM](/doc/DIADEM.md)
-* [Annotating a dataset with a reduced workload with ILAB](/doc/ILAB.md)
-* [Exploring a dataset interactively with rare category detection](/doc/rare_category_detection.md)
-* [Clustering](/doc/clustering.md)
-* [Projection](/doc/projection.md)
-* [Computing descriptive statistics of each feature](/doc/stats.md)
+* Training and diagnosing a detection model before deployment with DIADEM
+* Annotating a dataset with a reduced workload with ILAB
+* Exploring a dataset interactively with rare category detection
+* Clustering
+* Projection
+* Computing descriptive statistics of each feature
 
-See the [documentation](/doc/README.md) for more detail.
-
-#### Getting Started
-We provide a dataset intended for spam detection for quick testing.
-See [Getting Started](/doc/getting_started.md) for the instructions.
+See the [sphinx documentation](https://anssi-fr.github.io/SecuML/) for more detail.
 
 #### Papers
 * Beaugnon, Anaël, Pierre Chifflier, and Francis Bach. ["End-to-End Active Learning for Computer Security Experts."](https://www.ssi.gouv.fr/uploads/2018/02/end-to-end-active-learning-for-computer-security-experts_abeaugnon_pchifflier_fbach_anssi_inria.pdf)   
