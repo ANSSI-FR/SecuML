@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Computing Descriptive Statistics of Each Feature &mdash; SecuML  documentation</title>
+  <title>Clustering &mdash; SecuML  documentation</title>
   
 
   
@@ -28,7 +28,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Projection" href="SecuML.projection.html" /> 
+    <link rel="next" title="Projection" href="SecuML.projection.html" />
+    <link rel="prev" title="Rare Category Detection" href="SecuML.RCD.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -89,12 +90,13 @@
 <li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Computing Descriptive Statistics of Each Feature</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Clustering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#algorithms-available">Algorithms Available</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#graphical-user-interface">Graphical User Interface</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Computing Descriptive Statistics of Each Feature</a></li>
 </ul>
 
             
@@ -140,13 +142,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Computing Descriptive Statistics of Each Feature</li>
+      <li>Clustering</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/SecuML.stats.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/SecuML.clustering.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -159,20 +161,29 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="computing-descriptive-statistics-of-each-feature">
-<h1>Computing Descriptive Statistics of Each Feature<a class="headerlink" href="#computing-descriptive-statistics-of-each-feature" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_descriptive_statistics &lt;project&gt; &lt;dataset&gt;
+  <div class="section" id="clustering">
+<h1>Clustering<a class="headerlink" href="#clustering" title="Permalink to this headline">¶</a></h1>
+<p>The instances are clustered into a number of clusters specified by the user. Then, the user interface allows to display the instances in each cluster and to annotate instances individually or whole clusters at once.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_clustering &lt;project&gt; &lt;dataset&gt; &lt;algo&gt; --num-clusters &lt;num_clusters&gt;
 </pre></div>
 </div>
 <p><em>Help</em></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_descriptive_statistics -h
+<p>For more information about the available options for a given clustering algorithm:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_clustering &lt;project&gt; &lt;dataset&gt; &lt;algo&gt; -h
 </pre></div>
+</div>
+<div class="section" id="algorithms-available">
+<h2>Algorithms Available<a class="headerlink" href="#algorithms-available" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Kmeans</li>
+<li>GaussiansMixture</li>
+</ul>
 </div>
 <div class="section" id="graphical-user-interface">
 <h2>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Permalink to this headline">¶</a></h2>
 <div class="figure" id="id1">
-<img alt="_images/main3.png" src="_images/main3.png" />
-<p class="caption"><span class="caption-text">Descriptive Statistics Interface</span></p>
+<img alt="screen_shots/clustering/main.png" src="screen_shots/clustering/main.png" />
+<p class="caption"><span class="caption-text">Clustering Interface</span></p>
 </div>
 </div>
 </div>
@@ -185,8 +196,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="SecuML.projection.html" class="btn btn-neutral float-right" title="Projection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="SecuML.projection.html" class="btn btn-neutral" title="Projection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="SecuML.RCD.html" class="btn btn-neutral" title="Rare Category Detection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

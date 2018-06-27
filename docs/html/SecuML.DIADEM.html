@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ILAB: Interactive LABeling &mdash; SecuML  documentation</title>
+  <title>DIADEM: DIAgnosis of DEtection Models &mdash; SecuML  documentation</title>
   
 
   
@@ -28,8 +28,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Rare Category Detection" href="SecuML.RCD.html" />
-    <link rel="prev" title="DIADEM: DIAgnosis of DEtection Models" href="SecuML.DIADEM.html" /> 
+    <link rel="next" title="ILAB: Interactive LABeling" href="SecuML.ILAB.html" />
+    <link rel="prev" title="Removing Experiments" href="getting_started.exp.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -87,12 +87,12 @@
 </ul>
 <p class="caption"><span class="caption-text">SecuML</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">ILAB: Interactive LABeling</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#strategies-available">Strategies Available</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">DIADEM: DIAgnosis of DEtection Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#model-classes-available">Model Classes Available</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#graphical-user-interface">Graphical User Interface</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
@@ -142,13 +142,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>ILAB: Interactive LABeling</li>
+      <li>DIADEM: DIAgnosis of DEtection Models</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/SecuML.ILAB.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/SecuML.DIADEM.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -161,57 +161,43 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="ilab-interactive-labeling">
-<span id="ilab"></span><h1>ILAB: Interactive LABeling<a class="headerlink" href="#ilab-interactive-labeling" title="Permalink to this headline">¶</a></h1>
-<p>Collecting an Annotated Dataset with a Reduced Workload thanks to Active Learning</p>
-<p>ILAB allows to acquire an annotated dataset to learn a supervised detection model with a low human effort.
-It is an iterative process initialized with some annotated instances. Then, at each iteration the user is asked to annotate a few
-instances to improve the current detection model.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_ILAB &lt;project&gt; &lt;dataset&gt; &lt;strategy&gt;
+  <div class="section" id="diadem-diagnosis-of-detection-models">
+<span id="diadem"></span><h1>DIADEM: DIAgnosis of DEtection Models<a class="headerlink" href="#diadem-diagnosis-of-detection-models" title="Permalink to this headline">¶</a></h1>
+<p>Training and Analysing a Detection Model before Deployment</p>
+<p>A supervised detection model is learned from an annotated dataset, and applied to a validation dataset (annotated or not).
+The GUI displays performance indicators (detection rate, false alarm rate, f-score, ROC, AUC, confusion matrix, …)
+of the detection model on the training dataset and on the validation dataset (if ground-truth labels are available).
+The false positives and negatives can be displayed from the confusion matrix.
+The GUI also allows to analyze the alerts raised on the validation dataset
+(the top N alerts, randomly selected alerts, or a clustering of the alerts).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_DIADEM &lt;project&gt; &lt;dataset&gt; &lt;model_class&gt;
 </pre></div>
 </div>
 <p><em>Help</em></p>
-<p>For more information about the available options for a given active learning strategy:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_ILAB &lt;project&gt; &lt;dataset&gt; &lt;strategy&gt; -h
+<p>For more information about the available options for a given model class:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_DIADEM &lt;project&gt; &lt;dataset&gt; &lt;model_class&gt; -h
 </pre></div>
 </div>
-<div class="section" id="strategies-available">
-<h2>Strategies Available<a class="headerlink" href="#strategies-available" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="model-classes-available">
+<h2>Model Classes Available<a class="headerlink" href="#model-classes-available" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Ilab [1,2]</li>
-<li>Aladin [3]</li>
-<li>Gornitz [4]</li>
-<li>CesaBianchi [5]</li>
-<li>UncertaintySampling [6]</li>
-<li>RandomSampling</li>
+<li>LogisticRegression</li>
+<li>Svc</li>
+<li>GaussianNaiveBayes</li>
+<li>DecisionTree</li>
+<li>RandomForest</li>
+<li>GradientBoosting</li>
 </ul>
 <p><em>References</em></p>
 <ul class="simple">
-<li>[1] Beaugnon et al., <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2018/02/end-to-end-active-learning-for-computer-security-experts_abeaugnon_pchifflier_fbach_anssi_inria.pdf">“End-to-End Active Learning for Computer Security Experts”</a>, AICS 2018.</li>
-<li>[2] Beaugnon et al., <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2017/09/ilab_beaugnonchifflierbach_raid2017.pdf">“ILAB: An Interactive Labelling Strategy for Intrusion Detection”</a>, RAID 2017.</li>
-<li>[3] Stokes et al., Aladin: “Active learning of anomalies to detect intrusions”, technical report 2008.</li>
-<li>[4] Görnitz et al, “Active learning for network intrusion detection”, AISEC 2009.</li>
-<li>[5] Cesa-Bianchi et al., “Worst-case analysis of selective sampling for linear classification”, JMLR 2006.</li>
-<li>[6] Lewis et al., “A sequential algorithm for training text classifiers”, 1994.</li>
+<li>[FRENCH] Bonneton, Anaël, and Antoine Husson, <a class="reference external" href="https://www.sstic.org/media/SSTIC2017/SSTIC-actes/le_machine_learning_confront_aux_contraintes_oprat/SSTIC2017-Article-le_machine_learning_confront_aux_contraintes_oprationnelles_des_systmes_de_dtection-bonneton_husson.pdf">“Le Machine Learning confronté aux contraintes opérationnelles des systèmes de détection”,</a>, SSTIC 2017.</li>
 </ul>
 </div>
 <div class="section" id="graphical-user-interface">
 <h2>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Permalink to this headline">¶</a></h2>
 <div class="figure" id="id1">
-<img alt="_images/monitoring.png" src="_images/monitoring.png" />
-<p class="caption"><span class="caption-text">Monitoring Interface</span></p>
-</div>
-<div class="figure" id="id2">
-<img alt="_images/annotations.png" src="_images/annotations.png" />
-<p class="caption"><span class="caption-text">Annotation Interface</span></p>
-</div>
-<div class="figure" id="id3">
-<img alt="_images/family_editor.png" src="_images/family_editor.png" />
-<p class="caption"><span class="caption-text">Family Editor</span></p>
-</div>
-<div class="figure" id="id4">
-<img alt="_images/annotated_instances.png" src="_images/annotated_instances.png" />
-<p class="caption"><span class="caption-text">Annotated Instances</span></p>
+<img alt="screen_shots/DIADEM/main.png" src="screen_shots/DIADEM/main.png" />
+<p class="caption"><span class="caption-text">DIADEM Monitoring Interface</span></p>
 </div>
 </div>
 </div>
@@ -224,10 +210,10 @@ instances to improve the current detection model.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="SecuML.RCD.html" class="btn btn-neutral float-right" title="Rare Category Detection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="SecuML.ILAB.html" class="btn btn-neutral float-right" title="ILAB: Interactive LABeling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="SecuML.DIADEM.html" class="btn btn-neutral" title="DIADEM: DIAgnosis of DEtection Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="getting_started.exp.html" class="btn btn-neutral" title="Removing Experiments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
