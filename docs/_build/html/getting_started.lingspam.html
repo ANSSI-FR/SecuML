@@ -1,0 +1,257 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Running SecuML on the lingspam dataset &mdash; SecuML  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Running SecuML on your own dataset" href="getting_started.other.html" />
+    <link rel="prev" title="Seeting up SecuML" href="getting_started.setting_up.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SecuML
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.setting_up.html">Seeting up SecuML</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Running SecuML on the lingspam dataset</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#training-and-diagnosing-a-detection-model-before-deployment-with-diadem">Training and diagnosing a detection model before deployment with DIADEM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#annotating-a-dataset-with-a-reduced-workload-with-ilab">Annotating a dataset with a reduced workload with ILAB</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.other.html">Running SecuML on your own dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.exp.html">Removing Experiments</a></li>
+</ul>
+<p class="caption"><span class="caption-text">SecuML</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Computing Descriptive Statistics of Each Feature</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SecuML</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Running SecuML on the lingspam dataset</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/getting_started.lingspam.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="running-secuml-on-the-lingspam-dataset">
+<h1>Running SecuML on the lingspam dataset<a class="headerlink" href="#running-secuml-on-the-lingspam-dataset" title="Permalink to this headline">¶</a></h1>
+<p>We provide a dataset intended for spam detection for quick testing.
+See <a class="reference external" href="/input_data/SpamHam/lingspam/README.md">lingspam</a> for more information.</p>
+<div class="section" id="training-and-diagnosing-a-detection-model-before-deployment-with-diadem">
+<h2>Training and diagnosing a detection model before deployment with DIADEM<a class="headerlink" href="#training-and-diagnosing-a-detection-model-before-deployment-with-diadem" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">SECUMLCONF</span><span class="o">=</span>&lt;path_to_your_config_file&gt; SecuML_DIADEM SpamHam lingspam LogisticRegression
+</pre></div>
+</div>
+<div class="figure" id="id1">
+<img alt="_images/main.png" src="_images/main.png" />
+<p class="caption"><span class="caption-text">DIADEM monitoring interface.</span></p>
+</div>
+<p>See <a class="reference internal" href="SecuML.DIADEM.html#diadem"><span class="std std-ref">DIADEM</span></a> for more detail.</p>
+</div>
+<div class="section" id="annotating-a-dataset-with-a-reduced-workload-with-ilab">
+<h2>Annotating a dataset with a reduced workload with ILAB<a class="headerlink" href="#annotating-a-dataset-with-a-reduced-workload-with-ilab" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">SECUMLCONF</span><span class="o">=</span>&lt;path_to_your_config_file&gt; SecuML_ILAB SpamHam lingspam Ilab --auto --budget <span class="m">500</span>
+</pre></div>
+</div>
+<div class="figure" id="id2">
+<img alt="_images/monitoring.png" src="_images/monitoring.png" />
+<p class="caption"><span class="caption-text">ILAB monitoring interface</span></p>
+</div>
+<p>See <a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB</span></a> for more detail.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="getting_started.other.html" class="btn btn-neutral float-right" title="Running SecuML on your own dataset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="getting_started.setting_up.html" class="btn btn-neutral" title="Seeting up SecuML" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Anaël Beaugnon, Pierre Collet, Antoine Husson.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

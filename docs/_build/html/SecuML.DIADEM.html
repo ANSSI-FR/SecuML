@@ -1,0 +1,270 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>DIADEM: DIAgnosis of DEtection Models &mdash; SecuML  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ILAB: Interactive LABeling" href="SecuML.ILAB.html" />
+    <link rel="prev" title="Removing Experiments" href="getting_started.exp.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SecuML
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.setting_up.html">Seeting up SecuML</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Running SecuML on the lingspam dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.other.html">Running SecuML on your own dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.exp.html">Removing Experiments</a></li>
+</ul>
+<p class="caption"><span class="caption-text">SecuML</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">DIADEM: DIAgnosis of DEtection Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#model-classes-available">Model Classes Available</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#graphical-user-interface">Graphical User Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Computing Descriptive Statistics of Each Feature</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SecuML</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>DIADEM: DIAgnosis of DEtection Models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/SecuML.DIADEM.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="diadem-diagnosis-of-detection-models">
+<span id="diadem"></span><h1>DIADEM: DIAgnosis of DEtection Models<a class="headerlink" href="#diadem-diagnosis-of-detection-models" title="Permalink to this headline">¶</a></h1>
+<p>Training and Analysing a Detection Model before Deployment</p>
+<p>A supervised detection model is learned from an annotated dataset, and applied to a validation dataset (annotated or not).
+The GUI displays performance indicators (detection rate, false alarm rate, f-score, ROC, AUC, confusion matrix, …)
+of the detection model on the training dataset and on the validation dataset (if ground-truth labels are available).
+The false positives and negatives can be displayed from the confusion matrix.
+The GUI also allows to analyze the alerts raised on the validation dataset
+(the top N alerts, randomly selected alerts, or a clustering of the alerts).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_DIADEM &lt;project&gt; &lt;dataset&gt; &lt;model_class&gt;
+</pre></div>
+</div>
+<p><em>Help</em></p>
+<p>For more information about the available options for a given model class:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_DIADEM &lt;project&gt; &lt;dataset&gt; &lt;model_class&gt; -h
+</pre></div>
+</div>
+<div class="section" id="model-classes-available">
+<h2>Model Classes Available<a class="headerlink" href="#model-classes-available" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>LogisticRegression</li>
+<li>Svc</li>
+<li>GaussianNaiveBayes</li>
+<li>DecisionTree</li>
+<li>RandomForest</li>
+<li>GradientBoosting</li>
+</ul>
+<p><em>References</em></p>
+<ul class="simple">
+<li>[FRENCH] Bonneton, Anaël, and Antoine Husson, <a class="reference external" href="https://www.sstic.org/media/SSTIC2017/SSTIC-actes/le_machine_learning_confront_aux_contraintes_oprat/SSTIC2017-Article-le_machine_learning_confront_aux_contraintes_oprationnelles_des_systmes_de_dtection-bonneton_husson.pdf">“Le Machine Learning confronté aux contraintes opérationnelles des systèmes de détection”,</a>, SSTIC 2017.</li>
+</ul>
+</div>
+<div class="section" id="graphical-user-interface">
+<h2>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Permalink to this headline">¶</a></h2>
+<div class="figure" id="id1">
+<img alt="_images/main.png" src="_images/main.png" />
+<p class="caption"><span class="caption-text">DIADEM Monitoring Interface</span></p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="SecuML.ILAB.html" class="btn btn-neutral float-right" title="ILAB: Interactive LABeling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="getting_started.exp.html" class="btn btn-neutral" title="Removing Experiments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Anaël Beaugnon, Pierre Collet, Antoine Husson.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
