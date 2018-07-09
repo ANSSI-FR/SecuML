@@ -15,6 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import os.path as path
 
 from SecuML.core.ActiveLearning.Configuration import ActiveLearningConfFactory
 from SecuML.core.Configuration import Configuration
@@ -67,7 +68,7 @@ class ActiveLearningExperiment(Experiment):
         # Check if the validation experiments already exists
         test_exp = ValidationExperiment(self.project, test_dataset,
                                         self.session)
-        test_exp.setConf(Configuration(self.conf.logger), self.features_filenames,
+        test_exp.setConf(Configuration(self.conf.logger), self.features_filename,
                          annotations_filename='ground_truth.csv')
         return test_exp
 
@@ -75,7 +76,9 @@ class ActiveLearningExperiment(Experiment):
         Experiment.export(self)
         if self.conf.validation_conf is not None:
             self.test_exp.export()
-            with open(self.getOutputDirectory() + 'test_experiment.txt', 'w') as f:
+            filename = path.join(self.getOutputDirectory(),
+                                 'test_experiment.txt')
+            with open(filename, 'w') as f:
                 f.write(str(self.test_exp.experiment_id) + '\n')
 
     def generateDatasets(self):
@@ -87,10 +90,10 @@ class ActiveLearningExperiment(Experiment):
         datasets = DatasetsExp(self.conf, instances, validation_instances)
         return datasets
 
-    def setConf(self, conf, features_files, annotations_filename=None,
+    def setConf(self, conf, features_file, annotations_filename=None,
                 annotations_id=None):
         self.query_strategy = conf.query_strategy
-        Experiment.setConf(self, conf, features_files,
+        Experiment.setConf(self, conf, features_file,
                            annotations_filename=annotations_filename,
                            annotations_id=annotations_id)
         if self.conf.validation_conf is not None:
@@ -123,7 +126,8 @@ class ActiveLearningExperiment(Experiment):
         parser = argparse.ArgumentParser(description='Active Learning',
                                          formatter_class=argparse.RawTextHelpFormatter)
         Experiment.projectDatasetFeturesParser(parser)
-        strategies = ['Ilab', 'RandomSampling', 'UncertaintySampling',
+        strategies = ['Ilab', 'RandomSampling', 'RandomSamplingLibact',
+                      'UncertaintySampling', 'UncertaintySamplingLibact',
                       'CesaBianchi', 'Aladin', 'Gornitz']
         subparsers = parser.add_subparsers(dest='strategy')
         factory = ActiveLearningConfFactory.getFactory()
@@ -142,7 +146,7 @@ class ActiveLearningExperiment(Experiment):
     def setExperimentFromArgs(self, args):
         factory = ActiveLearningConfFactory.getFactory()
         conf = factory.fromArgs(args.strategy, args, logger=self.logger)
-        self.setConf(conf, args.features_files,
+        self.setConf(conf, args.features_file,
                      annotations_filename=args.init_annotations_file)
         self.export()
 

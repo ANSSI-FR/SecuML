@@ -15,6 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import json
+import os.path as path
 
 from SecuML.core.Clustering.Clustering import Clustering
 
@@ -29,7 +30,7 @@ class ClusteringExp(Clustering):
     @staticmethod
     def fromJson(directory):
         clustering = ClusteringExp(None, [])
-        with open(directory + 'clusters.json', 'r') as f:
+        with open(path.join(directory, 'clusters.json'), 'r') as f:
             obj = json.load(f)
             clustering.assigned_clusters = obj['assigned_clusters']
             clustering.num_clusters = len(obj) - 1

@@ -16,7 +16,6 @@
 
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import func
-import sys
 
 from SecuML.core.Data import labels_tools
 

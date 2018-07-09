@@ -19,7 +19,8 @@ from .ActiveLearningConfiguration import ActiveLearningConfiguration
 
 from SecuML.core.ActiveLearning.QueryStrategies.Aladin import Aladin
 from SecuML.core.Classification.Configuration import ClassifierConfFactory
-from SecuML.core.Classification.Configuration.TestConfiguration import TestConfiguration
+from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf import UnlabeledLabeledConf
+from SecuML.core.Classification.Configuration.TestConfiguration.ValidationDatasetConf import ValidationDatasetConf
 
 
 def aladinMulticlassModelConf(logger):
@@ -29,8 +30,7 @@ def aladinMulticlassModelConf(logger):
     classifier_args['families_supervision'] = True
     classifier_args['alerts_conf'] = None
     classifier_args['optim_algo'] = 'liblinear'
-    test_conf = TestConfiguration()
-    test_conf.setUnlabeled()
+    test_conf = UnlabeledLabeledConf()
     classifier_args['test_conf'] = test_conf
     factory = ClassifierConfFactory.getFactory()
     multiclass_model_conf = factory.fromParam('LogisticRegression',
@@ -66,7 +66,7 @@ class AladinConfiguration(ActiveLearningConfiguration):
     def fromJson(obj):
         validation_conf = None
         if obj['validation_conf'] is not None:
-            validation_conf = TestConfiguration.fromJson(
+            validation_conf = ValidationDatasetConf.fromJson(
                 obj['validation_conf'])
         binary_model_conf = ClassifierConfFactory.getFactory().fromJson(
             obj['models_conf']['binary'])
@@ -95,8 +95,7 @@ class AladinConfiguration(ActiveLearningConfiguration):
         supervised_args['num_folds'] = 4
         supervised_args['sample_weight'] = False
         supervised_args['families_supervision'] = False
-        test_conf = TestConfiguration()
-        test_conf.setUnlabeled()
+        test_conf = UnlabeledLabeledConf()
         supervised_args['test_conf'] = test_conf
         binary_model_conf = ClassifierConfFactory.getFactory().fromParam(
             'LogisticRegression', supervised_args)

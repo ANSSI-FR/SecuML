@@ -15,6 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import csv
+import os.path as path
 
 from SecuML.core.Tools import dir_tools
 
@@ -65,9 +66,10 @@ class Dataset(object):
                 self.session, self.project_id, self.dataset)
 
     def loadIdents(self):
-        filename = dir_exp_tools.getDatasetDirectory(
-            self.project, self.dataset)
-        filename += 'idents.csv'
+        filename = path.join(dir_exp_tools.getDatasetDirectory(
+                                       self.project,
+                                       self.dataset),
+                             'idents.csv')
         db, cursor = db_tools.getRawConnection()
         if db_tools.isMysql():
             query = 'LOAD DATA LOCAL INFILE \'' + filename + '\' '
@@ -88,28 +90,40 @@ class Dataset(object):
             query += ';'
             cursor.execute(query)
         elif db_tools.isPostgresql():
+            timestamps = False
+            with open(filename, 'r') as f:
+                reader = csv.reader(f)
+                header = next(reader)
+                if len(header) == 3:
+                    timestamps = True
             query = 'CREATE TEMPORARY TABLE instances_import('
             query += 'user_instance_id integer, '
             query += 'ident varchar(200), '
+            query += 'timestamp timestamp DEFAULT null,'
             query += 'dataset_id integer DEFAULT ' + str(self.dataset_id) + ','
             query += 'row_number serial PRIMARY KEY'
             query += ');'
             cursor.execute(query)
             with open(filename, 'r') as f:
-                query = 'COPY instances_import(user_instance_id,ident) '
+                if timestamps:
+                    query = 'COPY instances_import(user_instance_id,ident,timestamp) '
+                else:
+                    query = 'COPY instances_import(user_instance_id,ident) '
                 query += 'FROM STDIN '
                 query += 'WITH CSV HEADER DELIMITER AS \',\' ;'
                 cursor.copy_expert(sql=query, file=f)
-            query = 'INSERT INTO instances(user_instance_id,ident,dataset_id,row_number) '
-            query += 'SELECT user_instance_id, ident, dataset_id, row_number '
+            query = 'INSERT INTO instances(user_instance_id,ident,timestamp,dataset_id,row_number) '
+            query += 'SELECT user_instance_id, ident, timestamp, dataset_id, row_number '
             query += 'FROM instances_import;'
             cursor.execute(query)
         db_tools.closeRawConnection(db, cursor)
 
     def loadGroundTruth(self, logger):
-        annotations_file = dir_exp_tools.getDatasetDirectory(self.project,
-                                                             self.dataset)
-        annotations_file += 'annotations/ground_truth.csv'
+        annotations_file = path.join(dir_exp_tools.getDatasetDirectory(
+                                            self.project,
+                                            self.dataset),
+                                     'annotations',
+                                     'ground_truth.csv')
         if not dir_tools.checkFileExists(annotations_file):
             logger.warning('No ground-truth available for this dataset')
             return

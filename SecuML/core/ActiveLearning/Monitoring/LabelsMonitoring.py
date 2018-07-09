@@ -17,6 +17,7 @@
 import csv
 import json
 import matplotlib.pyplot as plt
+import os.path as path
 import pandas as pd
 
 from SecuML.core.Data import labels_tools
@@ -46,17 +47,18 @@ class LabelsMonitoring(object):
         ) - self.stats['global']['annotations']
 
     def exportMonitoring(self, al_dir, iteration_dir):
-        monitoring_dir, evolution_dir = self.getOutputDirectories(
-            al_dir, iteration_dir)
-        evolution_file = evolution_dir + 'labels_monitoring.csv'
-        self.jsonExport(monitoring_dir + 'labels_monitoring.json')
+        monitoring_dir, evolution_dir = self.getOutputDirectories(al_dir,
+                                                                  iteration_dir)
+        evolution_file = path.join(evolution_dir, 'labels_monitoring.csv')
+        monitoring_file = path.join(monitoring_dir, 'labels_monitoring.json')
+        self.jsonExport(monitoring_file)
         self.displayCsvLine(evolution_file)
         self.plotEvolutionMonitoring(evolution_file, monitoring_dir)
 
     def getOutputDirectories(self, al_dir, iteration_dir):
-        monitoring_dir = iteration_dir + 'labels_monitoring/'
+        monitoring_dir = path.join(iteration_dir, 'labels_monitoring')
         dir_tools.createDirectory(monitoring_dir)
-        evolution_dir = al_dir + 'labels_monitoring/'
+        evolution_dir = path.join(al_dir, 'labels_monitoring')
         if self.monitoring.iteration_number == 1:
             dir_tools.createDirectory(evolution_dir)
         return monitoring_dir, evolution_dir
@@ -133,7 +135,6 @@ class LabelsMonitoring(object):
         lgd = plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
                          ncol=2, mode='expand', borderaxespad=0.,
                          fontsize='x-large')
-        filename = iteration_dir
-        filename += 'families_monitoring.png'
+        filename = path.join(iteration_dir, 'families_monitoring.png')
         plt.savefig(filename, bbox_extra_artists=(lgd,), bbox_inches='tight')
         plt.clf()

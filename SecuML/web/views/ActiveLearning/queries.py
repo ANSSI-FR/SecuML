@@ -16,7 +16,7 @@
 
 from flask import jsonify, render_template, send_file
 import pandas as pd
-import sys
+import os.path as path
 
 from SecuML.web import app
 from SecuML.web.views.experiments import updateCurrentExperiment
@@ -29,23 +29,27 @@ from SecuML.experiments.ActiveLearning.ActiveLearningExperiment import ActiveLea
 @nocache
 def getAnnotationsTypes(experiment_id, iteration):
     experiment = updateCurrentExperiment(experiment_id)
-    filename = experiment.getOutputDirectory() + str(iteration) + '/'
-    filename += 'annotations_types.json'
+    filename = path.join(experiment.getOutputDirectory(),
+                         str(iteration),
+                         'annotations_types.json')
     return send_file(filename)
 
 
 @app.route('/getFamiliesInstancesToAnnotate/<experiment_id>/<iteration>/<predicted_label>/')
 def getFamiliesInstancesToAnnotate(experiment_id, iteration, predicted_label):
     experiment = updateCurrentExperiment(experiment_id)
-    filename = experiment.getOutputDirectory() + str(iteration) + '/'
-    filename += 'toannotate_' + predicted_label + '.json'
+    filename = path.join(experiment.getOutputDirectory(),
+                         str(iteration),
+                         'toannotate_' + predicted_label + '.json')
     return send_file(filename)
+
 
 @app.route('/getInstancesToAnnotate/<experiment_id>/<iteration>/<predicted_label>/')
 def getInstancesToAnnotate(experiment_id, iteration, predicted_label):
     experiment = updateCurrentExperiment(experiment_id)
-    filename = experiment.getOutputDirectory() + str(iteration) + '/'
-    filename += 'toannotate_' + predicted_label + '.csv'
+    filename = path.join(experiment.getOutputDirectory(),
+                         str(iteration),
+                         'toannotate_' + predicted_label + '.csv')
     df = pd.read_csv(filename)
     queries = [int(x) for x in df.instance_id]
     return jsonify({'instances': queries})

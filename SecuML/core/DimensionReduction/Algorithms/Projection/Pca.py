@@ -17,6 +17,7 @@
 import copy
 import numpy as np
 import pandas as pd
+import os.path as path
 from sklearn import decomposition
 
 from .UnsupervisedProjection import UnsupervisedProjection
@@ -58,27 +59,27 @@ class Pca(UnsupervisedProjection):
     # Explained Variance #
     #####################
 
-    def exportExplainedVariance(self, output_directory):
+    def exportExplainedVariance(self, directory):
         explained_var = pd.DataFrame(self.projection.explained_variance_ratio_,
                                      index=list(range(self.num_components)),
                                      columns=['y'])
         explained_var.index.name = 'x'
-        explained_var.to_csv(
-            output_directory + 'explained_variance.csv',
-            sep=',',
-            header=True,
-            index=True)
+        explained_var.to_csv(path.join(directory,
+                                       'explained_variance.csv'),
+                             sep=',',
+                             header=True,
+                             index=True)
 
-    def exportCumuledExplainedVariance(self, output_directory):
+    def exportCumuledExplainedVariance(self, directory):
         explained_var = pd.DataFrame(
             {'y': np.cumsum(self.projection.explained_variance_ratio_)},
             index=list(range(self.num_components)))
         explained_var.index.name = 'x'
-        explained_var.to_csv(
-            output_directory + 'cumuled_explained_variance.csv',
-            sep=',',
-            header=True,
-            index=True)
+        explained_var.to_csv(path.join(directory,
+                                       'cumuled_explained_variance.csv'),
+                             sep=',',
+                             header=True,
+                             index=True)
 
     #######################
     # Reconstruction Error #

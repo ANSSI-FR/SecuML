@@ -16,6 +16,7 @@
 
 from flask import jsonify, send_file
 import json
+import os.path as path
 
 from SecuML.web import app
 from SecuML.web.views.experiments import updateCurrentExperiment
@@ -26,8 +27,10 @@ from SecuML.experiments.ActiveLearning.IterationExp import IterationExp
 @app.route('/getLabelsMonitoring/<experiment_id>/<iteration>/')
 def getLabelsMonitoring(experiment_id, iteration):
     experiment = updateCurrentExperiment(experiment_id)
-    filename = experiment.getOutputDirectory() + str(iteration) + '/'
-    filename += 'labels_monitoring/labels_monitoring.json'
+    filename = path.join(experiment.getOutputDirectory(),
+                         str(iteration),
+                         'labels_monitoring',
+                         'labels_monitoring.json')
     with open(filename, 'r') as f:
         stats = json.load(f)
         res = {}
@@ -39,46 +42,50 @@ def getLabelsMonitoring(experiment_id, iteration):
 @app.route('/activeLearningSuggestionsMonitoring/<experiment_id>/<iteration>/')
 def activeLearningSuggestionsMonitoring(experiment_id, iteration):
     experiment = updateCurrentExperiment(experiment_id)
-    filename = experiment.getOutputDirectory() + str(int(iteration) - 1) + '/'
-    filename += 'suggestions_accuracy/'
-    filename += 'labels_families'
-    filename += '_high_confidence_suggestions.png'
+    filename = path.join(experiment.getOutputDirectory(),
+                         str(int(iteration) - 1),
+                         'suggestions_accuracy',
+                         'labels_families_high_confidence_suggestions.png')
     return send_file(filename)
 
 
 @app.route('/activeLearningModelsMonitoring/<experiment_id>/<iteration>/<train_cv_validation>/')
 def activeLearningModelsMonitoring(experiment_id, iteration, train_cv_validation):
     experiment = updateCurrentExperiment(experiment_id)
-    active_learning = IterationExp(experiment, int(iteration))
     binary_multiclass = 'multiclass'
     estimator = 'accuracy'
     if 'binary' in list(experiment.conf.models_conf.keys()):
         binary_multiclass = 'binary'
         estimator = 'auc'
-    directory = experiment.getOutputDirectory() + str(iteration) + '/'
-    filename = directory
-    filename += 'models_performance/'
-    filename += binary_multiclass + '_' + \
-        train_cv_validation + '_' + estimator + '_monitoring.png'
-    return send_file(filename, mimetype='image/png')
+    directory = path.join(experiment.getOutputDirectory(),
+                          str(iteration),
+                          'models_performance')
+    filename = '_'.join([binary_multiclass,
+                         train_cv_validation,
+                         estimator,
+                         'monitoring.png'])
+    return send_file(path.join(directory, filename), mimetype='image/png')
 
 
 @app.route('/activeLearningMonitoring/<experiment_id>/<iteration>/<kind>/<sub_kind>/')
 def activeLearningMonitoring(experiment_id, iteration, kind, sub_kind):
     experiment = updateCurrentExperiment(experiment_id)
-    active_learning = IterationExp(experiment, int(iteration))
-    directory = experiment.getOutputDirectory() + str(iteration) + '/'
+    directory = path.join(experiment.getOutputDirectory(), str(iteration))
     if kind == 'labels':
-        filename = directory + 'labels_monitoring/'
-        filename += 'iteration' + '_' + sub_kind + '.png'
+        filename = path.join(directory,
+                             'labels_monitoring',
+                             'iteration' + '_' + sub_kind + '.png')
     if kind == 'families':
-        filename = directory + 'labels_monitoring/' + 'families_monitoring.png'
+        filename = path.join(directory,
+                             'labels_monitoring',
+                             'families_monitoring.png')
     if kind == 'clustering':
-        filename = directory + 'clustering_evaluation/'
-        filename += sub_kind + '_monitoring.png'
+        filename = path.join(directory,
+                             'clustering_evaluation',
+                             sub_kind + '_monitoring.png')
     if kind == 'time':
-        filename = directory
-        filename += 'execution_time_monitoring.png'
+        filename = path.join(directory,
+                             'execution_time_monitoring.png')
     try:
         return send_file(filename, mimetype='image/png')
     except FileNotFoundError:

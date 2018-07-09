@@ -15,6 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import json
+import os.path as path
 
 from SecuML.core.ActiveLearning.QueryStrategies.QueryStrategy import QueryStrategy
 from SecuML.core.ActiveLearning.QueryStrategies.RareCategoryDetection import RareCategoryDetection
@@ -42,8 +43,8 @@ class RareCategoryDetectionExp(RareCategoryDetection):
                          'clustering_exp': clustering_exp
                          }
                  }
-        filename = self.iteration.iteration_dir
-        filename += 'annotations_types.json'
+        filename = path.join(self.iteration.iteration_dir,
+                             'annotations_types.json')
         with open(filename, 'w') as f:
             json.dump(types, f, indent=2)
 

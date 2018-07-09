@@ -15,6 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import json
+import os.path as path
 
 from SecuML.core.ActiveLearning.QueryStrategies.Ilab import Ilab
 from SecuML.core.Data import labels_tools
@@ -71,8 +72,8 @@ class IlabExp(Ilab):
                 types[labels_tools.BENIGN]['clustering_exp'] = clustering_exp.experiment_id
             else:
                 types[labels_tools.BENIGN]['clustering_exp'] = None
-        filename = self.iteration.iteration_dir
-        filename += 'annotations_types.json'
+        filename = path.join(self.iteration.iteration_dir,
+                             'annotations_types.json')
         with open(filename, 'w') as f:
             json.dump(types, f, indent=2)
 

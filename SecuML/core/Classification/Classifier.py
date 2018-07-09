@@ -17,9 +17,11 @@
 import abc
 import time
 
+from sklearn.externals import joblib
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import GridSearchCV
 
+from .Configuration.TestConfiguration.CvConf import CvConf
 from .CvClassifierDatasets import CvClassifierDatasets
 from .Monitoring.AlertsMonitoring import AlertsMonitoring
 from .Monitoring.CvMonitoring import CvMonitoring
@@ -48,6 +50,9 @@ class Classifier(object):
 
     def trainTestValidation(self, datasets):
         self.training(datasets)
+        self.testValidation(datasets)
+
+    def testValidation(self, datasets):
         self.testing(datasets)
         self.generateAlerts(datasets)
         if datasets.validation_instances is not None:
@@ -61,6 +66,12 @@ class Classifier(object):
             if len(set(supervision)) < 2:
                 raise SupervisedLearningAtLeastTwoClasses
         return supervision
+
+    def loadModel(self, model_filename):
+        self.pipeline = joblib.load(model_filename)
+
+    def dumpModel(self, model_filename):
+        joblib.dump(self.pipeline, model_filename)
 
     def training(self, datasets):
         self.training_execution_time = 0
@@ -101,8 +112,9 @@ class Classifier(object):
 
     def crossValidationMonitoring(self, datasets):
         # CV datasets
-        cv_datasets = CvClassifierDatasets(self.conf.families_supervision,
-                                           self.conf.num_folds,
+        cv_test_conf = CvConf(self.conf.num_folds, alerts_conf=None)
+        cv_datasets = CvClassifierDatasets(cv_test_conf,
+                                           self.conf.families_supervision,
                                            self.conf.sample_weight,
                                            cv=self.cv)
         cv_datasets.generateDatasets(datasets.train_instances, None)

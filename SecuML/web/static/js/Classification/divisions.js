@@ -10,9 +10,14 @@ function generateDivisions(conf) {
   // Monitoring row
   var row = createDivWithClass('monitoring_row', 'row', main);
 
-  if (conf.classification_conf.test_conf.method == 'cv') {
+  var test_method = conf.classification_conf.test_conf.method
+  if (['cv', 'temporal_cv', 'sliding_window'].indexOf(test_method) > -1) {
     displayFoldIdSelectList(conf, experiment_row);
-    displayMonitoringRow(conf, 'all');
+    if (test_method == 'cv') {
+        displayMonitoringRow(conf, 'all');
+    } else {
+        displayMonitoringRow(conf, '0');
+    }
   } else {
     displayMonitoringRow(conf);
   }
@@ -41,7 +46,11 @@ function displayFoldIdSelectList(conf, experiment_row) {
                                         displayFoldIdMonitoring(conf),
                                         select_fold_div,
                                         'Select a fold');
-  var elem_list = ['all'];
+  var test_method = conf.classification_conf.test_conf.method
+  var elem_list = [];
+  if (test_method == 'cv') {
+      elem_list.push('all');
+  }
   for (var i = 0; i < num_folds; i++) {
       elem_list.push(i);
   }

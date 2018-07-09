@@ -16,6 +16,7 @@
 
 import abc
 import numpy as np
+import os.path as path
 import pandas as pd
 import time
 
@@ -72,8 +73,8 @@ class AnnotationQueries(object):
         iteration_dir = self.iteration.iteration_dir
         if iteration_dir is None:
             return
-        filename = iteration_dir
-        filename += 'toannotate_' + self.label + '.csv'
+        filename = path.join(iteration_dir,
+                             'toannotate_' + self.label + '.csv')
         with open(filename, 'w') as f:
             for i, annotation_query in enumerate(self.annotation_queries):
                 if i == 0:

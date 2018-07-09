@@ -16,6 +16,7 @@
 
 import datetime
 from flask import jsonify
+import os.path as path
 
 from SecuML.web import app, user_exp, session
 from SecuML.web.views.experiments import updateCurrentExperiment
@@ -48,8 +49,8 @@ def removeAnnotation(experiment_id, inst_experiment_id, iteration_number, instan
         session, inst_experiment_id, instance_id)
     if user_exp:
         experiment = updateCurrentExperiment(experiment_id)
-        filename = experiment.getOutputDirectory()
-        filename += 'user_actions.log'
+        filename = path.join(experiment.getOutputDirectory(),
+                             'user_actions.log')
         file_exists = dir_tools.checkFileExists(filename)
         mode = 'a' if file_exists else 'w'
         to_print = [datetime.datetime.now(), 'removeAnnotation', instance_id]
@@ -70,8 +71,8 @@ def addAnnotation(experiment_id, inst_experiment_id, iteration_number, instance_
                                        iteration_number, method)
     if user_exp:
         experiment = updateCurrentExperiment(experiment_id)
-        filename = experiment.getOutputDirectory()
-        filename += 'user_actions.log'
+        filename = path.join(experiment.getOutputDirectory(),
+                             'user_actions.log')
         file_exists = dir_tools.checkFileExists(filename)
         mode = 'a' if file_exists else 'w'
         to_print = [datetime.datetime.now(), 'addAnnotation',
@@ -132,8 +133,8 @@ def changeFamilyName(experiment_id, label, family, new_family_name):
                                           new_family_name)
     if user_exp:
         experiment = updateCurrentExperiment(experiment_id)
-        filename = experiment.getOutputDirectory()
-        filename += 'user_actions.log'
+        filename = path.join(experiment.getOutputDirectory(),
+                             'user_actions.log')
         file_exists = dir_tools.checkFileExists(filename)
         mode = 'a' if file_exists else 'w'
         to_print = [datetime.datetime.now(), 'changeFamilyName',
@@ -151,8 +152,8 @@ def changeFamilyLabel(experiment_id, label, family):
         session, experiment_id, label, family)
     if user_exp:
         experiment = updateCurrentExperiment(experiment_id)
-        filename = experiment.getOutputDirectory()
-        filename += 'user_actions.log'
+        filename = path.join(experiment.getOutputDirectory(),
+                             'user_actions.log')
         file_exists = dir_tools.checkFileExists(filename)
         mode = 'a' if file_exists else 'w'
         to_print = [datetime.datetime.now(), 'changeFamilyLabel',
@@ -171,8 +172,8 @@ def mergeFamilies(experiment_id, label, families, new_family_name):
                                        new_family_name)
     if user_exp:
         experiment = updateCurrentExperiment(experiment_id)
-        filename = experiment.getOutputDirectory()
-        filename += 'user_actions.log'
+        filename = path.join(experiment.getOutputDirectory(),
+                             'user_actions.log')
         file_exists = dir_tools.checkFileExists(filename)
         mode = 'a' if file_exists else 'w'
         to_print = [datetime.datetime.now(), 'mergeFamilies', new_family_name]

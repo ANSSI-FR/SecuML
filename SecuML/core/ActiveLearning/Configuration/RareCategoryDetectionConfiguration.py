@@ -20,7 +20,8 @@ from .RareCategoryDetectionStrategy import RareCategoryDetectionStrategy
 
 from SecuML.core.ActiveLearning.QueryStrategies.RareCategoryDetection import RareCategoryDetection
 from SecuML.core.Classification.Configuration import ClassifierConfFactory
-from SecuML.core.Classification.Configuration.TestConfiguration import TestConfiguration
+from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf import UnlabeledLabeledConf
+from SecuML.core.Classification.Configuration.TestConfiguration.ValidationDatasetConf import ValidationDatasetConf
 
 
 class RareCategoryDetectionConfiguration(ActiveLearningConfiguration):
@@ -49,7 +50,7 @@ class RareCategoryDetectionConfiguration(ActiveLearningConfiguration):
     def fromJson(obj):
         validation_conf = None
         if obj['validation_conf'] is not None:
-            validation_conf = TestConfiguration.fromJson(
+            validation_conf = ValidationDatasetConf.fromJson(
                 obj['validation_conf'])
         multiclass_model_conf = ClassifierConfFactory.getFactory(
         ).fromJson(obj['models_conf']['multiclass'])
@@ -86,8 +87,7 @@ class RareCategoryDetectionConfiguration(ActiveLearningConfiguration):
         multiclass_classifier_args['sample_weight'] = False
         multiclass_classifier_args['families_supervision'] = True
         multiclass_classifier_args['alerts_conf'] = None
-        test_conf = TestConfiguration()
-        test_conf.setUnlabeled()
+        test_conf = UnlabeledLabeledConf()
         multiclass_classifier_args['test_conf'] = test_conf
         multiclass_conf = ClassifierConfFactory.getFactory().fromParam(
             args.model_class, multiclass_classifier_args)

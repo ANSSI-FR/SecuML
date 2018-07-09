@@ -87,7 +87,7 @@ class ClusteringExperiment(Experiment):
     def setExperimentFromArgs(self, args):
         factory = ClusteringConfFactory.getFactory()
         conf = factory.fromArgs(args.algo, args, logger=self.logger)
-        self.setConf(conf, args.features_files,
+        self.setConf(conf, args.features_file,
                      annotations_filename=args.annotations_file)
         self.export()
 
@@ -104,7 +104,7 @@ class ClusteringExperiment(Experiment):
                                                       parent=self.experiment_id,
                                                       logger=self.logger)
         projection_exp.setConf(projection_conf)
-        projection_exp.setFeaturesFilenames(self.features_filenames)
+        projection_exp.setFeaturesFilenames(self.features_filename)
         projection_exp.createExperiment()
         projection_exp.export()
         return projection_exp

@@ -16,6 +16,7 @@
 
 import json
 import numpy as np
+import os.path as path
 
 from SecuML.core.Data import labels_tools
 
@@ -47,7 +48,7 @@ class DescriptiveStatistics(object):
             features_types['features'].append(feature)
             features_types['features'].sort()
             features_types['types'][feature] = stats.feature_type
-            with open(output_directory + 'features_types.json', 'w') as f:
+            with open(path.join(output_directory, 'features_types.json'), 'w') as f:
                 json.dump(features_types, f, indent=2)
 
 
@@ -55,7 +56,7 @@ class FeatureDescriptiveStatistics(object):
 
     def __init__(self, instances, feature, output_directory):
         self.feature = feature
-        self.output_directory = output_directory + self.feature + '/'
+        self.output_directory = path.join(output_directory, self.feature)
         dir_tools.createDirectory(self.output_directory)
         self.has_ground_truth = instances.hasGroundTruth()
         self.generatePlotDatasets(instances)
@@ -109,14 +110,14 @@ class FeatureDescriptiveStatistics(object):
                 'std': np.std(dataset.values),
                 'median': np.median(dataset.values),
             }
-        with open(self.output_directory + 'stats.json', 'w') as f:
+        with open(path.join(self.output_directory, 'stats.json'), 'w') as f:
             json.dump(stats, f, indent=2)
 
     def generateBoxplot(self):
         boxplot = BoxPlot(title='Feature ' + self.feature)
         for label, dataset in self.plot_datasets.items():
             boxplot.addDataset(dataset)
-        output_filename = self.output_directory + 'boxplot.png'
+        output_filename = path.join(self.output_directory, 'boxplot.png')
         boxplot.display(output_filename)
         return
 
@@ -137,7 +138,7 @@ class FeatureDescriptiveStatistics(object):
             hist_dataset = PlotDataset(hist, dataset.label)
             hist_dataset.setColor(dataset.color)
             barplot.addDataset(hist_dataset)
-        output_filename = self.output_directory + 'histogram.json'
+        output_filename = path.join(self.output_directory, 'histogram.json')
         with open(output_filename, 'w') as f:
             barplot.exportJson(f)
 
@@ -149,7 +150,7 @@ class FeatureDescriptiveStatistics(object):
             hist_dataset = PlotDataset([num_0, num_1], dataset.label)
             hist_dataset.setColor(dataset.color)
             barplot.addDataset(hist_dataset)
-        output_filename = self.output_directory + 'binary_histogram.json'
+        output_filename = path.join(self.output_directory, 'binary_histogram.json')
         with open(output_filename, 'w') as f:
             barplot.exportJson(f)
 
@@ -158,5 +159,5 @@ class FeatureDescriptiveStatistics(object):
                           title='Feature ' + self.feature)
         for label, dataset in self.plot_datasets.items():
             density.addDataset(dataset)
-        output_filename = self.output_directory + 'density.png'
+        output_filename = path.join(self.output_directory, 'density.png')
         density.display(output_filename)

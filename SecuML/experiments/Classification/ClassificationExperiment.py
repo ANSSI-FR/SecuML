@@ -15,19 +15,25 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import json
+import os.path as path
 
 from SecuML.core.Classification.Configuration import ClassifierConfFactory
+from SecuML.core.Classification.Configuration.AlertsConfiguration import AlertsConfiguration
+from SecuML.core.Classification.Configuration.TestConfiguration.ValidationDatasetConf import ValidationDatasetConf
 from SecuML.core.Classification.ClassifierDatasets import ClassifierDatasets
 from SecuML.core.Classification.CvClassifierDatasets import CvClassifierDatasets
+from SecuML.core.Clustering.Configuration import ClusteringConfFactory
 from SecuML.core.Configuration import Configuration
 
 from SecuML.experiments import ExperimentFactory
-from SecuML.experiments import db_tables
 from SecuML.experiments.Classification.RunClassifier import RunClassifier
 from SecuML.experiments.Data.Dataset import Dataset
 from SecuML.experiments.Experiment import Experiment
 from SecuML.experiments.InstancesFromExperiment import InstancesFromExperiment
+from SecuML.experiments.Tools import dir_exp_tools
 from SecuML.experiments.ValidationExperiment import ValidationExperiment
+
 
 
 class NoGroundTruth(Exception):
@@ -40,6 +46,12 @@ class NoGroundTruth(Exception):
 
 
 class ClassificationExperiment(Experiment):
+
+    def __init__(self, project, dataset, session, experiment_name=None,
+                 parent=None, logger=None, create=True):
+        Experiment.__init__(self, project, dataset, session, experiment_name,
+                            parent, logger, create)
+        self.already_trained = None
 
     def getKind(self):
         return 'Classification'
@@ -58,7 +70,7 @@ class ClassificationExperiment(Experiment):
         # Check if the validation experiments already exists
         test_exp = ValidationExperiment(self.project, test_dataset,
                                         self.session)
-        test_exp.setConf(Configuration(self.conf.logger), self.features_filenames,
+        test_exp.setConf(Configuration(self.conf.logger), self.features_filename,
                          annotations_filename='ground_truth.csv')
         return test_exp
 
@@ -66,7 +78,9 @@ class ClassificationExperiment(Experiment):
         Experiment.export(self)
         if self.conf.test_conf.method == 'dataset':
             self.test_exp.export()
-            with open(self.getOutputDirectory() + 'test_experiment.txt', 'w') as f:
+            filename = path.join(self.getOutputDirectory(),
+                                 'test_experiment.txt')
+            with open(filename, 'w') as f:
                 f.write(str(self.test_exp.experiment_id) + '\n')
 
     def generateDatasets(self):
@@ -75,9 +89,9 @@ class ClassificationExperiment(Experiment):
         if self.conf.test_conf.method == 'dataset':
             test_instances = InstancesFromExperiment(
                 self.test_exp).getInstances()
-        if self.conf.test_conf.method == 'cv':
-            datasets = CvClassifierDatasets(self.conf.families_supervision,
-                                            self.conf.num_folds,
+        if self.conf.test_conf.method in ['cv', 'temporal_cv', 'sliding_window']:
+            datasets = CvClassifierDatasets(self.conf.test_conf,
+                                            self.conf.families_supervision,
                                             self.conf.sample_weight)
         else:
             datasets = ClassifierDatasets(self.conf.test_conf,
@@ -85,9 +99,9 @@ class ClassificationExperiment(Experiment):
         datasets.generateDatasets(instances, test_instances)
         return datasets
 
-    def setConf(self, conf, features_files, annotations_filename=None,
+    def setConf(self, conf, features_file, annotations_filename=None,
                 annotations_id=None):
-        Experiment.setConf(self, conf, features_files,
+        Experiment.setConf(self, conf, features_file,
                            annotations_filename=annotations_filename,
                            annotations_id=annotations_id)
         if self.conf.test_conf.method == 'dataset':
@@ -122,21 +136,56 @@ class ClassificationExperiment(Experiment):
             'The ground-truth must be stored in annotations/ground_truth.csv.')
         Experiment.projectDatasetFeturesParser(parser)
         models = ['LogisticRegression', 'Svc', 'GaussianNaiveBayes',
-                  'DecisionTree', 'RandomForest', 'GradientBoosting']
+                  'DecisionTree', 'RandomForest', 'GradientBoosting',
+                  'AutoSklearn']
         subparsers = parser.add_subparsers(dest='model')
         factory = ClassifierConfFactory.getFactory()
         for model in models:
             model_parser = subparsers.add_parser(model)
             factory.generateParser(model, model_parser)
+        ## Add subparser for already trained model
+        already_trained = subparsers.add_parser('AlreadyTrained')
+        factory.generateParser('AlreadyTrained', already_trained)
         return parser
 
     def webTemplate(self):
         return 'Classification/classification.html'
 
+    def generateAlreadyTrainedConf(self, factory, args, logger):
+        conf_filename = dir_exp_tools.getExperimentConfigurationFilename(
+                args.project,
+                args.dataset,
+                args.model_exp_id)
+        with open(conf_filename, 'r') as f:
+            conf_json = json.load(f)
+            conf = factory.fromJson(conf_json['classification_conf'])
+
+            params = {}
+            params['num_clusters'] = args.num_clusters
+            params['num_results'] = None
+            params['projection_conf'] = None
+            params['label'] = 'all'
+            clustering_conf = ClusteringConfFactory.getFactory().fromParam(
+                    args.clustering_algo,
+                    params)
+            alerts_conf = AlertsConfiguration(args.top_n_alerts,
+                                              args.detection_threshold,
+                                              clustering_conf)
+
+            test_conf = ValidationDatasetConf(args.validation_dataset,
+                                              alerts_conf=alerts_conf)
+            conf.test_conf = test_conf
+        return conf
+
     def setExperimentFromArgs(self, args):
         factory = ClassifierConfFactory.getFactory()
-        conf = factory.fromArgs(args.model, args, logger=self.logger)
-        self.setConf(conf, args.features_files,
+        if args.model == 'AlreadyTrained':
+            self.already_trained = args.model_exp_id
+            conf = self.generateAlreadyTrainedConf(factory, args,
+                                                   self.logger)
+        else:
+            conf = factory.fromArgs(args.model, args, logger=self.logger)
+        self.setConf(conf, args.features_file,
                      annotations_filename='ground_truth.csv')
         self.export()
 

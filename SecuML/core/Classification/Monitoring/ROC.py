@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import interp
 from sklearn.metrics import roc_curve, auc
+import os.path as path
 
 from SecuML.core.Tools import colors_tools
 
@@ -59,8 +60,8 @@ class ROC(object):
                           label='ROC (area = %0.2f)' % (roc_auc))
 
     def display(self, directory):
-        self.plot(directory + 'ROC.png')
-        self.toCsv(directory + 'ROC.csv')
+        self.plot(path.join(directory, 'ROC.png'))
+        self.toCsv(path.join(directory, 'ROC.csv'))
 
     def plot(self, output_file):
         self.ax1.plot([0, 1], [0, 1], '--', lw=1,

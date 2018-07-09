@@ -60,7 +60,7 @@ class DescriptiveStatisticsExperiment(Experiment):
         return 'DescriptiveStatistics/descriptive_statistics.html'
 
     def setExperimentFromArgs(self, args):
-        self.setConf(None, args.features_files,
+        self.setConf(None, args.features_file,
                      annotations_filename='ground_truth.csv')
         self.export()
 

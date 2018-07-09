@@ -16,6 +16,7 @@
 
 import csv
 import matplotlib.pyplot as plt
+import os.path as path
 import pandas as pd
 
 from SecuML.core.Tools import colors_tools
@@ -30,14 +31,14 @@ class ClusteringEvaluationMonitoring(object):
             'homogeneity', 'completeness', 'v_measure']
         self.adjusted_estimators = [
             'adjusted_rand_score', 'adjusted_mutual_info_score']
-        self.evolution_file = self.monitoring.AL_directory
-        self.evolution_file += 'clustering_homogeneity_monitoring.csv'
+        self.evolution_file = path.join(self.monitoring.AL_directory,
+                                        'clustering_homogeneity_monitoring.csv')
         self.annotations = self.monitoring.iteration.annotations
         self.setOutputDirectory()
 
     def setOutputDirectory(self):
-        self.output_directory = self.monitoring.iteration_dir
-        self.output_directory += 'clustering_evaluation/'
+        self.output_directory = path.join(self.monitoring.iteration_dir,
+                                          'clustering_evaluation')
         dir_tools.createDirectory(self.output_directory)
 
     def iterationMonitoring(self):
@@ -99,8 +100,8 @@ class ClusteringEvaluationMonitoring(object):
             lgd = plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
                              ncol=2, mode='expand', borderaxespad=0.,
                              fontsize='large')
-            filename = self.output_directory
-            filename += estimator + '_monitoring.png'
+            filename = path.join(self.output_directory,
+                                 estimator + '_monitoring.png')
             plt.savefig(filename, bbox_extra_artists=(
                 lgd,), bbox_inches='tight')
             plt.clf()

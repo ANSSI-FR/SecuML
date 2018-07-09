@@ -16,6 +16,7 @@
 
 import csv
 import matplotlib.pyplot as plt
+import os.path as path
 import pandas as pd
 
 from SecuML.core.Tools.Plots.PlotDataset import PlotDataset
@@ -49,8 +50,10 @@ class SuggestionsAccuracyCounts(object):
             self.num_suggestions += 1
 
     def exportMonitoring(self, monitoring_dir, evolution_dir):
-        evolution_file = evolution_dir + self.labels_families
-        evolution_file += '_' + self.kind + '_suggestions.csv'
+        filename = '_'.join([self.labels_families,
+                             self.kind,
+                             'suggestions.csv'])
+        evolution_file = path.join(evolution_dir, filename)
         self.displayCsvLine(evolution_file)
         self.plotEvolutionMonitoring(evolution_file, monitoring_dir)
 
@@ -103,8 +106,10 @@ class SuggestionsAccuracyCounts(object):
         lgd = plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
                          ncol=2, mode='expand', borderaxespad=0.,
                          fontsize='large')
-        filename = monitoring_dir
-        filename += self.labels_families + '_' + self.kind + '_suggestions.png'
+        filename = '_'.join([self.labels_families,
+                             self.kind,
+                             'suggestions.png'])
+        filename = path.join(monitoring_dir, filename)
         plt.savefig(filename, bbox_extra_artists=(lgd,), bbox_inches='tight')
         plt.clf()
         self.data = data
@@ -117,10 +122,14 @@ class SuggestionsAccuracyLabelsFamilies(object):
         self.initCounts(monitoring)
 
     def initCounts(self, monitoring):
-        self.all_counts = SuggestionsAccuracyCounts(monitoring,
-                                                    'all', self.labels_families)
-        self.high_confidence_counts = SuggestionsAccuracyCounts(monitoring,
-                                                                'high_confidence', self.labels_families)
+        self.all_counts = SuggestionsAccuracyCounts(
+                monitoring,
+                'all',
+                self.labels_families)
+        self.high_confidence_counts = SuggestionsAccuracyCounts(
+                monitoring,
+                'high_confidence',
+                self.labels_families)
 
     def addAnnotation(self, suggestion, answer, confidence):
         self.all_counts.addAnnotation(suggestion, answer)
@@ -202,16 +211,16 @@ class SuggestionsAccuracy(object):
         lgd = plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
                          ncol=2, mode='expand', borderaxespad=0.,
                          fontsize='large')
-        filename = monitoring_dir
-        filename += 'labels_families_high_confidence_suggestions.png'
+        filename = path.join(monitoring_dir,
+                             'labels_families_high_confidence_suggestions.png')
         plt.savefig(filename, bbox_extra_artists=(lgd,), bbox_inches='tight')
         plt.clf()
 
     def getOutputDirectories(self, al_dir, iteration_dir):
-        monitoring_dir = iteration_dir + 'suggestions_accuracy/'
+        monitoring_dir = path.join(iteration_dir, 'suggestions_accuracy')
         dir_tools.createDirectory(monitoring_dir)
 
-        evolution_dir = al_dir + 'suggestions_accuracy/'
+        evolution_dir = path.join(al_dir, 'suggestions_accuracy')
         if self.monitoring.iteration_number == 1:
             dir_tools.createDirectory(evolution_dir)
 

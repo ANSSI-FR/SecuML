@@ -28,12 +28,14 @@ class InstancesFromExperiment(object):
 
     def getInstances(self):
         ids = self.getIds()
+        timestamps = self.getTimestamps()
         features, features_names, features_descriptions = self.getFeatures()
         labels, families, gt_labels, gt_families = self.getLabels(len(ids))
         instances = Instances(ids, features,
                               features_names, features_descriptions,
                               labels, families,
-                              gt_labels, gt_families)
+                              gt_labels, gt_families,
+                              timestamps=timestamps)
         return instances
 
     def getIds(self):
@@ -43,6 +45,11 @@ class InstancesFromExperiment(object):
         for i in range(len(ids)):
             self.indexes[ids[i]] = i
         return ids
+
+    def getTimestamps(self):
+        timestamps = db_tables.getDatasetTimestamps(self.experiment.session,
+                                                    self.experiment.dataset_id)
+        return timestamps
 
     def getFeatures(self):
         features = self.experiment.getAllFeatures()

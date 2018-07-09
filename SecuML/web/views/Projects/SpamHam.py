@@ -14,13 +14,17 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import os.path as path
+
 from SecuML.experiments.config import INPUTDATA_DIR
 
 
 def getInstance(experiment, view_id, instance_id, ident):
     dataset = experiment.dataset
-    filename = INPUTDATA_DIR + '/' + 'SpamHam' + '/'
-    filename += dataset + '/raw_mail/' + ident
-    with open(filename, 'r') as f:
+    directory = path.join(INPUTDATA_DIR,
+                          'SpamHam',
+                          dataset,
+                          'raw_mail')
+    with open(path.join(directory, ident), 'r') as f:
         mail = f.read()
     return mail

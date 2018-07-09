@@ -17,7 +17,8 @@
 import abc
 
 from SecuML.core.Classification.Configuration import ClassifierConfFactory
-from SecuML.core.Classification.Configuration.TestConfiguration import TestConfiguration
+from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf import UnlabeledLabeledConf
+from SecuML.core.Classification.Configuration.TestConfiguration.ValidationDatasetConf import ValidationDatasetConf
 from SecuML.core.Configuration import Configuration
 
 
@@ -130,9 +131,7 @@ class ActiveLearningConfiguration(Configuration):
             supervised_args['num_folds'] = args.num_folds
             supervised_args['sample_weight'] = args.sample_weight
             supervised_args['families_supervision'] = False
-            test_conf = TestConfiguration()
-            test_conf.setUnlabeled()
-            supervised_args['test_conf'] = test_conf
+            supervised_args['test_conf'] = UnlabeledLabeledConf()
             binary_model_conf = ClassifierConfFactory.getFactory().fromParam(
                 args.model_class, supervised_args)
 
@@ -143,8 +142,7 @@ class ActiveLearningConfiguration(Configuration):
 
         validation_conf = None
         if args.validation_dataset is not None:
-            validation_conf = TestConfiguration()
-            validation_conf.setTestDataset(args.validation_dataset)
+            validation_conf = ValidationDatasetConf(args.validation_dataset)
         active_learning_params['validation_conf'] = validation_conf
 
         return active_learning_params

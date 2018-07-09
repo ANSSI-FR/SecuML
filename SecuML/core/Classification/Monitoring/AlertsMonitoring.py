@@ -14,8 +14,10 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import os.path as path
+
 from SecuML.core.Classification.ClassifierDatasets import ClassifierDatasets
-from SecuML.core.Classification.Configuration.TestConfiguration import TestConfiguration
+from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf import UnlabeledLabeledConf
 from SecuML.core.Classification.Configuration import ClassifierConfFactory
 from SecuML.core.Clustering.Clustering import Clustering
 from SecuML.core.Data import labels_tools
@@ -45,15 +47,15 @@ class AlertsMonitoring(object):
         self.exportRawAlerts(output_directory)
         self.exportAlertsGrouping(output_directory)
 
-    def exportRawAlerts(self, output_directory):
-        with open(output_directory + 'alerts.csv', 'w') as f:
+    def exportRawAlerts(self, directory):
+        with open(path.join(directory, 'alerts.csv'), 'w') as f:
             self.alerts.to_csv(f, index_label='instance_id')
 
-    def exportAlertsGrouping(self, output_directory):
+    def exportAlertsGrouping(self, directory):
         if self.alerts_grouping is None:
             return
-        self.alerts_grouping.export(
-            output_directory, drop_annotated_instances=False)
+        self.alerts_grouping.export(directory,
+                                    drop_annotated_instances=False)
 
     def clusterAlerts(self, alerts_ids):
         self.checkNumClustersValidity(alerts_ids)
@@ -85,8 +87,7 @@ class AlertsMonitoring(object):
         params['families_supervision'] = True
         params['optim_algo'] = 'liblinear'
         params['alerts_conf'] = None
-        test_conf = TestConfiguration()
-        test_conf.setUnlabeled()
+        test_conf = UnlabeledLabeledConf()
         params['test_conf'] = test_conf
         conf = ClassifierConfFactory.getFactory().fromParam(
             'LogisticRegression', params)

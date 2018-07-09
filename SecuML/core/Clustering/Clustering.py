@@ -16,6 +16,7 @@
 
 import json
 from sklearn.metrics.pairwise import euclidean_distances
+import os.path as path
 
 from .Evaluation.ClusteringEvaluation import ClusteringEvaluation
 from .Cluster import Cluster
@@ -80,7 +81,7 @@ class Clustering(object):
         with open(filename, 'w') as f:
             json.dump(obj, f, indent=2)
 
-    def export(self, output_directory, drop_annotated_instances=False):
+    def export(self, directory, drop_annotated_instances=False):
         obj = {}
         obj['assigned_clusters'] = list(map(int, self.assigned_clusters))
         if drop_annotated_instances:
@@ -90,7 +91,7 @@ class Clustering(object):
         for c in range(self.num_clusters):
             obj[str(c)] = self.clusters[c].toJson(
                 drop_instances=drop_instances)
-        filename = output_directory + 'clusters.json'
+        filename = path.join(directory, 'clusters.json')
         with open(filename, 'w') as f:
             json.dump(obj, f, indent=2)
 
@@ -108,7 +109,7 @@ class Clustering(object):
     @staticmethod
     def fromJson(directory):
         clustering = Clustering(None, [])
-        with open(directory + 'clusters.json', 'r') as f:
+        with open(path.join(directory, 'clusters.json'), 'r') as f:
             obj = json.load(f)
             clustering.assigned_clusters = obj['assigned_clusters']
             clustering.num_clusters = len(obj) - 1

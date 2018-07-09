@@ -50,7 +50,7 @@ class RareCategoryDetectionAnnotationQueriesExp(RareCategoryDetectionAnnotationQ
                                                        exp.session,
                                                        experiment_name=name,
                                                        parent=exp.experiment_id)
-        self.multiclass_exp.setConf(conf, exp.features_filenames,
+        self.multiclass_exp.setConf(conf, exp.features_filename,
                                     annotations_id=exp.annotations_id)
         self.multiclass_exp.export()
         return conf
@@ -65,7 +65,7 @@ class RareCategoryDetectionAnnotationQueriesExp(RareCategoryDetectionAnnotationQ
         clustering_exp = ClusteringExperiment(exp.project, exp.dataset, exp.session,
                                               experiment_name=name,
                                               parent=exp.experiment_id)
-        clustering_exp.setConf(conf, exp.features_filenames,
+        clustering_exp.setConf(conf, exp.features_filename,
                                annotations_id=exp.annotations_id)
         clustering_exp.export()
         return clustering_exp

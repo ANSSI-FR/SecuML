@@ -16,6 +16,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import os.path as path
 
 from sklearn.metrics import silhouette_samples
 
@@ -72,7 +73,7 @@ class Silhouette(object):
         plt.axvline(x=self.silhouette_avg, color='red', linestyle='--')
         plt.yticks([])  # Clear the yaxis labels / ticks
         plt.xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
-        plt.savefig(output_dir + 'silhouette.png')
+        plt.savefig(path.join(output_dir, 'silhouette.png'))
         plt.clf()
 
     def toJson(self):

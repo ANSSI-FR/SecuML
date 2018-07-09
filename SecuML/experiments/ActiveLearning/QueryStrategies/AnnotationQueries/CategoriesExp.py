@@ -17,7 +17,7 @@
 from SecuML.core.ActiveLearning.QueryStrategies.AnnotationQueries.Categories import Categories
 from SecuML.core.Classification.Configuration.GaussianNaiveBayesConfiguration \
     import GaussianNaiveBayesConfiguration
-from SecuML.core.Classification.Configuration.TestConfiguration import TestConfiguration
+from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf import UnlabeledLabeledConf
 from SecuML.experiments.Classification.ClassificationExperiment import ClassificationExperiment
 
 from .CategoryExp import CategoryExp
@@ -44,11 +44,10 @@ class CategoriesExp(Categories):
         naive_bayes_exp = ClassificationExperiment(exp.project, exp.dataset, exp.session,
                                                    experiment_name=name,
                                                    parent=exp.experiment_id)
-        test_conf = TestConfiguration()
-        test_conf.setUnlabeled()
+        test_conf = UnlabeledLabeledConf()
         naive_bayes_conf = GaussianNaiveBayesConfiguration(
             exp.conf.num_folds, False, True, test_conf)
-        naive_bayes_exp.setConf(naive_bayes_conf, exp.features_filenames,
+        naive_bayes_exp.setConf(naive_bayes_conf, exp.features_filename,
                                 annotations_id=exp.annotations_id)
         naive_bayes_exp.export()
         return naive_bayes_conf

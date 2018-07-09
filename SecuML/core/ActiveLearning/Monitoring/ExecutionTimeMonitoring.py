@@ -16,6 +16,7 @@
 
 import csv
 import matplotlib.pyplot as plt
+import os.path as path
 import pandas as pd
 
 
@@ -35,7 +36,7 @@ class ExecutionTimeMonitoring(object):
 
     def getOutputDirectories(self, al_dir, iteration_dir):
         monitoring_dir = iteration_dir
-        evolution_file = al_dir + 'execution_time_monitoring.csv'
+        evolution_file = path.join(al_dir, 'execution_time_monitoring.csv')
         return monitoring_dir, evolution_file
 
     def displayCsvLine(self, evolution_file):
@@ -82,11 +83,9 @@ class ExecutionTimeMonitoring(object):
         lgd = plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
                          ncol=2, mode='expand', borderaxespad=0.,
                          fontsize='large')
-        filename = monitoring_dir
-        filename += 'execution_time_monitoring.png'
+        filename = path.join(monitoring_dir, 'execution_time_monitoring.png')
         plt.savefig(filename, bbox_extra_artists=(lgd,), bbox_inches='tight')
-        filename = monitoring_dir
-        filename += 'execution_time_monitoring.eps'
+        filename = path.join(monitoring_dir, 'execution_time_monitoring.eps')
         plt.savefig(filename, bbox_extra_artists=(lgd,), bbox_inches='tight',
                     dpi=1000, format='eps')
         plt.clf()

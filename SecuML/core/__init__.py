@@ -31,27 +31,45 @@ from .ActiveLearning.Configuration.UncertaintySamplingConfiguration \
         import UncertaintySamplingConfiguration
 
 # Classification
-from SecuML.core.Classification.Configuration.DecisionTreeConfiguration \
+from .Classification.Configuration.AlreadyTrainedConfiguration \
+    import AlreadyTrainedConfiguration
+from .Classification.Configuration.DecisionTreeConfiguration \
     import DecisionTreeConfiguration
-from SecuML.core.Classification.Configuration.GaussianNaiveBayesConfiguration \
+from .Classification.Configuration.GaussianNaiveBayesConfiguration \
     import GaussianNaiveBayesConfiguration
-from SecuML.core.Classification.Configuration.GradientBoostingConfiguration \
+from .Classification.Configuration.GradientBoostingConfiguration \
     import GradientBoostingConfiguration
-from SecuML.core.Classification.Configuration.LabelPropagationConfiguration \
+from .Classification.Configuration.LabelPropagationConfiguration \
     import LabelPropagationConfiguration
-from SecuML.core.Classification.Configuration.LogisticRegressionConfiguration \
+from .Classification.Configuration.LogisticRegressionConfiguration \
     import LogisticRegressionConfiguration
-from SecuML.core.Classification.Configuration.RandomForestConfiguration \
+from .Classification.Configuration.RandomForestConfiguration \
     import RandomForestConfiguration
-from SecuML.core.Classification.Configuration.SssvddConfiguration \
+from .Classification.Configuration.SssvddConfiguration \
     import SssvddConfiguration
-from SecuML.core.Classification.Configuration.SvcConfiguration \
+from .Classification.Configuration.SvcConfiguration \
     import SvcConfiguration
 
+# Test Configurations
+from .Classification.Configuration.TestConfiguration.CutoffTimeConf \
+        import CutoffTimeConf
+from .Classification.Configuration.TestConfiguration.CvConf \
+        import CvConf
+from .Classification.Configuration.TestConfiguration.RandomSplitConf \
+        import RandomSplitConf
+from .Classification.Configuration.TestConfiguration.SlidingWindowConf \
+        import SlidingWindowConf
+from .Classification.Configuration.TestConfiguration.TemporalCvConf \
+        import TemporalCvConf
+from .Classification.Configuration.TestConfiguration.TemporalSplitConf \
+        import TemporalSplitConf
+from .Classification.Configuration.TestConfiguration.ValidationDatasetConf \
+        import ValidationDatasetConf
+
 # Clustering
-from SecuML.core.Clustering.Configuration.GaussianMixtureConfiguration \
+from .Clustering.Configuration.GaussianMixtureConfiguration \
     import GaussianMixtureConfiguration
-from SecuML.core.Clustering.Configuration.KmeansConfiguration \
+from .Clustering.Configuration.KmeansConfiguration \
     import KmeansConfiguration
 
 # Feature Selection

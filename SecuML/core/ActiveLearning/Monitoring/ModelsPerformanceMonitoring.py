@@ -16,6 +16,7 @@
 
 import csv
 import matplotlib.pyplot as plt
+import os.path as path
 import pandas as pd
 
 from SecuML.core.Tools.Plots.PlotDataset import PlotDataset
@@ -37,11 +38,10 @@ class TrainTestValidationPerformanceMonitoring(object):
         self.multiclass = model_conf.families_supervision
 
     def getEvolutionFile(self, evolution_dir):
-        evolution_file = evolution_dir
-        evolution_file += self.model_name + '_'
-        evolution_file += self.train_test_validation
-        evolution_file += '_monitoring.csv'
-        return evolution_file
+        filename = '_'.join([self.model_name,
+                             self.train_test_validation,
+                             'monitoring.csv'])
+        return path.join(evolution_dir, filename)
 
     def setPerfIndicators(self):
         model = self.monitoring.iteration.update_model.models[self.model_name]
@@ -124,11 +124,11 @@ class TrainTestValidationPerformanceMonitoring(object):
         plt.clf()
 
     def outputFilename(self, monitoring_dir, name, extension):
-        filename = monitoring_dir
-        filename += self.model_name + '_'
-        filename += self.train_test_validation + '_'
-        filename += name + '_monitoring.' + extension
-        return filename
+        filename = '_'.join([self.model_name,
+                             self.train_test_validation,
+                             name,
+                             'monitoring.' + extension])
+        return path.join(monitoring_dir, filename)
 
 
 class ModelPerformanceMonitoring(object):
@@ -172,14 +172,12 @@ class ModelsPerformanceMonitoring(object):
         return monitoring_dir, evolution_dir
 
     def getMonitoringDir(self, iteration_dir):
-        monitoring_dir = iteration_dir
-        monitoring_dir += 'models_performance/'
+        monitoring_dir = path.join(iteration_dir, 'models_performance')
         dir_tools.createDirectory(monitoring_dir)
         return monitoring_dir
 
     def getEvolutionDir(self, al_dir):
-        evolution_dir = al_dir
-        evolution_dir += 'models_performance/'
+        evolution_dir = path.join(al_dir, 'models_performance')
         if self.monitoring.iteration_number == 1:
             dir_tools.createDirectory(evolution_dir)
         return evolution_dir

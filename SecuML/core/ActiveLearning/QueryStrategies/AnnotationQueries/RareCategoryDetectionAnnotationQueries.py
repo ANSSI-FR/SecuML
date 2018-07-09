@@ -16,6 +16,7 @@
 
 import copy
 import numpy as np
+import os.path as path
 import random
 import time
 
@@ -64,9 +65,7 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
 
     def runModels(self, already_queried=None):
         df = matrix_tools.extractRowsWithThresholds(self.predictions,
-                                                    self.proba_min,
-                                                    self.proba_max,
-                                                    'predicted_proba')
+                                                    self.proba_min, self.proba_max, 'predicted_proba')
         if already_queried is not None:
             self.predicted_ids = list(
                 set(df.index).difference(set(already_queried)))
@@ -108,8 +107,8 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
         if not self.families_analysis:
             AnnotationQueries.exportAnnotationQueries(self)
         else:
-            filename = self.iteration.iteration_dir
-            filename += 'toannotate_' + self.label + '.json'
+            filename = path.join(self.iteration.iteration_dir,
+                                 'toannotate_' + self.label + '.json')
             self.categories.exportAnnotationQueries(filename)
 
     def annotateAuto(self):

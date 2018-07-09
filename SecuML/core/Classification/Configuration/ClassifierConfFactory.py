@@ -53,6 +53,6 @@ class ClassifierConfFactory(object):
         params = class_.generateParamsFromArgs(args)
         return self.fromParam(model, params, logger=logger)
 
-    def generateParser(self, labeling_strategy, parser):
-        class_ = self.register[labeling_strategy + 'Configuration']
+    def generateParser(self, model_class, parser):
+        class_ = self.register[model_class + 'Configuration']
         return class_.generateParser(parser)

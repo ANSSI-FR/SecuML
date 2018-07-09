@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import os.path as path
+
 from SecuML.core.Tools import dir_tools
 
 from .Coefficients import Coefficients
@@ -63,7 +65,7 @@ class TrainingMonitoring(object):
                 self.families_monitoring.finalComputations()
 
     def display(self, directory):
-        training_dir = directory + self.monitoring_type + '/'
+        training_dir = path.join(directory, self.monitoring_type)
         dir_tools.createDirectory(training_dir)
         self.finalComputations()
         self.performance_monitoring.display(training_dir)
@@ -71,6 +73,6 @@ class TrainingMonitoring(object):
             self.predictions_monitoring.display(training_dir)
             self.coefficients.display(training_dir)
             if self.families_monitoring is not None:
-                families_dir = training_dir + 'families/'
+                families_dir = path.join(training_dir, 'families')
                 dir_tools.createDirectory(families_dir)
                 self.families_monitoring.display(families_dir)

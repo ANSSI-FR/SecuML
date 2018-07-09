@@ -16,6 +16,7 @@
 
 import numpy as np
 import pandas as pd
+import os.path as path
 
 from SecuML.core.Tools import matrix_tools
 
@@ -46,7 +47,7 @@ class Coefficients(object):
                                          index=features)
 
     def display(self, directory):
-        with open(directory + 'model_coefficients.csv', 'w') as f:
+        with open(path.join(directory, 'model_coefficients.csv'), 'w') as f:
             matrix_tools.sortDataFrame(
                 self.coef_summary, 'abs_mean', False, True)
             self.coef_summary.to_csv(f, index_label='feature')

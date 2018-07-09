@@ -22,13 +22,15 @@ from .Ids import Ids
 class Instances(object):
 
     def __init__(self, ids, features, features_names, features_descriptions,
-                 labels, families, ground_truth_labels, ground_truth_families):
-        self.ids = Ids(ids)
+                 labels, families, ground_truth_labels, ground_truth_families,
+                 idents=None, timestamps=None):
+        self.ids = Ids(ids, idents=idents, timestamps=timestamps)
         self.features = Features(features, features_names,
                                  features_descriptions, self.ids)
         self.annotations = Annotations(labels, families, self.ids)
-        self.ground_truth = Annotations(
-            ground_truth_labels, ground_truth_families, self.ids)
+        self.ground_truth = Annotations(ground_truth_labels,
+                                        ground_truth_families,
+                                        self.ids)
 
     # The union must be used on instances coming from the same dataset.
     # Otherwise, there may be some collisions on the ids.
@@ -66,11 +68,13 @@ class Instances(object):
 
     def getInstancesFromIds(self, instance_ids):
         features = self.features.getInstancesFromIds(instance_ids)
+        idents, timestamps = self.ids.getIdentsTimestampsFromIds(instance_ids)
         labels, families = self.annotations.getAnnotationsFromIds(instance_ids)
-        ground_truth_labels, ground_truth_families = self.ground_truth.getAnnotationsFromIds(
-            instance_ids)
+        gt_labels, gt_families = self.ground_truth.getAnnotationsFromIds(
+                instance_ids)
         selected_instances = Instances(instance_ids, features, self.features.getNames(),
                                        self.features.getDescriptions(),
                                        labels, families,
-                                       ground_truth_labels, ground_truth_families)
+                                       gt_labels, gt_families,
+                                       idents=idents, timestamps=timestamps)
         return selected_instances

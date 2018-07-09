@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 from scipy import interp
 from sklearn.neighbors import KernelDensity
+import os.path as path
 
 from SecuML.core.Data import labels_tools
 from SecuML.core.Tools import colors_tools
@@ -135,9 +136,9 @@ class FamiliesMonitoring(object):
             # self.displayFamiliesDistribution(directory)
 
     def displayFpFnThresholds(self, directory):
-        with open(directory + 'tp_families_thresholds.csv', 'w') as f:
+        with open(path.join(directory, 'tp_families_thresholds.csv'), 'w') as f:
             self.detection_rates.to_csv(f, index_label='Threshold')
-        with open(directory + 'fp_families_thresholds.csv', 'w') as f:
+        with open(path.join(directory, 'fp_families_thresholds.csv'), 'w') as f:
             self.false_alarm_rates.to_csv(f, index_label='Threshold')
 
     def displayFamiliesDistribution(self, directory, label=None):
@@ -191,9 +192,8 @@ class FamiliesMonitoring(object):
             ax_f.set_title(family)
             ax_f.set_xlabel('P(Malicious)')
             ax_f.set_ylabel('Density')
-            filename = directory
-            filename += label + '_family_' + family + '_prediction_distributions.png'
-            fig_f.savefig(filename)
+            filename = label + '_family_' + family + '_prediction_distributions.png'
+            fig_f.savefig(path.join(directory, filename))
             plt.close(fig_f)
             i += 1
         ax.legend(bbox_to_anchor=(0., 0.95, 1., .102), loc=3,
@@ -201,7 +201,6 @@ class FamiliesMonitoring(object):
                   fontsize='xx-small')
         ax.set_xlabel('P(Malicious)')
         ax.set_ylabel('Density')
-        filename = directory
-        filename += label + '_families_prediction_distributions.png'
-        fig.savefig(filename)
+        filename = label + '_families_prediction_distributions.png'
+        fig.savefig(path.join(directory, filename))
         plt.close(fig)

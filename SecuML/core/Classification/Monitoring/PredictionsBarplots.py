@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import os.path as path
+
 from SecuML.core.Data import labels_tools
 from SecuML.core.Tools.Plots.BarPlot import BarPlot
 from SecuML.core.Tools.Plots.PlotDataset import PlotDataset
@@ -57,7 +59,7 @@ class PredictionsBarplots(object):
         else:
             self.displayLabel(barplot, labels_tools.MALICIOUS)
             self.displayLabel(barplot, labels_tools.BENIGN)
-        filename = directory
-        filename += 'predictions_barplot.json'
+        filename = path.join(directory,
+                             'predictions_barplot.json')
         with open(filename, 'w') as f:
             barplot.exportJson(f)

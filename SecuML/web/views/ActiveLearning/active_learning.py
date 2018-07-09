@@ -17,6 +17,7 @@
 import datetime
 from flask import render_template, jsonify
 import json
+import os.path as path
 import pandas as pd
 
 from SecuML.web import app, session, user_exp
@@ -42,8 +43,8 @@ def currentAnnotations(experiment_id, iteration):
     page = render_template(
         'ActiveLearning/current_annotations.html', project=experiment.project)
     if user_exp:
-        filename = experiment.getOutputDirectory()
-        filename += 'user_actions.log'
+        filename = path.join(experiment.getOutputDirectory(),
+                             'user_actions.log')
         file_exists = dir_tools.checkFileExists(filename)
         mode = 'a' if file_exists else 'w'
         to_print = [datetime.datetime.now(), 'displayAnnotatedInstances']
@@ -89,8 +90,9 @@ def getIterationSupervisedExperiment(experiment_id, iteration):
     binary_multiclass = 'multiclass'
     if 'binary' in list(experiment.conf.models_conf.keys()):
         binary_multiclass = 'binary'
-    models_exp_file = experiment.getOutputDirectory()
-    models_exp_file += str(iteration) + '/models_experiments.json'
+    models_exp_file = path.join(experiment.getOutputDirectory(),
+                                str(iteration),
+                                'models_experiments.json')
     with open(models_exp_file, 'r') as f:
         models_exp = json.load(f)
     return str(models_exp[binary_multiclass])
@@ -101,8 +103,8 @@ def runNextIteration(experiment_id, iteration_number):
     res = str(celeryRunNextIteration.s().apply_async())
     if user_exp:
         experiment = updateCurrentExperiment(experiment_id)
-        filename = experiment.getOutputDirectory()
-        filename += 'user_actions.log'
+        filename = path.join(experiment.getOutputDirectory(),
+                             'user_actions.log')
         file_exists = dir_tools.checkFileExists(filename)
         mode = 'a' if file_exists else 'w'
         to_print = [datetime.datetime.now(), 'nextIteration', iteration_number]

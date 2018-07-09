@@ -18,46 +18,44 @@ from SecuML.experiments.config import INPUTDATA_DIR, OUTPUTDATA_DIR
 
 from SecuML.core.Tools import dir_tools
 
-import os
+from os import listdir
+import os.path as path
 
 
 def getProjectDirectory(project):
-    project_dir = INPUTDATA_DIR + '/'
-    project_dir += project + '/'
-    return project_dir
+    return path.join(INPUTDATA_DIR, project)
 
 
 def getDatasetDirectory(project, dataset):
-    dataset_dir = getProjectDirectory(project)
-    dataset_dir += dataset + '/'
-    return dataset_dir
+    return path.join(getProjectDirectory(project), dataset)
 
 
 def getDatasets(project):
     project_dir = getProjectDirectory(project)
-    return os.listdir(project_dir)
+    return listdir(project_dir)
 
 
 def createDataset(project, dataset):
     dataset_dir = getDatasetDirectory(project, dataset)
     dir_tools.createDirectory(dataset_dir)
-    features_dir = dataset_dir + 'features/'
+    features_dir = path.join(dataset_dir, 'features')
     dir_tools.createDirectory(features_dir)
-    annotations_dir = dataset_dir + 'annotations/'
+    annotations_dir = path.join(dataset_dir, 'annotations')
     dir_tools.createDirectory(annotations_dir)
     return dataset_dir, features_dir, annotations_dir
 
 
 def getProjectOutputDirectory(project):
-    project_dir = OUTPUTDATA_DIR
-    project_dir += '/' + project + '/'
-    return project_dir
+    return path.join(OUTPUTDATA_DIR, project)
 
 
 def getDatasetOutputDirectory(project, dataset):
-    dataset_dir = getProjectOutputDirectory(project)
-    dataset_dir += dataset + '/'
-    return dataset_dir
+    return path.join(getProjectOutputDirectory(project), dataset)
+
+
+def getExperimentOutputDirectory(project, dataset, experiment_id):
+    return path.join(getDatasetOutputDirectory(project, dataset),
+                     str(experiment_id))
 
 
 def createDatasetOutputDirectory(project, dataset):
@@ -65,10 +63,8 @@ def createDatasetOutputDirectory(project, dataset):
 
 
 def getExperimentConfigurationFilename(project, dataset, experiment_id):
-    experiment_dir = getDatasetOutputDirectory(project, dataset)
-    experiment_dir += str(experiment_id) + '/'
-    conf_filename = experiment_dir + 'conf.json'
-    return conf_filename
+    return path.join(getExperimentOutputDirectory(project, dataset, experiment_id),
+                     'conf.json')
 
 
 def removeProjectOutputDirectory(project):

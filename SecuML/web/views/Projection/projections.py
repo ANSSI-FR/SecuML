@@ -15,6 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from flask import send_file
+import os.path as path
 
 from SecuML.experiments.DimensionReduction.FeatureSelectionExperiment import FeatureSelectionExperiment
 from SecuML.experiments.DimensionReduction.ProjectionExperiment import ProjectionExperiment
@@ -27,8 +28,8 @@ from SecuML.web.views.experiments import updateCurrentExperiment
 def getNumComponents(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
     directory = experiment.getOutputDirectory()
-    filename = directory + 'projection_matrix.csv'
-    with open(filename, 'r') as f:
+    filename = 'projection_matrix.csv'
+    with open(path.join(directory, filename), 'r') as f:
         header = f.readline()
         num_components = len(header.split(',')) - 1
     return str(num_components)
@@ -38,37 +39,37 @@ def getNumComponents(experiment_id):
 def getHexBin(experiment_id, x, y):
     experiment = updateCurrentExperiment(experiment_id)
     directory = experiment.getOutputDirectory()
-    filename = directory + 'c_' + x + '_' + y + '_hexbin.json'
-    return send_file(filename)
+    filename = 'c_' + x + '_' + y + '_hexbin.json'
+    return send_file(path.join(directory, filename))
 
 
 @app.route('/getProjectionMatrix/<experiment_id>/')
 def getProjectionMatrix(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
     directory = experiment.getOutputDirectory()
-    filename = directory + 'projection_matrix.csv'
-    return send_file(filename)
+    filename = 'projection_matrix.csv'
+    return send_file(path.join(directory, filename))
 
 
 @app.route('/getExplVar/<experiment_id>/')
 def getExplVar(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
     directory = experiment.getOutputDirectory()
-    filename = directory + 'explained_variance.csv'
-    return send_file(filename)
+    filename = 'explained_variance.csv'
+    return send_file(path.join(directory, filename))
 
 
 @app.route('/getCumExplVar/<experiment_id>/')
 def getCumExplVar(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
     directory = experiment.getOutputDirectory()
-    filename = directory + 'cumuled_explained_variance.csv'
-    return send_file(filename)
+    filename = 'cumuled_explained_variance.csv'
+    return send_file(path.join(directory, filename))
 
 
 @app.route('/getReconsErrors/<experiment_id>/')
 def getReconsErrors(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
     directory = experiment.getOutputDirectory()
-    filename = directory + 'reconstruction_errors.csv'
-    return send_file(filename)
+    filename = 'reconstruction_errors.csv'
+    return send_file(path.join(directory, filename))

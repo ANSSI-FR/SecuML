@@ -15,6 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import json
+import os.path as path
 
 from SecuML.core.ActiveLearning.UpdateModel import UpdateModel
 
@@ -39,8 +40,9 @@ class UpdateModelExp(UpdateModel):
         export_models = {}
         for k, exp in self.models_exp.items():
             export_models[k] = exp.experiment_id
-        output_file = self.iteration.iteration_dir
-        output_file += 'models_experiments.json'
+        output_file = path.join(self.iteration.iteration_dir,
+                                'models_experiments.json')
+
         with open(output_file, 'w') as f:
             json.dump(export_models, f, indent=2)
 
@@ -54,7 +56,7 @@ class UpdateModelExp(UpdateModel):
         model_exp = ClassificationExperiment(exp.project, exp.dataset, exp.session,
                                              experiment_name=name,
                                              parent=exp.experiment_id)
-        model_exp.setConf(conf, exp.features_filenames,
+        model_exp.setConf(conf, exp.features_filename,
                           annotations_id=exp.annotations_id)
         model_exp.export()
 

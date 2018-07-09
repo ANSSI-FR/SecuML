@@ -20,7 +20,7 @@ import pandas as pd
 import time
 
 from SecuML.core.Classification.Configuration.GaussianNaiveBayesConfiguration import GaussianNaiveBayesConfiguration
-from SecuML.core.Classification.Configuration.TestConfiguration import TestConfiguration
+from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf import UnlabeledLabeledConf
 from SecuML.core.Classification.Classifiers.GaussianNaiveBayes import GaussianNaiveBayes
 from SecuML.core.Classification.ClassifierDatasets import ClassifierDatasets
 
@@ -71,8 +71,7 @@ class AladinAnnotationQueries(AnnotationQueries):
         self.lr_time += multiclass.testing_execution_time
 
     def createNaiveBayesConf(self):
-        test_conf = TestConfiguration()
-        test_conf.setUnlabeled()
+        test_conf = UnlabeledLabeledConf()
         naive_bayes_conf = GaussianNaiveBayesConfiguration(
             4, False, True, test_conf)
         return naive_bayes_conf

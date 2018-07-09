@@ -1,5 +1,5 @@
 # SecuML
-# Copyright (C) 2016-2017  ANSSI
+# Copyright (C) 2016-2018  ANSSI
 #
 # SecuML is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,16 +52,25 @@ class ClassifierDatasets(object):
         self.validation_instances = validation_instances
 
     def generateDatasets(self, instances, test_instances=None):
-        if self.test_conf.method == 'random_split':
+        method = self.test_conf.method
+        if method == 'random_split':
             instances = instances.getAnnotatedInstances()
             self.splitTrainDataset(instances, self.test_conf.test_size)
-        elif self.test_conf.method == 'dataset':
+        elif method == 'temporal_split':
+            instances = instances.getAnnotatedInstances()
+            self.splitTrainDatasetTemporal(instances, self.test_conf.test_size)
+        elif method == 'cutoff_time':
+            instances = instances.getAnnotatedInstances()
+            self.splitTrainDatasetCutoffTime(instances, self.test_conf.cutoff_time)
+        elif method == 'dataset':
             instances = instances.getAnnotatedInstances()
             self.generateTrainTestDatasets(instances, test_instances)
-        elif self.test_conf.method == 'cv':
+        elif method in ['cv', 'temporal_cv']:
             assert(False)
-        elif self.test_conf.method == 'unlabeled':
+        elif method == 'unlabeled':
             self.unlabeledLabeledDatasets(instances)
+        else:
+            assert(False)
         self.setSampleWeights()
 
     def setSampleWeights(self):
@@ -72,6 +81,23 @@ class ClassifierDatasets(object):
 
     def splitTrainDataset(self, instances, test_size):
         train, test = generateTrainTestIds(instances.ids.getIds(), test_size)
+        self.train_instances = instances.getInstancesFromIds(train)
+        self.test_instances = instances.getInstancesFromIds(test)
+
+    def splitTrainDatasetTemporal(self, instances, test_size):
+        timestamps = instances.ids.timestamps
+        ids = instances.ids.ids
+        t_ids = list(zip(timestamps, ids))
+        t_ids.sort()
+        num_train = int(len(t_ids) * (1 - test_size))
+        train = [i for t, i in t_ids[:num_train]]
+        test = [i for t, i in t_ids[num_train:]]
+        self.train_instances = instances.getInstancesFromIds(train)
+        self.test_instances = instances.getInstancesFromIds(test)
+
+    def splitTrainDatasetCutoffTime(self, instances, cutoff_time):
+        train = instances.ids.getIdsBefore(cutoff_time)
+        test = instances.ids.getIdsAfter(cutoff_time)
         self.train_instances = instances.getInstancesFromIds(train)
         self.test_instances = instances.getInstancesFromIds(test)
 

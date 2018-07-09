@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import os.path as path
+
 from SecuML.core.Tools import dir_tools
 
 from .FamiliesMonitoring import FamiliesMonitoring
@@ -64,14 +66,14 @@ class TestingMonitoring(object):
                 self.families_monitoring.finalComputations()
 
     def display(self, directory):
-        testing_dir = directory + self.monitoring_type + '/'
+        testing_dir = path.join(directory, self.monitoring_type)
         dir_tools.createDirectory(testing_dir)
         self.finalComputations()
         self.predictions_monitoring.display(testing_dir)
         if self.has_ground_truth:
             self.performance_monitoring.display(testing_dir)
             if self.families_monitoring is not None:
-                families_dir = testing_dir + 'families/'
+                families_dir = path.join(testing_dir, 'families')
                 dir_tools.createDirectory(families_dir)
                 self.families_monitoring.display(families_dir)
 

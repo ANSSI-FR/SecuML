@@ -89,7 +89,7 @@ class RareCategoryDetectionExperiment(ActiveLearningExperiment):
         factory = ActiveLearningConfFactory.getFactory()
         conf = factory.fromArgs('RareCategoryDetection',
                                 args, logger=self.logger)
-        self.setConf(conf, args.features_files,
+        self.setConf(conf, args.features_file,
                      annotations_filename=args.init_annotations_file)
         self.export()
 

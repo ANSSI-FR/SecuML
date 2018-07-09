@@ -15,6 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from flask import send_file
+import os.path as path
 
 from SecuML.web import app
 from SecuML.web.views.experiments import updateCurrentExperiment
@@ -32,10 +33,10 @@ def getFeaturesTypes(experiment_id):
 
 @app.route('/getStatsPlot/<experiment_id>/<plot_type>/<feature>/')
 def getStatsPlot(experiment_id, plot_type, feature):
-    experiment = updateCurrentExperiment(experiment_id)
-    filename = experiment.getOutputDirectory() + feature + '/'
+    exp = updateCurrentExperiment(experiment_id)
+    directory = path.join(exp.getOutputDirectory(), feature)
     if plot_type.find('histogram') >= 0:
-        filename += plot_type + '.json'
+        filename = plot_type + '.json'
     else:
-        filename += plot_type + '.png'
-    return send_file(filename)
+        filename = plot_type + '.png'
+    return send_file(path.join(directory, filename))

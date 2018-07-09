@@ -20,7 +20,8 @@ from .RareCategoryDetectionStrategy import RareCategoryDetectionStrategy
 
 from SecuML.core.ActiveLearning.QueryStrategies.Ilab import Ilab
 from SecuML.core.Classification.Configuration import ClassifierConfFactory
-from SecuML.core.Classification.Configuration.TestConfiguration import TestConfiguration
+from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf import UnlabeledLabeledConf
+from SecuML.core.Classification.Configuration.TestConfiguration.ValidationDatasetConf import ValidationDatasetConf
 
 
 class IlabConfiguration(ActiveLearningConfiguration):
@@ -53,7 +54,7 @@ class IlabConfiguration(ActiveLearningConfiguration):
     def fromJson(obj):
         validation_conf = None
         if obj['validation_conf'] is not None:
-            validation_conf = TestConfiguration.fromJson(
+            validation_conf = ValidationDatasetConf.fromJson(
                 obj['validation_conf'])
         rare_category_detection_conf = RareCategoryDetectionStrategy.fromJson(
             obj['rare_category_detection_conf'])
@@ -96,8 +97,7 @@ class IlabConfiguration(ActiveLearningConfiguration):
         multiclass_classifier_args['sample_weight'] = False
         multiclass_classifier_args['families_supervision'] = True
         multiclass_classifier_args['optim_algo'] = 'liblinear'
-        test_conf = TestConfiguration()
-        test_conf.setUnlabeled()
+        test_conf = UnlabeledLabeledConf()
         multiclass_classifier_args['test_conf'] = test_conf
         multiclass_conf = ClassifierConfFactory.getFactory().fromParam(
             'LogisticRegression', multiclass_classifier_args)

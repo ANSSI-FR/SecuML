@@ -18,6 +18,7 @@ import abc
 import csv
 import json
 import numpy as np
+import os.path as path
 import pandas as pd
 
 from SecuML.experiments import db_tables
@@ -46,15 +47,15 @@ class Experiment(object):
     def export(self):
         experiment_dir = self.getOutputDirectory()
         dir_tools.createDirectory(experiment_dir)
-        conf_filename = experiment_dir + 'conf.json'
+        conf_filename = path.join(experiment_dir, 'conf.json')
         with open(conf_filename, 'w') as f:
             json.dump(self.toJson(), f, indent=2)
 
-    def setConf(self, conf, features_filenames, annotations_filename=None,
+    def setConf(self, conf, features_filename, annotations_filename=None,
                 annotations_id=None):
         self.conf = conf
         self._initAnnotations(annotations_filename, annotations_id)
-        self._setFeaturesFilenames(features_filenames)
+        self._setFeaturesFilename(features_filename)
         self._generateExperimentName()
         self._checkConf()
 
@@ -65,70 +66,61 @@ class Experiment(object):
         db_tools.closeSqlalchemySession(self.session)
 
     def getOutputDirectory(self):
-        output_dir = dir_exp_tools.getDatasetOutputDirectory(self.project,
-                                                             self.dataset)
-        output_dir += str(self.experiment_id) + '/'
-        return output_dir
+        return dir_exp_tools.getExperimentOutputDirectory(self.project,
+                                                          self.dataset,
+                                                          self.experiment_id)
 
-    def getFeaturesFilesFullpaths(self):
-        features_filenames = self.features_filenames
-        features_directory = dir_exp_tools.getDatasetDirectory(
-            self.project, self.dataset)
-        features_directory += 'features/'
-        features_filenames = [features_directory +
-                              f for f in features_filenames]
-        return features_filenames
+    def getFeaturesFullpath(self):
+        dataset_dir = dir_exp_tools.getDatasetDirectory(self.project,
+                                                        self.dataset)
+        features_directory = path.join(dataset_dir, 'features')
+        full_path = path.join(features_directory,
+                              self.features_filename)
+        return full_path
 
     def getFeaturesNamesDescriptions(self):
-        features_path = self.getFeaturesFilesFullpaths()
+        features_file = self.getFeaturesFullpath()
         features_names = []
         features_descriptions = []
-        for features_file in features_path:
-            features_description_file = features_file[:-4] + '_description.csv'
-            if dir_tools.checkFileExists(features_description_file):
-                with open(features_description_file, 'r') as f:
-                    df = pd.read_csv(f, header=0, index_col=0)
-                    features_names.extend(df['name'])
-                    features_descriptions.extend(df['description'])
-            else:
-                with open(features_file, 'r') as f_file:
-                    features_reader = csv.reader(f_file)
-                    f_features_names = next(features_reader)
-                    features_names.extend(f_features_names[1:])
-                    features_descriptions.extend(f_features_names[1:])
+        basename, ext = path.splitext(features_file)
+        features_description_file = basename + '_description.csv'
+        if dir_tools.checkFileExists(features_description_file):
+            with open(features_description_file, 'r') as f:
+                df = pd.read_csv(f, header=0, index_col=0)
+                features_names.extend(df['name'])
+                features_descriptions.extend(df['description'])
+        else:
+            with open(features_file, 'r') as f_file:
+                features_reader = csv.reader(f_file)
+                f_features_names = next(features_reader)
+                features_names.extend(f_features_names[1:])
+                features_descriptions.extend(f_features_names[1:])
         return features_names, features_descriptions
 
     def getFeatures(self, instance_id):
         features_names, _ = self.getFeaturesNamesDescriptions()
         row_number = idents_tools.getRowNumber(
             self.session, self.dataset_id, instance_id)
-        features_path = self.getFeaturesFilesFullpaths()
+        features_file = self.getFeaturesFullpath()
         features_values = []
-        for features_file in features_path:
-            line = 1
-            with open(features_file, 'r') as f_file:
-                next(f_file)  # skip header
-                while line < row_number:
-                    next(f_file)
-                    line = line + 1
-                row = next(f_file).rstrip(),
-                features_reader = csv.reader(row)
-                features_values.extend(next(features_reader)[1:])
+        line = 1
+        with open(features_file, 'r') as f_file:
+            next(f_file)  # skip header
+            while line < row_number:
+                next(f_file)
+                line = line + 1
+            row = next(f_file).rstrip(),
+            features_reader = csv.reader(row)
+            features_values.extend(next(features_reader)[1:])
         return features_names, features_values
 
     def getAllFeatures(self):
-        csv_files = self.getFeaturesFilesFullpaths()
-        features = None
-        for csv_file in csv_files:
-            with open(csv_file, 'r') as f:
-                header = f.readline()
-                current_features = list(list(rec) for rec in csv.reader(f,
-                                                                        quoting=csv.QUOTE_NONNUMERIC))
-                if features is None:
-                    features = [l[1:] for l in current_features]
-                else:
-                    features = [f1 + f2[1:]
-                                for f1, f2 in zip(features, current_features)]
+        csv_file = self.getFeaturesFullpath()
+        with open(csv_file, 'r') as f:
+            f.readline()
+            current_features = list(list(rec) for rec in csv.reader(f,
+                                                                    quoting=csv.QUOTE_NONNUMERIC))
+            features = [l[1:] for l in current_features]
         features = np.array(features)
         return features
 
@@ -145,7 +137,7 @@ class Experiment(object):
         experiment.kind = obj['kind']
         experiment.experiment_name = obj['experiment_name']
         experiment.experiment_id = obj['experiment_id']
-        experiment.features_filenames = obj['features_filenames']
+        experiment.features_filename = obj['features_filename']
         experiment.parent = obj['parent']
         experiment.oldest_parent = obj['oldest_parent']
         experiment.annotations_id = obj['annotations_id']
@@ -159,7 +151,7 @@ class Experiment(object):
         conf['kind'] = self.kind
         conf['experiment_name'] = self.experiment_name
         conf['experiment_id'] = self.experiment_id
-        conf['features_filenames'] = self.features_filenames
+        conf['features_filename'] = self.features_filename
         conf['parent'] = self.parent
         conf['oldest_parent'] = self.oldest_parent
         conf['annotations_id'] = self.annotations_id
@@ -171,11 +163,10 @@ class Experiment(object):
         parser.add_argument('project')
         parser.add_argument('dataset')
         parser.add_argument('--features', '-f',
-                            dest='features_files',
-                            nargs='+',
+                            dest='features_file',
                             required=False,
-                            default=['features.csv'],
-                            help='CSV files containing the features.')
+                            default='features.csv',
+                            help='CSV file containing the features. Default: features.csv')
         help_exp_name = 'Name of the experiment. '
         help_exp_name += 'If not provided, a default name is automatically generated from the input parameters.'
         parser.add_argument('--exp-name', type=str,
@@ -227,14 +218,14 @@ class Experiment(object):
 
     def _generateExperimentName(self):
         if self.experiment_name is None:
-            self.experiment_name = '_'.join(
-                [f.split('.')[0] for f in self.features_filenames])
+            basename, ext = path.splitext(self.features_filename)
+            self.experiment_name = basename
             self.experiment_name += self.generateSuffix()
             experiment_db_tools.updateExperimentName(
                 self.session, self.experiment_id, self.experiment_name)
 
-    def _setFeaturesFilenames(self, features_filenames):
-        self.features_filenames = features_filenames
+    def _setFeaturesFilename(self, features_filename):
+        self.features_filename = features_filename
 
     def _initAnnotations(self, annotations_filename, annotations_id):
         if annotations_id is not None:
@@ -267,9 +258,10 @@ class Experiment(object):
         self.annotations_type = annotations_type
 
         if annotations_type == 'partial_annotations':
-            filename = dir_exp_tools.getDatasetDirectory(
-                self.project, self.dataset)
-            filename += 'annotations/' + annotations_filename
+            filename = path.join(dir_exp_tools.getDatasetDirectory(self.project,
+                                                                   self.dataset),
+                                 'annotations',
+                                 annotations_filename)
             if not dir_tools.checkFileExists(filename):
                 raise ValueError(
                     'The annotation file %s does not exist.' % filename)

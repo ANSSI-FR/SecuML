@@ -16,6 +16,7 @@
 
 from flask import render_template, send_file, jsonify
 import numpy as np
+import os.path as path
 import pandas as pd
 import random
 from sklearn.externals import joblib
@@ -27,7 +28,6 @@ from SecuML.core.Data import labels_tools
 from SecuML.core.Tools.Plots.BarPlot import BarPlot
 from SecuML.core.Tools.Plots.PlotDataset import PlotDataset
 from SecuML.core.Tools import colors_tools
-from SecuML.core.Tools import matrix_tools
 
 from SecuML.experiments import ExperimentFactory
 from SecuML.experiments.Classification.ClassificationExperiment import ClassificationExperiment
@@ -60,7 +60,7 @@ def displayErrors(experiment_id, train_test, fold_id):
 @app.route('/getTestExperimentId/<experiment_id>/')
 def getTestExperimentId(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
-    with open(experiment.getOutputDirectory() + 'test_experiment.txt', 'r') as f:
+    with open(path.join(experiment.getOutputDirectory(), 'test_experiment.txt'), 'r') as f:
         test_experiment_id = f.readline()
         return test_experiment_id
 
@@ -68,16 +68,18 @@ def getTestExperimentId(experiment_id):
 @app.route('/getAlertsClusteringExperimentId/<experiment_id>/')
 def getAlertsClusteringExperimentId(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
-    filename = experiment.getOutputDirectory()
-    filename += 'grouping.json'
+    filename = path.join(experiment.getOutputDirectory(),
+                         'alerts',
+                         'grouping.json')
     return send_file(filename)
 
 
 @app.route('/getAlerts/<experiment_id>/<analysis_type>/')
 def getAlerts(experiment_id, analysis_type):
     experiment = updateCurrentExperiment(experiment_id)
-    filename = experiment.getOutputDirectory()
-    filename += 'alerts.csv'
+    filename = path.join(experiment.getOutputDirectory(),
+                         'alerts',
+                         'alerts.csv')
     with open(filename, 'r') as f:
         data = pd.read_csv(f, header=0, index_col=0)
         num_max_alerts = experiment.conf.test_conf.alerts_conf.num_max_alerts
@@ -95,10 +97,11 @@ def getAlerts(experiment_id, analysis_type):
 @app.route('/getPredictions/<experiment_id>/<train_test>/<fold_id>/<index>/')
 def getPredictions(experiment_id, train_test, fold_id, index):
     experiment = updateCurrentExperiment(experiment_id)
-    filename = experiment.getOutputDirectory()
+    directory = experiment.getOutputDirectory()
     if fold_id != 'None' and fold_id != 'all':
-        filename += fold_id + '/'
-    filename += train_test + '/predictions.csv'
+        directory = path.join(directory, fold_id)
+    directory = path.join(directory, train_test)
+    filename = path.join(directory, 'predictions.csv')
     index = int(index)
     min_value = index * 0.1
     max_value = (index + 1) * 0.1
@@ -116,30 +119,32 @@ def getPredictions(experiment_id, train_test, fold_id, index):
 @app.route('/supervisedLearningMonitoring/<experiment_id>/<train_test>/<kind>/<fold_id>/')
 def supervisedLearningMonitoring(experiment_id, train_test, kind, fold_id):
     experiment = updateCurrentExperiment(experiment_id)
-    filename = experiment.getOutputDirectory()
+    directory = experiment.getOutputDirectory()
     if fold_id != 'None' and fold_id != 'all':
-        filename += fold_id + '/'
-    filename += train_test + '/'
-    filename += kind
+        directory = path.join(directory, fold_id)
+    directory = path.join(directory, train_test)
+    filename = kind
     if kind == 'ROC':
         filename += '.png'
     else:
         filename += '.json'
-    return send_file(filename)
+    return send_file(path.join(directory, filename))
 
 
 @app.route('/getFamiliesPerformance/<experiment_id>/<train_test>/<label>/<threshold>/')
 def getFamiliesPerformance(experiment_id, train_test, label, threshold):
     experiment = updateCurrentExperiment(experiment_id)
-    filename = experiment.getOutputDirectory() + train_test + '/families/'
+    directory = path.join(experiment.getOutputDirectory(),
+                          train_test,
+                          'families')
     if label == labels_tools.MALICIOUS:
-        filename += 'tp_'
+        filename = 'tp_'
         tp_fp = 'Detection Rate'
     elif label == labels_tools.BENIGN:
-        filename += 'fp_'
+        filename = 'fp_'
         tp_fp = 'False Positive Rate'
     filename += 'families_thresholds.csv'
-    with open(filename, 'r') as f:
+    with open(path.join(directory, filename), 'r') as f:
         perf = pd.read_csv(f, header=0, index_col=0)
         families = list(perf.columns.values[:-1])
         threshold = float(threshold) / 100
@@ -151,10 +156,12 @@ def getFamiliesPerformance(experiment_id, train_test, label, threshold):
         barplot.addDataset(PlotDataset(perf, tp_fp))
     return jsonify(barplot.toJson())
 
+
 @app.route('/getSupervisedValidationConf/<experiment_id>/')
 def getSupervisedValidationConf(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
     return jsonify(experiment.conf.test_conf.toJson())
+
 
 @app.route('/getTopWeightedFeatures/<experiment_id>/<inst_exp_id>/<instance_id>/<size>/<fold_id>/')
 def getTopWeightedFeatures(experiment_id, inst_exp_id, instance_id, size, fold_id):
@@ -170,8 +177,8 @@ def getTopWeightedFeatures(experiment_id, inst_exp_id, instance_id, size, fold_i
     # get the pipeline with scaler and logistic model
     experiment_dir = exp.getOutputDirectory()
     if fold_id != 'None':
-        experiment_dir += fold_id + '/'
-    pipeline = joblib.load(experiment_dir + 'model/model.out')
+        experiment_dir = path.join(experiment_dir, fold_id)
+    pipeline = joblib.load(path.join(experiment_dir, 'model', 'model.out'))
     # scale the features
     scaled_values = pipeline.named_steps['scaler'].transform(
         np.reshape(features_values, (1, -1)))
@@ -200,15 +207,17 @@ def getTopWeightedFeatures(experiment_id, inst_exp_id, instance_id, size, fold_i
     barplot.addDataset(dataset)
     return jsonify(barplot.toJson(tooltip_data=tooltips))
 
+
 @app.route('/getTopModelFeatures/<experiment_id>/<size>/<train_test>/<fold_id>/')
 def getTopModelFeatures(experiment_id, size, train_test, fold_id):
     size = int(size)
     exp = ExperimentFactory.getFactory().fromJson(experiment_id, session)
-    filename = exp.getOutputDirectory()
+    directory = exp.getOutputDirectory()
     if fold_id != 'None' and fold_id != 'all':
-        filename += fold_id + '/'
-    filename += train_test + '/'
-    filename += 'model_coefficients.csv'
+        directory = path.join(directory, fold_id)
+    directory = path.join(directory, train_test)
+    filename = path.join(directory,
+                         'model_coefficients.csv')
     with open(filename, 'r') as f:
         coefficients_df = pd.read_csv(f, header=0, index_col=0)
         model_coefficients = list(coefficients_df['mean'])

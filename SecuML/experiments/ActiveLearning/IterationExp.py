@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import os.path as path
+
 from SecuML.core.ActiveLearning.Iteration import Iteration
 from SecuML.core.ActiveLearning.QueryStrategies.AnnotationQueries.AnnotationQuery import NoAnnotationBudget
 from SecuML.core.Tools import dir_tools
@@ -40,8 +42,8 @@ class IterationExp(Iteration):
 
     def setOutputDirectory(self):
         self.al_dir = self.experiment.getOutputDirectory()
-        self.iteration_dir = self.al_dir
-        self.iteration_dir += str(self.iteration_number) + '/'
+        self.iteration_dir = path.join(self.al_dir,
+                                       str(self.iteration_number))
 
     def setQueryStrategy(self):
         factory = ActiveLearningStrategyFactoryExp.getFactory()

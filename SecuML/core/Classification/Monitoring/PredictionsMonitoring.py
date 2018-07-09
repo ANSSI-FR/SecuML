@@ -16,6 +16,7 @@
 
 import numpy as np
 import pandas as pd
+import os.path as path
 
 from SecuML.core.Tools import matrix_tools
 from .PredictionsBarplots import PredictionsBarplots
@@ -62,7 +63,7 @@ class PredictionsMonitoring(object):
             self.predictions, 'predicted_proba', True, True)
 
     def display(self, directory):
-        with open(directory + 'predictions.csv', 'w') as f:
+        with open(path.join(directory, 'predictions.csv'), 'w') as f:
             self.predictions.to_csv(f, index_label='instance_id')
         if self.predictions_barplots is not None:
             self.predictions_barplots.display(directory)

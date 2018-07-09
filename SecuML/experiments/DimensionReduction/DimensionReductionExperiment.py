@@ -58,6 +58,6 @@ class DimensionReductionExperiment(Experiment):
     def setExperimentFromArgs(self, args):
         factory = DimensionReductionConfFactory.getFactory()
         conf = factory.fromArgs(args.algo, args, logger=self.logger)
-        self.setConf(conf, args.features_files,
+        self.setConf(conf, args.features_file,
                      annotations_filename=args.annotations_file)
         self.export()

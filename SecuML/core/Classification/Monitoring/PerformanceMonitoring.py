@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import os.path as path
+
 from .ConfusionMatrix import ConfusionMatrix
 from .BinaryErrors import BinaryErrors
 from .BinaryPerfIndicators import BinaryPerfIndicators
@@ -47,11 +49,11 @@ class PerformanceMonitoring(object):
         self.perf_indicators.finalComputations()
 
     def display(self, directory):
-        with open(directory + 'perf_indicators.json', 'w') as f:
+        with open(path.join(directory, 'perf_indicators.json'), 'w') as f:
             self.perf_indicators.toJson(f)
-        with open(directory + 'errors.json', 'w') as f:
+        with open(path.join(directory, 'errors.json'), 'w') as f:
             self.errors.toJson(f)
         if not self.conf.families_supervision:
-            with open(directory + 'confusion_matrix.json', 'w') as f:
+            with open(path.join(directory, 'confusion_matrix.json'), 'w') as f:
                 self.confusion_matrix.toJson(f)
             self.roc.display(directory)

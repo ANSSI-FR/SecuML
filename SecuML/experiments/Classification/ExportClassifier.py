@@ -14,9 +14,11 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from sklearn.externals import joblib
+import shutil
+import os.path as path
 
 from SecuML.core.Tools import dir_tools
+from SecuML.experiments.Tools import dir_exp_tools
 
 
 class ExportClassifier(object):
@@ -35,8 +37,18 @@ class ExportClassifier(object):
             self.exportValidation()
 
     def exportTraining(self):
-        self.classifier.training_monitoring.display(self.output_directory)
-        self.dumpModel()
+        already_trained = self.experiment.already_trained
+        if already_trained is None:
+            self.classifier.training_monitoring.display(self.output_directory)
+            self.dumpModel()
+        else:
+            alread_trained_dir = dir_exp_tools.getExperimentOutputDirectory(
+                    self.experiment.project,
+                    self.experiment.dataset,
+                    already_trained)
+            for d in ['train', 'model']:
+                shutil.copytree(path.join(alread_trained_dir, d),
+                                path.join(self.output_directory, d))
 
     def exportCrossValidation(self, datasets):
         if self.classifier.cv_monitoring:
@@ -54,13 +66,13 @@ class ExportClassifier(object):
     def exportAlerts(self, datasets):
         if self.classifier.alerts is None:
             return
-        alerts_directory = self.output_directory + 'alerts/'
+        alerts_directory = path.join(self.output_directory, 'alerts')
         dir_tools.createDirectory(alerts_directory)
         self.classifier.alerts.export(alerts_directory)
 
     def dumpModel(self):
         # check added for Sssvdd that has no dump model function
         if self.classifier.pipeline is not None:
-            model_dir = self.output_directory + 'model/'
+            model_dir = path.join(self.output_directory, 'model')
             dir_tools.createDirectory(model_dir)
-            joblib.dump(self.classifier.pipeline, model_dir + 'model.out')
+            self.classifier.dumpModel(path.join(model_dir, 'model.out'))

@@ -19,7 +19,8 @@ from .ActiveLearningConfiguration import ActiveLearningConfiguration
 
 from SecuML.core.ActiveLearning.QueryStrategies.Gornitz import Gornitz
 from SecuML.core.Classification.Configuration import ClassifierConfFactory
-from SecuML.core.Classification.Configuration.TestConfiguration import TestConfiguration
+from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf import UnlabeledLabeledConf
+from SecuML.core.Classification.Configuration.TestConfiguration.ValidationDatasetConf import ValidationDatasetConf
 
 
 def gornitzBinaryModelConf(logger):
@@ -27,8 +28,7 @@ def gornitzBinaryModelConf(logger):
     classifier_args['num_folds'] = 4
     classifier_args['sample_weight'] = False
     classifier_args['families_supervision'] = False
-    test_conf = TestConfiguration()
-    test_conf.setUnlabeled()
+    test_conf = UnlabeledLabeledConf()
     classifier_args['test_conf'] = test_conf
     binary_model_conf = ClassifierConfFactory.getFactory().fromParam(
         'Sssvdd',
@@ -63,7 +63,7 @@ class GornitzConfiguration(ActiveLearningConfiguration):
     def fromJson(obj):
         validation_conf = None
         if obj['validation_conf'] is not None:
-            validation_conf = TestConfiguration.fromJson(
+            validation_conf = ValidationDatasetConf.fromJson(
                 obj['validation_conf'])
         conf = GornitzConfiguration(
             obj['auto'], obj['budget'], obj['batch'], validation_conf)
@@ -90,8 +90,7 @@ class GornitzConfiguration(ActiveLearningConfiguration):
         supervised_args['num_folds'] = 4
         supervised_args['sample_weight'] = False
         supervised_args['families_supervision'] = False
-        test_conf = TestConfiguration()
-        test_conf.setUnlabeled()
+        test_conf = UnlabeledLabeledConf()
         supervised_args['test_conf'] = test_conf
         binary_model_conf = ClassifierConfFactory.getFactory().fromParam(
             'Sssvdd', supervised_args)

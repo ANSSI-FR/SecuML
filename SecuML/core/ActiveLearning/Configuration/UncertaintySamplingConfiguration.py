@@ -19,7 +19,7 @@ from .ActiveLearningConfiguration import ActiveLearningConfiguration
 
 from SecuML.core.ActiveLearning.QueryStrategies.UncertaintySampling import UncertaintySampling
 from SecuML.core.Classification.Configuration import ClassifierConfFactory
-from SecuML.core.Classification.Configuration.TestConfiguration import TestConfiguration
+from SecuML.core.Classification.Configuration.TestConfiguration.ValidationDatasetConf import ValidationDatasetConf
 
 
 class UncertaintySamplingConfiguration(ActiveLearningConfiguration):
@@ -48,7 +48,7 @@ class UncertaintySamplingConfiguration(ActiveLearningConfiguration):
     def fromJson(obj):
         validation_conf = None
         if obj['validation_conf'] is not None:
-            validation_conf = TestConfiguration.fromJson(
+            validation_conf = ValidationDatasetConf.fromJson(
                 obj['validation_conf'])
         binary_model_conf = ClassifierConfFactory.getFactory(
         ).fromJson(obj['models_conf']['binary'])

@@ -20,7 +20,7 @@ from SecuML.core.Classification.Classifiers.LogisticRegression import LogisticRe
 
 from . import ClassifierConfFactory
 from .ClassifierConfiguration import ClassifierConfiguration, LearningParameter
-from .TestConfiguration import TestConfiguration
+from .TestConfiguration import TestConfFactory
 
 
 class LogisticRegressionConfiguration(ClassifierConfiguration):
@@ -74,9 +74,12 @@ class LogisticRegressionConfiguration(ClassifierConfiguration):
 
     @staticmethod
     def fromJson(obj):
-        test_conf = TestConfiguration.fromJson(obj['test_conf'])
-        conf = LogisticRegressionConfiguration(obj['num_folds'], obj['sample_weight'],
-                                               obj['families_supervision'], obj['optim_algo'],
+        factory = TestConfFactory.getFactory()
+        test_conf = factory.fromJson(obj['test_conf'])
+        conf = LogisticRegressionConfiguration(obj['num_folds'],
+                                               obj['sample_weight'],
+                                               obj['families_supervision'],
+                                               obj['optim_algo'],
                                                test_conf)
         conf.c = LearningParameter.fromJson(obj['c'])
         conf.penalty = LearningParameter.fromJson(obj['penalty'])

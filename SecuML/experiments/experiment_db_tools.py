@@ -112,10 +112,8 @@ def getChildren(session, experiment_id):
 
 
 def getDescriptiveStatsExp(session, experiment):
-    features_filenames = experiment.features_filenames
-    features_filenames = [f.split('.')[0] for f in features_filenames]
-    features_filenames = '_'.join(features_filenames)
-    exp_name = features_filenames + '__labelsFile_ground_truth'
+    features_filename = experiment.features_filename.split('.')[0]
+    exp_name = features_filename + '__labelsFile_ground_truth'
     query = session.query(ExperimentsAlchemy)
     query = query.filter(ExperimentsAlchemy.dataset_id ==
                          experiment.dataset_id)

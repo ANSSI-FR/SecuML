@@ -21,7 +21,7 @@ import random
 from SecuML.core.Classification.ClassifierDatasets import ClassifierDatasets
 from SecuML.core.Classification.Configuration.GaussianNaiveBayesConfiguration \
     import GaussianNaiveBayesConfiguration
-from SecuML.core.Classification.Configuration.TestConfiguration import TestConfiguration
+from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf import UnlabeledLabeledConf
 from SecuML.core.Classification.Classifiers.GaussianNaiveBayes import GaussianNaiveBayes
 from SecuML.core.Tools import floats_tools
 
@@ -266,8 +266,7 @@ class Categories(object):
         return naive_bayes
 
     def getNaiveBayesConf(self):
-        test_conf = TestConfiguration()
-        test_conf.setUnlabeled()
+        test_conf = UnlabeledLabeledConf()
         naive_bayes_conf = GaussianNaiveBayesConfiguration(
             4, False, True, test_conf)
         return naive_bayes_conf

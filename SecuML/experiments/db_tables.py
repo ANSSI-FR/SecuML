@@ -16,7 +16,7 @@
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, ForeignKey
-from sqlalchemy import Boolean, Enum, Integer, String, Text
+from sqlalchemy import DateTime, Enum, Integer, String, Text
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import relationship
 
@@ -108,6 +108,7 @@ class InstancesAlchemy(Base):
     # The order of the columns matters for the bulk insert.
     user_instance_id = Column(Integer, index=True)
     ident = Column(Text())
+    timestamp = Column(DateTime())
     dataset_id = Column(Integer, ForeignKey('datasets.id'), index=True)
     row_number = Column(Integer, nullable=True)
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -270,3 +271,10 @@ def getDatasetIds(session, dataset_id):
     query = query.filter(InstancesAlchemy.dataset_id == dataset_id)
     query = query.order_by(InstancesAlchemy.id)
     return [r.id for r in query.all()]
+
+
+def getDatasetTimestamps(session, dataset_id):
+    query = session.query(InstancesAlchemy)
+    query = query.filter(InstancesAlchemy.dataset_id == dataset_id)
+    query = query.order_by(InstancesAlchemy.id)
+    return [r.timestamp for r in query.all()]
