@@ -81,22 +81,51 @@
               <p class="caption"><span class="caption-text">Getting Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.setting_up.html">Seeting up SecuML</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Running SecuML on the lingspam dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.other.html">Running SecuML on your own dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.exp.html">Removing Experiments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Use Case: Spam Detection</a></li>
 </ul>
-<p class="caption"><span class="caption-text">SecuML</span></p>
+<p class="caption"><span class="caption-text">Data and Experiments</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Data.html">Data and Problem-Specific Visualizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Experiments.html">Experiments</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Available Experiments</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ILAB: Interactive LABeling</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#strategies-available">Strategies Available</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#graphical-user-interface">Graphical User Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#active-learning">Active Learning</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#interactive-process">Interactive Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#strategies-available">Strategies Available</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#initial-annotations">Initial Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mode-interactive-or-oracle">Mode: Interactive or Oracle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#annotation-budget">Annotation Budget</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#validation-dataset">Validation Dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#specific-parameters">Specific Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#graphical-user-interface">Graphical User Interface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#monitoring-interface">Monitoring Interface</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#feedback-about-annotation-progress">Feedback about Annotation Progress</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#current-detection-model">Current Detection Model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#annotation-interface">Annotation Interface</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#description-panel">Description Panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#annotation-panel">Annotation Panel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#family-editor">Family Editor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#annotated-instances-interface">Annotated Instances Interface</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Computing Descriptive Statistics of Each Feature</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Descriptive Statistics</a></li>
 </ul>
 
             
@@ -163,55 +192,246 @@
             
   <div class="section" id="ilab-interactive-labeling">
 <span id="ilab"></span><h1>ILAB: Interactive LABeling<a class="headerlink" href="#ilab-interactive-labeling" title="Permalink to this headline">¶</a></h1>
-<p>Collecting an Annotated Dataset with a Reduced Workload thanks to Active Learning</p>
-<p>ILAB allows to acquire an annotated dataset to learn a supervised detection model with a low human effort.
-It is an iterative process initialized with some annotated instances. Then, at each iteration the user is asked to annotate a few
-instances to improve the current detection model.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_ILAB &lt;project&gt; &lt;dataset&gt; &lt;strategy&gt;
-</pre></div>
+<p><strong>Annotating a Dataset with a Reduced Workload thanks to Active Learning.</strong></p>
+<div class="line-block">
+<div class="line"><em>Usage:</em> <code class="docutils literal notranslate"><span class="pre">SecuML_ILAB</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;strategy&gt;</span></code>.</div>
+<div class="line">For more information about the available options for a given strategy:</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">SecuML_ILAB</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;strategy&gt;</span> <span class="pre">-h</span></code>.</div>
 </div>
-<p><em>Help</em></p>
-<p>For more information about the available options for a given active learning strategy:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_ILAB &lt;project&gt; &lt;dataset&gt; &lt;strategy&gt; -h
-</pre></div>
+<p>ILAB is an end-to-end active learning system that we have designed in order to reduce the workload
+in annotation projects. It consists of active learning strategies integrated
+in an annotation system.</p>
+<p><strong>Active Learning Strategies.</strong>
+ILAB proposes several <a class="reference internal" href="#al-strategies"><span class="std std-ref">active learning strategies</span></a> that
+aim to maximize the detection performance for a given annotation budget.
+They ask to annotate the most informative instances
+to minimize the number of manual annotations while maximizing the detection performance.</p>
+<p><strong>Annotation System.</strong>
+ILAB comes with a <a class="reference internal" href="#ilab-gui"><span class="std std-ref">graphical user interface</span></a> to display the annotation queries and
+gather the corresponding answers.
+The graphical user interface offers other features to assist experts along the annotation process.</p>
+<p class="rubric">References</p>
+<ul class="simple">
+<li>Beaugnon, Anaël. <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2018/06/beaugnon-a_these_manuscrit.pdf">“Expert-in-the-Loop Supervised Learning for Computer Security Detection Systems.”]</a>, Ph.D. thesis, École Normale Superieure (2018).</li>
+<li>Beaugnon et al., <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2018/02/end-to-end-active-learning-for-computer-security-experts_abeaugnon_pchifflier_fbach_anssi_inria.pdf">“End-to-End Active Learning for Computer Security Experts”</a>, AICS 2018.</li>
+<li>Beaugnon et al., <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2017/09/ilab_beaugnonchifflierbach_raid2017.pdf">“ILAB: An Interactive Labelling Strategy for Intrusion Detection”</a>, RAID 2017.</li>
+</ul>
+<div class="section" id="active-learning">
+<h2>Active Learning<a class="headerlink" href="#active-learning" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="interactive-process">
+<h3>Interactive Process<a class="headerlink" href="#interactive-process" title="Permalink to this headline">¶</a></h3>
+<p>ILAB relies on an interactive process where an expert is asked to annotate some unlabeled instances to improve the performance
+of the supervised detection model.
+At each iteration, some instances are queried from the unlabeled pool for annotation. The expert annotates the queried instances, and
+the new annotated instances are added to annotated dataset. Then, the supervised detection model is updated,
+and new instances are queried for annotation.</p>
+<div class="figure align-center" id="ilab-interactive">
+<a class="reference internal image-reference" href="_images/iterations.svg"><img alt="_images/iterations.svg" src="_images/iterations.svg" width="90%" /></a>
+</div>
+<p><strong>Annotations.</strong>
+Annotating consists in assigning a binary label, malicious or benign,
+and optionally a family detailing the binary label.
+Instances sharing the same family behave similarly and have the same level of criticality.
+For example, malicious instances belonging to the same family may exploit the same vulnerability,
+they may be polymorphic variants of the same malware,
+or they may be email messages coming from the same spam campaign.</p>
 </div>
 <div class="section" id="strategies-available">
-<h2>Strategies Available<a class="headerlink" href="#strategies-available" title="Permalink to this headline">¶</a></h2>
+<span id="al-strategies"></span><h3>Strategies Available<a class="headerlink" href="#strategies-available" title="Permalink to this headline">¶</a></h3>
+<p>ILAB offers many active learning strategies:</p>
 <ul class="simple">
-<li>Ilab [1,2]</li>
-<li>Aladin [3]</li>
-<li>Gornitz [4]</li>
-<li>CesaBianchi [5]</li>
-<li>UncertaintySampling [6]</li>
+<li>Ilab <a class="footnote-reference" href="#f1" id="id1">[1]</a></li>
+<li>Aladin <a class="footnote-reference" href="#f2" id="id2">[2]</a></li>
+<li>Gornitz <a class="footnote-reference" href="#f3" id="id3">[3]</a></li>
+<li>CesaBianchi <a class="footnote-reference" href="#f4" id="id4">[4]</a></li>
+<li>UncertaintySampling <a class="footnote-reference" href="#f5" id="id5">[5]</a></li>
 <li>RandomSampling</li>
 </ul>
-<p><em>References</em></p>
-<ul class="simple">
-<li>[1] Beaugnon et al., <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2018/02/end-to-end-active-learning-for-computer-security-experts_abeaugnon_pchifflier_fbach_anssi_inria.pdf">“End-to-End Active Learning for Computer Security Experts”</a>, AICS 2018.</li>
-<li>[2] Beaugnon et al., <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2017/09/ilab_beaugnonchifflierbach_raid2017.pdf">“ILAB: An Interactive Labelling Strategy for Intrusion Detection”</a>, RAID 2017.</li>
-<li>[3] Stokes et al., Aladin: “Active learning of anomalies to detect intrusions”, technical report 2008.</li>
-<li>[4] Görnitz et al, “Active learning for network intrusion detection”, AISEC 2009.</li>
-<li>[5] Cesa-Bianchi et al., “Worst-case analysis of selective sampling for linear classification”, JMLR 2006.</li>
-<li>[6] Lewis et al., “A sequential algorithm for training text classifiers”, 1994.</li>
-</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We recommend using Ilab. This active learning strategies has been extensively compared <a class="footnote-reference" href="#f1" id="id6">[1]</a> to Aladin, Gornitz, and UncertaintySampling.
+ILAB maximizes the detection performance while minimizing both the number of manual annotations and the execution time.
+Its low execution time enables to update the detection model frequently without inducing long waiting-periods.</p>
+</div>
+<p class="rubric">References</p>
+<table class="docutils footnote" frame="void" id="f1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id6">2</a>)</em> Beaugnon et al., <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2017/09/ilab_beaugnonchifflierbach_raid2017.pdf">“ILAB: An Interactive Labelling Strategy for Intrusion Detection”</a>, RAID 2017.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>Stokes et al., Aladin: “Active learning of anomalies to detect intrusions”, technical report 2008.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td>Görnitz et al, “Active learning for network intrusion detection”, AISEC 2009.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[4]</a></td><td>Cesa-Bianchi et al., “Worst-case analysis of selective sampling for linear classification”, JMLR 2006.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[5]</a></td><td>Lewis et al., “A sequential algorithm for training text classifiers”, 1994.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<p>In addition to the
+<a class="reference internal" href="SecuML.Experiments.html#exp-params"><span class="std std-ref">parameters shared by all experiments</span></a>,
+active learning strategies have the following optional parameters.</p>
+<div class="section" id="initial-annotations">
+<h3>Initial Annotations<a class="headerlink" href="#initial-annotations" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--init-annotations-file</span> <span class="pre">&lt;filename&gt;.csv</span></code>, default value: <code class="docutils literal notranslate"><span class="pre">init_annotations.csv</span></code>.</p>
+<p>Active learning strategies require some initial annotations
+for both classes (benign and malicious).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The annotations files are stored in <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;/&lt;project&gt;/&lt;dataset&gt;/annotations/</span></code> where
+input data directory <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;</span></code> is specified in the <a class="reference internal" href="getting_started.setting_up.html#configuration"><span class="std std-ref">configuration file</span></a>.</p>
+</div>
+</div>
+<div class="section" id="mode-interactive-or-oracle">
+<h3>Mode: Interactive or Oracle<a class="headerlink" href="#mode-interactive-or-oracle" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--auto</span></code>, default value: <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<p>ILAB offers to modes: <em>Interactive</em> (without <code class="docutils literal notranslate"><span class="pre">--auto</span></code>) and <em>Oracle</em> (with <code class="docutils literal notranslate"><span class="pre">--auto</span></code>).</p>
+<p><strong>Interactive Mode.</strong>
+A human must answer the annotation queries manually
+from the <a class="reference internal" href="#ilab-gui"><span class="std std-ref">web interface</span></a> at each iteration.</p>
+<p><strong>Oracle Mode.</strong>
+The annotation queries are answered automatically by an oracle with the ground-truth
+labels an families. This mode is usefull to design new active learning strategies
+and to make comparisons automatically.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The oracle mode requires that the ground truth is known and stored in
+<code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;/&lt;project&gt;/&lt;dataset&gt;/annotations/ground_truth.csv</span></code> where
+input data directory <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;</span></code> is specified in the <a class="reference internal" href="getting_started.setting_up.html#configuration"><span class="std std-ref">configuration file</span></a>.</p>
+</div>
+</div>
+<div class="section" id="annotation-budget">
+<h3>Annotation Budget<a class="headerlink" href="#annotation-budget" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--budget</span> <span class="pre">&lt;num_annotations&gt;</span></code>, default value: <code class="docutils literal notranslate"><span class="pre">2000</span></code>.</p>
+<p>The annotation budget corresponds to the number of annotations asked during the active learning process.</p>
+</div>
+<div class="section" id="validation-dataset">
+<h3>Validation Dataset<a class="headerlink" href="#validation-dataset" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--validation-dataset</span> <span class="pre">&lt;dataset&gt;</span></code>, default value: <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>A validation dataset can be indicated. In this case, at each iteration, the performance
+of the current detection model is assessed on the validation dataset.</p>
+</div>
+<div class="section" id="specific-parameters">
+<h3>Specific Parameters<a class="headerlink" href="#specific-parameters" title="Permalink to this headline">¶</a></h3>
+<p>In addition to these common parameters, some active learning strategy have their own parameters.
+For more information about the available options for a given strategy:
+<code class="docutils literal notranslate"><span class="pre">SecuML_ILAB</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;strategy&gt;</span> <span class="pre">-h</span></code>.</p>
+</div>
 </div>
 <div class="section" id="graphical-user-interface">
-<h2>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Permalink to this headline">¶</a></h2>
-<div class="figure" id="id1">
+<span id="ilab-gui"></span><h2>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Permalink to this headline">¶</a></h2>
+<p>ILAB graphical user interface obviously includes an <a class="reference internal" href="#ilab-annotation-gui"><span class="std std-ref">Annotation Interface</span></a>
+to display and gather the answers to the annotation queries.
+Moreover, ILAB annotation system offers additional graphical user interfaces to ease data annotation:
+a <a class="reference internal" href="#ilab-monitoring-gui"><span class="std std-ref">Monitoring Interface</span></a>,
+a <a class="reference internal" href="#ilab-family-editor"><span class="std std-ref">Family Editor</span></a> and an <a class="reference internal" href="#ilab-annotated-instances"><span class="std std-ref">Annotated Instances Interface</span></a>.</p>
+<div class="section" id="monitoring-interface">
+<span id="ilab-monitoring-gui"></span><h3>Monitoring Interface<a class="headerlink" href="#monitoring-interface" title="Permalink to this headline">¶</a></h3>
+<p>ILAB Monitoring Interface displays information
+about the current detection model (<em>Model Coefficients</em>, <em>Train</em> and <em>Cross Validation</em> panels),
+and feedback about the annotation progress (<em>Evolution Monitoring</em> panel).
+Moreover, the Monitoring Interface gives access
+to the <a class="reference internal" href="#ilab-annotated-instances"><span class="std std-ref">Annotated Instances Interface</span></a> and to the <a class="reference internal" href="#ilab-family-editor"><span class="std std-ref">Family Editor</span></a>.</p>
 <img alt="_images/monitoring.png" src="_images/monitoring.png" />
-<p class="caption"><span class="caption-text">Monitoring Interface</span></p>
+<div class="section" id="feedback-about-annotation-progress">
+<h4>Feedback about Annotation Progress<a class="headerlink" href="#feedback-about-annotation-progress" title="Permalink to this headline">¶</a></h4>
+<p>ILAB provides feedback to experts across iterations to show them the benefit of their annotations,
+and that they are on track to achieve their goal.
+In simulated experiments, where an oracle answers the queries automatically with the ground-truth labels,
+the performance of the detection model on an independent validation dataset is usually reported.
+Nevertheless, this approach is not applicable in a real-world setting:
+when security expert deploy an annotation system to build a training dataset they do not have access to an annotated validation dataset.</p>
+<p>ILAB <em>Evolution Monitoring</em> panel displays two kinds of feedback that do not require an annotated validation dataset:</p>
+<ol class="arabic simple">
+<li>the number of malicious and benign families discovered so far, and,</li>
+<li>the accuracy of the suggested labels and families.</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The accuracy of the suggested labels and families is available onyl with ILAB active learning strategy.
+At each iteration, ILAB suggests a family for the high likelihood queries.
+At the next iteration, ILAB computes the accuracy of these suggestions according to the last annotations performed by the expert.</p>
 </div>
-<div class="figure" id="id2">
+<p>This feedback can provide insight into the impact of new annotations.
+If the number of families discovered and the accuracy of the suggestions are stable for several iterations,
+the security expert may stop annotating.</p>
+</div>
+<div class="section" id="current-detection-model">
+<h4>Current Detection Model<a class="headerlink" href="#current-detection-model" title="Permalink to this headline">¶</a></h4>
+<p>The Monitoring Interface displays information about the detection model trained at a given iteration:
+the global behavior of the model (<em>Model Coefficients</em> or <em>Features Importance</em> panel)
+and performance indicators (<em>Train</em>, <em>Cross Validation</em> and <em>Validation</em> panels).
+These monitoring panels are part of <a class="reference internal" href="SecuML.DIADEM.html#diadem-gui"><span class="std std-ref">DIADEM graphical user interface</span></a>.</p>
+</div>
+</div>
+<div class="section" id="annotation-interface">
+<span id="ilab-annotation-gui"></span><h3>Annotation Interface<a class="headerlink" href="#annotation-interface" title="Permalink to this headline">¶</a></h3>
+<p>Experts can go trough the annotation queries thanks to the <em>Annotation Queries</em> panel.
+The bottom panel displays the queried instances (<em>Description</em> panel) and
+gathers the annotations (<em>Annotation</em> panel).</p>
 <img alt="_images/annotations.png" src="_images/annotations.png" />
-<p class="caption"><span class="caption-text">Annotation Interface</span></p>
+<div class="section" id="description-panel">
+<h4>Description Panel<a class="headerlink" href="#description-panel" title="Permalink to this headline">¶</a></h4>
+<p>The <em>Description</em> panel contains information about the instance that must be annotated.
+It consists of a standard visualization depicting the instance features, and of optional
+<a class="reference internal" href="SecuML.Data.html#problem-specific-visu"><span class="std std-ref">problem-specific visualizations</span></a>.</p>
 </div>
-<div class="figure" id="id3">
+<div class="section" id="annotation-panel">
+<h4>Annotation Panel<a class="headerlink" href="#annotation-panel" title="Permalink to this headline">¶</a></h4>
+<p>Experts can annotate the selected instance with the <em>Annotation</em> panel.
+For each label, it displays the list of the families already discovered.
+Experts can pick a family among a list or add a new one.</p>
+<p>The interface suggests a family for high likelihood queries and pre-selects it.
+It helps experts since the model is confident about these predictions.
+On the contrary, ILAB makes no suggestion for uncertain and low likelihood queries.
+The model is indeed unsure about the family of these instances and unreliable suggestions
+may mislead experts.</p>
+<p>The next query is displayed automatically after each annotation validation.
+Experts can click on the&nbsp;<code class="docutils literal notranslate"><span class="pre">Next</span> <span class="pre">Iteration</span></code> button to generate the next queries
+after answering all the queries of the current iteration.
+If some queries have not been answered, a pop-up window asks the annotator to answer them.</p>
+</div>
+</div>
+<div class="section" id="family-editor">
+<span id="ilab-family-editor"></span><h3>Family Editor<a class="headerlink" href="#family-editor" title="Permalink to this headline">¶</a></h3>
+<p>The family editor allows to perform three actions over the families:</p>
+<ol class="arabic simple">
+<li><em>Change Name</em> to clarify the name of a family ;</li>
+<li><em>Merge Families</em> to regroup similar families ;</li>
+<li><em>Swap Malicious / Benign</em> to change the label corresponding to a given family.</li>
+</ol>
 <img alt="_images/family_editor.png" src="_images/family_editor.png" />
-<p class="caption"><span class="caption-text">Family Editor</span></p>
 </div>
-<div class="figure" id="id4">
+<div class="section" id="annotated-instances-interface">
+<span id="ilab-annotated-instances"></span><h3>Annotated Instances Interface<a class="headerlink" href="#annotated-instances-interface" title="Permalink to this headline">¶</a></h3>
+<p>This interface allows to review their previous annotations.
+It displays the currently annotated instances grouped according to their associated label or family.</p>
+<p>Security experts can leverage this interface to examine the instances of a given family,
+or to rectify previous annotations.
+Thanks to the <em>Family Editor</em>, they can perform high-level changes on the families, but they cannot split them.
+They can split a family thanks to the <em>Annotated Instances Interface</em>
+by going through all its instances and updating the annotations.</p>
 <img alt="_images/annotated_instances.png" src="_images/annotated_instances.png" />
-<p class="caption"><span class="caption-text">Annotated Instances</span></p>
 </div>
 </div>
 </div>
@@ -269,6 +489,7 @@ instances to improve the current detection model.</p>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

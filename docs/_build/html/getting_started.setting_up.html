@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Running SecuML on the lingspam dataset" href="getting_started.lingspam.html" />
+    <link rel="next" title="Use Case: Spam Detection" href="getting_started.lingspam.html" />
     <link rel="prev" title="SecuML’s documentation" href="index.html" /> 
 
   
@@ -81,32 +81,34 @@
               <p class="caption"><span class="caption-text">Getting Started</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Seeting up SecuML</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#installation-of-secuml">Installation of SecuML</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#automatic-installation">Automatic installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#automatic-installation">Automatic Installation</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#web-user-interface">Web User Interface</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#database">Database</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#js-and-css">JS and CSS</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#lauching-the-web-user-interface">Lauching the web user interface</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Running SecuML on the lingspam dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.other.html">Running SecuML on your own dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.exp.html">Removing Experiments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Use Case: Spam Detection</a></li>
 </ul>
-<p class="caption"><span class="caption-text">SecuML</span></p>
+<p class="caption"><span class="caption-text">Data and Experiments</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Data.html">Data and Problem-Specific Visualizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Experiments.html">Experiments</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Available Experiments</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Computing Descriptive Statistics of Each Feature</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Descriptive Statistics</a></li>
 </ul>
 
             
@@ -173,8 +175,8 @@
             
   <div class="section" id="seeting-up-secuml">
 <h1>Seeting up SecuML<a class="headerlink" href="#seeting-up-secuml" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="installation-of-secuml">
-<h2>Installation of SecuML<a class="headerlink" href="#installation-of-secuml" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="requirements">
 <h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h3>
 <ul>
@@ -183,11 +185,11 @@
 <li><p class="first">Python packages</p>
 <blockquote>
 <div><ul class="simple">
-<li>celery (&gt;= 3.1.13) (only for active learning and rare category detection)</li>
+<li>celery (&gt;= 3.1.13) (only for <a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB</span></a> and <a class="reference internal" href="SecuML.RCD.html#rcd"><span class="std std-ref">rare category detection</span></a>)</li>
 <li>flask (&gt;= 0.10.1)</li>
 <li>flask_sqlalchemy (&gt;= 1.0)</li>
 <li>matplotlib (&gt;= 2.1.1)</li>
-<li>metric-learn (&gt;= 0.3.0)</li>
+<li>metric-learn (&gt;= 0.4.0)</li>
 <li>numpy (== 1.12.1)</li>
 <li>pandas (== 0.19.2)</li>
 <li>scikit-learn (== 0.19.0)</li>
@@ -199,21 +201,28 @@
 </ul>
 </div>
 <div class="section" id="automatic-installation">
-<h3>Automatic installation<a class="headerlink" href="#automatic-installation" title="Permalink to this headline">¶</a></h3>
+<h3>Automatic Installation<a class="headerlink" href="#automatic-installation" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>virtualenv venv_SecuML --no-site-packages --python python3
 <span class="nb">source</span> venv_SecuML/bin/activate
 python3 setup.py install
 </pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The dependencies stored in <cite>requirements.txt</cite> are automatically installed by <cite>setup.py</cite>.
+They cannot be installed with <cite>pip install -r requirements.txt</cite> because the required version
+of <cite>metric-learn</cite> has not been released on PyPI yet.</p>
 </div>
 </div>
 </div>
 <div class="section" id="web-user-interface">
 <h2>Web User Interface<a class="headerlink" href="#web-user-interface" title="Permalink to this headline">¶</a></h2>
 <p>SecuML comes with a web user interface to display the results of the analysis and interact with the Machine Learning models.
-The analyses must be run from the command line. Once they are computed, the results can be displayed in the web user interface.</p>
+The analyses must be run from the command line.
+Once they are computed, the results can be displayed in the web user interface.</p>
 <div class="section" id="database">
 <h3>Database<a class="headerlink" href="#database" title="Permalink to this headline">¶</a></h3>
-<p>SecuML.experiments and SecuML.web require an access to a database. MySQL and PostgreSQL are supported.
+<p>SecuML requires an access to a database. MySQL and PostgreSQL are supported.
 The user must have the following permissions: <code class="docutils literal notranslate"><span class="pre">SELECT</span></code>, <code class="docutils literal notranslate"><span class="pre">INSERT</span></code>, <code class="docutils literal notranslate"><span class="pre">UPDATE</span></code>, <code class="docutils literal notranslate"><span class="pre">DELETE</span></code>, <code class="docutils literal notranslate"><span class="pre">CREATE</span> <span class="pre">TEMPORARY</span> <span class="pre">TABLES</span></code>.</p>
 <p><em>MySQL database</em></p>
 <ul>
@@ -243,21 +252,22 @@ The user must have the following permissions: <code class="docutils literal notr
 <div class="section" id="js-and-css">
 <h3>JS and CSS<a class="headerlink" href="#js-and-css" title="Permalink to this headline">¶</a></h3>
 <p>The required JS and CSS librairies can be dowloaded with the script <a class="reference external" href="/download_libraries">download_libraries</a>.</p>
-<p><em>The JS dependencies must be stored in</em> <code class="docutils literal notranslate"><span class="pre">SecuML/web/static/lib/js</span></code></p>
+<p><em>The JS dependencies must be stored in</em> <code class="docutils literal notranslate"><span class="pre">SecuML/web/static/lib/js</span></code>:</p>
 <ul class="simple">
-<li>bootstrap.min.js (&gt;= 3.3.0)</li>
-<li>d3.min.js (&gt;= 3.5.17)</li>
-<li>jquery.min.js (&gt;= 3.1.0)</li>
-<li>Chart.min.js (&gt;= 2.2.2)</li>
+<li>bootstrap.min.js (&gt;= 3.3.0) ;</li>
+<li>d3.min.js (&gt;= 3.5.17) ;</li>
+<li>jquery.min.js (&gt;= 3.1.0) ;</li>
+<li>Chart.min.js (&gt;= 2.2.2).</li>
 </ul>
-<p><em>The CSS dependencies must be stored in</em> <code class="docutils literal notranslate"><span class="pre">SecuML/web/static/lib/js</span></code></p>
+<p><em>The CSS dependencies must be stored in</em> <code class="docutils literal notranslate"><span class="pre">SecuML/web/static/lib/js</span></code>:</p>
 <ul class="simple">
-<li>bootstrap.min.css (&gt;= 3.3.7)</li>
-<li>jquery-ui.min.css (&gt;= 1.12.1)</li>
+<li>bootstrap.min.css (&gt;= 3.3.7) ;</li>
+<li>jquery-ui.min.css (&gt;= 1.12.1).</li>
 </ul>
 </div>
+</div>
 <div class="section" id="configuration">
-<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
+<span id="id1"></span><h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
 <p>The configuration file must follow the following format (see <a class="reference external" href="/conf/SecuML_travis_conf.yml">SecuML_travis_conf.yml</a>):</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">input_data_dir</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;directory containing the input datasets&gt;</span>
 <span class="l l-Scalar l-Scalar-Plain">output_data_dir</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;directory where the results of the experiments are stored&gt;</span>
@@ -265,19 +275,7 @@ The user must have the following permissions: <code class="docutils literal notr
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">input_data_dir</span></code> must be set to <a class="reference external" href="input_data">input_data</a> in the configuration file to test SecuML with the dataset we provide.</p>
-<p>The environment variable <code class="docutils literal notranslate"><span class="pre">̀SECUMLCONF</span></code> must be set to the path of the configuration file.</p>
-</div>
-<div class="section" id="lauching-the-web-user-interface">
-<h3>Lauching the web user interface<a class="headerlink" href="#lauching-the-web-user-interface" title="Permalink to this headline">¶</a></h3>
-<p>To launch the web server :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_server
-</pre></div>
-</div>
-<p>To display the results in a web browser :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>http://localhost:5000/SecuML/
-</pre></div>
-</div>
-</div>
+<p>The environment variable <code class="docutils literal notranslate"><span class="pre">SECUMLCONF</span></code> must be set to the path of the configuration file.</p>
 </div>
 </div>
 
@@ -289,7 +287,7 @@ The user must have the following permissions: <code class="docutils literal notr
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="getting_started.lingspam.html" class="btn btn-neutral float-right" title="Running SecuML on the lingspam dataset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="getting_started.lingspam.html" class="btn btn-neutral float-right" title="Use Case: Spam Detection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral" title="SecuML’s documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -334,6 +332,7 @@ The user must have the following permissions: <code class="docutils literal notr
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

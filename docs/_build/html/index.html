@@ -80,18 +80,21 @@
               <p class="caption"><span class="caption-text">Getting Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.setting_up.html">Seeting up SecuML</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Running SecuML on the lingspam dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.other.html">Running SecuML on your own dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.exp.html">Removing Experiments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Use Case: Spam Detection</a></li>
 </ul>
-<p class="caption"><span class="caption-text">SecuML</span></p>
+<p class="caption"><span class="caption-text">Data and Experiments</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Data.html">Data and Problem-Specific Visualizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Experiments.html">Experiments</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Available Experiments</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Computing Descriptive Statistics of Each Feature</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Descriptive Statistics</a></li>
 </ul>
 
             
@@ -158,24 +161,67 @@
             
   <div class="section" id="secuml-s-documentation">
 <h1>SecuML’s documentation<a class="headerlink" href="#secuml-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>SecuML is a Python tool that aims to foster the use of machine learning in computer security.
+It is distributed under the GPL2+ license.</p>
+<p>It allows to apply diverse machine learning techniques
+(e.g. supervised learning, active learning, rare category detection, clustering).
+It does not propose new implementations of machine learning algorithms.
+It is built upon third-party libraries
+(<a class="reference external" href="http://scikit-learn.org/">scikit-learn</a> and <a class="reference external" href="https://github.com/metric-learn/metric-learn/tree/master/doc">metric-learn</a>),
+and offers additionnal features:
+it comes with a graphical user interface and
+it hides some of the machine learning machinery to let security experts focus mainly on detection.</p>
+<p><strong>Graphical User Interface.</strong>
+It visualizes the results of the machine learning analyses
+and allows to interact with the models (e.g. active learning, rare category detection).
+It is generic and can be used on any data type thanks to the pluggable
+<a class="reference internal" href="SecuML.Data.html#problem-specific-visu"><span class="std std-ref">problem-specific visualizations</span></a>.</p>
+<p><strong>Hiding some of the Machine Learning Machinery.</strong>
+SecuML deals with data loading and performs automatically
+some parts of the machine learning pipeline (e.g. feature standardization, search of the best hyperparameters)
+to let security experts focus mainly on detection.</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.setting_up.html">Seeting up SecuML</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Running SecuML on the lingspam dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.other.html">Running SecuML on your own dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.exp.html">Removing Experiments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.setting_up.html">Seeting up SecuML</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.setting_up.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.setting_up.html#web-user-interface">Web User Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.setting_up.html#configuration">Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Use Case: Spam Detection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.lingspam.html#training-and-diagnosing-a-detection-model">Training and Diagnosing a Detection Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.lingspam.html#annotating-a-dataset-with-a-reduced-workload">Annotating a Dataset with a Reduced Workload</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">SecuML</span></p>
+<p class="caption"><span class="caption-text">Data and Experiments</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Data.html">Data and Problem-Specific Visualizations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="SecuML.Data.html#data">Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SecuML.Data.html#problem-specific-visualizations">Problem-Specific Visualizations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Experiments.html">Experiments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="SecuML.Experiments.html#running-experiments">Running Experiments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SecuML.Experiments.html#visualizing-the-results">Visualizing the Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SecuML.Experiments.html#types-of-experiments-available">Types of Experiments Available</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SecuML.Experiments.html#removing-experiments">Removing Experiments</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Available Experiments</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Computing Descriptive Statistics of Each Feature</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Descriptive Statistics</a></li>
 </ul>
 </div>
 </div>
@@ -231,6 +277,7 @@
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

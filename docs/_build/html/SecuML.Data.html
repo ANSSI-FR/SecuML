@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Data and Problem-Specific Visualizations &mdash; SecuML  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Experiments" href="SecuML.Experiments.html" />
+    <link rel="prev" title="Use Case: Spam Detection" href="getting_started.lingspam.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SecuML
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.setting_up.html">Seeting up SecuML</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Use Case: Spam Detection</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Data and Experiments</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data and Problem-Specific Visualizations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#data">Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#idents-csv"><code class="docutils literal notranslate"><span class="pre">idents.csv</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#features-directory"><code class="docutils literal notranslate"><span class="pre">features</span></code> directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#annotations-directory"><code class="docutils literal notranslate"><span class="pre">annotations</span></code> directory</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#problem-specific-visualizations">Problem-Specific Visualizations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#javascript-code">JavaScript code</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#flask-code">Flask code</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Experiments.html">Experiments</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Available Experiments</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Descriptive Statistics</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SecuML</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Data and Problem-Specific Visualizations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/SecuML.Data.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="data-and-problem-specific-visualizations">
+<h1>Data and Problem-Specific Visualizations<a class="headerlink" href="#data-and-problem-specific-visualizations" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="data">
+<h2>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h2>
+<p>SecuML considers projects which correspond to different detection problems
+on different data types
+(PDF files , PE, Android applications or Spam for instance).
+For a given project, several datasets can be used.
+The directory <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;/&lt;project&gt;/&lt;dataset&gt;/</span></code> must contain the following items
+a file <code class="docutils literal notranslate"><span class="pre">idents.csv</span></code>, a <code class="docutils literal notranslate"><span class="pre">features</span></code> and an <code class="docutils literal notranslate"><span class="pre">annotations</span></code> directories.
+See <a class="reference external" href="/input_data/SpamHam/lingspam/">input_data/SpamHam/lingspam/</a> for an example of input dataset.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The input data directory <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;</span></code> is specified in the <a class="reference internal" href="getting_started.setting_up.html#configuration"><span class="std std-ref">configuration file</span></a>.</p>
+</div>
+<div class="section" id="idents-csv">
+<h3><code class="docutils literal notranslate"><span class="pre">idents.csv</span></code><a class="headerlink" href="#idents-csv" title="Permalink to this headline">¶</a></h3>
+<p>A csv file containing the identifiers of the instances.
+It has the following columns:</p>
+<ul class="simple">
+<li><strong>instance_id</strong>: integer ;</li>
+<li><strong>ident</strong>: string describing the instance ;</li>
+<li><strong>[optional] timestamp</strong>: date (<code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span> <span class="pre">HH:MM:SS</span></code> format) of the instance.</li>
+</ul>
+<p>The timestamps are required for <a class="reference internal" href="SecuML.DIADEM.html#diadem-validation-modes"><span class="std std-ref">DIADEM’s temporal validation modes</span></a>.</p>
+</div>
+<div class="section" id="features-directory">
+<h3><code class="docutils literal notranslate"><span class="pre">features</span></code> directory<a class="headerlink" href="#features-directory" title="Permalink to this headline">¶</a></h3>
+<p>It contains csv files with the features of the instances.
+It has the following columns:</p>
+<ul class="simple">
+<li><strong>instance_id</strong>: integer ;</li>
+<li><strong>a column for each feature</strong>: numeric (float or integer).</li>
+</ul>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The instances in the features files must be stored in the same order as in <code class="docutils literal notranslate"><span class="pre">idents.csv</span></code>.</p>
+</div>
+<p>SecuML does not take raw data as input, but data that has already been transformed into
+fixed-length vectors of features.
+Currently, SecuML supports only numerical features.</p>
+</div>
+<div class="section" id="annotations-directory">
+<h3><code class="docutils literal notranslate"><span class="pre">annotations</span></code> directory<a class="headerlink" href="#annotations-directory" title="Permalink to this headline">¶</a></h3>
+<p>It contains csv files with the annotations associated to the instances.
+It has the following columns:</p>
+<ul class="simple">
+<li><strong>instance_id</strong>: integer ;</li>
+<li><strong>label</strong>: binary label, <code class="docutils literal notranslate"><span class="pre">malicious</span></code> or <code class="docutils literal notranslate"><span class="pre">benign</span></code> ;</li>
+<li><strong>[optional] family</strong>: string.</li>
+</ul>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The end of line character of the annotations file must be LF.</p>
+</div>
+<p><strong>Families</strong></p>
+<p>Families detail the binary label.
+Instances sharing the same family behave similarly.
+For example, malicious instances belonging to the same family may exploit the same vulnerability,
+they may be polymorphic variants of the same malware, or they may be email messages
+coming from the same spam campaign.</p>
+<p><a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB</span></a> and <a class="reference internal" href="SecuML.RCD.html#rcd"><span class="std std-ref">rare category detection</span></a> require that the families are specified.
+Besides, the families can be leveraged by <a class="reference internal" href="SecuML.DIADEM.html#diadem"><span class="std std-ref">DIADEM</span></a> to cluster alerts according to
+user defined malicious families.</p>
+<p><strong>Ground Truth and Partial Annotations</strong></p>
+<p>If the ground truth is known, it must be stored in the file <code class="docutils literal notranslate"><span class="pre">annotations/ground_truth.csv</span></code>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The instances in <code class="docutils literal notranslate"><span class="pre">annotations/ground_truth.csv</span></code> must be stored in the same order as in <code class="docutils literal notranslate"><span class="pre">idents.csv</span></code>.</p>
+</div>
+<p>If only some instances are annotated, their annotations can be stored, in any order,
+in an annotation file <code class="docutils literal notranslate"><span class="pre">annotations/&lt;filename&gt;.csv</span></code>.</p>
+<p>The ground truth is required to train supervised detection models with <a class="reference internal" href="SecuML.DIADEM.html#diadem"><span class="std std-ref">DIADEM</span></a>.
+Partial annotations are required for <a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB</span></a> and <a class="reference internal" href="SecuML.RCD.html#rcd"><span class="std std-ref">rare category detection</span></a>.
+<a class="reference internal" href="SecuML.clustering.html#clustering"><span class="std std-ref">Clustering</span></a>, <a class="reference internal" href="SecuML.projection.html#projection"><span class="std std-ref">projection</span></a>, and <a class="reference internal" href="SecuML.stats.html#stats"><span class="std std-ref">descriptive statistics</span></a>
+do not require any annotation file, but annotations can be leveraged to ease analysis.</p>
+</div>
+</div>
+<div class="section" id="problem-specific-visualizations">
+<span id="problem-specific-visu"></span><h2>Problem-Specific Visualizations<a class="headerlink" href="#problem-specific-visualizations" title="Permalink to this headline">¶</a></h2>
+<p>SecuML web user interface displays individual instances (e.g. errors from the confusion matrix with DIADEM, or instances to annotate with ILAB) in a <em>Description</em> panel.
+By default, the <em>Description</em> panel displays only the features of the instance.
+This visualization may be hard to interpret especially when the feature space is in high dimension.</p>
+<p>SecuML enables to plug problem-specific visualizations for each project
+(the datasets belonging to the same project share the same problem-specific visualizations).
+They should be easily interpretable by security experts and display the most relevant elements from a detection perspective.
+They may point out to external tools or information to provide some context.
+Several custom visualizations can be implemented (in different tabs) to show the instances from various angles.</p>
+<div class="section" id="implementation">
+<h3>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Problem-specific visualizations are not required to use SecuML web user interface.
+However, we strongly encourage to implement convenient problem-specific visualizations,
+since they can significantly ease the analysis of individual instances.</p>
+</div>
+<div class="section" id="javascript-code">
+<h4>JavaScript code<a class="headerlink" href="#javascript-code" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">The code must be stored in <code class="docutils literal notranslate"><span class="pre">SecuML/web/static/js/InstancesInformation/&lt;project&gt;.js</span></code>.</div>
+<div class="line">See <a class="reference external" href="/SecuML/web/static/js/InstancesInformation/SpamHam.js">SecuML/web/static/js/InstancesInformation/SpamHam.js</a> for an example.</div>
+</div>
+</div>
+<div class="section" id="flask-code">
+<h4>Flask code<a class="headerlink" href="#flask-code" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">The code must be stored in <code class="docutils literal notranslate"><span class="pre">SecuML/web/views/Projects/&lt;project&gt;.py</span></code>.</div>
+<div class="line">See <a class="reference external" href="/SecuML/web/views/Projects/SpamHam.py">SecuML/web/views/Projects/SpamHam.py</a>) for an example.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="SecuML.Experiments.html" class="btn btn-neutral float-right" title="Experiments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="getting_started.lingspam.html" class="btn btn-neutral" title="Use Case: Spam Detection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Anaël Beaugnon, Pierre Collet, Antoine Husson.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

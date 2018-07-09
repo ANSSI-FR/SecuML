@@ -1,0 +1,295 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Experiments &mdash; SecuML  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="DIADEM: DIAgnosis of DEtection Models" href="SecuML.DIADEM.html" />
+    <link rel="prev" title="Data and Problem-Specific Visualizations" href="SecuML.Data.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SecuML
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.setting_up.html">Seeting up SecuML</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Use Case: Spam Detection</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Data and Experiments</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Data.html">Data and Problem-Specific Visualizations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Experiments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#running-experiments">Running Experiments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#visualizing-the-results">Visualizing the Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#types-of-experiments-available">Types of Experiments Available</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#removing-experiments">Removing Experiments</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Available Experiments</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Descriptive Statistics</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SecuML</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Experiments</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/SecuML.Experiments.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="experiments">
+<span id="id1"></span><h1>Experiments<a class="headerlink" href="#experiments" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="running-experiments">
+<span id="exp-params"></span><h2>Running Experiments<a class="headerlink" href="#running-experiments" title="Permalink to this headline">¶</a></h2>
+<p>The experiments must be run from the command line.
+Each type of experiment has its own executable
+(e.g. <code class="docutils literal notranslate"><span class="pre">SecuML_DIADEM</span></code>, <code class="docutils literal notranslate"><span class="pre">SecuML_ILAB</span></code>).</p>
+<p>All the experiments share the following arguments:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">project</span></code>: the name of the project;</li>
+<li><code class="docutils literal notranslate"><span class="pre">dataset</span></code>: the name of the dataset belonging to <code class="docutils literal notranslate"><span class="pre">project</span></code>;</li>
+<li>[optional] <code class="docutils literal notranslate"><span class="pre">--features</span></code>: the name of the csv file containing the features;</li>
+<li>[optional] <code class="docutils literal notranslate"><span class="pre">--exp-name</span></code>: the name of the experiment.</li>
+</ul>
+<p>If <code class="docutils literal notranslate"><span class="pre">--features</span></code> is not specified, the features are read from the file <code class="docutils literal notranslate"><span class="pre">features.csv</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">--exp-name</span></code> is not specified, a name is automatically generated from the input parameters
+of the experiment.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The features files are stored in the directory <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;/&lt;project&gt;/&lt;dataset&gt;/features/</span></code> where
+input data directory <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;</span></code> is specified in the <a class="reference internal" href="getting_started.setting_up.html#configuration"><span class="std std-ref">configuration file</span></a>.</p>
+</div>
+</div>
+<div class="section" id="visualizing-the-results">
+<h2>Visualizing the Results<a class="headerlink" href="#visualizing-the-results" title="Permalink to this headline">¶</a></h2>
+<p>Once an experiment has been computed, its results can be displayed in the web user interface.</p>
+<p><code class="docutils literal notranslate"><span class="pre">http://localhost:5000/SecuML/</span></code> gives access to SecuML menu.
+It displays the list of projects and datasets available.
+Besides, for each dataset, it displays the list of experiments gathered by type.</p>
+<p><code class="docutils literal notranslate"><span class="pre">http://localhost:5000/SecuML/&lt;experiment_id&gt;/</span></code> displays directly
+the results of an experiment identified by <code class="docutils literal notranslate"><span class="pre">experiment_id</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal notranslate"><span class="pre">SecuML_server</span></code> must be executed to launch the web server.</p>
+</div>
+</div>
+<div class="section" id="types-of-experiments-available">
+<h2>Types of Experiments Available<a class="headerlink" href="#types-of-experiments-available" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="SecuML.DIADEM.html#diadem"><span class="std std-ref">DIADEM: Training and Diagnosing Detection Model</span></a></li>
+<li><a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB: Annotating a Dataset with a Workload</span></a></li>
+<li><a class="reference internal" href="SecuML.RCD.html#rcd"><span class="std std-ref">Exploring a Dataset Interactively with Rare Category Detection</span></a></li>
+<li><a class="reference internal" href="SecuML.clustering.html#clustering"><span class="std std-ref">Clustering</span></a></li>
+<li><a class="reference internal" href="SecuML.projection.html#projection"><span class="std std-ref">Projection</span></a></li>
+<li><a class="reference internal" href="SecuML.stats.html#stats"><span class="std std-ref">Descriptive Statistics</span></a></li>
+</ul>
+</div>
+<div class="section" id="removing-experiments">
+<h2>Removing Experiments<a class="headerlink" href="#removing-experiments" title="Permalink to this headline">¶</a></h2>
+<p>To remove all the experiments carried out for a given project:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_remove_project_dataset &lt;project&gt;
+</pre></div>
+</div>
+<p>To remove all the experiments carried out for a given dataset:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_remove_project_dataset &lt;project&gt; --dataset &lt;dataset&gt;
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="SecuML.DIADEM.html" class="btn btn-neutral float-right" title="DIADEM: DIAgnosis of DEtection Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="SecuML.Data.html" class="btn btn-neutral" title="Data and Problem-Specific Visualizations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Anaël Beaugnon, Pierre Collet, Antoine Husson.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

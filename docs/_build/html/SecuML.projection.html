@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Computing Descriptive Statistics of Each Feature" href="SecuML.stats.html" />
+    <link rel="next" title="Descriptive Statistics" href="SecuML.stats.html" />
     <link rel="prev" title="Clustering" href="SecuML.clustering.html" /> 
 
   
@@ -81,11 +81,14 @@
               <p class="caption"><span class="caption-text">Getting Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.setting_up.html">Seeting up SecuML</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Running SecuML on the lingspam dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.other.html">Running SecuML on your own dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.exp.html">Removing Experiments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Use Case: Spam Detection</a></li>
 </ul>
-<p class="caption"><span class="caption-text">SecuML</span></p>
+<p class="caption"><span class="caption-text">Data and Experiments</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Data.html">Data and Problem-Specific Visualizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Experiments.html">Experiments</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Available Experiments</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
@@ -96,7 +99,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#graphical-user-interface">Graphical User Interface</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Computing Descriptive Statistics of Each Feature</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Descriptive Statistics</a></li>
 </ul>
 
             
@@ -162,18 +165,15 @@
            <div itemprop="articleBody">
             
   <div class="section" id="projection">
-<h1>Projection<a class="headerlink" href="#projection" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>Projection<a class="headerlink" href="#projection" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line"><em>Usage:</em> <code class="docutils literal notranslate"><span class="pre">SecuML_projection</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;algo&gt;</span></code>.</div>
+<div class="line">For more information about the available options for a given projection algorithm:</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">SecuML_projection</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;algo&gt;</span> <span class="pre">-h</span></code>.</div>
+</div>
 <p>The data are projected into a lower-dimensional space for visualization. The user interface allows to display the instances in a plane defined by two components.
 The instances are not displayed individually but with an hexagonal binning (color from green to black according to the number of instances in the bin).
 The color of the dot in the middle of each bin (from yellow to red) corresponds to the proportion of known malicious instances in the bin.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_projection &lt;project&gt; &lt;dataset&gt; &lt;algo&gt;
-</pre></div>
-</div>
-<p><em>Help</em></p>
-<p>For more information about the available options for a given projection algorithm:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_projection &lt;project&gt; &lt;dataset&gt; &lt;algo&gt; -h
-</pre></div>
-</div>
 <div class="section" id="algorithms-available">
 <h2>Algorithms Available<a class="headerlink" href="#algorithms-available" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -201,10 +201,7 @@ The color of the dot in the middle of each bin (from yellow to red) corresponds 
 </div>
 <div class="section" id="graphical-user-interface">
 <h2>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Permalink to this headline">¶</a></h2>
-<div class="figure" id="id1">
-<img alt="_images/main2.png" src="_images/main2.png" />
-<p class="caption"><span class="caption-text">Projection Interface</span></p>
-</div>
+<img alt="_images/main1.png" src="_images/main1.png" />
 </div>
 </div>
 
@@ -216,7 +213,7 @@ The color of the dot in the middle of each bin (from yellow to red) corresponds 
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="SecuML.stats.html" class="btn btn-neutral float-right" title="Computing Descriptive Statistics of Each Feature" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="SecuML.stats.html" class="btn btn-neutral float-right" title="Descriptive Statistics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="SecuML.clustering.html" class="btn btn-neutral" title="Clustering" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -261,6 +258,7 @@ The color of the dot in the middle of each bin (from yellow to red) corresponds 
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

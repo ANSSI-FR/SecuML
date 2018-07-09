@@ -29,7 +29,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="ILAB: Interactive LABeling" href="SecuML.ILAB.html" />
-    <link rel="prev" title="Removing Experiments" href="getting_started.exp.html" /> 
+    <link rel="prev" title="Experiments" href="SecuML.Experiments.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -81,22 +81,40 @@
               <p class="caption"><span class="caption-text">Getting Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.setting_up.html">Seeting up SecuML</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Running SecuML on the lingspam dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.other.html">Running SecuML on your own dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.exp.html">Removing Experiments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Use Case: Spam Detection</a></li>
 </ul>
-<p class="caption"><span class="caption-text">SecuML</span></p>
+<p class="caption"><span class="caption-text">Data and Experiments</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Data.html">Data and Problem-Specific Visualizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Experiments.html">Experiments</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Available Experiments</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">DIADEM: DIAgnosis of DEtection Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#model-classes-available">Model Classes Available</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#graphical-user-interface">Graphical User Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#validation-modes-available">Validation Modes Available</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#random-split">Random Split</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#temporal-split">Temporal Split</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cutoff-time">Cutoff Time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cross-validation">Cross Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#temporal-cross-validation">Temporal Cross Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sliding-window">Sliding Window</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#validation-dataset">Validation Dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#graphical-user-interface">Graphical User Interface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#model-performance-and-predictions">Model Performance and Predictions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#model-behavior">Model Behavior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#individual-predictions">Individual Predictions</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Computing Descriptive Statistics of Each Feature</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Descriptive Statistics</a></li>
 </ul>
 
             
@@ -163,21 +181,21 @@
             
   <div class="section" id="diadem-diagnosis-of-detection-models">
 <span id="diadem"></span><h1>DIADEM: DIAgnosis of DEtection Models<a class="headerlink" href="#diadem-diagnosis-of-detection-models" title="Permalink to this headline">¶</a></h1>
-<p>Training and Analysing a Detection Model before Deployment</p>
-<p>A supervised detection model is learned from an annotated dataset, and applied to a validation dataset (annotated or not).
-The GUI displays performance indicators (detection rate, false alarm rate, f-score, ROC, AUC, confusion matrix, …)
-of the detection model on the training dataset and on the validation dataset (if ground-truth labels are available).
-The false positives and negatives can be displayed from the confusion matrix.
-The GUI also allows to analyze the alerts raised on the validation dataset
-(the top N alerts, randomly selected alerts, or a clustering of the alerts).</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_DIADEM &lt;project&gt; &lt;dataset&gt; &lt;model_class&gt;
-</pre></div>
+<p><strong>Training and Analysing a Detection Model before Deployment.</strong></p>
+<div class="line-block">
+<div class="line"><em>Usage:</em> <code class="docutils literal notranslate"><span class="pre">SecuML_DIADEM</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;model_class&gt;</span></code>.</div>
+<div class="line">For more information about the available options for a given model class:</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">SecuML_DIADEM</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;model_class&gt;</span> <span class="pre">-h</span></code>.</div>
 </div>
-<p><em>Help</em></p>
-<p>For more information about the available options for a given model class:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_DIADEM &lt;project&gt; &lt;dataset&gt; &lt;model_class&gt; -h
-</pre></div>
-</div>
+<p>DIADEM trains and evaluates supervised detection models.
+It hides some of the machine learning machinery (feature standardization, setting of the hyperparameters)
+to let security experts focus mainly on detection.
+Besides, it comes with a <a class="reference internal" href="#diadem-gui"><span class="std std-ref">graphical user interface</span></a> to evaluate and diagnose detection models.</p>
+<p class="rubric">References</p>
+<ul class="simple">
+<li>Beaugnon, Anaël. <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2018/06/beaugnon-a_these_manuscrit.pdf">“Expert-in-the-Loop Supervised Learning for Computer Security Detection Systems.”]</a>, Ph.D. thesis, École Normale Superieure (2018).</li>
+<li>[FRENCH] Bonneton, Anaël, and Antoine Husson, <a class="reference external" href="https://www.sstic.org/media/SSTIC2017/SSTIC-actes/le_machine_learning_confront_aux_contraintes_oprat/SSTIC2017-Article-le_machine_learning_confront_aux_contraintes_oprationnelles_des_systmes_de_dtection-bonneton_husson.pdf">“Le Machine Learning confronté aux contraintes opérationnelles des systèmes de détection”</a>, SSTIC 2017.</li>
+</ul>
 <div class="section" id="model-classes-available">
 <h2>Model Classes Available<a class="headerlink" href="#model-classes-available" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -188,16 +206,202 @@ The GUI also allows to analyze the alerts raised on the validation dataset
 <li>RandomForest</li>
 <li>GradientBoosting</li>
 </ul>
-<p><em>References</em></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For now, DIADEM supports only supervised detection models.
+It does not support unsupervised and semi-supervised detection models yet.</p>
+</div>
+<div class="line-block">
+<div class="line">DIADEM can train a new supervised detection model,</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">SecuML_DIADEM</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;model_class&gt;</span></code>,</div>
+<div class="line">or apply a previously trained detection model,</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">SecuML_DIADEM</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">AlreadyTrained</span> <span class="pre">--model-exp-id</span> <span class="pre">&lt;exp_id&gt;</span></code>.</div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In the latter case, <code class="docutils literal notranslate"><span class="pre">--model-exp-id</span></code> must correspond to a <a class="reference internal" href="#diadem"><span class="std std-ref">DIADEM</span></a> or an <a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB</span></a> experiment.</p>
+</div>
+</div>
+<div class="section" id="validation-modes-available">
+<span id="diadem-validation-modes"></span><h2>Validation Modes Available<a class="headerlink" href="#validation-modes-available" title="Permalink to this headline">¶</a></h2>
+<p>DIADEM offers several validation modes, i.e. ways to build the training and the validation datasets.
+Temporal validation modes (<a class="reference internal" href="#temporal-split"><span class="std std-ref">Temporal Split</span></a>, <a class="reference internal" href="#cutoff-time"><span class="std std-ref">Cutoff Time</span></a>, <a class="reference internal" href="#temporal-cv"><span class="std std-ref">Temporal Cross Validation</span></a>, and <a class="reference internal" href="#sliding-window"><span class="std std-ref">Sliding Window</span></a>)
+should be preferred when
+the instances are timestamped since they better reflect real-world conditions.
+These validation modes ensure that no instance from the future is used when the detection model is trained:
+the training instances predate the validation instances.</p>
+<div class="section" id="random-split">
+<span id="id1"></span><h3>Random Split<a class="headerlink" href="#random-split" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--test-mode</span> <span class="pre">RandomSplit</span> <span class="pre">--test-size</span> <span class="pre">&lt;prop&gt;</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;prop&gt;</span></code> instances of <code class="docutils literal notranslate"><span class="pre">&lt;dataset&gt;</span></code> are selected uniformly for the validation dataset.
+The remaining instances constitute the training dataset.</p>
+</div>
+<div class="section" id="temporal-split">
+<span id="id2"></span><h3>Temporal Split<a class="headerlink" href="#temporal-split" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--test-mode</span> <span class="pre">TemporalSplit</span> <span class="pre">--test-size</span> <span class="pre">&lt;prop&gt;</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">&lt;prop&gt;</span></code> most recent instances of <code class="docutils literal notranslate"><span class="pre">&lt;dataset&gt;</span></code> are selected for the validation dataset.
+The remaining instances constitute the training dataset.</p>
+</div>
+<div class="section" id="cutoff-time">
+<span id="id3"></span><h3>Cutoff Time<a class="headerlink" href="#cutoff-time" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--test-mode</span> <span class="pre">CutoffTime</span> <span class="pre">--cutoff-time</span> <span class="pre">&lt;cutoff_time&gt;</span></code></p>
+<p>The instances of <code class="docutils literal notranslate"><span class="pre">&lt;dataset&gt;</span></code> with a timestamp before <code class="docutils literal notranslate"><span class="pre">&lt;cutoff_time&gt;</span></code> constitutes
+the training dataset, and the instances after constitute the validation dataset.
+<code class="docutils literal notranslate"><span class="pre">&lt;cutoff_time&gt;</span></code> must be formatted as follows:
+<code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span> <span class="pre">HH:MM:SS</span></code>.</p>
+</div>
+<div class="section" id="cross-validation">
+<span id="cv"></span><h3>Cross Validation<a class="headerlink" href="#cross-validation" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--test-mode</span> <span class="pre">Cv</span> <span class="pre">--validation-folds</span> <span class="pre">&lt;num_folds&gt;</span></code></p>
+<p>The dataset <code class="docutils literal notranslate"><span class="pre">&lt;dataset&gt;</span></code> is divided uniformly into <code class="docutils literal notranslate"><span class="pre">&lt;num_folds&gt;</span></code> buckets.
+Each bucket has approximately the same number
+of instances and the same proportion of benign/malicious instances as the whole dataset.
+The detection model is trained <code class="docutils literal notranslate"><span class="pre">&lt;num_folds&gt;</span></code> times: each time, one bucket is the validation dataset and the other buckets
+form the training dataset.</p>
+<p><em>Example with</em> <span class="math notranslate nohighlight">\(\text{num_folds} = 4\)</span>:</p>
+<a class="reference internal image-reference" href="_images/cv.svg"><div align="center" class="align-center"><img alt="_images/cv.svg" src="_images/cv.svg" width="90%" /></div>
+</a>
+</div>
+<div class="section" id="temporal-cross-validation">
+<span id="temporal-cv"></span><h3>Temporal Cross Validation<a class="headerlink" href="#temporal-cross-validation" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--test-mode</span> <span class="pre">TemporalCv</span> <span class="pre">--validation-folds</span> <span class="pre">&lt;num_folds&gt;</span></code></p>
+<p>The dataset <code class="docutils literal notranslate"><span class="pre">&lt;dataset&gt;</span></code> is divided into <code class="docutils literal notranslate"><span class="pre">&lt;num_folds&gt;</span> <span class="pre">+</span> <span class="pre">1</span></code> buckets.
+Each bucket <span class="math notranslate nohighlight">\(b_{i \in [0,~\text{num_folds}]}\)</span> contains instances
+occurring between <span class="math notranslate nohighlight">\(t_i^{max} = T^{min} + i \cdot \Delta\)</span>
+and <span class="math notranslate nohighlight">\(t_i^{max} = T^{min} + (i+1) \cdot \Delta\)</span>
+where</p>
 <ul class="simple">
-<li>[FRENCH] Bonneton, Anaël, and Antoine Husson, <a class="reference external" href="https://www.sstic.org/media/SSTIC2017/SSTIC-actes/le_machine_learning_confront_aux_contraintes_oprat/SSTIC2017-Article-le_machine_learning_confront_aux_contraintes_oprationnelles_des_systmes_de_dtection-bonneton_husson.pdf">“Le Machine Learning confronté aux contraintes opérationnelles des systèmes de détection”,</a>, SSTIC 2017.</li>
+<li><span class="math notranslate nohighlight">\(T^{min}\)</span> and <span class="math notranslate nohighlight">\(T^{max}\)</span> correspond to the timestamps of the oldest and latest instances ;</li>
+<li><span class="math notranslate nohighlight">\(\Delta = \frac{T^{max} - T^{min}}{\text{num_folds} + 1}\)</span>.</li>
 </ul>
+<p>For each fold <span class="math notranslate nohighlight">\(f\in[0,\text{num_folds}-1]\)</span>, the buckets from <span class="math notranslate nohighlight">\(b_0\)</span> to <span class="math notranslate nohighlight">\(b_f\)</span> constitute
+the training dataset, and the remaining buckets form the validation dataset.</p>
+<p><em>Example with</em> <span class="math notranslate nohighlight">\(\text{num_folds} = 4\)</span>:</p>
+<a class="reference internal image-reference" href="_images/temporal_cv.svg"><div align="center" class="align-center"><img alt="_images/temporal_cv.svg" src="_images/temporal_cv.svg" width="90%" /></div>
+</a>
+</div>
+<div class="section" id="sliding-window">
+<span id="id4"></span><h3>Sliding Window<a class="headerlink" href="#sliding-window" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--test-mode</span> <span class="pre">SlidingWindow</span> <span class="pre">--buckets</span> <span class="pre">&lt;n&gt;</span> <span class="pre">--train-buckets</span> <span class="pre">&lt;n_train&gt;</span> <span class="pre">--test-buckets</span> <span class="pre">&lt;n_test&gt;</span></code></p>
+<p>The dataset <code class="docutils literal notranslate"><span class="pre">&lt;dataset&gt;</span></code> is divided into <code class="docutils literal notranslate"><span class="pre">&lt;n&gt;</span></code> buckets
+just as in the case of <a class="reference internal" href="#temporal-cv"><span class="std std-ref">Temporal Cross Validation</span></a>.
+Each bucket <span class="math notranslate nohighlight">\(b_{i \in [0,~n-1]}\)</span> contains instances
+occurring between <span class="math notranslate nohighlight">\(t_i^{max} = T^{min} + i \cdot \Delta\)</span>
+and <span class="math notranslate nohighlight">\(t_i^{max} = T^{min} + (i+1) \cdot \Delta\)</span>
+where</p>
+<ul class="simple">
+<li><span class="math notranslate nohighlight">\(T^{min}\)</span> and <span class="math notranslate nohighlight">\(T^{max}\)</span> correspond to the timestamps of the oldest and latest instances ;</li>
+<li><span class="math notranslate nohighlight">\(\Delta = \frac{T^{max} - T^{min}}{n}\)</span>.</li>
+</ul>
+<p>For each fold <span class="math notranslate nohighlight">\(f\in[0,n-(n_{train}+n_{test})+1]\)</span>,
+the buckets from <span class="math notranslate nohighlight">\(b_{f}\)</span>
+to <span class="math notranslate nohighlight">\(b_{f+n_{train}}\)</span> constitute
+the training dataset, and the buckets from <span class="math notranslate nohighlight">\(b_{f+n_{train}}\)</span>
+to <span class="math notranslate nohighlight">\(b_{f+n_{train}+n_{test}}\)</span>
+form the validation dataset.</p>
+<p><em>Example with</em> <span class="math notranslate nohighlight">\(n = 5\)</span>, <span class="math notranslate nohighlight">\(n_{train} = 2\)</span> and <span class="math notranslate nohighlight">\(n_{test} = 1\)</span>.</p>
+<a class="reference internal image-reference" href="_images/sliding_window.svg"><div align="center" class="align-center"><img alt="_images/sliding_window.svg" src="_images/sliding_window.svg" width="90%" /></div>
+</a>
+</div>
+<div class="section" id="validation-dataset">
+<span id="id5"></span><h3>Validation Dataset<a class="headerlink" href="#validation-dataset" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--test-mode</span> <span class="pre">ValidationDataset</span> <span class="pre">--validation-dataset</span> <span class="pre">&lt;validation_dataset&gt;</span></code></p>
+<p>The whole dataset <code class="docutils literal notranslate"><span class="pre">&lt;dataset&gt;</span></code> constitutes the training data, and <code class="docutils literal notranslate"><span class="pre">&lt;validation_dataset&gt;</span></code> constitutes
+the validation data.</p>
+</div>
 </div>
 <div class="section" id="graphical-user-interface">
-<h2>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Permalink to this headline">¶</a></h2>
-<div class="figure" id="id1">
-<img alt="_images/main.png" src="_images/main.png" />
-<p class="caption"><span class="caption-text">DIADEM Monitoring Interface</span></p>
+<span id="diadem-gui"></span><h2>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="model-performance-and-predictions">
+<h3>Model Performance and Predictions<a class="headerlink" href="#model-performance-and-predictions" title="Permalink to this headline">¶</a></h3>
+<p>DIADEM displays the performance evaluation and the predictions of the detection model
+both on the training and validation datasets.
+The predictions analysis is always available,
+while the performance evaluation can be computed only when the data are annotated.</p>
+<p><strong>Performance.</strong>
+The <em>Performance</em> tab displays the detection and the false alarm rates
+for a given detection threshold.
+The value of the detection threshold can be modified through a slider
+to see the impact on the detection and false alarm rates.
+The confusion matrix and the ROC curve are also displayed.</p>
+<div class="figure align-center" id="id6">
+<span id="performance-tab"></span><img alt="_images/performance.png" src="_images/performance.png" />
+<p class="caption"><span class="caption-text">Performance Tab</span></p>
+</div>
+<p><strong>Predictions.</strong>
+The <em>Predictions</em> tab displays the histograms of the predicted probabilities of maliciousness.
+When annotations are available, the instances are grouped by label.</p>
+<div class="figure align-center" id="id7">
+<span id="predictions-tab"></span><img alt="_images/histograms.png" src="_images/histograms.png" />
+<p class="caption"><span class="caption-text">Predictions Tab</span></p>
+</div>
+</div>
+<div class="section" id="model-behavior">
+<h3>Model Behavior<a class="headerlink" href="#model-behavior" title="Permalink to this headline">¶</a></h3>
+<p>DIADEM displays information about the global behavior of detection models.
+This visualization allows to grasp how detection models make decisions
+and to diagnose potential training biases.</p>
+<p>It is currently implemented for linear (see <a class="reference internal" href="#linear-model-coeff"><span class="std std-ref">Features Coefficients of a Linear Model</span></a>)
+and tree-based (see <a class="reference internal" href="#tree-model-importance"><span class="std std-ref">Features Importance of a Tree-based Model</span></a>) models.
+DIADEM does not yet support model-agnostic interpretation methods.</p>
+<p>These graphic depictions allow a focus on the most influential features
+of the detection model.
+Clicking on a given feature gives access to its descriptive statistics on the training data
+(see <a class="reference internal" href="SecuML.stats.html#stats"><span class="std std-ref">Descriptive Statistics</span></a>).
+These statistics allow to understand why a feature has a significant impact on decision-making,
+and may point out biases in the training dataset.</p>
+<div class="figure align-center" id="id8">
+<span id="linear-model-coeff"></span><a class="reference internal image-reference" href="_images/logistic_regression_coefficients.png"><img alt="_images/logistic_regression_coefficients.png" src="_images/logistic_regression_coefficients.png" style="width: 49%;" /></a>
+<p class="caption"><span class="caption-text">Features Coefficients of a Linear Model</span></p>
+</div>
+<div class="figure align-center" id="id9">
+<span id="tree-model-importance"></span><a class="reference internal image-reference" href="_images/random_forest_importance.png"><img alt="_images/random_forest_importance.png" src="_images/random_forest_importance.png" style="width: 49%;" /></a>
+<p class="caption"><span class="caption-text">Features Importance of a Tree-based Model</span></p>
+</div>
+</div>
+<div class="section" id="individual-predictions">
+<h3>Individual Predictions<a class="headerlink" href="#individual-predictions" title="Permalink to this headline">¶</a></h3>
+<p>DIADEM diagnosis interface also allows to examine individual predictions.
+For example, the false positives and negatives can be reviewed
+by clicking on the confusion matrix displayed by the <a class="reference internal" href="#performance-tab"><span class="std std-ref">Performance Tab</span></a>.</p>
+<p>Besides, the <a class="reference internal" href="#predictions-tab"><span class="std std-ref">Predictions Tab</span></a> allows to analyze the instances
+whose predicted probability is within a given range.
+For instance, the instances close to the decision boundary
+(probability of maliciousness close to 50%) can be reviewed
+to understand why the detection model is undecided.
+Moreover, the instances that have been misclassified with a high level of confidence can be inspected
+to point out potential annotation errors, or help finding new discriminating features.</p>
+<p><strong>Description Panel</strong></p>
+<p>DIADEM displays each instance in a <em>Description</em> panel.
+<a class="reference internal" href="#all-features"><span class="std std-ref">All the Features</span></a> and <a class="reference internal" href="#important-features"><span class="std std-ref">Most Important Features</span></a> depict the default views of
+the <em>Description</em> panel (available for any data type).</p>
+<div class="figure align-center" id="id10">
+<span id="all-features"></span><a class="reference internal image-reference" href="_images/features_values.png"><img alt="_images/features_values.png" src="_images/features_values.png" style="width: 80%;" /></a>
+<p class="caption"><span class="caption-text">All the Features</span></p>
+</div>
+<div class="figure align-center" id="id11">
+<span id="important-features"></span><a class="reference internal image-reference" href="_images/feature_weights.png"><img alt="_images/feature_weights.png" src="_images/feature_weights.png" style="width: 80%;" /></a>
+<p class="caption"><span class="caption-text">Most Important Features</span></p>
+</div>
+<p>By default, the <em>Description</em> panel displays the features of the instance (see <a class="reference internal" href="#all-features"><span class="std std-ref">All the Features</span></a> ).
+This visualization may be hard to interpret especially when the feature space is in high dimension.
+<a class="reference internal" href="#all-features"><span class="std std-ref">All the Features</span></a> displays the features extracted from an email:
+the number of occurrences of each word in the vocabulary.
+Since the vocabulary contains 1000 words, this visualization is hardly interpretable for humans.</p>
+<p>If an interpretable model has been trained, DIADEM also displays
+the features that have the most impact on the prediction (see <a class="reference internal" href="#important-features"><span class="std std-ref">Most Important Features</span></a> ).
+This visualization is easier to interpret than the previous one
+since the features are sorted according to their impact in the decision-making process.</p>
+<p>Other visualizations specific to the detection problem may be more relevant to analyze individual predictions.
+In order to address this need, DIADEM enables users to plug problem-specific visualizations.
+<a class="reference internal" href="#mail-specific-visu"><span class="std std-ref">Problem-specific Visualization for Spam Detection</span></a> depicts a problem-specific visualization
+we have implemented for spam detection. It displays simply the raw content of the email.
+We strongly encourage to implement convenient problem-specific visualizations (see <a class="reference internal" href="SecuML.Data.html#problem-specific-visu"><span class="std std-ref">Problem-Specific Visualizations</span></a>),
+since they can significantly ease the analysis of individual predictions.</p>
+<div class="figure align-center" id="id12">
+<span id="mail-specific-visu"></span><a class="reference internal image-reference" href="_images/mail.png"><img alt="_images/mail.png" src="_images/mail.png" style="width: 80%;" /></a>
+<p class="caption"><span class="caption-text">Problem-specific Visualization for Spam Detection</span></p>
+</div>
 </div>
 </div>
 </div>
@@ -213,7 +417,7 @@ The GUI also allows to analyze the alerts raised on the validation dataset
         <a href="SecuML.ILAB.html" class="btn btn-neutral float-right" title="ILAB: Interactive LABeling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="getting_started.exp.html" class="btn btn-neutral" title="Removing Experiments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="SecuML.Experiments.html" class="btn btn-neutral" title="Experiments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -255,6 +459,7 @@ The GUI also allows to analyze the alerts raised on the validation dataset
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

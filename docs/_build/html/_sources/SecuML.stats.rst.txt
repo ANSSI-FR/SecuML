@@ -1,19 +1,13 @@
-Computing Descriptive Statistics of Each Feature
-================================================
+.. _stats:
 
-.. code-block:: bash
+Descriptive Statistics
+======================
 
-    SecuML_descriptive_statistics <project> <dataset>
-
-*Help*
-
-.. code-block:: bash
-
-	  SecuML_descriptive_statistics -h
+| *Usage:* ``SecuML_descriptive_statistics <project> <dataset>``.
+| For more information about the available options:
+| ``SecuML_descriptive_statistics <project> <dataset> -h``.
 
 Graphical User Interface
 ------------------------
 
-.. figure:: screen_shots/stats/main.png
-
-    Descriptive Statistics Interface
+.. image:: figs/screen_shots/stats/main.png
