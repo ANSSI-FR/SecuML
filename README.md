@@ -31,6 +31,10 @@ International Symposium on Research in Attacks, Intrusions and Defenses (RAID 20
 * [FRENCH] Bonneton, Anaël, and Antoine Husson. ["Le Machine Learning confronté aux contraintes opérationnelles des systèmes de détection."](https://www.sstic.org/media/SSTIC2017/SSTIC-actes/le_machine_learning_confront_aux_contraintes_oprat/SSTIC2017-Article-le_machine_learning_confront_aux_contraintes_oprationnelles_des_systmes_de_dtection-bonneton_husson.pdf)   
 Symposium sur la sécurité des technologies de l'information et des communications (SSTIC 2017).
 
+#### PhD Dissertation
+* Beaugnon, Anaël. ["Expert-in-the-Loop Supervised Learning for Computer Security Detection Systems."](https://www.ssi.gouv.fr/uploads/2018/06/beaugnon-a_these_manuscrit.pdf)   
+Ph.D. thesis, École Normale Superieure (2018)
+
 #### Presentations
 * [FRENCH] Beaugnon, Anaël. ["Appliquer le Machine Learning de manière pertinente à la détection d’intrusion."](https://www.cert-ist.com/pub/files/Forum2017-03-Anael_Beaugnon-Machine-Learning.pdf)   
 Forum annuel du CERT-IST (CERT-IST 2017).
