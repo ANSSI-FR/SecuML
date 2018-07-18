@@ -7,7 +7,7 @@ Installation
 Requirements
 """"""""""""
 
-+ rabbit-mq server (>= 3.3.5) (only for active learning and rare category detection)
++ rabbitmq-server (>= 3.3.5) (only for active learning and rare category detection)
 + Python packages
 
     * celery (>= 3.1.13) (only for :ref:`ILAB <ILAB>` and :ref:`rare category detection <RCD>`)
