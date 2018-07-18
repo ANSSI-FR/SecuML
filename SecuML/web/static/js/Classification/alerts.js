@@ -1,8 +1,7 @@
 var path = window.location.pathname.split('/');
 var experiment_id = path[2];
 var analysis      = path[3];
-
-var fold_id = 'None';
+var fold_id       = path[4];
 
 var instances_list         = null;
 var num_instances          = null;
@@ -16,6 +15,8 @@ var label_method    = 'alert';
 var label_iteration = 'None';
 
 var conf = {};
+
+addPrevNextShortcuts();
 
 loadConfigurationFile(function (conf) {
   setInstancesSettings('test', experiment_id, callback);
@@ -31,11 +32,11 @@ function loadConfigurationFile(callback) {
 
 function callback() {
   displayDivisions();
-  displayAlerts(experiment_id, analysis);
+  displayAlerts(experiment_id, analysis, fold_id);
 }
 
-function displayAlerts(experiment_id, analysis) {
-  var query = buildQuery('getAlerts', [experiment_id, analysis]);
+function displayAlerts(experiment_id, analysis, fold_id) {
+  var query = buildQuery('getAlerts', [experiment_id, analysis, fold_id]);
   $.getJSON(query,
             function(data) {
                 instances_list = data['instances'];
@@ -92,6 +93,7 @@ function displayDivisions() {
   var button = document.createElement('button');
   button.setAttribute('class', 'btn btn-primary');
   button.setAttribute('type', 'button');
+  button.setAttribute('id', 'prev_button');
   var button_text = document.createTextNode('Prev');
   button.appendChild(button_text);
   button.addEventListener('click', displayPrevInstance);
@@ -99,6 +101,7 @@ function displayDivisions() {
   var button = document.createElement('button');
   button.setAttribute('class', 'btn btn-primary');
   button.setAttribute('type', 'button');
+  button.setAttribute('id', 'next_button');
   var button_text = document.createTextNode('Next');
   button.appendChild(button_text);
   button.addEventListener('click', displayNextInstance);

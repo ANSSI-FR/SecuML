@@ -67,7 +67,11 @@ function generateSecondRowDivisions(conf) {
   if (checkDisplayValidation(conf)) {
     monitorings = ['train', 'test', 'validation'];
   } else {
-    monitorings = ['train', 'cv', 'test'];
+    if (conf.query_strategy == 'Gornitz') {
+        monitorings = ['train', 'test'];
+    } else {
+        monitorings = ['train', 'cv', 'test'];
+    }
   }
   for (var i in monitorings) {
     createTrainTestMonitoring(monitorings[i], col_size, row);

@@ -95,7 +95,7 @@ function displayRename(modif_div) {
     var query = buildQuery('changeFamilyName', [experiment_id,
                                                 selected_label, selected_family,
                                                 new_family_name]);
-    $.ajax({url: query, async: true});
+    $.ajax({url: query, async: false});
     displayRename(modif_div);
     updateFamiliesStats();
   }
@@ -141,7 +141,7 @@ function displayChange(modif_div) {
     var selected_family = label_family[1];
     var query = buildQuery('changeFamilyLabel', [experiment_id,
                                                  selected_label, selected_family]);
-    $.ajax({url: query, async: true});
+    $.ajax({url: query, async: false});
     displayChange(modif_div);
     updateFamiliesStats();
   }
@@ -174,7 +174,7 @@ function displayMerge(modif_div) {
     var query = buildQuery('mergeFamilies', [experiment_id,
                                              selected_label, selected_families,
                                              new_family_name]);
-    $.ajax({url: query, async: true});
+    $.ajax({url: query, async: false});
     displayMerge(modif_div);
     updateFamiliesStats();
   }

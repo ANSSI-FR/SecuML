@@ -102,13 +102,15 @@ class IterationExp(Iteration):
         self.saveAnnotatedInstances()
 
     def saveAnnotatedInstances(self):
-        filename = dir_exp_tools.getDatasetDirectory(
-            self.experiment.project,
-            self.experiment.dataset)
-        filename += 'annotations/annotations_'
+        filename  = 'annotations_'
         filename += self.experiment.query_strategy + '_'
         filename += 'exp' + str(self.experiment.experiment_id) + '_'
         filename += 'it' + str(self.iteration_number) + '.csv'
+        filename = path.join(dir_exp_tools.getDatasetDirectory(
+                                    self.experiment.project,
+                                    self.experiment.dataset),
+                             'annotations',
+                             filename)
         self.datasets.saveAnnotatedInstances(filename)
 
     def checkAnnotationQueriesAnswered(self):

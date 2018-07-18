@@ -39,8 +39,8 @@ def predictionsAnalysis(experiment_id, train_test, fold_id, index):
     return render_template('Classification/predictions.html', project=experiment.project)
 
 
-@app.route('/alerts/<experiment_id>/<analysis_type>/')
-def displayAlerts(experiment_id, analysis_type):
+@app.route('/alerts/<experiment_id>/<analysis_type>/<fold_id>/')
+def displayAlerts(experiment_id, analysis_type, fold_id):
     experiment = updateCurrentExperiment(experiment_id)
     return render_template('Classification/alerts.html', project=experiment.project)
 
@@ -65,19 +65,25 @@ def getTestExperimentId(experiment_id):
         return test_experiment_id
 
 
-@app.route('/getAlertsClusteringExperimentId/<experiment_id>/')
-def getAlertsClusteringExperimentId(experiment_id):
+@app.route('/getAlertsClusteringExperimentId/<experiment_id>/<fold_id>/')
+def getAlertsClusteringExperimentId(experiment_id, fold_id):
     experiment = updateCurrentExperiment(experiment_id)
-    filename = path.join(experiment.getOutputDirectory(),
+    directory = experiment.getOutputDirectory()
+    if fold_id != 'None' and fold_id != 'all':
+        directory = path.join(directory, fold_id)
+    filename = path.join(directory,
                          'alerts',
-                         'grouping.json')
+                         'clusters.json')
     return send_file(filename)
 
 
-@app.route('/getAlerts/<experiment_id>/<analysis_type>/')
-def getAlerts(experiment_id, analysis_type):
+@app.route('/getAlerts/<experiment_id>/<analysis_type>/<fold_id>/')
+def getAlerts(experiment_id, analysis_type, fold_id):
     experiment = updateCurrentExperiment(experiment_id)
-    filename = path.join(experiment.getOutputDirectory(),
+    directory = experiment.getOutputDirectory()
+    if fold_id != 'None' and fold_id != 'all':
+        directory = path.join(directory, fold_id)
+    filename = path.join(directory,
                          'alerts',
                          'alerts.csv')
     with open(filename, 'r') as f:
@@ -94,8 +100,8 @@ def getAlerts(experiment_id, analysis_type):
     return jsonify({'instances': ids, 'proba': dict(alerts)})
 
 
-@app.route('/getPredictions/<experiment_id>/<train_test>/<fold_id>/<index>/')
-def getPredictions(experiment_id, train_test, fold_id, index):
+@app.route('/getPredictions/<experiment_id>/<train_test>/<fold_id>/<index>/<label>/')
+def getPredictions(experiment_id, train_test, fold_id, index, label):
     experiment = updateCurrentExperiment(experiment_id)
     directory = experiment.getOutputDirectory()
     if fold_id != 'None' and fold_id != 'all':
@@ -111,6 +117,12 @@ def getPredictions(experiment_id, train_test, fold_id, index):
         data = data.loc[selection, :]
         selection = data.loc[:, 'predicted_proba'] <= max_value
         data = data.loc[selection, :]
+        if label != 'all':
+            if label == 'malicious':
+                selection = data.loc[:, 'ground_truth'] == True
+            elif label == 'benign':
+                selection = data.loc[:, 'ground_truth'] == False
+            data = data.loc[selection, :]
         selected_instances = [int(x) for x in list(data.index.values)]
         proba = list(data['predicted_proba'])
     return jsonify({'instances': selected_instances, 'proba': proba})

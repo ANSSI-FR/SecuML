@@ -42,7 +42,6 @@ class UpdateModelExp(UpdateModel):
             export_models[k] = exp.experiment_id
         output_file = path.join(self.iteration.iteration_dir,
                                 'models_experiments.json')
-
         with open(output_file, 'w') as f:
             json.dump(export_models, f, indent=2)
 

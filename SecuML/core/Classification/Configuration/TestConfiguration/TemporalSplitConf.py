@@ -33,7 +33,7 @@ class TemporalSplitConf(TestConfiguration):
     @staticmethod
     def fromJson(obj):
         alerts_conf = TestConfiguration.alertConfFromJson(obj)
-        conf = TestConfiguration(obj['test_size'], alerts_conf=alerts_conf)
+        conf = TemporalSplitConf(obj['test_size'], alerts_conf=alerts_conf)
         return conf
 
     def toJson(self):

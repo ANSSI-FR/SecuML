@@ -39,14 +39,10 @@ function setInstancesSettings(train_test, experiment_id, callback) {
       var query = buildQuery('getSupervisedValidationConf',
                              [experiment_id]);
       jQuery.getJSON(query, function(data) {
-        if (data['method'] == 'random_split') {
-            inst_exp_id = experiment_id;
-        } else if (data['method'] == 'unlabeled') {
-            inst_exp_id = experiment_id;
-        } else if (data['method'] == 'cv') {
-            inst_exp_id = experiment_id;
-        } else {
+        if (data['method'] == 'dataset') {
             inst_exp_id = getTestExperimentId(experiment_id);
+        } else {
+            inst_exp_id = experiment_id;
         }
         has_families = datasetHasFamilies(inst_exp_id);
         callback();

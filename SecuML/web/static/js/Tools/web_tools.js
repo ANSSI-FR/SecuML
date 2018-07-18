@@ -1,3 +1,16 @@
+function addPrevNextShortcuts(){
+  $(document).keypress(function (e) {
+     var key = e.keyCode;
+     if(key == 39){
+        $('#next_button').click();
+        return false;
+     } else if(key == 37){
+        $('#prev_button').click();
+        return false;
+     }
+  });
+}
+
 function upperCaseFirst(str) {
   return str.charAt(0).toUpperCase() + str.substring(1);
 }
@@ -174,6 +187,28 @@ function cleanDiv(div_name) {
     div_content.removeChild(div_content.firstChild);
   }
   return div_content;
+}
+
+function createRadioList(name, labels, ids, callback, parent_div) {
+    var form_group = createDivWithClass(null, 'form-group');
+    parent_div.appendChild(form_group);
+    for (var i = 0; i < labels.length; i++) {
+        var l = document.createElement('label');
+        l.setAttribute('class', 'radio-inline');
+        l.innerHTML = '<input type="radio" name="' + name + '" id="' + ids[i] + '" value="' + labels[i] + '">' + labels[i];
+        l.addEventListener('change', callback);
+        form_group.appendChild(l);
+    };
+    document.getElementById(ids[0]).checked = true;
+}
+
+function getSelectedRadioButton(ids) {
+    for (var i = 0; i < ids.length; i++) {
+        var e = document.getElementById(ids[i]);
+        if (e.checked) {
+            return e.value;
+        }
+    }
 }
 
 function createSelectList(id, size, callback, parent_div, label = null,

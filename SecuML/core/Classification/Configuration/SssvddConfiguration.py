@@ -17,7 +17,7 @@
 from SecuML.core.Classification.Classifiers.Sssvdd import Sssvdd
 from . import ClassifierConfFactory
 from .ClassifierConfiguration import ClassifierConfiguration
-from .TestConfiguration import TestConfiguration
+from .TestConfiguration import TestConfFactory
 
 
 class SssvddConfiguration(ClassifierConfiguration):
@@ -41,7 +41,7 @@ class SssvddConfiguration(ClassifierConfiguration):
 
     @staticmethod
     def fromJson(obj):
-        test_conf = TestConfiguration.fromJson(obj['test_conf'])
+        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'])
         conf = SssvddConfiguration(obj['num_folds'], test_conf)
         return conf
 

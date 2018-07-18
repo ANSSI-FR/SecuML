@@ -18,7 +18,7 @@ from SecuML.core.Classification.Classifiers.RandomForest import RandomForest
 
 from . import ClassifierConfFactory
 from .ClassifierConfiguration import ClassifierConfiguration
-from .TestConfiguration import TestConfiguration
+from .TestConfiguration import TestConfFactory
 
 
 class RandomForestConfiguration(ClassifierConfiguration):
@@ -64,7 +64,7 @@ class RandomForestConfiguration(ClassifierConfiguration):
 
     @staticmethod
     def fromJson(obj):
-        test_conf = TestConfiguration.fromJson(obj['test_conf'])
+        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'])
         conf = RandomForestConfiguration(obj['num_folds'], obj['sample_weight'],
                                          obj['families_supervision'],
                                          obj['n_estimators'],

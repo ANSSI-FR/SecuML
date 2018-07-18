@@ -26,8 +26,8 @@ from SecuML.experiments.Data.DescriptiveStatisticsExperiment import DescriptiveS
 @app.route('/getFeaturesTypes/<experiment_id>/')
 def getFeaturesTypes(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
-    filename = experiment.getOutputDirectory()
-    filename += 'features_types.json'
+    filename = path.join(experiment.getOutputDirectory(),
+                         'features_types.json')
     return send_file(filename)
 
 

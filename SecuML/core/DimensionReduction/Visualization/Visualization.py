@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import os.path as path
+
 from SecuML.core.Data import labels_tools
 from SecuML.core.Tools.Plots.HexagonalBinning import HexagonalBinning
 
@@ -42,7 +44,7 @@ class Visualization(object):
         hex_bin = HexagonalBinning(x, y,
                                    projected_instances.ids.getIds(), 30, malicious_ids)
         hex_bin.computeBinning()
-        output_file = self.output_directory
-        output_file += 'c_' + str(cx_index) + '_' + str(cy_index) + '_hexbin'
-        output_file += '.json'
+        filename = 'c_' + str(cx_index) + '_' + str(cy_index) + '_hexbin'
+        filename += '.json'
+        output_file = path.join(self.output_directory, filename)
         hex_bin.printBinning(cx_index, cy_index, output_file)

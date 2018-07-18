@@ -78,7 +78,7 @@ function displayMonitoringRow(conf, selected_fold) {
   }
 
   if (checkDisplayAlerts(conf)) {
-    displayAlertsButtons();
+    displayAlertsButtons(selected_fold);
   }
 }
 

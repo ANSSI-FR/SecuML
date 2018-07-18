@@ -59,6 +59,7 @@ class SlidingWindowConf(TestConfiguration):
         conf['num_buckets'] = self.num_buckets
         conf['num_train_buckets'] = self.num_train_buckets
         conf['num_test_buckets'] = self.num_test_buckets
+        conf['num_folds'] = self.num_folds
         return conf
 
     @staticmethod

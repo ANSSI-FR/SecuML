@@ -18,7 +18,7 @@ from SecuML.core.Classification.Classifiers.GradientBoosting import GradientBoos
 
 from . import ClassifierConfFactory
 from .ClassifierConfiguration import ClassifierConfiguration
-from .TestConfiguration import TestConfiguration
+from .TestConfiguration import TestConfFactory
 
 
 class GradientBoostingConfiguration(ClassifierConfiguration):
@@ -66,7 +66,7 @@ class GradientBoostingConfiguration(ClassifierConfiguration):
 
     @staticmethod
     def fromJson(obj):
-        test_conf = TestConfiguration.fromJson(obj['test_conf'])
+        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'])
         conf = GradientBoostingConfiguration(obj['num_folds'],
                                              obj['sample_weight'],
                                              obj['families_supervision'],

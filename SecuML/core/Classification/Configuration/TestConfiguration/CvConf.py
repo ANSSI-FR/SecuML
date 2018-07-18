@@ -33,7 +33,7 @@ class CvConf(object):
     @staticmethod
     def fromJson(obj):
         alerts_conf = TestConfiguration.alertConfFromJson(obj)
-        conf = CvConf(obj['num_folds', alerts_conf])
+        conf = CvConf(obj['num_folds'], alerts_conf)
         return conf
 
     def toJson(self):

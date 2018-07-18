@@ -22,6 +22,7 @@ function getCurrentInstance() {
 
 var conf = {};
 
+addPrevNextShortcuts();
 loadConfigurationFile();
 
 function callback() {

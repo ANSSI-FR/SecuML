@@ -29,8 +29,12 @@ function updateEvolutionMonitoringDisplay(conf, iteration) {
 }
 
 function displayModelsEvolutionMonitoringTabs(conf) {
-  var menu_titles = ['Train', 'CV'];
-  var menu_labels = ['train', 'cv'];
+  var menu_titles = ['Train'];
+  var menu_labels = ['train'];
+  if (conf.query_strategy != 'Gornitz') {
+    menu_titles.push('Cv');
+    menu_labels.push('cv');
+  }
   if (conf.conf.validation_conf) {
       if (conf.validation_has_ground_truth) {
         menu_titles.push('Validation');
@@ -114,7 +118,10 @@ function updateClusteringEvolutionMonitoring(conf, iteration) {
 }
 
 function updateModelsEvolutionMonitoring(conf, iteration) {
-      var types = ['train', 'cv'];
+      var types = ['train'];
+      if (conf.query_strategy != 'Gornitz') {
+        types.push('cv');
+      }
       if (conf.conf.validation_conf) {
           if (conf.validation_has_ground_truth) {
             types.push('validation');

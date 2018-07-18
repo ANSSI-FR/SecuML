@@ -17,7 +17,7 @@
 from SecuML.core.Classification.Classifiers.LabelPropagation import LabelPropagation
 from . import ClassifierConfFactory
 from .ClassifierConfiguration import ClassifierConfiguration
-from .TestConfiguration import TestConfiguration
+from .TestConfiguration import TestConfFactory
 
 
 class LabelPropagationConfiguration(ClassifierConfiguration):
@@ -42,7 +42,7 @@ class LabelPropagationConfiguration(ClassifierConfiguration):
 
     @staticmethod
     def fromJson(obj):
-        test_conf = TestConfiguration.fromJson(obj['test_conf'])
+        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'])
         conf = LabelPropagationConfiguration(
             obj['num_folds'], obj['families_supervision'], test_conf)
         return conf

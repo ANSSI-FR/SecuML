@@ -95,11 +95,11 @@ class Pca(UnsupervisedProjection):
             reconstruction_error = self.reconstructionError(
                 instances, projected_instances, c + 1)
             reconstruction_errors.set_value(c, 'y', reconstruction_error)
-        reconstruction_errors.to_csv(
-            output_directory + 'reconstruction_errors.csv',
-            sep=',',
-            header=True,
-            index=True)
+        reconstruction_errors.to_csv(path.join(output_directory,
+                                               'reconstruction_errors.csv'),
+                                     sep=',',
+                                     header=True,
+                                     index=True)
 
     def getReconstructedData(self, projected_instances, projection_size):
         projection = copy.deepcopy(projected_instances.features.getValues())

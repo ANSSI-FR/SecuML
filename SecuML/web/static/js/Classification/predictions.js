@@ -18,6 +18,8 @@ var label_iteration = 'None';
 
 var conf = {};
 
+addPrevNextShortcuts();
+
 loadConfigurationFile(function (train_test, experiment_id, conf) {
   setInstancesSettings(train_test, experiment_id, callback);
 });
@@ -35,13 +37,16 @@ function callback() {
   displayPredictionsBarplot('barplot_div', conf, train_test, experiment_id,
                             fold_id,
                             barPlotCallback(experiment_id));
-  updateInstancesDisplay(experiment_id, selected_index);
+  updateInstancesDisplay(experiment_id, selected_index, 'all');
 }
 
-function updateInstancesDisplay(experiment_id, selected_index) {
+function updateInstancesDisplay(experiment_id, selected_index, label) {
+  if (!label) {
+    label = 'all';
+  }
   var query = buildQuery('getPredictions',
                          [experiment_id, train_test, fold_id,
-                          selected_index]);
+                          selected_index, label]);
   $.getJSON(query,
             function(data) {
                 instances_list = data['instances'];
@@ -84,19 +89,37 @@ function displayNavigationPanel(selected_index) {
   var panel_body = createPanel('panel-primary', 'col-md-12',
           'Predictions between ' + min_value + '% and ' + max_value + '%',
           parent_div);
+  // Select kind of instances (all, benign, or malicious)
+  var select_col = createDivWithClass(null, 'col-md-3',
+                                      parent_div=panel_body);
+  labels = ['all', 'malicious', 'benign'];
+  labels_ids = ['label_all', 'label_malicious', 'label_benign'];
+  function radio_callback() {
+    updateInstancesDisplay(experiment_id, selected_index,
+                           getSelectedRadioButton(labels_ids));
+  }
+  createRadioList('label_radio', labels, labels_ids,
+                  radio_callback,
+                  select_col);
+
+
+  // Go trough the selected instances
+  var navig_col = createDivWithClass(null, 'col-md-7',
+                                      parent_div=panel_body);
   var annotation_query_label = document.createElement('label');
   annotation_query_label.setAttribute('class', 'col-lg-2 control-label');
   annotation_query_label.appendChild(document.createTextNode('Instance'));
-  panel_body.appendChild(annotation_query_label);
+  navig_col.appendChild(annotation_query_label);
   var iter_label = document.createElement('label');
-  iter_label.setAttribute('class', 'col-lg-1 control-label');
+  iter_label.setAttribute('class', 'col-lg-2 control-label');
   iter_label.setAttribute('id', 'iter_label');
-  panel_body.appendChild(iter_label);
+  navig_col.appendChild(iter_label);
   // Prev / Next buttons
-  var prev_next_group = createDivWithClass('', 'form-group row', panel_body);
+  var prev_next_group = createDivWithClass('', 'form-group row', navig_col);
   var button = document.createElement('button');
   button.setAttribute('class', 'btn btn-primary');
   button.setAttribute('type', 'button');
+  button.setAttribute('id', 'prev_button');
   var button_text = document.createTextNode('Prev');
   button.appendChild(button_text);
   button.addEventListener('click', displayPrevInstance);
@@ -104,6 +127,7 @@ function displayNavigationPanel(selected_index) {
   var button = document.createElement('button');
   button.setAttribute('class', 'btn btn-primary');
   button.setAttribute('type', 'button');
+  button.setAttribute('id', 'next_button');
   var button_text = document.createTextNode('Next');
   button.appendChild(button_text);
   button.addEventListener('click', displayNextInstance);

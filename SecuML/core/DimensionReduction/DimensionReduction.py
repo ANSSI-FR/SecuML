@@ -17,6 +17,7 @@
 import abc
 import copy
 import numpy as np
+import os.path as path
 import pandas as pd
 
 from sklearn.pipeline import Pipeline
@@ -103,7 +104,7 @@ class DimensionReduction(object):
                                          index=features_names)
         projection_matrix.index.name = 'feature'
         projection_matrix.to_csv(
-            output_directory + 'projection_matrix.csv',
+            path.join(output_directory, 'projection_matrix.csv'),
             sep=',',
             header=True,
             index=True)

@@ -19,7 +19,7 @@ import numpy as np
 from SecuML.core.Classification.Classifiers.Svc import Svc
 from . import ClassifierConfFactory
 from .ClassifierConfiguration import ClassifierConfiguration, LearningParameter
-from .TestConfiguration import TestConfiguration
+from .TestConfiguration import TestConfFactory
 
 
 class SvcConfiguration(ClassifierConfiguration):
@@ -51,7 +51,7 @@ class SvcConfiguration(ClassifierConfiguration):
 
     @staticmethod
     def fromJson(obj):
-        test_conf = TestConfiguration.fromJson(obj['test_conf'])
+        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'])
         conf = SvcConfiguration(obj['num_folds'], obj['sample_weight'],
                                 obj['families_supervision'], test_conf)
         conf.c = LearningParameter.fromJson(obj['c'])

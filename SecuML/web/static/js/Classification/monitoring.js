@@ -9,7 +9,7 @@ function createTrainTestMonitoring(train_test, col_size, parent_div) {
     createDivWithClass(train_test + '_monitoring', 'tabbable boxed parentTabs', monitoring);
 }
 
-function displayAlertsButton(buttons_group, button_label, buttons_title) {
+function displayAlertsButton(buttons_group, button_label, buttons_title, selected_fold) {
     var label_group = createDivWithClass(null, 'btn-group', parent_div = buttons_group);
     var label_button = document.createElement('button');
     label_button.setAttribute('class', 'btn btn-danger');
@@ -20,11 +20,11 @@ function displayAlertsButton(buttons_group, button_label, buttons_title) {
     label_button.addEventListener('click', function() {
         if (button_label != 'clustering') {
             var query = buildQuery('alerts',
-                    [experiment_id, button_label]);
+                    [experiment_id, button_label, selected_fold]);
             window.open(query);
         } else {
             var query = buildQuery('getAlertsClusteringExperimentId',
-                    [experiment_id]);
+                    [experiment_id, selected_fold]);
             d3.json(query, function(error, data) {
                 var clustering_experiment_id = data['grouping_exp_id'];
                 if (! clustering_experiment_id) {
@@ -41,14 +41,14 @@ function displayAlertsButton(buttons_group, button_label, buttons_title) {
     label_group.appendChild(label_button);
 }
 
-function displayAlertsButtons() {
+function displayAlertsButtons(selected_fold) {
     var test_monitoring = document.getElementById('test_monitoring');
     var alerts_div = createPanel('panel-danger', null, 'Alerts Analysis', test_monitoring);
     var buttons_group = createDivWithClass(null, 'btn-group btn-group-justified', parent_div = alerts_div);
     var labels = ['topN', 'random', 'clustering'];
     var titles = ['Top N', 'Random', 'Clustering'];
     for (var i = 0; i < labels.length; i++) {
-        displayAlertsButton(buttons_group, labels[i], titles[i]);
+        displayAlertsButton(buttons_group, labels[i], titles[i], selected_fold);
     }
 }
 
