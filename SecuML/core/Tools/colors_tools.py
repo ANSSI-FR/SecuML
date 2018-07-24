@@ -39,6 +39,10 @@ def getLabelColor(label):
         return None
 
 
+def displayInRed(e):
+    return '\033[91m {}\033[00m' .format(e)
+
+
 def colors(num):
     colors = cm.rainbow(np.linspace(0, 1, num))
     colors = list(map(rgb2hex, colors))

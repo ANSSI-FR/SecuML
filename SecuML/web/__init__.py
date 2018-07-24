@@ -17,14 +17,20 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
+from SecuML.experiments import db_tables
 from SecuML.experiments.Tools import db_tools
+from SecuML.experiments.Tools import dir_exp_tools
 from SecuML.experiments.config import DB_URI
+
 
 user_exp = True
 
-app = Flask(__name__)
+dir_exp_tools.checkWebLibraries()
 
-db_tools.checkURI()
+engine, _ = db_tools.getSqlalchemySession()
+db_tables.createTables(engine)
+
+app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 session = SQLAlchemy(app).session

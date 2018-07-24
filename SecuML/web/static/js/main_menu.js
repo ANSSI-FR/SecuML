@@ -14,6 +14,12 @@ var query = buildQuery('getProjects');
 $.getJSON(query,
           function(data) {
             var projects = data['projects'];
+            if (projects.length == 0) {
+                displayAlert('no_project', 'Warning',
+                             ['No experiment has been executed yet.',
+                              'You should run SecuML experiments from the command line (e.g. SecuML_DIADEM, SecuML_ILAB, or SecuML_clustering)' +
+                              ' before displaying the results in the web user interface.']);
+            }
             for (var i = 0; i < projects.length; i++) {
                 var project = projects[i];
                 var li = document.createElement('a');

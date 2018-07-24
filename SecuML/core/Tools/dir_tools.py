@@ -19,8 +19,6 @@ import shutil
 
 # If the input directory does not exist
 # it is created
-
-
 def checkDirectoryExists(directory):
     if not os.path.isdir(directory):
         os.makedirs(directory)
@@ -31,17 +29,14 @@ def checkDirectoryExists(directory):
 def checkFileExists(filename):
     return os.path.isfile(filename)
 
+
 # If the directory exists, it is deleted
 # A new directory is created
-
-
 def createDirectory(directory):
     removeDirectory(directory)
     os.makedirs(directory)
 
 # If the directory exists, it is deleted
-
-
 def removeDirectory(directory):
     if os.path.isdir(directory):
         shutil.rmtree(directory)

@@ -30,6 +30,9 @@ except KeyError as e:
 
 with open(config_path, 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
+    SECUML_DIR = os.path.abspath(os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        os.pardir))
     INPUTDATA_DIR = cfg['input_data_dir']
     OUTPUTDATA_DIR = cfg['output_data_dir']
     DB_URI = cfg['db_uri']

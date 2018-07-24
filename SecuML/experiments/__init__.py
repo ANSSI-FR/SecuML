@@ -19,10 +19,15 @@ from . import config
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 
-config.INPUTDATA_DIR = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir,
+config.INPUTDATA_DIR = os.path.abspath(os.path.join(current_dir,
+                                                    os.pardir,
+                                                    os.pardir,
                                                     config.INPUTDATA_DIR))
-config.OUTPUTDATA_DIR = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir,
+config.OUTPUTDATA_DIR = os.path.abspath(os.path.join(current_dir,
+                                                     os.pardir,
+                                                     os.pardir,
                                                      config.OUTPUTDATA_DIR))
+
 
 # Active Learning
 from SecuML.experiments.ActiveLearning.QueryStrategies.AladinExp import AladinExp

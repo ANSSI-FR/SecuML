@@ -1,7 +1,11 @@
 #!/usr/bin/python3
 
 import os
+from urllib.parse import urlparse
 import urllib.request
+
+from SecuML.core.Tools import dir_tools
+from SecuML.experiments.Tools import dir_exp_tools
 
 def create_directory(directory):
     if not os.path.isdir(directory):
@@ -10,32 +14,14 @@ def create_directory(directory):
 if __name__ == '__main__':
 
     lib_dir = 'SecuML/web/static/lib/'
-    js_dir = lib_dir + 'js/'
-    css_dir = lib_dir + 'css/'
-
-    create_directory(js_dir)
-    create_directory(css_dir)
-
-    js_url = ['https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js',
-            'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js',
-            'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
-            'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.2/Chart.min.js',
-            'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.0/js/bootstrap.min.js']
-
-    css_url = ['http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css',
-            'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css']
-
-    for url in js_url:
-        name = url.split('/')[-1]
-        print('Download', name)
-        req = urllib.request.Request(url)
-        with urllib.request.urlopen(req) as response:
-            with open(js_dir + name, 'wb') as output:
-                output.write(response.read())
-
-    for url in css_url:
-        name = url.split('/')[-1]
-        print('Download', name)
-        f = urllib.request.urlopen(url)
-        with open(css_dir + name, 'wb') as output:
-            output.write(f.read())
+    urls = dir_exp_tools.getWebUrls()
+    for k in ['js', 'css']:
+        directory = os.path.join(lib_dir, k)
+        dir_tools.checkDirectoryExists(directory)
+        for url in urls[k]:
+            filename = os.path.basename(urlparse(url).path)
+            print('Download', filename)
+            req = urllib.request.Request(url)
+            with urllib.request.urlopen(req) as response:
+                with open(os.path.join(lib_dir, k, filename), 'wb') as output:
+                    output.write(response.read())

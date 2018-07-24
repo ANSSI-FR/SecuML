@@ -16,7 +16,16 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.web import app
+import sys
+
+from SecuML.core.Tools import colors_tools
+from SecuML.experiments.Tools.dir_exp_tools import MissingWebLibraries
+
+try:
+    from SecuML.web import app
+except MissingWebLibraries as e:
+    sys.stderr.write(colors_tools.displayInRed(e))
+    sys.exit(-1)
 
 if __name__ == '__main__':
     app.run(host='localhost', port=5000, debug=True)

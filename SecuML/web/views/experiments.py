@@ -16,7 +16,7 @@
 
 from SecuML.web import app, session
 
-from flask import jsonify, render_template
+from flask import jsonify, redirect, render_template
 import operator
 
 from SecuML.experiments import db_tables
@@ -32,6 +32,11 @@ def updateCurrentExperiment(experiment_id):
 @app.route('/SecuML/')
 def secumlMenu():
     return render_template('main_menu.html')
+
+
+@app.route('/')
+def secumlRootMenu():
+        return redirect('/SecuML/')
 
 
 @app.route('/SecuML/<project>/menu/')
