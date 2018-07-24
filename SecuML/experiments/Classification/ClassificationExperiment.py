@@ -136,8 +136,7 @@ class ClassificationExperiment(Experiment):
             'The ground-truth must be stored in annotations/ground_truth.csv.')
         Experiment.projectDatasetFeturesParser(parser)
         models = ['LogisticRegression', 'Svc', 'GaussianNaiveBayes',
-                  'DecisionTree', 'RandomForest', 'GradientBoosting',
-                  'AutoSklearn']
+                  'DecisionTree', 'RandomForest', 'GradientBoosting']
         subparsers = parser.add_subparsers(dest='model')
         factory = ClassifierConfFactory.getFactory()
         for model in models:
