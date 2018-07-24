@@ -52,7 +52,7 @@ class ExportInstances(object):
 
     def exportFeatures(self, output_filename):
         header  = ['instance_id']
-        header += [f in range(self.instances.features.numFeatures())]
+        header += [f for f in range(self.instances.features.numFeatures())]
         with open(output_filename, 'w') as f:
             csv_writer = csv.writer(f)
             csv_writer.writerow(header)

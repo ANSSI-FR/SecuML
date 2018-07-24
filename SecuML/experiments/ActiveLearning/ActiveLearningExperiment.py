@@ -126,8 +126,7 @@ class ActiveLearningExperiment(Experiment):
         parser = argparse.ArgumentParser(description='Active Learning',
                                          formatter_class=argparse.RawTextHelpFormatter)
         Experiment.projectDatasetFeturesParser(parser)
-        strategies = ['Ilab', 'RandomSampling', 'RandomSamplingLibact',
-                      'UncertaintySampling', 'UncertaintySamplingLibact',
+        strategies = ['Ilab', 'RandomSampling', 'UncertaintySampling',
                       'CesaBianchi', 'Aladin', 'Gornitz']
         subparsers = parser.add_subparsers(dest='strategy')
         factory = ActiveLearningConfFactory.getFactory()
