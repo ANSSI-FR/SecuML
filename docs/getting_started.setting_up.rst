@@ -76,7 +76,7 @@ The required JS and CSS librairies can be dowloaded with the script `download_li
 * jquery.min.js (>= 3.1.0) ;
 * Chart.min.js (>= 2.2.2).
 
-*The CSS dependencies must be stored in* ``SecuML/web/static/lib/js``:
+*The CSS dependencies must be stored in* ``SecuML/web/static/lib/css``:
 
 * bootstrap.min.css (>= 3.3.7) ;
 * jquery-ui.min.css (>= 1.12.1).

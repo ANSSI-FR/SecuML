@@ -1,0 +1,11 @@
+.env
+.flaskenv
+dist/
+build/
+*.pyc
+*.pyo
+*.egg
+*.egg-info/
+
+SecuML/web/static/lib/
+docs/_build/doctrees/
