@@ -1,16 +1,11 @@
-.DS_Store
 .env
 .flaskenv
-*.pyc
-*.pyo
-env/
-env*
 dist/
 build/
+*.pyc
+*.pyo
 *.egg
 *.egg-info/
 
-venv/
-.vscode/
-
 SecuML/web/static/lib/
+docs/_build/doctrees/
