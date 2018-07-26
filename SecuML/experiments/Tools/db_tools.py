@@ -32,7 +32,8 @@ def isPostgresql():
 def checkURI():
     if DB_URI is None:
         raise ValueError(
-            'The URI of the database (MySQL or PostgreSQL) must be specified in SecuML/config.py.')
+            'The URI of the database (MySQL or PostgreSQL) must be specified '
+            'in the SecuML configuration file.')
 
 
 def getSqlalchemySession():
@@ -51,36 +52,3 @@ def getSqlalchemySession():
 def closeSqlalchemySession(session):
     session.close()
     session.get_bind().dispose()
-
-
-def getRawConnection(buffered=True):
-    checkURI()
-    if isMysql():
-        import mysql.connector
-        from mysql.connector.constants import ClientFlag
-        db_name = DB_URI.split('/')[-1]
-        result = urlparse(DB_URI)
-        db = mysql.connector.connect(host=result.hostname,
-                                     user=result.username,
-                                     password=result.password,
-                                     db=db_name,
-                                     unix_socket='/var/run/mysqld/mysqld.sock',
-                                     client_flags=[ClientFlag.LOCAL_FILES])
-    elif isPostgresql():
-        import psycopg2
-        db_name = DB_URI.split('/')[-1]
-        result = urlparse(DB_URI)
-        db = psycopg2.connect(dbname=db_name,
-                              host=result.hostname,
-                              user=result.username,
-                              password=result.password)
-    else:
-        raise ValueError('SecuML supports only PostgreSQL and MySQL.')
-    cursor = db.cursor()
-    return [db, cursor]
-
-
-def closeRawConnection(db, cursor):
-    cursor.close()
-    db.commit()
-    db.close()

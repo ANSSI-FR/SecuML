@@ -272,7 +272,7 @@ class Experiment(object):
                 header = next(reader)
                 if len(header) == 3:
                     families = True
-            db, cursor = db_tools.getRawConnection()
+            cursor = self.session.connection().connection.cursor()
 
             if db_tools.isMysql():
                 query = 'CREATE TEMPORARY TABLE labels_import('
@@ -344,7 +344,6 @@ class Experiment(object):
                 query += 'FROM labels_import;'
                 cursor.execute(query)
 
-            db_tools.closeRawConnection(db, cursor)
             self.session.commit()
 
     def _create(self):

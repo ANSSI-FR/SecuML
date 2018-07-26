@@ -70,7 +70,7 @@ class Dataset(object):
                                        self.project,
                                        self.dataset),
                              'idents.csv')
-        db, cursor = db_tools.getRawConnection()
+        cursor = self.session.connection().connection.cursor()
         if db_tools.isMysql():
             query = 'LOAD DATA LOCAL INFILE \'' + filename + '\' '
             query += 'INTO TABLE ' + 'instances' + ' '
@@ -116,7 +116,7 @@ class Dataset(object):
             query += 'SELECT user_instance_id, ident, timestamp, dataset_id, row_number '
             query += 'FROM instances_import;'
             cursor.execute(query)
-        db_tools.closeRawConnection(db, cursor)
+        self.session.commit()
 
     def loadGroundTruth(self, logger):
         annotations_file = path.join(dir_exp_tools.getDatasetDirectory(
@@ -135,7 +135,7 @@ class Dataset(object):
             header = next(reader)
             if len(header) == 3:
                 families = True
-        db, cursor = db_tools.getRawConnection()
+        cursor = self.session.connection().connection.cursor()
 
         if db_tools.isMysql():
             query = 'CREATE TEMPORARY TABLE ground_truth_import('
@@ -203,4 +203,4 @@ class Dataset(object):
             query += 'FROM ground_truth_import AS t;'
             cursor.execute(query)
 
-        db_tools.closeRawConnection(db, cursor)
+        self.session.commit()
