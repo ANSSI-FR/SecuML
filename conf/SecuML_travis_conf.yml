@@ -1,3 +1,0 @@
-input_data_dir: 'input_data'
-output_data_dir: 'output_data'
-db_uri: 'postgresql://postgres@localhost/secuml_test'

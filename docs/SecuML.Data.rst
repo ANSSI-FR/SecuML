@@ -10,7 +10,7 @@ on different data types
 For a given project, several datasets can be used.
 The directory ``<input_data_dir>/<project>/<dataset>/`` must contain the following items
 a file ``idents.csv``, a ``features`` and an ``annotations`` directories.
-See `input_data/SpamHam/lingspam/ </input_data/SpamHam/lingspam/>`_ for an example of input dataset.
+See `input_data/SpamHam/lingspam/ <https://github.com/ANSSI-FR/SecuML/tree/master/input_data/SpamHam/lingspam>`_ for an example of input dataset.
 
 .. note::
 
@@ -109,9 +109,9 @@ Implementation
 JavaScript code
 """""""""""""""
 | The code must be stored in ``SecuML/web/static/js/InstancesInformation/<project>.js``.
-| See `SecuML/web/static/js/InstancesInformation/SpamHam.js </SecuML/web/static/js/InstancesInformation/SpamHam.js>`_ for an example.
+| See `SecuML/web/static/js/InstancesInformation/SpamHam.js <https://github.com/ANSSI-FR/SecuML/blob/master/SecuML/web/static/js/InstancesInformation/SpamHam.js>`_ for an example.
 
 Flask code
 """"""""""
 | The code must be stored in ``SecuML/web/views/Projects/<project>.py``.
-| See `SecuML/web/views/Projects/SpamHam.py </SecuML/web/views/Projects/SpamHam.py>`_) for an example.
+| See `SecuML/web/views/Projects/SpamHam.py <https://github.com/ANSSI-FR/SecuML/blob/master/SecuML/web/views/Projects/SpamHam.py>`_ for an example.

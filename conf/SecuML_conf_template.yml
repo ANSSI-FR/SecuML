@@ -1,0 +1,4 @@
+input_data_dir: '<absolute path to input data dir.>'
+output_data_dir: '<absolute path to output data dir>'
+db_uri: 'postgresql://<user>:<password>@<host>/<db_name>'
+#db_uri: 'mysql+mysqlconnector://<user>:<password>@<host>/<db_name>'

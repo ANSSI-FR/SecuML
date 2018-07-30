@@ -7,5 +7,4 @@ build/
 *.egg
 *.egg-info/
 
-SecuML/web/static/lib/
 docs/_build/doctrees/
