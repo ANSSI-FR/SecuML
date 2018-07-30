@@ -25,40 +25,62 @@ from SecuML.experiments.Tools import dir_exp_tools
 
 class ExportInstances(object):
 
-    def __init__(self, instances):
+    def __init__(self, instances, exp=None, user_instance_ids=False):
         self.instances = instances
+        self.exp = exp
+        self.ids = self.instances.ids.getIds()
+        self.user_instance_ids = None
+        if user_instance_ids:
+            self.user_instance_ids = idents_tools.getAllUserInstanceIds(
+                    self.exp.session,
+                    self.exp.dataset_id)
 
-    def exportSecuML(self, project, dataset, features_filename, session=None):
-        dataset_dir, features_dir, init_annotations_dir = dir_exp_tools.createDataset(
+    def exportSecuML(self, project, dataset, features_filename):
+        dataset_dir, features_dir, annotations_dir = dir_exp_tools.createDataset(
             project, dataset)
-        self.exportIdents(path.join(dataset_dir, 'idents.csv'), session)
+        self.exportIdents(path.join(dataset_dir, 'idents.csv'))
         self.exportFeatures(path.join(features_dir, features_filename))
+        description_filename = '_'.join([path.splitext(features_filename)[0],
+                                         'description.csv'])
         self.exportFeaturesNamesDescriptions(path.join(features_dir,
-                                                       features_filename[:-4] + '_description.csv'))
+                                                       description_filename))
         if self.instances.hasGroundTruth():
-            self.exportLabels(path.join(init_annotations_dir, 'ground_truth.csv'))
+            self.exportAnnotations(path.join(annotations_dir,
+                                             'ground_truth.csv'),
+                                   ground_truth=True)
+        else:
+            self.exportAnnotations(path.join(annotations_dir,
+                                             'partial_annotations.csv'),
+                                   ground_truth=False)
 
-    def exportIdents(self, output_filename, session):
+    def getPrintId(self, instance_id):
+        print_id = instance_id
+        if self.user_instance_ids is not None:
+            print_id = self.user_instance_ids[str(instance_id)]
+        return print_id
+
+    def exportIdents(self, output_filename):
         idents = self.instances.ids.idents
-        ids = self.instances.ids.getIds()
         if idents is None:
-            idents = idents_tools.getAllIdents(session)
+            idents = ['undefined'] * self.instances.numInstances()
         with open(output_filename, 'w') as f:
             csv_writer = csv.writer(f)
             csv_writer.writerow(['instance_id', 'ident'])
-            for i in range(self.instances.numInstances()):
-                instance_id = ids[i]
-                csv_writer.writerow([instance_id, idents[str(instance_id)]])
+            for instance_id in self.ids:
+                print_id = self.getPrintId(instance_id)
+                csv_writer.writerow([print_id, idents[str(instance_id)]])
 
     def exportFeatures(self, output_filename):
-        header  = ['instance_id']
-        header += [f for f in range(self.instances.features.numFeatures())]
+        header = ['instance_id']
+        header.extend(range(self.instances.features.numFeatures()))
         with open(output_filename, 'w') as f:
             csv_writer = csv.writer(f)
             csv_writer.writerow(header)
-            for instance_id in self.instances.ids.getIds():
-                r  = [instance_id]
-                r += self.instances.features.getInstanceFeatures(instance_id)
+            for instance_id in self.ids:
+                print_id = self.getPrintId(instance_id)
+                r  = [print_id]
+                r.extend(self.instances.features.getInstanceFeatures(
+                    instance_id))
                 csv_writer.writerow(r)
 
     def exportFeaturesNamesDescriptions(self, output_filename):
@@ -72,15 +94,16 @@ class ExportInstances(object):
                        self.instances.features.getDescriptions()[i]]
                 csv_writer.writerow(row)
 
-    def exportLabels(self, output_filename):
+    def exportAnnotations(self, output_filename, ground_truth=False):
         header = ['instance_id', 'label', 'family']
+        annotations = self.instances.getAnnotations(ground_truth)
         with open(output_filename, 'w') as f:
             csv_writer = csv.writer(f)
             csv_writer.writerow(header)
-            ids = self.instances.ids.getIds()
-            for instance_id in ids:
-                label = labels_tools.labelBooleanToString(
-                    self.instances.annotations.getLabel(instance_id))
-                family = self.instances.annotations.getFamily(instance_id)
-                row = [instance_id, label, family]
+            for instance_id in self.ids:
+                print_id = self.getPrintId(instance_id)
+                bool_label = annotations.getLabel(instance_id)
+                label = labels_tools.labelBooleanToString(bool_label)
+                family = annotations.getFamily(instance_id)
+                row = [print_id, label, family]
                 csv_writer.writerow(row)

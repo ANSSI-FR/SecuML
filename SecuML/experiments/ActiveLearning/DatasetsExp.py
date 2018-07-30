@@ -42,7 +42,8 @@ class DatasetsExp(Datasets):
                     self.instances.annotations.setLabelFamily(
                         instance_id, DB_label, DB_family)
 
-    def saveAnnotatedInstances(self, output_filename):
+    def saveAnnotatedInstances(self, output_filename, exp):
         instances = self.instances.getAnnotatedInstances()
-        export_instances = ExportInstances(instances)
-        export_instances.exportLabels(output_filename)
+        export_instances = ExportInstances(instances, exp,
+                                           user_instance_ids=True)
+        export_instances.exportAnnotations(output_filename)

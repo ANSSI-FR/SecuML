@@ -17,10 +17,12 @@
 import os.path as path
 
 from SecuML.core.ActiveLearning.Iteration import Iteration
-from SecuML.core.ActiveLearning.QueryStrategies.AnnotationQueries.AnnotationQuery import NoAnnotationBudget
+from SecuML.core.ActiveLearning.QueryStrategies.AnnotationQueries.AnnotationQuery \
+        import NoAnnotationBudget
 from SecuML.core.Tools import dir_tools
 
-from SecuML.experiments.ActiveLearning.QueryStrategies import ActiveLearningStrategyFactoryExp
+from SecuML.experiments.ActiveLearning.QueryStrategies \
+        import ActiveLearningStrategyFactoryExp
 
 from SecuML.experiments.ActiveLearning.UpdateModelExp import UpdateModelExp
 from SecuML.experiments.db_tables import ExperimentsAlchemy
@@ -111,7 +113,7 @@ class IterationExp(Iteration):
                                     self.experiment.dataset),
                              'annotations',
                              filename)
-        self.datasets.saveAnnotatedInstances(filename)
+        self.datasets.saveAnnotatedInstances(filename, self.experiment)
 
     def checkAnnotationQueriesAnswered(self):
         return self.annotations.checkAnnotationQueriesAnswered()

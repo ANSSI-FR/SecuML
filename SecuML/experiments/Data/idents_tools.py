@@ -1,5 +1,5 @@
 # SecuML
-# Copyright (C) 2016-2017  ANSSI
+# Copyright (C) 2016-2018  ANSSI
 #
 # SecuML is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,9 +31,19 @@ def getRowNumber(session, dataset_id, instance_id):
     return query.one().row_number
 
 
-def getAllIdents(session):
+def getAllIdents(session, dataset_id):
     query = session.query(InstancesAlchemy)
+    query = query.filter(InstancesAlchemy.dataset_id == dataset_id)
     idents = {}
     for r in query.all():
-        idents[str(r.instance_id)] = r.ident
+        idents[str(r.id)] = r.ident
     return idents
+
+
+def getAllUserInstanceIds(session, dataset_id):
+    query = session.query(InstancesAlchemy)
+    query = query.filter(InstancesAlchemy.dataset_id == dataset_id)
+    user_instance_ids = {}
+    for r in query.all():
+        user_instance_ids[str(r.id)] = r.user_instance_id
+    return user_instance_ids
