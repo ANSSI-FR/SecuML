@@ -29,11 +29,8 @@ $.getJSON(query,
                   var name = exp[1];
                   var li = document.createElement('a');
                   li.setAttribute('class', 'list-group-item');
-                  li.setAttribute('style', 'word-wrap: break-word')
+                  li.setAttribute('style', 'word-wrap: break-word');
                   var exp_name = name;
-                  if (exp_name.length > 150) {
-                      exp_name = exp_name.substring(0, 150) + '...';
-                  }
                   exp_name = id + ', ' + exp_name;
                   var e_text = document.createTextNode(exp_name);
                   li.appendChild(e_text);
