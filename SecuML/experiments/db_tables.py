@@ -1,5 +1,5 @@
 # SecuML
-# Copyright (C) 2017  ANSSI
+# Copyright (C) 20172018  ANSSI
 #
 # SecuML is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
