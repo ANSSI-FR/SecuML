@@ -15,7 +15,8 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 
-from SecuML.core.ActiveLearning.QueryStrategies.AnnotationQueries.AnnotationQuery import AnnotationQuery
+from SecuML.core.ActiveLearning.QueryStrategies.AnnotationQueries.AnnotationQuery \
+        import AnnotationQuery
 from SecuML.core.Data import labels_tools
 
 from SecuML.experiments.Data import annotations_db_tools
@@ -31,12 +32,14 @@ class AnnotationQueryExp(AnnotationQuery):
         # Update the datasets
         self.updateDatasets(iteration, label, family)
         # Update in the database
-        method = kind + '__annotation'
+        if kind is not None:
+            method = '%s__annotation' % kind
+        else:
+            method = 'annotation'
         annotations_db_tools.addAnnotation(iteration.experiment.session,
                                            iteration.experiment.experiment_id,
                                            self.instance_id, label, family,
                                            iteration.iteration_number, method)
-        iteration.experiment.session.commit()
 
     def getManualAnnotation(self, iteration):
         details = annotations_db_tools.getAnnotationDetails(

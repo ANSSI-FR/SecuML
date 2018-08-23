@@ -17,14 +17,17 @@
 from . import ActiveLearningConfFactory
 from .ActiveLearningConfiguration import ActiveLearningConfiguration
 
-from SecuML.core.ActiveLearning.QueryStrategies.RandomSampling import RandomSampling
+from SecuML.core.ActiveLearning.QueryStrategies.RandomSampling \
+        import RandomSampling
 from SecuML.core.Classification.Configuration import ClassifierConfFactory
-from SecuML.core.Classification.Configuration.TestConfiguration.ValidationDatasetConf import ValidationDatasetConf
+from SecuML.core.Classification.Configuration.TestConfiguration.ValidationDatasetConf \
+        import ValidationDatasetConf
 
 
 class RandomSamplingConfiguration(ActiveLearningConfiguration):
 
-    def __init__(self, auto, budget, batch, binary_model_conf, validation_conf, logger=None):
+    def __init__(self, auto, budget, batch, binary_model_conf, validation_conf,
+                 logger=None):
         ActiveLearningConfiguration.__init__(
             self, auto, budget, validation_conf, logger=logger)
         self.query_strategy = 'RandomSampling'
@@ -52,8 +55,11 @@ class RandomSamplingConfiguration(ActiveLearningConfiguration):
                 obj['validation_conf'])
         binary_model_conf = ClassifierConfFactory.getFactory().fromJson(
             obj['models_conf']['binary'])
-        conf = RandomSamplingConfiguration(obj['auto'], obj['budget'], obj['batch'],
-                                           binary_model_conf, validation_conf)
+        conf = RandomSamplingConfiguration(obj['auto'],
+                                           obj['budget'],
+                                           obj['batch'],
+                                           binary_model_conf,
+                                           validation_conf)
         return conf
 
     def toJson(self):
@@ -68,14 +74,18 @@ class RandomSamplingConfiguration(ActiveLearningConfiguration):
         al_group.add_argument('--batch',
                               type=int,
                               default=100,
-                              help='Number of annotations asked from the user at each iteration.')
+                              help='Number of annotations asked from the user '
+                                   'at each iteration.')
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ActiveLearningConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = ActiveLearningConfiguration.generateParamsFromArgs(
+                                                    args,
+                                                    logger=logger)
         params['batch'] = args.batch
         return params
 
 
-ActiveLearningConfFactory.getFactory().registerClass('RandomSamplingConfiguration',
-                                                     RandomSamplingConfiguration)
+ActiveLearningConfFactory.getFactory().registerClass(
+                                'RandomSamplingConfiguration',
+                                RandomSamplingConfiguration)

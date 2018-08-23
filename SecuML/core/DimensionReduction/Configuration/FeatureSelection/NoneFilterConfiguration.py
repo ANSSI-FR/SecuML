@@ -14,10 +14,13 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.core.DimensionReduction.Algorithms.FeatureSelection.NoneFilter import NoneFilter
-from SecuML.core.DimensionReduction.Configuration import DimensionReductionConfFactory
+from SecuML.core.DimensionReduction.Algorithms.FeatureSelection.NoneFilter \
+        import NoneFilter
+from SecuML.core.DimensionReduction.Configuration \
+        import DimensionReductionConfFactory
 
-from .UnsupervisedFeatureSelectionConfiguration import UnsupervisedFeatureSelectionConfiguration
+from .UnsupervisedFeatureSelectionConfiguration \
+        import UnsupervisedFeatureSelectionConfiguration
 
 
 class NoneFilterConfiguration(UnsupervisedFeatureSelectionConfiguration):
@@ -27,8 +30,8 @@ class NoneFilterConfiguration(UnsupervisedFeatureSelectionConfiguration):
                                                            logger=logger)
 
     @staticmethod
-    def fromJson(obj):
-        conf = NoneFilterConfiguration()
+    def fromJson(obj, logger=None):
+        conf = NoneFilterConfiguration(logger=logger)
         return conf
 
     def toJson(self):
@@ -37,5 +40,6 @@ class NoneFilterConfiguration(UnsupervisedFeatureSelectionConfiguration):
         return conf
 
 
-DimensionReductionConfFactory.getFactory().registerClass('NoneFilterConfiguration',
-                                                         NoneFilterConfiguration)
+DimensionReductionConfFactory.getFactory().registerClass(
+                                            'NoneFilterConfiguration',
+                                            NoneFilterConfiguration)

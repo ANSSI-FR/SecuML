@@ -28,6 +28,11 @@ class CesaBianchiExp(CesaBianchi):
         self.annotations = CesaBianchiAnnotationQueriesExp(
             self.iteration, b, num_annotations)
 
+    def getUrl(self):
+        return 'http://localhost:5000/individualAnnotations/%d/%d/' % (
+                    self.iteration.experiment.experiment_id,
+                    self.iteration.iteration_number)
+
 
 ActiveLearningStrategyFactoryExp.getFactory().registerClass('CesaBianchiExp',
                                                             CesaBianchiExp)

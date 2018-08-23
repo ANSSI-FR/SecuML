@@ -19,7 +19,8 @@ import os.path as path
 
 from SecuML.core.ActiveLearning.UpdateModel import UpdateModel
 
-from SecuML.experiments.Classification.ClassificationExperiment import ClassificationExperiment
+from SecuML.experiments.Classification.ClassificationExperiment \
+        import ClassificationExperiment
 from SecuML.experiments.Classification.RunClassifier import RunClassifier
 
 
@@ -42,6 +43,7 @@ class UpdateModelExp(UpdateModel):
             export_models[k] = exp.experiment_id
         output_file = path.join(self.iteration.iteration_dir,
                                 'models_experiments.json')
+
         with open(output_file, 'w') as f:
             json.dump(export_models, f, indent=2)
 
@@ -50,11 +52,13 @@ class UpdateModelExp(UpdateModel):
 
         # Create the experiment
         exp = self.experiment
-        name = 'AL' + str(exp.experiment_id) + '-Iter'
-        name += str(self.iteration.iteration_number) + '-' + kind
-        model_exp = ClassificationExperiment(exp.project, exp.dataset, exp.session,
-                                             experiment_name=name,
-                                             parent=exp.experiment_id)
+        name = 'AL%d-Iter%d-%s' % (exp.experiment_id,
+                                   self.iteration.iteration_number,
+                                   kind)
+        model_exp = ClassificationExperiment(exp.secuml_conf,
+                                             session=exp.session)
+        model_exp.initExperiment(exp.project, exp.dataset, experiment_name=name,
+                                 parent=exp.experiment_id)
         model_exp.setConf(conf, exp.features_filename,
                           annotations_id=exp.annotations_id)
         model_exp.export()

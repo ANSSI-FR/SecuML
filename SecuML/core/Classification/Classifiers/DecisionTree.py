@@ -16,6 +16,7 @@
 
 from sklearn import tree
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 from SecuML.core.Classification.Classifier import Classifier
 
@@ -24,6 +25,7 @@ class DecisionTree(Classifier):
 
     def createPipeline(self):
         self.pipeline = Pipeline([
+            ('scaler', StandardScaler()),
             ('model', tree.DecisionTreeClassifier(
                 criterion=self.conf.criterion,
                 splitter=self.conf.splitter,

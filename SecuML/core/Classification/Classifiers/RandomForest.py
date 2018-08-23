@@ -16,6 +16,7 @@
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 from SecuML.core.Classification.Classifier import Classifier
 
@@ -24,6 +25,7 @@ class RandomForest(Classifier):
 
     def createPipeline(self):
         self.pipeline = Pipeline([
+            ('scaler', StandardScaler()),
             ('model', RandomForestClassifier(
                 n_estimators=self.conf.n_estimators,
                 criterion=self.conf.criterion,

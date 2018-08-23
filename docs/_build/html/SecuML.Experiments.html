@@ -178,11 +178,14 @@ Each type of experiment has its own executable
 <li><code class="docutils literal notranslate"><span class="pre">project</span></code>: the name of the project;</li>
 <li><code class="docutils literal notranslate"><span class="pre">dataset</span></code>: the name of the dataset belonging to <code class="docutils literal notranslate"><span class="pre">project</span></code>;</li>
 <li>[optional] <code class="docutils literal notranslate"><span class="pre">--features</span></code>: the name of the csv file containing the features;</li>
-<li>[optional] <code class="docutils literal notranslate"><span class="pre">--exp-name</span></code>: the name of the experiment.</li>
+<li>[optional] <code class="docutils literal notranslate"><span class="pre">--exp-name</span></code>: the name of the experiment;</li>
+<li>[optional] <code class="docutils literal notranslate"><span class="pre">--secuml-conf</span></code>: the name of the experiment.</li>
 </ul>
 <p>If <code class="docutils literal notranslate"><span class="pre">--features</span></code> is not specified, the features are read from the file <code class="docutils literal notranslate"><span class="pre">features.csv</span></code>.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">--exp-name</span></code> is not specified, a name is automatically generated from the input parameters
 of the experiment.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">--secuml-conf</span></code> is not specified, the path of the configuration file is read in the environment variable
+<code class="docutils literal notranslate"><span class="pre">SECUMLCONF</span></code>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The features files are stored in the directory <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;/&lt;project&gt;/&lt;dataset&gt;/features/</span></code> where
@@ -191,12 +194,12 @@ input data directory <code class="docutils literal notranslate"><span class="pre
 </div>
 <div class="section" id="visualizing-the-results">
 <h2>Visualizing the Results<a class="headerlink" href="#visualizing-the-results" title="Permalink to this headline">¶</a></h2>
-<p>Once an experiment has been computed, its results can be displayed in the web user interface.</p>
-<p><code class="docutils literal notranslate"><span class="pre">http://localhost:5000/SecuML/</span></code> gives access to SecuML menu.
-It displays the list of projects and datasets available.
-Besides, for each dataset, it displays the list of experiments gathered by type.</p>
-<p><code class="docutils literal notranslate"><span class="pre">http://localhost:5000/SecuML/&lt;experiment_id&gt;/</span></code> displays directly
-the results of an experiment identified by <code class="docutils literal notranslate"><span class="pre">experiment_id</span></code>.</p>
+<p>Once an experiment has been successfully completed, the following message is displayed:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Experiment &lt;experiment_id&gt; has been successfully completed.
+See http://localhost:5000/SecuML/&lt;experiment_id&gt;/ to display the results.
+</pre></div>
+</div>
+<p>The results can then be displayed in the <a class="reference internal" href="getting_started.setting_up.html#gui"><span class="std std-ref">web user interface</span></a> with the URL provided.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last"><code class="docutils literal notranslate"><span class="pre">SecuML_server</span></code> must be executed to launch the web server.</p>
@@ -206,7 +209,7 @@ the results of an experiment identified by <code class="docutils literal notrans
 <h2>Types of Experiments Available<a class="headerlink" href="#types-of-experiments-available" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><a class="reference internal" href="SecuML.DIADEM.html#diadem"><span class="std std-ref">DIADEM: Training and Diagnosing Detection Model</span></a></li>
-<li><a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB: Annotating a Dataset with a Workload</span></a></li>
+<li><a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB: Annotating a Dataset with a Reduced Workload</span></a></li>
 <li><a class="reference internal" href="SecuML.RCD.html#rcd"><span class="std std-ref">Exploring a Dataset Interactively with Rare Category Detection</span></a></li>
 <li><a class="reference internal" href="SecuML.clustering.html#clustering"><span class="std std-ref">Clustering</span></a></li>
 <li><a class="reference internal" href="SecuML.projection.html#projection"><span class="std std-ref">Projection</span></a></li>

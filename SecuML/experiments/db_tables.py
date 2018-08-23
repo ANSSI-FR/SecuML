@@ -44,6 +44,8 @@ class DatasetsAlchemy(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     project_id = Column(Integer, ForeignKey('projects.id'))
     dataset = Column(String(200))
+    idents_hash = Column(String(32), nullable=False)
+    ground_truth_hash = Column(String(32), nullable=True)
 
     project = relationship('ProjectsAlchemy', back_populates='datasets',
                            uselist=False)
@@ -88,7 +90,7 @@ class ExperimentAnnotationsAlchemy(Base):
     experiment_id = Column(Integer, ForeignKey('experiments.id'),
                            nullable=False)
     annotations_type = Column(Enum('none', 'ground_truth', 'partial_annotations',
-                                   name='labels_type'),
+                                   name='annotations_type'),
                               nullable=False)
 
     experiment = relationship('ExperimentsAlchemy',
@@ -190,7 +192,7 @@ def checkProject(session, project):
 def addProject(session, project):
     project = ProjectsAlchemy(project=project)
     session.add(project)
-    session.commit()
+    session.flush()
     return project.id
 
 
@@ -220,10 +222,30 @@ def checkDataset(session, project_id, dataset):
         return None
 
 
-def addDataset(session, project_id, dataset_name):
-    dataset = DatasetsAlchemy(project_id=project_id, dataset=dataset_name)
+def checkExperimentId(session, experiment_id):
+    query = session.query(ExperimentsAlchemy)
+    query = query.filter(ExperimentsAlchemy.id == experiment_id)
+    try:
+        return query.one()
+    except NoResultFound:
+        return None
+
+
+def getDatasetHashes(session, project_id, dataset_id):
+    query = session.query(DatasetsAlchemy)
+    query = query.filter(DatasetsAlchemy.project_id == project_id)
+    query = query.filter(DatasetsAlchemy.id == dataset_id)
+    res = query.one()
+    return res.idents_hash, res.ground_truth_hash
+
+
+def addDataset(session, project_id, dataset_name, idents_hash,
+               ground_truth_hash):
+    dataset = DatasetsAlchemy(project_id=project_id, dataset=dataset_name,
+                              idents_hash=idents_hash,
+                              ground_truth_hash=ground_truth_hash)
     session.add(dataset)
-    session.commit()
+    session.flush()
     return dataset.id
 
 
@@ -238,7 +260,7 @@ def removeDataset(session, project, dataset):
     query = query.filter(DatasetsAlchemy.id == dataset_id)
     row = query.one()
     session.delete(row)
-    session.commit()
+    session.flush()
 
 
 def removeProject(session, project):
@@ -249,7 +271,7 @@ def removeProject(session, project):
     query = query.filter(ProjectsAlchemy.id == project_id)
     row = query.one()
     session.delete(row)
-    session.commit()
+    session.flush()
 
 
 def getDatasetFromExperiment(session, experiment_id):

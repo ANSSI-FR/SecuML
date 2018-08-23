@@ -28,7 +28,7 @@ def gornitzBinaryModelConf(logger):
     classifier_args['num_folds'] = 4
     classifier_args['sample_weight'] = False
     classifier_args['families_supervision'] = False
-    test_conf = UnlabeledLabeledConf()
+    test_conf = UnlabeledLabeledConf(logger=logger)
     classifier_args['test_conf'] = test_conf
     binary_model_conf = ClassifierConfFactory.getFactory().fromParam(
         'Sssvdd',
@@ -82,20 +82,23 @@ class GornitzConfiguration(ActiveLearningConfiguration):
         al_group.add_argument('--batch',
                               type=int,
                               default=100,
-                              help='Number of annotations asked from the user at each iteration.')
+                              help='Number of annotations asked from the user '
+                                   'at each iteration.')
 
     @staticmethod
-    def generateParamsFromArgs(args):
+    def generateParamsFromArgs(args, logger=None):
         supervised_args = {}
         supervised_args['num_folds'] = 4
         supervised_args['sample_weight'] = False
         supervised_args['families_supervision'] = False
-        test_conf = UnlabeledLabeledConf()
+        test_conf = UnlabeledLabeledConf(logger=logger)
         supervised_args['test_conf'] = test_conf
         binary_model_conf = ClassifierConfFactory.getFactory().fromParam(
-            'Sssvdd', supervised_args)
-        params = ActiveLearningConfiguration.generateParamsFromArgs(args,
-                                                                    binary_model_conf=binary_model_conf)
+            'Sssvdd', supervised_args, logger=logger)
+        params = ActiveLearningConfiguration.generateParamsFromArgs(
+                                        args,
+                                        binary_model_conf=binary_model_conf,
+                                        logger=logger)
         params['batch'] = args.batch
         return params
 

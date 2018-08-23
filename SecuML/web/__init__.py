@@ -1,5 +1,5 @@
 # SecuML
-# Copyright (C) 2016-2017  ANSSI
+# Copyright (C) 2016-2018  ANSSI
 #
 # SecuML is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,25 +14,28 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 
-from SecuML.experiments import db_tables
-from SecuML.experiments.Tools import db_tools
-from SecuML.experiments.Tools import dir_exp_tools
-from SecuML.experiments.config import DB_URI
+app = None
+session = None
+secuml_conf = None
+user_exp = None
 
 
-user_exp = True
+def setApp(app_value):
+    global app
+    app = app_value
 
-dir_exp_tools.checkWebLibraries()
 
-engine, _ = db_tools.getSqlalchemySession()
-db_tables.createTables(engine)
+def setSession(session_value):
+    global session
+    session = session_value
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-session = SQLAlchemy(app).session
 
-import SecuML.web.views.instances
+def setSecuMlConf(secuml_conf_value):
+    global secuml_conf
+    secuml_conf = secuml_conf_value
+
+
+def setUserExp(user_exp_value):
+    global user_exp
+    user_exp = user_exp_value

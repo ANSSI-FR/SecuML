@@ -49,14 +49,16 @@ class RareCategoryDetection(QueryStrategy):
 
     def executionTimeHeader(self):
         header = ['clustering']
-        header += QueryStrategy.executionTimeHeader(self)
+        header.extend(QueryStrategy.executionTimeHeader(self))
         return header
 
     def executionTimeMonitoring(self):
         line = [self.all_instances.analysis_time]
-        line += QueryStrategy.executionTimeMonitoring(self)
+        line.extend(QueryStrategy.executionTimeMonitoring(self))
         return line
 
     def executionTimeDisplay(self):
         clustering = PlotDataset(None, 'Analysis')
-        return [clustering] + QueryStrategy.executionTimeDisplay(self)
+        v = [clustering]
+        v.extend(QueryStrategy.executionTimeDisplay(self))
+        return v

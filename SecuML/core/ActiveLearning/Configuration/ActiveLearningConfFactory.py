@@ -50,10 +50,14 @@ class ActiveLearningConfFactory(object):
 
     def fromArgs(self, query_strategy, args, logger=None):
         class_ = self.register[query_strategy + 'Configuration']
-        params = class_.generateParamsFromArgs(args)
+        params = class_.generateParamsFromArgs(args, logger=logger)
         return self.fromParam(query_strategy, params, logger=logger)
 
     def generateParser(self, query_strategy, parser):
         class_ = self.register[query_strategy + 'Configuration']
         parser = class_.generateParser(parser)
         return parser
+
+    def getStrategies(self):
+        strategies = [k.split('Configuration')[0] for k in self.register.keys()]
+        return strategies

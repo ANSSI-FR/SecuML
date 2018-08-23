@@ -1,5 +1,5 @@
 # SecuML
-# Copyright (C) 2016-2017  ANSSI
+# Copyright (C) 2016-2018  ANSSI
 #
 # SecuML is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,28 +21,66 @@ import numpy as np
 import os.path as path
 import pandas as pd
 
-from SecuML.experiments import db_tables
-
+from SecuML.core.Tools import colors_tools
 from SecuML.core.Tools import dir_tools
-from SecuML.core.Tools import logging_tools
-
-from SecuML.experiments.Data import idents_tools
-from SecuML.experiments.Data.Dataset import Dataset
-from SecuML.experiments.Tools import dir_exp_tools
-from SecuML.experiments.Tools import db_tools
 
 from . import experiment_db_tools
+from . import db_tables
+from .Data import idents_tools
+from .Data.Dataset import Dataset
+from .Tools import dir_exp_tools
+from .Tools import mysql_specific
+from .Tools import postgresql_specific
+from .Tools.exp_exceptions import SecuMLexpException
+
+
+class FeaturesFileNotFound(SecuMLexpException):
+
+    def __init__(self, filename):
+        self.filename = filename
+
+    def __str__(self):
+        return('The features file %s does not exist.'
+                % self.filename)
 
 
 class Experiment(object):
 
-    def __init__(self, project, dataset, session, experiment_name=None,
-                 parent=None, logger=None, create=True):
-        self._setLogger(logger)
-        self._setSession(session, project, dataset)
+    def __init__(self, secuml_conf, session=None):
+        self.secuml_conf = secuml_conf
+        if session is None:
+            self.session = secuml_conf.Session()
+        else:
+            self.session = session
+        self.logger = self.secuml_conf.logger
+        self.experiment_id = None
+
+    def initExperiment(self, project, dataset, experiment_name=None,
+                       parent=None, create=True):
+        if create:
+            self._loadDataset(project, dataset)
         self._initExperiment(project, dataset, experiment_name, parent)
         if create:
-            self._create()
+            self.addToDb()
+
+    def rollbackSession(self):
+        self.session.rollback()
+        self.session.close()
+        if self.experiment_id is not None:
+            dir_tools.removeDirectory(self.getOutputDirectory())
+
+    def close(self):
+        self.closeSession()
+        print(colors_tools.displayInGreen(
+                '\nExperiment %d has been successfully completed. \n'
+                'See http://localhost:5000/SecuML/%d/ '
+                'to display the results. \n' %
+                (self.experiment_id, self.experiment_id)))
+
+
+    def closeSession(self):
+        self.session.commit()
+        self.session.close()
 
     def export(self):
         experiment_dir = self.getOutputDirectory()
@@ -60,18 +98,20 @@ class Experiment(object):
         self._checkConf()
 
     def _checkConf(self):
-        return
-
-    def closeSession(self):
-        db_tools.closeSqlalchemySession(self.session)
+        # Check features file
+        features_filename = self.getFeaturesFullpath()
+        if not path.isfile(features_filename):
+            raise FeaturesFileNotFound(features_filename)
 
     def getOutputDirectory(self):
-        return dir_exp_tools.getExperimentOutputDirectory(self.project,
+        return dir_exp_tools.getExperimentOutputDirectory(self.secuml_conf,
+                                                          self.project,
                                                           self.dataset,
                                                           self.experiment_id)
 
     def getFeaturesFullpath(self):
-        dataset_dir = dir_exp_tools.getDatasetDirectory(self.project,
+        dataset_dir = dir_exp_tools.getDatasetDirectory(self.secuml_conf,
+                                                        self.project,
                                                         self.dataset)
         features_directory = path.join(dataset_dir, 'features')
         full_path = path.join(features_directory,
@@ -116,11 +156,15 @@ class Experiment(object):
 
     def getAllFeatures(self):
         csv_file = self.getFeaturesFullpath()
-        with open(csv_file, 'r') as f:
-            f.readline()
-            current_features = list(list(rec) for rec in csv.reader(f,
-                                                                    quoting=csv.QUOTE_NONNUMERIC))
-            features = [l[1:] for l in current_features]
+        try:
+            with open(csv_file, 'r') as f:
+                f.readline()
+                current_features = list(list(rec) for rec in csv.reader(
+                                    f,
+                                    quoting=csv.QUOTE_NONNUMERIC))
+                features = [l[1:] for l in current_features]
+        except FileNotFoundError:
+            raise FeaturesFileNotFound(csv_file)
         features = np.array(features)
         return features
 
@@ -133,6 +177,9 @@ class Experiment(object):
 
     @staticmethod
     def expParamFromJson(experiment, obj, conf):
+        experiment.project = obj['project']
+        experiment.dataset = obj['dataset']
+        experiment.dataset_id = obj['dataset_id']
         experiment.conf = conf
         experiment.kind = obj['kind']
         experiment.experiment_name = obj['experiment_name']
@@ -148,6 +195,7 @@ class Experiment(object):
         conf['__type__'] = 'Experiment'
         conf['project'] = self.project
         conf['dataset'] = self.dataset
+        conf['dataset_id'] = self.dataset_id
         conf['kind'] = self.kind
         conf['experiment_name'] = self.experiment_name
         conf['experiment_id'] = self.experiment_id
@@ -166,29 +214,26 @@ class Experiment(object):
                             dest='features_file',
                             required=False,
                             default='features.csv',
-                            help='CSV file containing the features. Default: features.csv')
-        help_exp_name = 'Name of the experiment. '
-        help_exp_name += 'If not provided, a default name is automatically generated from the input parameters.'
+                            help='CSV file containing the features. '
+                                 'Default: features.csv')
         parser.add_argument('--exp-name', type=str,
                             required=False,
                             default=None,
-                            help=help_exp_name)
+                            help='Name of the experiment. '
+                                 'If not provided, a default name is '
+                                 'automatically generated from the input '
+                                 'parameters.')
+        parser.add_argument('--secuml-conf', type=str,
+                            required=False,
+                            default=None,
+                            help='YAML file containing the configuration. '
+                                 'If conf is not set, the configuration is '
+                                 'read from the file stored in the environment '
+                                 'variable SECUMLCONF.')
 
     @abc.abstractmethod
     def setExperimentFromArgs(self, args):
         return
-
-    def _setLogger(self, logger):
-        if logger is not None:
-            self.logger = logger
-        else:
-            self.logger = logging_tools.getDefaultConfig()
-
-    def _setSession(self, session, project, dataset):
-        if session is None:
-            self.session = self._initDatabase(project, dataset)
-        else:
-            self.session = session
 
     def _initExperiment(self, project, dataset, experiment_name, parent):
         self.project = project
@@ -202,18 +247,15 @@ class Experiment(object):
         self.annotations_id = None
         self.annotations_type = None
 
-    def _initDatabase(self, project, dataset):
-        engine, session = db_tools.getSqlalchemySession()
-        db_tables.createTables(engine)
-        load_dataset = Dataset(project, dataset, session)
-        if not load_dataset.isLoaded():
-            load_dataset.load(self.logger)
-        return session
+    def _loadDataset(self, project, dataset):
+        dataset = Dataset(self.secuml_conf, self.session, project, dataset)
+        dataset.load(self.logger)
 
     def _setDatasetId(self):
         project_id = db_tables.checkProject(self.session, self.project)
-        dataset_id = db_tables.checkDataset(
-            self.session, project_id, self.dataset)
+        dataset_id = db_tables.checkDataset(self.session,
+                                            project_id,
+                                            self.dataset)
         return dataset_id
 
     def _generateExperimentName(self):
@@ -253,104 +295,43 @@ class Experiment(object):
             experiment_id=self.experiment_id,
             annotations_type=annotations_type)
         self.session.add(exp_annotations)
-        self.session.commit()
+        self.session.flush()
         self.annotations_id = exp_annotations.annotations_id
         self.annotations_type = annotations_type
 
         if annotations_type == 'partial_annotations':
-            filename = path.join(dir_exp_tools.getDatasetDirectory(self.project,
-                                                                   self.dataset),
+            filename = path.join(dir_exp_tools.getDatasetDirectory(
+                                                self.secuml_conf,
+                                                self.project,
+                                                self.dataset),
                                  'annotations',
                                  annotations_filename)
             if not dir_tools.checkFileExists(filename):
                 raise ValueError(
                     'The annotation file %s does not exist.' % filename)
-            # Check whether the file contains families
-            families = False
-            with open(filename, 'r') as f:
-                reader = csv.reader(f)
-                header = next(reader)
-                if len(header) == 3:
-                    families = True
-            cursor = self.session.connection().connection.cursor()
+            families = dir_exp_tools.annotationsWithFamilies(filename)
+            conn = self.session.connection().connection
+            cursor = conn.cursor()
+            if self.secuml_conf.db_type == 'mysql':
+                mysql_specific.loadPartialAnnotations(cursor,
+                                                      filename,
+                                                      families,
+                                                      self.annotations_id,
+                                                      self.dataset_id)
+            if self.secuml_conf.db_type == 'postgresql':
+                postgresql_specific.loadPartialAnnotations(cursor,
+                                                           filename,
+                                                           families,
+                                                           self.annotations_id,
+                                                           self.dataset_id)
+            self.session.flush()
 
-            if db_tools.isMysql():
-                query = 'CREATE TEMPORARY TABLE labels_import('
-                query += 'instance_id integer, '
-                query += 'annotations_id integer DEFAULT ' + \
-                    str(self.annotations_id) + ', '
-                query += 'user_instance_id integer, '
-                query += 'label varchar(200), '
-                query += 'family varchar(200) DEFAULT \'other\', '
-                query += 'iteration integer DEFAULT 0, '
-                query += 'method varchar(200) DEFAULT \'init\''
-                query += ');'
-                cursor.execute(query)
-
-                query = 'LOAD DATA LOCAL INFILE \'' + filename + '\' '
-                query += 'INTO TABLE ' + 'labels_import' + ' '
-                query += 'FIELDS TERMINATED BY \',\' '
-                query += 'IGNORE 1 LINES '
-                if families:
-                    query += '(user_instance_id, label, family) '
-                else:
-                    query += '(user_instance_id, label) '
-                query += ';'
-                cursor.execute(query)
-
-                query = 'UPDATE labels_import l '
-                query += 'JOIN instances i '
-                query += 'ON i.user_instance_id = l.user_instance_id '
-                query += 'AND i.dataset_id = ' + str(self.dataset_id) + ' '
-                query += 'SET l.instance_id = i.id;'
-                cursor.execute(query)
-
-                query = 'INSERT INTO annotations(instance_id,annotations_id,label,family,iteration,method) '
-                query += 'SELECT instance_id,annotations_id,label,family,iteration,method '
-                query += 'FROM labels_import;'
-                cursor.execute(query)
-
-            elif db_tools.isPostgresql():
-                query = 'CREATE TEMPORARY TABLE labels_import('
-                query += 'instance_id integer, '
-                query += 'annotations_id integer DEFAULT ' + \
-                    str(self.annotations_id) + ', '
-                query += 'user_instance_id integer, '
-                query += 'label labels_enum, '
-                query += 'family varchar(200) DEFAULT \'other\', '
-                query += 'iteration integer DEFAULT 0, '
-                query += 'method varchar(200) DEFAULT \'init\''
-                query += ');'
-                cursor.execute(query)
-
-                with open(filename, 'r') as f:
-                    if families:
-                        query = 'COPY labels_import(user_instance_id,label,family) '
-                    else:
-                        query = 'COPY labels_import(user_instance_id,label) '
-                    query += 'FROM STDIN '
-                    query += 'WITH CSV HEADER DELIMITER AS \',\' ;'
-                    cursor.copy_expert(sql=query, file=f)
-
-                query = 'UPDATE labels_import AS l '
-                query += 'SET instance_id = i.id '
-                query += 'FROM instances AS i '
-                query += 'WHERE i.user_instance_id = l.user_instance_id '
-                query += 'AND i.dataset_id = ' + str(self.dataset_id) + ';'
-                cursor.execute(query)
-
-                query = 'INSERT INTO annotations(instance_id,annotations_id,label,family,iteration,method) '
-                query += 'SELECT instance_id,annotations_id,label,family,iteration,method '
-                query += 'FROM labels_import;'
-                cursor.execute(query)
-
-            self.session.commit()
-
-    def _create(self):
-        experiment_id, oldest_parent = experiment_db_tools.addExperiment(self.session,
-                                                                         self.kind,
-                                                                         self.experiment_name,
-                                                                         self.dataset_id,
-                                                                         self.parent)
+    def addToDb(self):
+        experiment_id, oldest_parent = experiment_db_tools.addExperiment(
+                            self.session,
+                            self.kind,
+                            self.experiment_name,
+                            self.dataset_id,
+                            self.parent)
         self.experiment_id = experiment_id
         self.oldest_parent = oldest_parent

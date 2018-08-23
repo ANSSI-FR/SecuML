@@ -15,7 +15,8 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from SecuML.core.Clustering.Algorithms.GaussianMixture import GaussianMixture
-from SecuML.core.DimensionReduction.Configuration import DimensionReductionConfFactory
+from SecuML.core.DimensionReduction.Configuration \
+        import DimensionReductionConfFactory
 
 from . import ClusteringConfFactory
 from .ClusteringConfiguration import ClusteringConfiguration
@@ -25,23 +26,27 @@ class GaussianMixtureConfiguration(ClusteringConfiguration):
 
     def __init__(self, num_clusters, num_results=None, projection_conf=None,
                  label='all', logger=None):
-        ClusteringConfiguration.__init__(self, num_clusters,
-                                         num_results=num_results, projection_conf=projection_conf,
-                                         label=label, logger=logger)
+        ClusteringConfiguration.__init__(self,
+                                         num_clusters,
+                                         num_results=num_results,
+                                         projection_conf=projection_conf,
+                                         label=label,
+                                         logger=logger)
         self.algo = GaussianMixture
         self.covariance_type = 'diag'
         self.init_params = 'kmeans'
         self.max_iter = 2
 
     @staticmethod
-    def fromJson(obj):
-        conf = GaussianMixtureConfiguration(obj['num_clusters'])
+    def fromJson(obj, logger=None):
+        conf = GaussianMixtureConfiguration(obj['num_clusters'], logger=logger)
         conf.covariance_type = obj['covariance_type']
         conf.init_params = obj['init_params']
         conf.max_iter = obj['max_iter']
         if obj['projection_conf'] is not None:
-            projection_conf = DimensionReductionConfFactory.getFactory(
-            ).fromJson(obj['projection_conf'])
+            proj_factory = DimensionReductionConfFactory.getFactory()
+            projection_conf = proj_factory.fromJson(obj['projection_conf'],
+                                                    logger=logger)
             conf.setDimensionReductionConf(projection_conf)
         return conf
 

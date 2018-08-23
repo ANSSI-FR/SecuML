@@ -34,9 +34,9 @@ class ClassifierConfFactory(object):
     def registerClass(self, class_name, class_obj):
         self.register[class_name] = class_obj
 
-    def fromJson(self, obj):
+    def fromJson(self, obj, logger=None):
         class_name = obj['__type__']
-        obj = self.register[class_name].fromJson(obj)
+        obj = self.register[class_name].fromJson(obj, logger=logger)
         return obj
 
     def fromParam(self, class_name, args, logger=None):
@@ -50,7 +50,7 @@ class ClassifierConfFactory(object):
 
     def fromArgs(self, model, args, logger=None):
         class_ = self.register[model + 'Configuration']
-        params = class_.generateParamsFromArgs(args)
+        params = class_.generateParamsFromArgs(args, logger=logger)
         return self.fromParam(model, params, logger=logger)
 
     def generateParser(self, model_class, parser):

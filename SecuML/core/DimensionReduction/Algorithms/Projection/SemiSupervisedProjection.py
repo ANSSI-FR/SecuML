@@ -18,11 +18,13 @@ import abc
 import numpy as np
 
 from SecuML.core.DimensionReduction.Projection import Projection
+from SecuML.core.Tools.core_exceptions import SecuMLcoreException
 
 
-class FewerThanTwoLabels(Exception):
+class FewerThanTwoLabels(SecuMLcoreException):
     def __str__(self):
-        return ('Semi-supervised projections must be learned with at least two labels.')
+        return('Semi-supervised projections must be learned with at least two '
+               'labels.')
 
 
 class SemiSupervisedProjection(Projection):
@@ -43,11 +45,11 @@ class SemiSupervisedProjection(Projection):
     # Remove instances those family is too rare (num_instances < k = 3)
     def generateInputLabels(self, instances):
         if self.conf.families_supervision:
-            families_count = instances.getFamiliesCount()
+            families_count = instances.annotations.getFamiliesCount()
             drop_ids = []
             for family, count in families_count.items():
                 if count < 3:
-                    drop_ids += instances.getFamilyIds(family)
+                    drop_ids.extend(instances.annotations.getFamilyIds(family))
             selected_ids = [i for i in instances.ids.getIds()
                             if i not in drop_ids]
             selected_instances = instances.getInstancesFromIds(selected_ids)

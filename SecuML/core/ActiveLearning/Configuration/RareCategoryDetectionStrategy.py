@@ -19,7 +19,8 @@ from SecuML.core.Classification.Configuration import ClassifierConfFactory
 
 class RareCategoryDetectionStrategy(object):
 
-    def __init__(self, classification_conf, cluster_strategy, num_annotations, cluster_weights):
+    def __init__(self, classification_conf, cluster_strategy, num_annotations,
+                 cluster_weights):
         self.classification_conf = classification_conf
         self.cluster_strategy = cluster_strategy
         self.num_annotations = num_annotations
@@ -35,10 +36,13 @@ class RareCategoryDetectionStrategy(object):
 
     @staticmethod
     def fromJson(obj):
-        classification_conf = ClassifierConfFactory.getFactory(
-        ).fromJson(obj['classification_conf'])
-        conf = RareCategoryDetectionStrategy(classification_conf, obj['cluster_strategy'],
-                                             obj['num_annotations'], obj['cluster_weights'])
+        classification_factory = ClassifierConfFactory.getFactory()
+        classification_conf = classification_factory.fromJson(
+                                             obj['classification_conf'])
+        conf = RareCategoryDetectionStrategy(classification_conf,
+                                             obj['cluster_strategy'],
+                                             obj['num_annotations'],
+                                             obj['cluster_weights'])
         return conf
 
     def toJson(self):

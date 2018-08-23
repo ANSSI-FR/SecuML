@@ -16,8 +16,10 @@
 
 import csv
 
+from SecuML.core.Tools.core_exceptions import SecuMLcoreException
 
-class NoAnnotationBudget(Exception):
+
+class NoAnnotationBudget(SecuMLcoreException):
     def __str__(self):
         return 'The annotation budget has run out'
 

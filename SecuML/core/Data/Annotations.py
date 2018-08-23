@@ -15,9 +15,10 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from SecuML.core.Data import labels_tools
+from SecuML.core.Tools.core_exceptions import SecuMLcoreException
 
 
-class InvalidAnnotations(Exception):
+class InvalidAnnotations(SecuMLcoreException):
 
     def __init__(self, message):
         self.message = message
@@ -35,17 +36,17 @@ class Annotations(object):
         self.checkValidity()
 
     def checkValidity(self):
-        message = None
         num_instances = self.ids.numInstances()
         if len(self.labels) != num_instances:
-            message = 'There are ' + str(num_instances) + ' instances '
-            message += 'but ' + str(len(self.labels)) + ' labels are provided.'
+            raise InvalidAnnotations('There are %d instances '
+                                     'but %d labels are provided.'
+                                     % (num_instances,
+                                        len(self.labels)))
         elif len(self.families) != num_instances:
-            message = 'There are ' + str(num_instances) + ' instances '
-            message += 'but ' + str(len(self.families)) + \
-                ' families are provided.'
-        if message is not None:
-            raise InvalidAnnotations(message)
+            raise InvalidAnnotations('There are %d instances '
+                                     'but %d families are provided.'
+                                     % (num_instances,
+                                        len(self.families)))
 
     # The union must be used on instances coming from the same dataset.
     # Otherwise, there may be some collisions on the ids.
@@ -85,9 +86,10 @@ class Annotations(object):
     def setLabels(self, labels):
         num_instances = self.ids.numInstances()
         if len(labels) != num_instances:
-            message = 'There are ' + str(num_instances) + ' instances '
-            message += 'but ' + str(len(labels)) + ' labels are provided.'
-            raise InvalidAnnotations(message)
+            raise InvalidAnnotations('There are %d instances '
+                                     'but there %d labels are provided.'
+                                     % (num_instances,
+                                        len(labels)))
         self.labels = labels
 
     def erase(self):
@@ -117,9 +119,10 @@ class Annotations(object):
     def setFamilies(self, families):
         num_instances = self.ids.numInstances()
         if len(families) != num_instances:
-            message = 'There are ' + str(num_instances) + ' instances '
-            message += 'but ' + str(len(families)) + ' families are provided.'
-            raise InvalidAnnotations(message)
+            raise InvalidAnnotations('There are %d instances '
+                                     'but %d families are provided.'
+                                     % (num_instances,
+                                        len(families)))
         self.families = families
 
     def getFamilyIds(self, family):

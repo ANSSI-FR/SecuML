@@ -35,9 +35,9 @@ class ExportInstances(object):
                     self.exp.session,
                     self.exp.dataset_id)
 
-    def exportSecuML(self, project, dataset, features_filename):
+    def exportSecuML(self, secuml_conf, project, dataset, features_filename):
         dataset_dir, features_dir, annotations_dir = dir_exp_tools.createDataset(
-            project, dataset)
+                        secuml_conf, project, dataset)
         self.exportIdents(path.join(dataset_dir, 'idents.csv'))
         self.exportFeatures(path.join(features_dir, features_filename))
         description_filename = '_'.join([path.splitext(features_filename)[0],

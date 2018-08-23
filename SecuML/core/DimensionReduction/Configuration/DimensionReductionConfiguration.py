@@ -34,7 +34,7 @@ class DimensionReductionConfiguration(object):
         return conf
 
     @staticmethod
-    def generateParamsFromArgs(args):
+    def generateParamsFromArgs(args, logger=None):
         params = {}
         return params
 

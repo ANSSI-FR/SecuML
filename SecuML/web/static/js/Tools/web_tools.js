@@ -47,7 +47,8 @@ function createDivWithClass(id, classname, parent_div = null, title = null) {
     return div;
 }
 
-function createPanel(panel_type, col_size, heading, parent_div, return_heading = false) {
+function createPanel(panel_type, col_size, heading, parent_div,
+                     return_heading = false) {
   if (col_size) {
     var col = createDivWithClass(null, col_size, parent_div);
     parent_div = col;
@@ -76,7 +77,8 @@ function createPanel(panel_type, col_size, heading, parent_div, return_heading =
   }
 }
 
-function createCollapsingPanel(panel_type, col_size, heading, parent_div, collapse_id) {
+function createCollapsingPanel(panel_type, col_size, heading, parent_div,
+                               collapse_id) {
   if (col_size) {
     var col = createDivWithClass(null, col_size, parent_div);
     parent_div = col;
@@ -99,8 +101,12 @@ function createCollapsingPanel(panel_type, col_size, heading, parent_div, collap
   panel_title.appendChild(title_link);
   panel_heading.appendChild(panel_title);
 
-  var panel_collapse = createDivWithClass(collapse_id + '_collapse', 'panel-collapse collapse', panel);
-  var panel_body = createDivWithClass(collapse_id, 'panel-body', panel_collapse);
+  var panel_collapse = createDivWithClass(collapse_id + '_collapse',
+                                          'panel-collapse collapse',
+                                          panel);
+  var panel_body = createDivWithClass(collapse_id,
+                                      'panel-body',
+                                      panel_collapse);
   return panel_body;
 }
 
@@ -167,7 +173,8 @@ function createTabsMenu(labels, titles, parent_div, tab_content_id = null) {
   }
   parent_div.appendChild(ul);
   // Div for each tab
-  var tabs_content = createDivWithClass(tab_content_id, 'tab-content', parent_div);
+  var tabs_content = createDivWithClass(tab_content_id, 'tab-content',
+                                        parent_div);
   for (var i = 0; i < labels.length; i++) {
       var tab_class = 'tab-pane fade';
       if (i == 0) {
@@ -268,11 +275,18 @@ function displayAlert(alert_id, title, body) {
     modal_div.setAttribute('tabindex', '-1');
     modal_div.setAttribute('role', 'dialog');
 
-    var modal_dialog_div = createDivWithClass(null, 'modal-dialog modal-dialog-centered', modal_div)
+    var modal_dialog_div = createDivWithClass(
+                    null,
+                    'modal-dialog modal-dialog-centered',
+                    modal_div)
     modal_dialog_div.setAttribute('role', 'document');
-    var modal_content_div = createDivWithClass(null, 'modal-content', modal_dialog_div)
+    var modal_content_div = createDivWithClass(null,
+                                               'modal-content',
+                                               modal_dialog_div)
     // Header
-    var modal_header_div = createDivWithClass(null, 'modal-header', modal_content_div)
+    var modal_header_div = createDivWithClass(null,
+                                              'modal-header',
+                                              modal_content_div)
 
     var close_button = document.createElement('button');
     modal_header_div.appendChild(close_button);
@@ -287,7 +301,9 @@ function displayAlert(alert_id, title, body) {
     modal_header_div.appendChild(modal_h5);
 
     // Body
-    var modal_body_div = createDivWithClass(null, 'modal-body', modal_content_div);
+    var modal_body_div = createDivWithClass(null,
+                                            'modal-body',
+                                            modal_content_div);
     for (var b in body) {
       var para = document.createElement('p');
       var body_text = document.createTextNode(body[b]);

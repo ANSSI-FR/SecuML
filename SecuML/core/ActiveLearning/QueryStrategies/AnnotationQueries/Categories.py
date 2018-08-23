@@ -30,8 +30,8 @@ from .Category import Category
 
 class Categories(object):
 
-    def __init__(self, iteration, instances, assigned_categories, assignment_proba,
-                 label, category_labels):
+    def __init__(self, iteration, instances, assigned_categories,
+                 assignment_proba, label, category_labels):
         self.iteration = iteration
         self.instances = instances
         self.generateCategories(assigned_categories, assignment_proba, label,
@@ -44,7 +44,8 @@ class Categories(object):
     def numCategories(self):
         return self.num_categories
 
-    def generateCategories(self, assigned_categories, assignment_proba, label, category_labels):
+    def generateCategories(self, assigned_categories, assignment_proba, label,
+                           category_labels):
         self.assigned_categories = assigned_categories
         self.num_categories = len(set(assigned_categories))
         self.initCategories(label, category_labels)
@@ -199,7 +200,8 @@ class Categories(object):
         if num_annotations > sum(card):
             num_annotations = sum(card)
             self.iteration.conf.logger.warning(
-                'The number of instances is smaller than the requested number of annotation queries. '
+                'The number of instances is smaller than the requested number '
+                'of annotation queries. '
                 'The number of annotation queries is set to %d.' % (sum(card)))
         num_remaining_annotations = num_annotations
         no_starve_cluster = False
@@ -266,7 +268,8 @@ class Categories(object):
         return naive_bayes
 
     def getNaiveBayesConf(self):
-        test_conf = UnlabeledLabeledConf()
+        test_conf = UnlabeledLabeledConf(logger=self.iteration.conf.logger)
         naive_bayes_conf = GaussianNaiveBayesConfiguration(
-            4, False, True, test_conf)
+            4, False, True, test_conf,
+            logger=self.iteration.conf.logger)
         return naive_bayes_conf

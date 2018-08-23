@@ -24,3 +24,4 @@ from .Projection import projections
 
 from . import annotations
 from . import experiments
+from . import instances

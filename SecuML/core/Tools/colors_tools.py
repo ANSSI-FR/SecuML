@@ -40,7 +40,11 @@ def getLabelColor(label):
 
 
 def displayInRed(e):
-    return '\033[91m {}\033[00m' .format(e)
+    return '\033[91m{}\033[00m'.format(e)
+
+
+def displayInGreen(e):
+    return '\033[32m{}\033[00m'.format(e)
 
 
 def colors(num):

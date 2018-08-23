@@ -18,15 +18,19 @@ from . import ActiveLearningConfFactory
 from .ActiveLearningConfiguration import ActiveLearningConfiguration
 from .RareCategoryDetectionStrategy import RareCategoryDetectionStrategy
 
-from SecuML.core.ActiveLearning.QueryStrategies.RareCategoryDetection import RareCategoryDetection
+from SecuML.core.ActiveLearning.QueryStrategies.RareCategoryDetection \
+        import RareCategoryDetection
 from SecuML.core.Classification.Configuration import ClassifierConfFactory
-from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf import UnlabeledLabeledConf
-from SecuML.core.Classification.Configuration.TestConfiguration.ValidationDatasetConf import ValidationDatasetConf
+from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf \
+        import UnlabeledLabeledConf
+from SecuML.core.Classification.Configuration.TestConfiguration.ValidationDatasetConf \
+        import ValidationDatasetConf
 
 
 class RareCategoryDetectionConfiguration(ActiveLearningConfiguration):
 
-    def __init__(self, auto, budget, rare_category_detection_conf, multiclass_model_conf, validation_conf, logger=None):
+    def __init__(self, auto, budget, rare_category_detection_conf,
+                 multiclass_model_conf, validation_conf, logger=None):
         ActiveLearningConfiguration.__init__(
             self, auto, budget, validation_conf, logger=logger)
         self.query_strategy = 'RareCategoryDetection'
@@ -75,29 +79,38 @@ class RareCategoryDetectionConfiguration(ActiveLearningConfiguration):
         al_group.add_argument('--num-annotations',
                               type=int,
                               default=100,
-                              help='Number of instances queried for each family.')
+                              help='Number of instances queried '
+                                   'for each family.')
         al_group.add_argument('--cluster-strategy',
                               default='center_anomalous')
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ActiveLearningConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = ActiveLearningConfiguration.generateParamsFromArgs(
+                                                        args,
+                                                        logger=logger)
         multiclass_classifier_args = {}
         multiclass_classifier_args['num_folds'] = args.num_folds
         multiclass_classifier_args['sample_weight'] = False
         multiclass_classifier_args['families_supervision'] = True
         multiclass_classifier_args['alerts_conf'] = None
-        test_conf = UnlabeledLabeledConf()
+        test_conf = UnlabeledLabeledConf(logger=logger)
         multiclass_classifier_args['test_conf'] = test_conf
         multiclass_conf = ClassifierConfFactory.getFactory().fromParam(
-            args.model_class, multiclass_classifier_args)
-        rare_category_detection_conf = RareCategoryDetectionStrategy(multiclass_conf,
-                                                                     args.cluster_strategy, args.num_annotations, 'uniform')
+                                        args.model_class,
+                                        multiclass_classifier_args,
+                                        logger=logger)
+        rare_category_detection_conf = RareCategoryDetectionStrategy(
+                                        multiclass_conf,
+                                        args.cluster_strategy,
+                                        args.num_annotations,
+                                        'uniform')
         params['rare_category_detection_conf'] = rare_category_detection_conf
         params['num_annotations'] = args.num_annotations
         params['multiclass_model_conf'] = multiclass_conf
         return params
 
 
-ActiveLearningConfFactory.getFactory().registerClass('RareCategoryDetectionConfiguration',
-                                                     RareCategoryDetectionConfiguration)
+ActiveLearningConfFactory.getFactory().registerClass(
+                        'RareCategoryDetectionConfiguration',
+                        RareCategoryDetectionConfiguration)

@@ -23,13 +23,12 @@ from .TestConfiguration import TestConfFactory
 
 class RandomForestConfiguration(ClassifierConfiguration):
 
-    def __init__(self, num_folds, sample_weight, families_supervision,
+    def __init__(self, n_jobs, num_folds, sample_weight, families_supervision,
                  n_estimators, criterion, max_features, max_depth,
                  min_samples_split, min_samples_leaf, min_weight_fraction_leaf,
                  max_leaf_nodes, min_impurity_decrease, bootstrap,
                  oob_score, test_conf, logger=None):
-
-        ClassifierConfiguration.__init__(self, num_folds, sample_weight,
+        ClassifierConfiguration.__init__(self, n_jobs, num_folds, sample_weight,
                                          families_supervision,
                                          test_conf=test_conf,
                                          logger=logger)
@@ -63,9 +62,12 @@ class RandomForestConfiguration(ClassifierConfiguration):
         return None
 
     @staticmethod
-    def fromJson(obj):
-        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'])
-        conf = RandomForestConfiguration(obj['num_folds'], obj['sample_weight'],
+    def fromJson(obj, logger=None):
+        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'],
+                                                          logger=logger)
+        conf = RandomForestConfiguration(obj['n_jobs'],
+                                         obj['num_folds'],
+                                         obj['sample_weight'],
                                          obj['families_supervision'],
                                          obj['n_estimators'],
                                          obj['criterion'],
@@ -78,7 +80,8 @@ class RandomForestConfiguration(ClassifierConfiguration):
                                          obj['min_impurity_decrease'],
                                          obj['bootstrap'],
                                          obj['oob_score'],
-                                         test_conf)
+                                         test_conf,
+                                         logger=logger)
         return conf
 
     def toJson(self):
@@ -154,8 +157,9 @@ class RandomForestConfiguration(ClassifierConfiguration):
                             default=False)
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ClassifierConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = ClassifierConfiguration.generateParamsFromArgs(args,
+                                                                logger=logger)
         params['n_estimators'] = args.n_estimators
         params['criterion'] = args.criterion
         params['max_features'] = args.max_features

@@ -2,8 +2,11 @@ var num_coeff = 15;
 
 // Annotation and Description panels
 function displayInstancePanel(parent_div, annotation = true) {
-  var instance_panel = createPanel('panel-primary', 'col-md-12', 'Instance', parent_div,
-          return_heading = true);
+  var instance_panel = createPanel('panel-primary',
+                                   'col-md-12',
+                                   'Instance',
+                                   parent_div,
+                                   return_heading = true);
   var instance = instance_panel[0];
   var instance_title = instance_panel[1];
   instance_title.setAttribute('id', 'instance_title');
@@ -16,9 +19,12 @@ function displayInstancePanel(parent_div, annotation = true) {
   if (!annotation) {
       col_size = 'col-md-12';
   }
-  var instance_panel = createPanel('panel-primary', col_size, 'Description', instance);
-  var instance_proba = createDivWithClass('instance_predicted_proba', 'row', instance_panel);
-  var instance_data = createDivWithClass('instance_data', 'col', instance_panel);
+  var instance_panel = createPanel('panel-primary', col_size, 'Description',
+                                   instance);
+  var instance_proba = createDivWithClass('instance_predicted_proba', 'row',
+                                          instance_panel);
+  var instance_data = createDivWithClass('instance_data', 'col',
+                                         instance_panel);
 }
 
 
@@ -50,17 +56,24 @@ function setInstancesSettings(train_test, experiment_id, callback) {
     }
 }
 
+function qPrintWeightedFeatures(conf) {
+    if (conf.kind == 'Classification') {
+        if (conf.classification_conf.feature_importance == 'weight') {
+                return true;
+        }
+    }
+    return false;
+}
+
 function displayInstanceInformationStructure() {
     var tabs_div = document.getElementById('instance_data');
     var menu_titles = [];
     var menu_labels = [];
     var menu_titles = ['Features'];
     var menu_labels = ['features'];
-    if (conf.kind == 'Classification') {
-        if (conf.classification_conf.feature_importance == 'weight') {
-          menu_titles.push('Weighted Features');
-          menu_labels.push('weighted_features');
-        }
+    if (qPrintWeightedFeatures(conf)) {
+        menu_titles.push('Weighted Features');
+        menu_labels.push('weighted_features');
     }
     try {
         specific_tabs = specificTabs();
@@ -73,10 +86,12 @@ function displayInstanceInformationStructure() {
     } catch(err) {
         console.log('TODO: specific function to print information about an instance');
     }
-    var menu = createTabsMenu(menu_labels, menu_titles, tabs_div, 'instance_tabs');
+    var menu = createTabsMenu(menu_labels, menu_titles, tabs_div,
+                              'instance_tabs');
 }
 
-function printInstanceInformation(selected_id, suggested_label = null, suggested_family = null) {
+function printInstanceInformation(selected_id, suggested_label = null,
+                                  suggested_family = null) {
   cleanInstanceInformation();
   var ident = printInstanceIndent(selected_id);
   printInstanceLabel(selected_id, suggested_label, suggested_family);
@@ -97,7 +112,7 @@ function cleanInstanceData() {
 
 function printInstanceData(selected_id, ident) {
   printFeatures(selected_id);
-  if (conf.kind == 'Classification') {
+  if (qPrintWeightedFeatures(conf)) {
     printWeightedFeatures(selected_id, fold_id);
   }
   try {
@@ -136,11 +151,15 @@ function displaySuggestedValue(suggested_label, suggested_family) {
           } else {
             suggestion_value.setAttribute('class', 'btn btn-sm btn-danger');
           }
-          suggestion_value.appendChild(document.createTextNode(suggested_family));
-          suggestion_value.addEventListener('click', selectSuggestedFamily(suggested_label, suggested_family));
+          suggestion_value.appendChild(
+                          document.createTextNode(suggested_family));
+          suggestion_value.addEventListener('click', selectSuggestedFamily(
+                                  suggested_label,
+                                  suggested_family));
       } else {
           var suggestion_value = cleanDiv('suggested_family');
-          suggestion_value.setAttribute('class', 'btn btn-sm btn-default disabled');
+          suggestion_value.setAttribute('class',
+                                        'btn btn-sm btn-default disabled');
           suggestion_value.addEventListener('click', null);
           suggestion_value.appendChild(document.createTextNode('None'));
       }
@@ -198,7 +217,8 @@ function displayFamilySelector(label_row, label) {
   var select = $('#' + 'instance_' + label + '_family_selector')[0];
   var label_title = label.charAt(0).toUpperCase() + label.substr(1) + ' Families';
   var selector_size = 6;
-  createSelectList('instance_' + label + '_family_selector', selector_size, null, col, label_title);
+  createSelectList('instance_' + label + '_family_selector', selector_size,
+                   null, col, label_title);
   var select = $('#' + 'instance_' + label + '_family_selector')[0];
   // Adding value input
   var form_group = createDivWithClass(null, 'form-group', col);
@@ -299,14 +319,16 @@ function displayAnnotationDiv(suggestion = false, interactive = true) {
   form.appendChild(fieldset);
 
   // Suggestion
-  var suggestion_group = createDivWithClass('', 'form-group col-md-6', fieldset);
+  var suggestion_group = createDivWithClass('', 'form-group col-md-6',
+                                            fieldset);
   if (suggestion) {
      var suggestion_label = document.createElement('label');
      suggestion_label.setAttribute('class', 'col-md-5 control-label');
      suggestion_label.appendChild(document.createTextNode('Suggestion'));
      suggestion_group.appendChild(suggestion_label);
      var suggestion_value = document.createElement('button');
-     suggestion_value.setAttribute('class', 'col-md-4 btn btn-sm btn-default disabled');
+     suggestion_value.setAttribute('class',
+                                   'col-md-4 btn btn-sm btn-default disabled');
      suggestion_value.setAttribute('id', 'suggested_family');
      suggestion_value.setAttribute('type', 'button');
      suggestion_value.appendChild(document.createTextNode('None'));
@@ -333,7 +355,8 @@ function displayUpdateAnnotationForm(form) {
   var fieldset = document.createElement('fieldset');
   form.appendChild(fieldset);
   // Ok and Remove button
-  var ok_remove_group = createDivWithClass('', 'form-group col-md-12', fieldset);
+  var ok_remove_group = createDivWithClass('', 'form-group col-md-12',
+                                           fieldset);
   /// Ok button
   var ok_div = createDivWithClass(null, 'col-md-2', ok_remove_group);
   var ok_button = document.createElement('button');
@@ -347,7 +370,8 @@ function displayUpdateAnnotationForm(form) {
                                                        label_iteration));
   ok_div.appendChild(ok_button);
   /// Remove button
-  var remove_div = createDivWithClass(null, 'col-md-2 col-md-offset-1', ok_remove_group);
+  var remove_div = createDivWithClass(null, 'col-md-2 col-md-offset-1',
+                                      ok_remove_group);
   var button = document.createElement('button');
   button.setAttribute('class', 'btn btn-default');
   button.setAttribute('type', 'button');

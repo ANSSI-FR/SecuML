@@ -77,7 +77,7 @@ class Clustering(object):
     def generateEvaluation(self, output_directory, quick=False):
         self.evaluation.generateEvaluation(output_directory, quick=quick)
         obj = self.evaluation.toJson()
-        filename = output_directory + 'clustering_evaluation.json'
+        filename = path.join(output_directory, 'clustering_evaluation.json')
         with open(filename, 'w') as f:
             json.dump(obj, f, indent=2)
 

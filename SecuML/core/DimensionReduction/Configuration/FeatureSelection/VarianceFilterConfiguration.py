@@ -14,10 +14,13 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.core.DimensionReduction.Algorithms.FeatureSelection.VarianceFilter import VarianceFilter
-from SecuML.core.DimensionReduction.Configuration import DimensionReductionConfFactory
+from SecuML.core.DimensionReduction.Algorithms.FeatureSelection.VarianceFilter \
+        import VarianceFilter
+from SecuML.core.DimensionReduction.Configuration \
+        import DimensionReductionConfFactory
 
-from .UnsupervisedFeatureSelectionConfiguration import UnsupervisedFeatureSelectionConfiguration
+from .UnsupervisedFeatureSelectionConfiguration \
+        import UnsupervisedFeatureSelectionConfiguration
 
 
 class VarianceFilterConfiguration(UnsupervisedFeatureSelectionConfiguration):
@@ -27,8 +30,8 @@ class VarianceFilterConfiguration(UnsupervisedFeatureSelectionConfiguration):
                                                            logger=logger)
 
     @staticmethod
-    def fromJson(obj):
-        conf = VarianceFilterConfiguration()
+    def fromJson(obj, logger=None):
+        conf = VarianceFilterConfiguration(logger=logger)
         return conf
 
     def toJson(self):
@@ -37,5 +40,6 @@ class VarianceFilterConfiguration(UnsupervisedFeatureSelectionConfiguration):
         return conf
 
 
-DimensionReductionConfFactory.getFactory().registerClass('VarianceFilterConfiguration',
-                                                         VarianceFilterConfiguration)
+DimensionReductionConfFactory.getFactory().registerClass(
+                                        'VarianceFilterConfiguration',
+                                        VarianceFilterConfiguration)

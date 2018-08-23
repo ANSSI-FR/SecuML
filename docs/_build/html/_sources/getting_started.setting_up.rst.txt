@@ -69,17 +69,39 @@ Automatic Installation
 Configuration
 -------------
 
-The environment variable ``SECUMLCONF`` must be set to the path of the configuration file.
-It must follow the following format
-(see `SecuML_conf_template.yml <https://github.com/ANSSI-FR/SecuML/blob/master/conf/SecuML_conf_template.yml>`_):
+SecuML requires a configuration file that follows the following format:
 
 .. code-block:: yaml
 
     input_data_dir: <directory containing the input datasets>
     output_data_dir: <directory where the results of the experiments are stored>
     db_uri: <URI of the database>
+    logger_level: <[optional] DEBUG,INFO,WARNING,ERROR or CRITICAL - default INFO>
+    logger_output: <[optional] name of the logging output file - default sys.stderr>
 
-The format of the URI of the database depends on its type:
+See `SecuML_conf_template.yml <https://github.com/ANSSI-FR/SecuML/blob/master/conf/SecuML_conf_template.yml>`_.
+
+Input and Output Directories
+""""""""""""""""""""""""""""
+.. warning::
+
+    `input_data_dir` and `output_data_dir` must contain **absolute paths**.
+
+
+* The input directory contains the datasets that will be analyzed by SecuML. See :ref:`Data <Data>` for more information.
+
+* The output directory contains all the results of the SecuML experiments. Users should not read the results from this directory directly, but rather from the :ref:`web user interface <GUI>`.
+
+.. note::
+
+    ``input_data_dir`` must be set to `input_data <https://github.com/ANSSI-FR/SecuML/tree/master/input_data/>`_
+    in the configuration file to test SecuML with the dataset we provide.
+
+
+Database URI
+""""""""""""
+
+The format of the database URI depends on its type:
 
 * MySQL database
 
@@ -94,11 +116,32 @@ The format of the URI of the database depends on its type:
 
       postgresql://<user>:<password>@<host>/<db_name>
 
-.. warning::
+Logging Parameters
+"""""""""""""""""""
 
-    `input_data_dir` and `output_data_dir` must contain **absolute paths**.
+Logging parameters (``logger_level`` and ``logger_output``) are optional.
+By default, logging is displayed in the standard error with ``INFO`` level.
 
 .. note::
 
-    ``input_data_dir`` must be set to `input_data <https://github.com/ANSSI-FR/SecuML/tree/master/input_data/>`_
-    in the configuration file to test SecuML with the dataset we provide.
+  The configuration file is required to run SecuML executables (e.g. ``SecuML_server``, ``SecuML_DIADEM``, ``SecuML_ILAB``).
+  It can be specified either with the parameter ``--secuml-conf`` for each execution, or globally
+  with the environment variable ``SECUMLCONF``.
+
+
+.. _GUI:
+
+Web User Interface
+------------------
+
+SecuML comes with a web user interface to display the results of the experiments, and to interact with machine learning models (see :ref:`ILAB <ILAB>` and :ref:`Rare Category Detection <RCD>`).
+
+``SecuML_server`` must be executed to launch the web server.
+
+``http://localhost:5000/SecuML/`` gives access to SecuML menu.
+It displays the list of projects and datasets available.
+Besides, for each dataset, it displays the list of experiments gathered by type.
+
+``http://localhost:5000/SecuML/<experiment_id>/`` displays directly
+the results of an experiment identified by ``experiment_id``.
+

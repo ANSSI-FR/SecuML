@@ -53,5 +53,5 @@ class SemiSupervisedFeatureSelectionConfiguration(DimensionReductionConfiguratio
                             type=int,
                             default=None)
         parser.add_argument('--families-supervision',
-                            type=bool,
-                            default=None)
+                            action='store_true',
+                            default=False)

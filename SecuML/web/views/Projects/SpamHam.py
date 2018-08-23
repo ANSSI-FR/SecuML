@@ -16,12 +16,12 @@
 
 import os.path as path
 
-from SecuML.experiments.config import INPUTDATA_DIR
+from SecuML.web import secuml_conf
 
 
 def getInstance(experiment, view_id, instance_id, ident):
     dataset = experiment.dataset
-    directory = path.join(INPUTDATA_DIR,
+    directory = path.join(secuml_conf.input_data_dir,
                           'SpamHam',
                           dataset,
                           'raw_mail')

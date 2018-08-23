@@ -14,12 +14,17 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.core.ActiveLearning.QueryStrategies.AnnotationQueries.AladinAnnotationQueries import AladinAnnotationQueries
-from SecuML.core.Classification.Configuration.GaussianNaiveBayesConfiguration import GaussianNaiveBayesConfiguration
-from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf import UnlabeledLabeledConf
+from SecuML.core.ActiveLearning.QueryStrategies.AnnotationQueries.AladinAnnotationQueries \
+        import AladinAnnotationQueries
+from SecuML.core.Classification.Configuration.GaussianNaiveBayesConfiguration \
+        import GaussianNaiveBayesConfiguration
+from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf \
+        import UnlabeledLabeledConf
 
-from SecuML.experiments.ActiveLearning.QueryStrategies.AnnotationQueries.AnnotationQueryExp import AnnotationQueryExp
-from SecuML.experiments.Classification.ClassificationExperiment import ClassificationExperiment
+from SecuML.experiments.ActiveLearning.QueryStrategies.AnnotationQueries.AnnotationQueryExp \
+        import AnnotationQueryExp
+from SecuML.experiments.Classification.ClassificationExperiment \
+        import ClassificationExperiment
 
 
 class AladinAnnotationQueriesExp(AladinAnnotationQueries):
@@ -29,9 +34,11 @@ class AladinAnnotationQueriesExp(AladinAnnotationQueries):
         self.experiment = self.iteration.experiment
 
     def generateAnnotationQuery(self, instance_id, predicted_proba,
-                                suggested_label, suggested_family, confidence=None):
+                                suggested_label, suggested_family,
+                                confidence=None):
         return AnnotationQueryExp(instance_id, predicted_proba,
-                                  suggested_label, suggested_family, confidence=confidence)
+                                  suggested_label, suggested_family,
+                                  confidence=confidence)
 
     def createNaiveBayesConf(self):
         exp = self.experiment
@@ -39,13 +46,17 @@ class AladinAnnotationQueriesExp(AladinAnnotationQueries):
                          'Iter' + str(self.iteration.iteration_number),
                          'all',
                          'NaiveBayes'])
-        naive_bayes_exp = ClassificationExperiment(exp.project, exp.dataset, exp.session,
-                                                   experiment_name=name,
-                                                   parent=exp.experiment_id)
-        test_conf = UnlabeledLabeledConf()
+        naive_bayes_exp = ClassificationExperiment(exp.secuml_conf,
+                                                   session=exp.session)
+        naive_bayes_exp.initExperiment(exp.project, exp.dataset,
+                                       experiment_name=name,
+                                       parent=exp.experiment_id)
+        test_conf = UnlabeledLabeledConf(logger=exp.logger)
         naive_bayes_conf = GaussianNaiveBayesConfiguration(
+            exp.conf.models_conf['multiclass'].n_jobs,
             exp.conf.models_conf['multiclass'].num_folds,
-            False, True, test_conf)
+            False, True, test_conf,
+            logger=exp.logger)
         naive_bayes_exp.setConf(naive_bayes_conf, exp.features_filename,
                                 annotations_id=exp.annotations_id)
         naive_bayes_exp.export()

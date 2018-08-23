@@ -19,29 +19,34 @@ import numpy as np
 import pandas as pd
 import time
 
-from SecuML.core.Classification.Configuration.GaussianNaiveBayesConfiguration import GaussianNaiveBayesConfiguration
-from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf import UnlabeledLabeledConf
-from SecuML.core.Classification.Classifiers.GaussianNaiveBayes import GaussianNaiveBayes
+from SecuML.core.Classification.Configuration.GaussianNaiveBayesConfiguration \
+        import GaussianNaiveBayesConfiguration
+from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf \
+        import UnlabeledLabeledConf
+from SecuML.core.Classification.Classifiers.GaussianNaiveBayes \
+        import GaussianNaiveBayes
 from SecuML.core.Classification.ClassifierDatasets import ClassifierDatasets
 
-from SecuML.core.Clustering.Evaluation.PerformanceIndicators import PerformanceIndicators
+from SecuML.core.Clustering.Evaluation.PerformanceIndicators \
+        import PerformanceIndicators
 
 from SecuML.core.Tools import matrix_tools
+from SecuML.core.Tools.core_exceptions import SecuMLcoreException
 
 from .AnnotationQueries import AnnotationQueries
 
 
-class AladinAtLeastTwoFamilies(Exception):
+class AladinAtLeastTwoFamilies(SecuMLcoreException):
 
     def __str__(self):
-        return '''Aladin requires that the initial annotated dataset
-                  contains at least two different families.'''
+        return('Aladin requires that the initial annotated dataset '
+               'contains at least two different families.')
 
 
 class AladinAnnotationQueries(AnnotationQueries):
 
     def __init__(self, iteration, conf):
-        AnnotationQueries.__init__(self, iteration, 'aladin')
+        AnnotationQueries.__init__(self, iteration)
         self.num_annotations = conf.num_annotations
         self.conf = conf
         self.checkInputData()
@@ -71,9 +76,13 @@ class AladinAnnotationQueries(AnnotationQueries):
         self.lr_time += multiclass.testing_execution_time
 
     def createNaiveBayesConf(self):
-        test_conf = UnlabeledLabeledConf()
+        test_conf = UnlabeledLabeledConf(logger=self.conf.logger)
         naive_bayes_conf = GaussianNaiveBayesConfiguration(
-            4, False, True, test_conf)
+                                            4,
+                                            False,
+                                            True,
+                                            test_conf,
+                                            logger=self.conf.logger)
         return naive_bayes_conf
 
     def runNaiveBayes(self):
@@ -122,7 +131,9 @@ class AladinAnnotationQueries(AnnotationQueries):
         num_test_instances = self.datasets.test_instances.numInstances()
         self.scores = pd.DataFrame(np.zeros((num_test_instances, 5)),
                                    index=test_instances.ids.getIds(),
-                                   columns=['lr_prediction', 'lr_score', 'nb_prediction', 'nb_score', 'queried'])
+                                   columns=['lr_prediction', 'lr_score',
+                                            'nb_prediction', 'nb_score',
+                                            'queried'])
         self.scores['queried'] = [False] * num_test_instances
 
     # Uncertain instances have a low difference between the probability of belonging to

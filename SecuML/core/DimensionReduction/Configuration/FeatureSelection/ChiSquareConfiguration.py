@@ -14,25 +14,31 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.core.DimensionReduction.Algorithms.FeatureSelection.ChiSquare import ChiSquare
-from SecuML.core.DimensionReduction.Configuration import DimensionReductionConfFactory
+from SecuML.core.DimensionReduction.Algorithms.FeatureSelection.ChiSquare \
+        import ChiSquare
+from SecuML.core.DimensionReduction.Configuration \
+        import DimensionReductionConfFactory
 
-from .SemiSupervisedFeatureSelectionConfiguration import SemiSupervisedFeatureSelectionConfiguration
+from .SemiSupervisedFeatureSelectionConfiguration \
+        import SemiSupervisedFeatureSelectionConfiguration
 
 
 class ChiSquareConfiguration(SemiSupervisedFeatureSelectionConfiguration):
 
     def __init__(self, num_components=None, families_supervision=None,
                  logger=None):
-        SemiSupervisedFeatureSelectionConfiguration.__init__(self, ChiSquare,
-                                                             num_components=num_components,
-                                                             families_supervision=families_supervision,
-                                                             logger=logger)
+        SemiSupervisedFeatureSelectionConfiguration.__init__(
+                                    self,
+                                    ChiSquare,
+                                    num_components=num_components,
+                                    families_supervision=families_supervision,
+                                    logger=logger)
 
     @staticmethod
-    def fromJson(obj):
+    def fromJson(obj, logger=None):
         conf = ChiSquareConfiguration(num_components=obj['num_components'],
-                                      families_supervision=obj['families_supervision'])
+                               families_supervision=obj['families_supervision'],
+                               logger=logger)
         return conf
 
     def toJson(self):
@@ -41,5 +47,6 @@ class ChiSquareConfiguration(SemiSupervisedFeatureSelectionConfiguration):
         return conf
 
 
-DimensionReductionConfFactory.getFactory().registerClass('ChiSquareConfiguration',
-                                                         ChiSquareConfiguration)
+DimensionReductionConfFactory.getFactory().registerClass(
+                                        'ChiSquareConfiguration',
+                                        ChiSquareConfiguration)

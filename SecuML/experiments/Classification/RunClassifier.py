@@ -59,6 +59,7 @@ class RunClassifier(object):
     def trainTestValidation(self, datasets):
         if self.experiment.already_trained is not None:
             exp_dir = dir_exp_tools.getExperimentOutputDirectory(
+                    self.experiment.secuml_conf,
                     self.experiment.project,
                     self.experiment.dataset,
                     self.experiment.already_trained)

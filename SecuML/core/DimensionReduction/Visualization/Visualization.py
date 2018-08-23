@@ -44,7 +44,6 @@ class Visualization(object):
         hex_bin = HexagonalBinning(x, y,
                                    projected_instances.ids.getIds(), 30, malicious_ids)
         hex_bin.computeBinning()
-        filename = 'c_' + str(cx_index) + '_' + str(cy_index) + '_hexbin'
-        filename += '.json'
+        filename = 'c_%d_%d_hexbin.json' % (cx_index, cy_index)
         output_file = path.join(self.output_directory, filename)
         hex_bin.printBinning(cx_index, cy_index, output_file)

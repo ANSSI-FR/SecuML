@@ -22,7 +22,7 @@ from .AnnotationQueries import AnnotationQueries
 class CesaBianchiAnnotationQueries(AnnotationQueries):
 
     def __init__(self, iteration, b, num_annotations):
-        AnnotationQueries.__init__(self, iteration, 'CesaBianchi')
+        AnnotationQueries.__init__(self, iteration)
         self.b = b
         self.num_annotations = num_annotations
 

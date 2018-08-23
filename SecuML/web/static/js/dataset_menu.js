@@ -22,7 +22,6 @@ $.getJSON(query,
                 var ul_kind = createDivWithClass(null, 'list-group',
                                                  parent_div = panel_kind);
                 var experiments = data[kind];
-                console.log(experiments);
                 for (var i = 0; i < experiments.length; i++) {
                   var exp = experiments[i];
                   var id = exp[0];
@@ -30,9 +29,7 @@ $.getJSON(query,
                   var li = document.createElement('a');
                   li.setAttribute('class', 'list-group-item');
                   li.setAttribute('style', 'word-wrap: break-word');
-                  var exp_name = name;
-                  exp_name = id + ', ' + exp_name;
-                  var e_text = document.createTextNode(exp_name);
+                  var e_text = document.createTextNode(id + ', ' + name);
                   li.appendChild(e_text);
                   var exp_query = buildQuery('SecuML', [id]);
                   li.setAttribute('href', exp_query);

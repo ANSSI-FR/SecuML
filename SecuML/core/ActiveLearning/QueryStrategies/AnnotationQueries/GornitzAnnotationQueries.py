@@ -28,7 +28,7 @@ from .AnnotationQueries import AnnotationQueries
 class GornitzAnnotationQueries(AnnotationQueries):
 
     def __init__(self, iteration, num_annotations):
-        AnnotationQueries.__init__(self, iteration, 'unsure')
+        AnnotationQueries.__init__(self, iteration)
         self.num_annotations = num_annotations
         self.num_neighbours = 10
         self.delta = 0.5

@@ -20,18 +20,16 @@ from SecuML.core.ActiveLearning.Configuration import ActiveLearningConfFactory
 
 from SecuML.experiments import experiment_db_tools
 from SecuML.experiments import ExperimentFactory
-from SecuML.experiments.ActiveLearning.ActiveLearningExp import ActiveLearningExp
-from SecuML.experiments.ActiveLearning.ActiveLearningExperiment import ActiveLearningExperiment
+from SecuML.experiments.ActiveLearning.ActiveLearningExp \
+        import ActiveLearningExp
+from SecuML.experiments.ActiveLearning.ActiveLearningExperiment \
+        import ActiveLearningExperiment
 
 
 class RareCategoryDetectionExperiment(ActiveLearningExperiment):
 
-    def __init__(self, project, dataset, session, experiment_name=None,
-                 logger=None, create=True):
-        ActiveLearningExperiment.__init__(self, project, dataset, session,
-                                          experiment_name=experiment_name,
-                                          logger=logger, create=create)
-        # query_strategy: vraiment utile  ?
+    def __init__(self, secuml_conf, session=None):
+        ActiveLearningExperiment.__init__(self, secuml_conf, session=session)
         self.query_strategy = 'RareCategoryDetection'
 
     def getKind(self):
@@ -55,9 +53,11 @@ class RareCategoryDetectionExperiment(ActiveLearningExperiment):
             active_learning.runIterations(output_dir=self.getOutputDirectory())
 
     @staticmethod
-    def fromJson(obj, session):
-        experiment = RareCategoryDetectionExperiment(obj['project'], obj['dataset'],
-                                                     session, create=False)
+    def fromJson(obj, secuml_conf):
+        experiment = RareCategoryDetectionExperiment(secuml_conf,
+                                                     obj['project'],
+                                                     obj['dataset'],
+                                                     create=False)
         conf = ActiveLearningConfFactory.getFactory().fromJson(obj['conf'])
         ActiveLearningExperiment.expParamFromJson(experiment, obj, conf)
         experiment.query_strategy = obj['query_strategy']
@@ -72,8 +72,9 @@ class RareCategoryDetectionExperiment(ActiveLearningExperiment):
 
     @staticmethod
     def generateParser():
-        parser = argparse.ArgumentParser(description='Rare Category Detection',
-                                         formatter_class=argparse.RawTextHelpFormatter)
+        parser = argparse.ArgumentParser(
+                description='Rare Category Detection',
+                formatter_class=argparse.RawTextHelpFormatter)
         ActiveLearningExperiment.projectDatasetFeturesParser(parser)
         factory = ActiveLearningConfFactory.getFactory()
         factory.generateParser('RareCategoryDetection', parser)
@@ -83,12 +84,14 @@ class RareCategoryDetectionExperiment(ActiveLearningExperiment):
         return 'ActiveLearning/active_learning.html'
 
     def getCurrentIteration(self):
-        return experiment_db_tools.getCurrentIteration(self.session, self.experiment_id)
+        return experiment_db_tools.getCurrentIteration(self.session,
+                                                       self.experiment_id)
 
     def setExperimentFromArgs(self, args):
         factory = ActiveLearningConfFactory.getFactory()
         conf = factory.fromArgs('RareCategoryDetection',
                                 args, logger=self.logger)
+        self.initExperiment(args.project, args.dataset)
         self.setConf(conf, args.features_file,
                      annotations_filename=args.init_annotations_file)
         self.export()

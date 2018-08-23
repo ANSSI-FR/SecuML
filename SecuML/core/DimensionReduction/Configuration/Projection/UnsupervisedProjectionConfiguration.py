@@ -20,8 +20,8 @@ from SecuML.core.DimensionReduction.Configuration.DimensionReductionConfiguratio
 
 class UnsupervisedProjectionConfiguration(DimensionReductionConfiguration):
 
-    def __init__(self, algo, num_components=None):
-        DimensionReductionConfiguration.__init__(self, algo)
+    def __init__(self, algo, num_components=None, logger=None):
+        DimensionReductionConfiguration.__init__(self, algo, logger=logger)
         self.num_components = num_components
 
     def toJson(self):

@@ -24,7 +24,8 @@ from SecuML.core.Classification.Configuration.TestConfiguration.ValidationDatase
 
 class CesaBianchiConfiguration(ActiveLearningConfiguration):
 
-    def __init__(self, auto, budget, batch, b, binary_model_conf, validation_conf, logger=None):
+    def __init__(self, auto, budget, batch, b, binary_model_conf,
+                 validation_conf, logger=None):
         ActiveLearningConfiguration.__init__(
             self, auto, budget, validation_conf, logger=logger)
         self.query_strategy = 'CesaBianchi'
@@ -73,14 +74,17 @@ class CesaBianchiConfiguration(ActiveLearningConfiguration):
         al_group.add_argument('--batch',
                               type=int,
                               default=100,
-                              help='Number of annotations asked from the user at each iteration.')
+                              help='Number of annotations asked from the user '
+                                   'at each iteration.')
         al_group.add_argument('--b',
                               type=float,
                               default=0.1)
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ActiveLearningConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = ActiveLearningConfiguration.generateParamsFromArgs(
+                                                    args,
+                                                    logger=logger)
         params['batch'] = args.batch
         params['b'] = args.b
         return params

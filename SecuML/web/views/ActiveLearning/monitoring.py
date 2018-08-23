@@ -41,9 +41,10 @@ def getLabelsMonitoring(experiment_id, iteration):
 
 @app.route('/activeLearningSuggestionsMonitoring/<experiment_id>/<iteration>/')
 def activeLearningSuggestionsMonitoring(experiment_id, iteration):
+    iteration = int(iteration)
     experiment = updateCurrentExperiment(experiment_id)
     filename = path.join(experiment.getOutputDirectory(),
-                         str(int(iteration) - 1),
+                         str(iteration-1),
                          'suggestions_accuracy',
                          'labels_families_high_confidence_suggestions.png')
     return send_file(filename)

@@ -52,7 +52,7 @@ class FamiliesMonitoring(object):
         if len(self.all_predictions) == 0:
             self.all_predictions = list(predictions.predicted_proba)
         else:
-            self.all_predictions += list(predictions.predicted_proba)
+            self.all_predictions.extend(list(predictions.predicted_proba))
         annotations = self.getFoldAnnotations(fold_id)
         for i in range(predictions.numInstances()):
             label = labels_tools.labelBooleanToString(annotations.labels[i])
@@ -192,7 +192,8 @@ class FamiliesMonitoring(object):
             ax_f.set_title(family)
             ax_f.set_xlabel('P(Malicious)')
             ax_f.set_ylabel('Density')
-            filename = label + '_family_' + family + '_prediction_distributions.png'
+            filename = '%s_family_%s_prediction_distributions.png' % (label,
+                                                                      family)
             fig_f.savefig(path.join(directory, filename))
             plt.close(fig_f)
             i += 1
@@ -201,6 +202,6 @@ class FamiliesMonitoring(object):
                   fontsize='xx-small')
         ax.set_xlabel('P(Malicious)')
         ax.set_ylabel('Density')
-        filename = label + '_families_prediction_distributions.png'
+        filename = '%s_families_prediction_distributions.png' % (label)
         fig.savefig(path.join(directory, filename))
         plt.close(fig)

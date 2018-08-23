@@ -37,14 +37,18 @@ class ExperimentFactory(object):
     def registerClass(self, class_name, class_obj):
         self.register[class_name] = class_obj
 
-    def fromJson(self, experiment_id, session):
-        project, dataset = experiment_db_tools.getProjectDataset(session,
-                                                                 experiment_id)
-        obj_filename = dir_exp_tools.getExperimentConfigurationFilename(project,
-                                                                        dataset,
-                                                                        experiment_id)
+    def fromJson(self, experiment_id, secuml_conf, session):
+        project, dataset = experiment_db_tools.getProjectDataset(
+                                            session,
+                                            experiment_id)
+        obj_filename = dir_exp_tools.getExperimentConfigurationFilename(
+                                            secuml_conf,
+                                            project,
+                                            dataset,
+                                            experiment_id)
         with open(obj_filename, 'r') as obj_file:
             obj_dict = json.load(obj_file)
             class_name = obj_dict['__type__']
-            obj = self.register[class_name].fromJson(obj_dict, session)
+            obj = self.register[class_name].fromJson(obj_dict,
+                                                     secuml_conf)
         return obj

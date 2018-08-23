@@ -14,7 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.core.Classification.Classifiers.GradientBoosting import GradientBoosting
+from SecuML.core.Classification.Classifiers.GradientBoosting \
+        import GradientBoosting
 
 from . import ClassifierConfFactory
 from .ClassifierConfiguration import ClassifierConfiguration
@@ -23,13 +24,13 @@ from .TestConfiguration import TestConfFactory
 
 class GradientBoostingConfiguration(ClassifierConfiguration):
 
-    def __init__(self, num_folds, sample_weight, families_supervision,
+    def __init__(self, n_jobs, num_folds, sample_weight, families_supervision,
                  loss, learning_rate, n_estimators, max_features,
                  criterion, max_depth, min_samples_split, subsample,
                  min_samples_leaf, min_weight_fraction_leaf,
                  max_leaf_nodes, min_impurity_decrease, presort,
                  test_conf, logger=None):
-        ClassifierConfiguration.__init__(self, num_folds, sample_weight,
+        ClassifierConfiguration.__init__(self, n_jobs, num_folds, sample_weight,
                                          families_supervision,
                                          test_conf=test_conf,
                                          logger=logger)
@@ -65,9 +66,11 @@ class GradientBoostingConfiguration(ClassifierConfiguration):
         return None
 
     @staticmethod
-    def fromJson(obj):
-        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'])
-        conf = GradientBoostingConfiguration(obj['num_folds'],
+    def fromJson(obj, logger=None):
+        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'],
+                                                          logger=logger)
+        conf = GradientBoostingConfiguration(obj['n_jobs'],
+                                             obj['num_folds'],
                                              obj['sample_weight'],
                                              obj['families_supervision'],
                                              obj['loss'],
@@ -83,7 +86,8 @@ class GradientBoostingConfiguration(ClassifierConfiguration):
                                              obj['max_leaf_nodes'],
                                              obj['min_impurity_decrease'],
                                              obj['presort'],
-                                             test_conf)
+                                             test_conf,
+                                             logger=logger)
         return conf
 
     def toJson(self):
@@ -172,8 +176,9 @@ class GradientBoostingConfiguration(ClassifierConfiguration):
                             default=True)
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ClassifierConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = ClassifierConfiguration.generateParamsFromArgs(args,
+                                                                logger=logger)
         params['sample_weight'] = args.sample_weight
         params['loss'] = args.loss
         params['learning_rate'] = args.learning_rate
@@ -191,5 +196,6 @@ class GradientBoostingConfiguration(ClassifierConfiguration):
         return params
 
 
-ClassifierConfFactory.getFactory().registerClass('GradientBoostingConfiguration',
-                                                 GradientBoostingConfiguration)
+ClassifierConfFactory.getFactory().registerClass(
+                        'GradientBoostingConfiguration',
+                        GradientBoostingConfiguration)

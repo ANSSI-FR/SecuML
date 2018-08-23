@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # SecuML
-# Copyright (C) 2016-2017  ANSSI
+# Copyright (C) 2016-2018  ANSSI
 #
 # SecuML is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,37 +17,72 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import sys
+
+from SecuML.core.Tools import colors_tools
 
 from SecuML.experiments import db_tables
 from SecuML.experiments import ExperimentFactory
 from SecuML.experiments.Data.Dataset import Dataset
 from SecuML.experiments.Tools import dir_exp_tools
-from SecuML.experiments.Tools import db_tools
+
+from SecuML.experiments.ActiveLearning.ActiveLearningExperiment \
+        import ActiveLearningExperiment
+from SecuML.experiments.ActiveLearning.RareCategoryDetectionExperiment \
+        import RareCategoryDetectionExperiment
+from SecuML.experiments.Classification.ClassificationExperiment \
+        import ClassificationExperiment
+from SecuML.experiments.Clustering.ClusteringExperiment \
+        import ClusteringExperiment
+from SecuML.experiments.Data.DescriptiveStatisticsExperiment \
+        import DescriptiveStatisticsExperiment
+from SecuML.experiments.DimensionReduction.FeatureSelectionExperiment \
+        import FeatureSelectionExperiment
+from SecuML.experiments.DimensionReduction.ProjectionExperiment \
+        import ProjectionExperiment
+from SecuML.experiments.SecuMLConfiguration import SecuMLConfiguration
+
+from SecuML.core.Tools.core_exceptions import SecuMLcoreException
+from SecuML.experiments.Tools.exp_exceptions import SecuMLexpException
 
 if __name__ == '__main__':
-    description = 'Delete the experiments for a given dataset in a project. '
-    description += 'If no dataset is specified, all the experiments '
-    description += 'of the project are deleted.'
-    parser = argparse.ArgumentParser(description=description)
+    parser = argparse.ArgumentParser(
+        description='Delete the experiments for a given dataset in a project. '
+                    'If no dataset is specified, all the experiments '
+                    'of the project are deleted.')
     parser.add_argument('project')
     parser.add_argument('--dataset',
                         default=None)
     parser.add_argument('--experiment-id',
                         type=int,
                         default=None)
+    parser.add_argument('--secuml-conf',
+                        type=str,
+                        default=None)
     args = parser.parse_args()
-
-    engine, session = db_tools.getSqlalchemySession()
-    db_tables.createTables(engine)
-
-    if args.experiment_id is not None:
-        experiment = ExperimentFactory.getFactory().fromJson(args.experiment_id, session)
-        experiment.remove()
-    elif args.dataset is not None:
-        dataset = Dataset(args.project, args.dataset, session)
-        dataset.remove()
-    else:
-        db_tables.removeProject(session, args.project)
-        dir_exp_tools.removeProjectOutputDirectory(args.project)
-
-    db_tools.closeSqlalchemySession(session)
+    try:
+        secuml_conf = SecuMLConfiguration(args.secuml_conf)
+        session = secuml_conf.Session()
+        if args.experiment_id is not None:
+            experiment = ExperimentFactory.getFactory().fromJson(
+                    args.experiment_id,
+                    session)
+            experiment.remove()
+        elif args.dataset is not None:
+            dataset = Dataset(args.project, args.dataset, session)
+            dataset.remove()
+        else:
+            db_tables.removeProject(session, args.project)
+            dir_exp_tools.removeProjectOutputDirectory(secuml_conf,
+                                                       args.project)
+        session.commit()
+        session.close()
+    except (SecuMLcoreException, SecuMLexpException) as e:
+        sys.stderr.write(colors_tools.displayInRed(e) + '\n')
+        session.rollback()
+        session.close()
+        sys.exit(-1)
+    except Exception as e:
+        session.rollback()
+        session.close()
+        raise(e)

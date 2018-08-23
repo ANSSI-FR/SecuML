@@ -14,7 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.core.Classification.Classifiers.GaussianNaiveBayes import GaussianNaiveBayes
+from SecuML.core.Classification.Classifiers.GaussianNaiveBayes \
+        import GaussianNaiveBayes
 from . import ClassifierConfFactory
 from .ClassifierConfiguration import ClassifierConfiguration
 from .TestConfiguration import TestConfFactory
@@ -22,8 +23,9 @@ from .TestConfiguration import TestConfFactory
 
 class GaussianNaiveBayesConfiguration(ClassifierConfiguration):
 
-    def __init__(self, num_folds, sample_weight, families_supervision, test_conf, logger=None):
-        ClassifierConfiguration.__init__(self, num_folds, sample_weight,
+    def __init__(self, n_jobs, num_folds, sample_weight, families_supervision,
+                 test_conf, logger=None):
+        ClassifierConfiguration.__init__(self, n_jobs, num_folds, sample_weight,
                                          families_supervision, test_conf,
                                          logger=logger)
         if self.sample_weight:
@@ -44,10 +46,14 @@ class GaussianNaiveBayesConfiguration(ClassifierConfiguration):
         return None
 
     @staticmethod
-    def fromJson(obj):
-        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'])
-        conf = GaussianNaiveBayesConfiguration(obj['num_folds'], obj['sample_weight'],
-                                               obj['families_supervision'], test_conf)
+    def fromJson(obj, logger=None):
+        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'],
+                                                          logger=logger)
+        conf = GaussianNaiveBayesConfiguration(obj['n_jobs'], obj['num_folds'],
+                                               obj['sample_weight'],
+                                               obj['families_supervision'],
+                                               test_conf,
+                                               logger=logger)
         return conf
 
     def toJson(self):
@@ -69,10 +75,12 @@ class GaussianNaiveBayesConfiguration(ClassifierConfiguration):
         ClassifierConfiguration.generateParser(parser)
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ClassifierConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = ClassifierConfiguration.generateParamsFromArgs(args,
+                                                                logger=logger)
         return params
 
 
-ClassifierConfFactory.getFactory().registerClass('GaussianNaiveBayesConfiguration',
-                                                 GaussianNaiveBayesConfiguration)
+ClassifierConfFactory.getFactory().registerClass(
+                        'GaussianNaiveBayesConfiguration',
+                        GaussianNaiveBayesConfiguration)

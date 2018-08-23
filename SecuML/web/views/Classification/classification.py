@@ -21,7 +21,7 @@ import pandas as pd
 import random
 from sklearn.externals import joblib
 
-from SecuML.web import app, session
+from SecuML.web import app, secuml_conf, session
 from SecuML.web.views.experiments import updateCurrentExperiment
 
 from SecuML.core.Data import labels_tools
@@ -29,38 +29,44 @@ from SecuML.core.Tools.Plots.BarPlot import BarPlot
 from SecuML.core.Tools.Plots.PlotDataset import PlotDataset
 from SecuML.core.Tools import colors_tools
 
-from SecuML.experiments import ExperimentFactory
-from SecuML.experiments.Classification.ClassificationExperiment import ClassificationExperiment
+from SecuML.experiments.Classification.ClassificationExperiment \
+        import ClassificationExperiment
 
 
 @app.route('/predictionsAnalysis/<experiment_id>/<train_test>/<fold_id>/<index>/')
 def predictionsAnalysis(experiment_id, train_test, fold_id, index):
     experiment = updateCurrentExperiment(experiment_id)
-    return render_template('Classification/predictions.html', project=experiment.project)
+    return render_template('Classification/predictions.html',
+                           project=experiment.project)
 
 
 @app.route('/alerts/<experiment_id>/<analysis_type>/<fold_id>/')
 def displayAlerts(experiment_id, analysis_type, fold_id):
     experiment = updateCurrentExperiment(experiment_id)
-    return render_template('Classification/alerts.html', project=experiment.project)
+    return render_template('Classification/alerts.html',
+                           project=experiment.project)
 
 
 @app.route('/familiesPerformance/<experiment_id>/<train_test>/')
 def displayFamiliesPerformance(experiment_id, train_test):
     experiment = updateCurrentExperiment(experiment_id)
-    return render_template('Classification/families_performance.html', project=experiment.project)
+    return render_template('Classification/families_performance.html',
+                           project=experiment.project)
 
 
 @app.route('/errors/<experiment_id>/<train_test>/<fold_id>/')
 def displayErrors(experiment_id, train_test, fold_id):
     experiment = updateCurrentExperiment(experiment_id)
-    return render_template('Classification/errors.html', project=experiment.project)
+    return render_template('Classification/errors.html',
+                           project=experiment.project)
 
 
 @app.route('/getTestExperimentId/<experiment_id>/')
 def getTestExperimentId(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
-    with open(path.join(experiment.getOutputDirectory(), 'test_experiment.txt'), 'r') as f:
+    exp_filename = path.join(experiment.getOutputDirectory(),
+                             'test_experiment.txt')
+    with open(exp_filename, 'r') as f:
         test_experiment_id = f.readline()
         return test_experiment_id
 
@@ -176,12 +182,13 @@ def getSupervisedValidationConf(experiment_id):
 
 
 @app.route('/getTopWeightedFeatures/<experiment_id>/<inst_exp_id>/<instance_id>/<size>/<fold_id>/')
-def getTopWeightedFeatures(experiment_id, inst_exp_id, instance_id, size, fold_id):
+def getTopWeightedFeatures(experiment_id, inst_exp_id, instance_id, size,
+                           fold_id):
     if fold_id == 'all':
         return None
     instance_id = int(instance_id)
-    exp = ExperimentFactory.getFactory().fromJson(experiment_id, session)
-    validation_experiment = ExperimentFactory.getFactory().fromJson(inst_exp_id, session)
+    exp = updateCurrentExperiment(experiment_id)
+    validation_experiment = updateCurrentExperiment(inst_exp_id)
     # get the features
     features_names, features_values = validation_experiment.getFeatures(
         instance_id)
@@ -223,7 +230,8 @@ def getTopWeightedFeatures(experiment_id, inst_exp_id, instance_id, size, fold_i
 @app.route('/getTopModelFeatures/<experiment_id>/<size>/<train_test>/<fold_id>/')
 def getTopModelFeatures(experiment_id, size, train_test, fold_id):
     size = int(size)
-    exp = ExperimentFactory.getFactory().fromJson(experiment_id, session)
+    exp = updateCurrentExperiment(experiment_id)
+
     directory = exp.getOutputDirectory()
     if fold_id != 'None' and fold_id != 'all':
         directory = path.join(directory, fold_id)

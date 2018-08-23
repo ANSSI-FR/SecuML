@@ -19,8 +19,9 @@ import argparse
 from SecuML.core.Data.DescriptiveStatistics import DescriptiveStatistics
 
 from SecuML.experiments import ExperimentFactory
+from SecuML.experiments.Data.InstancesFromExperiment \
+        import InstancesFromExperiment
 from SecuML.experiments.Experiment import Experiment
-from SecuML.experiments.InstancesFromExperiment import InstancesFromExperiment
 
 
 class DescriptiveStatisticsExperiment(Experiment):
@@ -38,9 +39,10 @@ class DescriptiveStatisticsExperiment(Experiment):
             instances, self.getOutputDirectory())
 
     @staticmethod
-    def fromJson(obj, session):
-        experiment = DescriptiveStatisticsExperiment(obj['project'], obj['dataset'],
-                                                     session, create=False)
+    def fromJson(obj, secuml_conf):
+        experiment = DescriptiveStatisticsExperiment(secuml_conf)
+        experiment.initExperiment(obj['project'], obj['dataset'],
+                                  create=False)
         Experiment.expParamFromJson(experiment, obj, None)
         return experiment
 
@@ -60,6 +62,8 @@ class DescriptiveStatisticsExperiment(Experiment):
         return 'DescriptiveStatistics/descriptive_statistics.html'
 
     def setExperimentFromArgs(self, args):
+        self.initExperiment(args.project, args.dataset,
+                            experiment_name=args.exp_name)
         self.setConf(None, args.features_file,
                      annotations_filename='ground_truth.csv')
         self.export()

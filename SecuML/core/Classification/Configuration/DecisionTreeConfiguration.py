@@ -23,13 +23,12 @@ from .TestConfiguration import TestConfFactory
 
 class DecisionTreeConfiguration(ClassifierConfiguration):
 
-    def __init__(self, num_folds, sample_weight, families_supervision,
-                 criterion, splitter, max_depth, min_samples_split, min_samples_leaf,
-                 min_weight_fraction_leaf, max_features, max_leaf_nodes,
-                 min_impurity_decrease,
-                 test_conf,
+    def __init__(self, n_jobs, num_folds, sample_weight, families_supervision,
+                 criterion, splitter, max_depth, min_samples_split,
+                 min_samples_leaf, min_weight_fraction_leaf, max_features,
+                 max_leaf_nodes, min_impurity_decrease, test_conf,
                  logger=None):
-        ClassifierConfiguration.__init__(self, num_folds, sample_weight,
+        ClassifierConfiguration.__init__(self, n_jobs, num_folds, sample_weight,
                                          families_supervision,
                                          test_conf=test_conf,
                                          logger=logger)
@@ -61,9 +60,11 @@ class DecisionTreeConfiguration(ClassifierConfiguration):
         return None
 
     @staticmethod
-    def fromJson(obj):
-        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'])
-        conf = DecisionTreeConfiguration(obj['num_folds'], obj['sample_weight'],
+    def fromJson(obj, logger=None):
+        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'],
+                                                          logger=logger)
+        conf = DecisionTreeConfiguration(obj['n_jobs'], obj['num_folds'],
+                                         obj['sample_weight'],
                                          obj['families_supervision'],
                                          obj['criterion'],
                                          obj['splitter'],
@@ -74,7 +75,8 @@ class DecisionTreeConfiguration(ClassifierConfiguration):
                                          obj['max_features'],
                                          obj['max_leaf_nodes'],
                                          obj['min_impurity_decrease'],
-                                         test_conf)
+                                         test_conf,
+                                         logger=logger)
         return conf
 
     def toJson(self):
@@ -142,8 +144,9 @@ class DecisionTreeConfiguration(ClassifierConfiguration):
                             help=help_message)
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ClassifierConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = ClassifierConfiguration.generateParamsFromArgs(args,
+                                                                logger=logger)
         params['criterion'] = args.criterion
         params['splitter'] = args.splitter
         params['max_depth'] = args.max_depth

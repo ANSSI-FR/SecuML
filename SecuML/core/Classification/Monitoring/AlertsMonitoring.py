@@ -17,7 +17,8 @@
 import os.path as path
 
 from SecuML.core.Classification.ClassifierDatasets import ClassifierDatasets
-from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf import UnlabeledLabeledConf
+from SecuML.core.Classification.Configuration.TestConfiguration.UnlabeledLabeledConf \
+        import UnlabeledLabeledConf
 from SecuML.core.Classification.Configuration import ClassifierConfFactory
 from SecuML.core.Clustering.Clustering import Clustering
 from SecuML.core.Data import labels_tools
@@ -36,8 +37,9 @@ class AlertsMonitoring(object):
         if len(alerts_ids) == 0:
             self.alerts_grouping = None
         else:
-            has_families = len(
-                set(self.datasets.train_instances.annotations.getFamilies())) > 1
+            num_families = len(set(
+                self.datasets.train_instances.annotations.getFamilies()))
+            has_families = num_families > 1
             if has_families:
                 self.alerts_grouping = self.classifyAlerts(alerts_ids)
             else:
@@ -76,7 +78,8 @@ class AlertsMonitoring(object):
         predicted_families = [all_families.index(
             x) for x in predicted_families]
         clustering = Clustering(datasets.test_instances, predicted_families)
-        clustering.generateClustering(None, None, drop_annotated_instances=False,
+        clustering.generateClustering(None, None,
+                                      drop_annotated_instances=False,
                                       cluster_labels=all_families)
         return clustering
 
@@ -87,10 +90,12 @@ class AlertsMonitoring(object):
         params['families_supervision'] = True
         params['optim_algo'] = 'liblinear'
         params['alerts_conf'] = None
-        test_conf = UnlabeledLabeledConf()
+        test_conf = UnlabeledLabeledConf(logger=self.alerts_conf.logger)
         params['test_conf'] = test_conf
         conf = ClassifierConfFactory.getFactory().fromParam(
-            'LogisticRegression', params)
+                        'LogisticRegression',
+                        params,
+                        logger=self.alerts_conf.logger)
         model = conf.model_class(conf)
         return model
 
@@ -107,15 +112,14 @@ class AlertsMonitoring(object):
         num_clusters = self.alerts_conf.clustering_conf.num_clusters
         num_alerts = len(alerts_ids)
         if num_alerts < num_clusters:
-            message = 'Cannot build ' + str(num_clusters) + ' clusters '
-            message += 'from ' + str(num_alerts) + ' alerts. '
-            message += 'num_clusters should be smaller than num_alerts.'
-            self.alerts_conf.logger.warning(message)
+            self.alerts_conf.logger.warning(
+                    'Cannot build %d clusters from %d alerts. '
+                    'num_clusters should be smaller than num_alerts.'
+                    % (num_clusters, num_alerts))
             num_clusters = min(num_alerts, 4)
             self.alerts_conf.clustering_conf.num_clusters = num_clusters
-            message = 'The number of clusters is set to ' + \
-                str(num_clusters) + '.'
-            self.alerts_conf.logger.warning(message)
+            self.alerts_conf.logger.warn('The number of clusters is set to %s'
+                                         % (num_clusters))
 
     def extractAlerts(self, predictions_monitoring):
         detection_threshold = self.alerts_conf.detection_threshold

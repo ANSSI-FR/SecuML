@@ -17,12 +17,15 @@
 import argparse
 
 from SecuML.core.Clustering.Configuration import ClusteringConfFactory
-from SecuML.core.DimensionReduction.Algorithms.Projection.SemiSupervisedProjection import FewerThanTwoLabels
+from SecuML.core.DimensionReduction.Algorithms.Projection.SemiSupervisedProjection \
+        import FewerThanTwoLabels
 
 from SecuML.experiments import ExperimentFactory
+from SecuML.experiments.Data.InstancesFromExperiment \
+        import InstancesFromExperiment
+from SecuML.experiments.DimensionReduction.ProjectionExperiment \
+        import ProjectionExperiment
 from SecuML.experiments.Experiment import Experiment
-from SecuML.experiments.InstancesFromExperiment import InstancesFromExperiment
-from SecuML.experiments.DimensionReduction.DimensionReductionExperiment import DimensionReductionExperiment
 
 
 class ClusteringExperiment(Experiment):
@@ -30,7 +33,8 @@ class ClusteringExperiment(Experiment):
     def getKind(self):
         return 'Clustering'
 
-    def run(self, instances, label, quick=False, drop_annotated_instances=False):
+    def run(self, instances, label, quick=False,
+            drop_annotated_instances=False):
         if instances is None:
             instances = InstancesFromExperiment(self).getInstances()
         if label != 'all':
@@ -42,7 +46,8 @@ class ClusteringExperiment(Experiment):
                 self.projectInstances(instances)
             except FewerThanTwoLabels:
                 self.conf.logger.warning('There are too few class labels.'
-                                         'The instances are not projected before building the clustering.')
+                                         'The instances are not projected '
+                                         'before building the clustering.')
         clustering.fit()
         clustering.generateClustering(
             drop_annotated_instances=drop_annotated_instances)
@@ -55,10 +60,11 @@ class ClusteringExperiment(Experiment):
         return suffix
 
     @staticmethod
-    def fromJson(obj, session):
+    def fromJson(obj, secuml_conf):
         conf = ClusteringConfFactory.getFactory().fromJson(obj['conf'])
-        experiment = ClusteringExperiment(
-            obj['project'], obj['dataset'], session, create=False)
+        experiment = ClusteringExperiment(secuml_conf)
+        experiment.initExperiment(obj['project'], obj['dataset'],
+                                  create=False)
         Experiment.expParamFromJson(experiment, obj, conf)
         return experiment
 
@@ -73,9 +79,10 @@ class ClusteringExperiment(Experiment):
         parser = argparse.ArgumentParser(
             description='Clustering of the data for data exploration.')
         Experiment.projectDatasetFeturesParser(parser)
-        algos = ['Kmeans', 'GaussianMixture']
         subparsers = parser.add_subparsers(dest='algo')
+        subparsers.required = True
         factory = ClusteringConfFactory.getFactory()
+        algos = factory.getAlgorithms()
         for algo in algos:
             algo_parser = subparsers.add_parser(algo)
             factory.generateParser(algo, algo_parser)
@@ -85,35 +92,34 @@ class ClusteringExperiment(Experiment):
         return 'Clustering/clustering.html'
 
     def setExperimentFromArgs(self, args):
+        self.initExperiment(args.project, args.dataset,
+                            experiment_name=args.exp_name)
         factory = ClusteringConfFactory.getFactory()
         conf = factory.fromArgs(args.algo, args, logger=self.logger)
         self.setConf(conf, args.features_file,
                      annotations_filename=args.annotations_file)
         self.export()
 
-    def createDimensionReductionExperiment(self, num_features):
+    def createProjectionExperiment(self, num_features):
         name = '-'.join([self.experiment_name, 'projection'])
         projection_conf = self.conf.projection_conf
         if projection_conf.num_components is not None:
             if projection_conf.num_components > num_features:
                 projection_conf.num_components = num_features
-        projection_exp = DimensionReductionExperiment(self.project, self.dataset,
-                                                      self.session,
-                                                      experiment_name=name,
-                                                      annotations_id=self.annotations_id,
-                                                      parent=self.experiment_id,
-                                                      logger=self.logger)
-        projection_exp.setConf(projection_conf)
-        projection_exp.setFeaturesFilenames(self.features_filename)
-        projection_exp.createExperiment()
+        projection_exp = ProjectionExperiment(self.secuml_conf,
+                                              session=self.session)
+        projection_exp.initExperiment(self.project, self.dataset,
+                                      experiment_name=name,
+                                      parent=self.experiment_id)
+        projection_exp.setConf(projection_conf, self.features_filename)
         projection_exp.export()
         return projection_exp
 
     def projectInstances(self, instances):
-        projection_exp = self.createDimensionReductionExperiment(
+        projection_exp = self.createProjectionExperiment(
             instances.numFeatures())
-        projected_instances = projection_exp.run(
-            instances=instances, export=False)
+        projected_instances = projection_exp.run(instances=instances,
+                                                 export=False)
         return projected_instances
 
 

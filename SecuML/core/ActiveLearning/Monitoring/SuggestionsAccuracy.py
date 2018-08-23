@@ -61,21 +61,19 @@ class SuggestionsAccuracyCounts(object):
         if self.monitoring.iteration_number == 1:
             self.displayCsvHeader(evolution_file)
         with open(evolution_file, 'a') as f:
-            v = []
-            v.append(self.monitoring.iteration_number)
-            v.append(self.true_suggestions)
-            v.append(self.false_suggestions)
-            v.append(self.no_suggestion)
-            v.append(self.num_suggestions)
-            v.append(self.num_annotations)
+            v = [self.monitoring.iteration_number]
+            v.extend([self.true_suggestions, self.false_suggestions,
+                      self.no_suggestion, self.num_suggestions,
+                      self.num_annotations])
             csv_writer = csv.writer(f)
             csv_writer.writerow(v)
 
     def displayCsvHeader(self, evolution_file):
         with open(evolution_file, 'w') as f:
             header = ['iteration']
-            header += ['true_suggestions', 'false_suggestions', 'no_suggestion',
-                       'num_suggestions', 'num_annotations']
+            header.extend(['true_suggestions', 'false_suggestions',
+                           'no_suggestion', 'num_suggestions',
+                           'num_annotations'])
             csv_writer = csv.writer(f)
             csv_writer.writerow(header)
 

@@ -22,9 +22,9 @@ from .TestConfiguration import TestConfFactory
 
 class SssvddConfiguration(ClassifierConfiguration):
 
-    def __init__(self, num_folds, test_conf, logger=None):
-        ClassifierConfiguration.__init__(self, num_folds, False, False, test_conf,
-                                         logger=logger)
+    def __init__(self, n_jobs, num_folds, test_conf, logger=None):
+        ClassifierConfiguration.__init__(self, n_jobs, num_folds, False, False,
+                                         test_conf, logger=logger)
         self.model_class = Sssvdd
 
     def getModelClassName(self):
@@ -40,9 +40,11 @@ class SssvddConfiguration(ClassifierConfiguration):
         return None
 
     @staticmethod
-    def fromJson(obj):
-        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'])
-        conf = SssvddConfiguration(obj['num_folds'], test_conf)
+    def fromJson(obj, logger=None):
+        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'],
+                                                          logger=logger)
+        conf = SssvddConfiguration(obj['n_jobs'], obj['num_folds'], test_conf,
+                                   logger=logger)
         return conf
 
     def toJson(self):

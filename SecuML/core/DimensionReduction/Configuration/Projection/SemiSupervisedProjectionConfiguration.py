@@ -20,8 +20,9 @@ from SecuML.core.DimensionReduction.Configuration.DimensionReductionConfiguratio
 
 class SemiSupervisedProjectionConfiguration(DimensionReductionConfiguration):
 
-    def __init__(self, algo, num_components=None, families_supervision=None):
-        DimensionReductionConfiguration.__init__(self, algo,)
+    def __init__(self, algo, num_components=None, families_supervision=None,
+                 logger=None):
+        DimensionReductionConfiguration.__init__(self, algo, logger=logger)
         self.families_supervision = families_supervision
         self.num_components = num_components
 
@@ -52,5 +53,5 @@ class SemiSupervisedProjectionConfiguration(DimensionReductionConfiguration):
                             type=int,
                             default=None)
         parser.add_argument('--families-supervision',
-                            type=bool,
-                            default=None)
+                            action='store_true',
+                            default=False)

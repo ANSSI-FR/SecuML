@@ -55,6 +55,9 @@ class Instances(object):
         annotations = self.getAnnotations(ground_truth)
         return annotations.numInstances(label=label)
 
+    def numFeatures(self):
+        return self.features.numFeatures()
+
     def eraseAnnotations(self):
         self.annotations.erase()
 
@@ -72,9 +75,13 @@ class Instances(object):
         labels, families = self.annotations.getAnnotationsFromIds(instance_ids)
         gt_labels, gt_families = self.ground_truth.getAnnotationsFromIds(
                 instance_ids)
-        selected_instances = Instances(instance_ids, features, self.features.getNames(),
+        selected_instances = Instances(instance_ids,
+                                       features,
+                                       self.features.getNames(),
                                        self.features.getDescriptions(),
-                                       labels, families,
+                                       labels,
+                                       families,
                                        gt_labels, gt_families,
-                                       idents=idents, timestamps=timestamps)
+                                       idents=idents,
+                                       timestamps=timestamps)
         return selected_instances

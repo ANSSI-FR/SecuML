@@ -14,25 +14,32 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.core.DimensionReduction.Algorithms.FeatureSelection.MutualInfoClassif import MutualInfoClassif
-from SecuML.core.DimensionReduction.Configuration import DimensionReductionConfFactory
+from SecuML.core.DimensionReduction.Algorithms.FeatureSelection.MutualInfoClassif \
+        import MutualInfoClassif
+from SecuML.core.DimensionReduction.Configuration \
+        import DimensionReductionConfFactory
 
-from .SemiSupervisedFeatureSelectionConfiguration import SemiSupervisedFeatureSelectionConfiguration
+from .SemiSupervisedFeatureSelectionConfiguration \
+        import SemiSupervisedFeatureSelectionConfiguration
 
 
 class MutualInfoClassifConfiguration(SemiSupervisedFeatureSelectionConfiguration):
 
     def __init__(self, num_components=None, families_supervision=None,
                  logger=None):
-        SemiSupervisedFeatureSelectionConfiguration.__init__(self, MutualInfoClassif,
-                                                             num_components=num_components,
-                                                             families_supervision=families_supervision,
-                                                             logger=logger)
+        SemiSupervisedFeatureSelectionConfiguration.__init__(
+                                self,
+                                MutualInfoClassif,
+                                num_components=num_components,
+                                families_supervision=families_supervision,
+                                logger=logger)
 
     @staticmethod
-    def fromJson(obj):
-        conf = MutualInfoClassifConfiguration(num_components=obj['num_components'],
-                                              families_supervision=obj['families_supervision'])
+    def fromJson(obj, logger=None):
+        conf = MutualInfoClassifConfiguration(
+                            num_components=obj['num_components'],
+                            families_supervision=obj['families_supervision'],
+                            logger=logger)
         return conf
 
     def toJson(self):
@@ -41,5 +48,6 @@ class MutualInfoClassifConfiguration(SemiSupervisedFeatureSelectionConfiguration
         return conf
 
 
-DimensionReductionConfFactory.getFactory().registerClass('MutualInfoClassifConfiguration',
-                                                         MutualInfoClassifConfiguration)
+DimensionReductionConfFactory.getFactory().registerClass(
+                                    'MutualInfoClassifConfiguration',
+                                    MutualInfoClassifConfiguration)

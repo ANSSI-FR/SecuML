@@ -16,7 +16,8 @@
 
 import numpy as np
 
-from SecuML.core.Classification.Classifiers.LogisticRegression import LogisticRegression
+from SecuML.core.Classification.Classifiers.LogisticRegression \
+        import LogisticRegression
 
 from . import ClassifierConfFactory
 from .ClassifierConfiguration import ClassifierConfiguration, LearningParameter
@@ -25,9 +26,10 @@ from .TestConfiguration import TestConfFactory
 
 class LogisticRegressionConfiguration(ClassifierConfiguration):
 
-    def __init__(self, num_folds, sample_weight, families_supervision, optim_algo, test_conf,
-                 logger=None):
-        ClassifierConfiguration.__init__(self, num_folds, sample_weight, families_supervision,
+    def __init__(self, n_jobs, num_folds, sample_weight, families_supervision,
+                 optim_algo, test_conf, logger=None):
+        ClassifierConfiguration.__init__(self, n_jobs, num_folds, sample_weight,
+                                         families_supervision,
                                          test_conf=test_conf,
                                          logger=logger)
         self.model_class = LogisticRegression
@@ -73,14 +75,16 @@ class LogisticRegressionConfiguration(ClassifierConfiguration):
         return best_values
 
     @staticmethod
-    def fromJson(obj):
+    def fromJson(obj, logger=None):
         factory = TestConfFactory.getFactory()
-        test_conf = factory.fromJson(obj['test_conf'])
-        conf = LogisticRegressionConfiguration(obj['num_folds'],
+        test_conf = factory.fromJson(obj['test_conf'], logger=logger)
+        conf = LogisticRegressionConfiguration(obj['n_jobs'],
+                                               obj['num_folds'],
                                                obj['sample_weight'],
                                                obj['families_supervision'],
                                                obj['optim_algo'],
-                                               test_conf)
+                                               test_conf,
+                                               logger=logger)
         conf.c = LearningParameter.fromJson(obj['c'])
         conf.penalty = LearningParameter.fromJson(obj['penalty'])
         conf.optim_algo = obj['optim_algo']
@@ -115,11 +119,13 @@ class LogisticRegressionConfiguration(ClassifierConfiguration):
                             help='sag is recommended for large datasets.')
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ClassifierConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = ClassifierConfiguration.generateParamsFromArgs(args,
+                                                                logger=logger)
         params['optim_algo'] = args.optim_algo
         return params
 
 
-ClassifierConfFactory.getFactory().registerClass('LogisticRegressionConfiguration',
-                                                 LogisticRegressionConfiguration)
+ClassifierConfFactory.getFactory().registerClass(
+                    'LogisticRegressionConfiguration',
+                    LogisticRegressionConfiguration)

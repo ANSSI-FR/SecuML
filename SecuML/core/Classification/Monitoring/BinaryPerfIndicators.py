@@ -216,18 +216,15 @@ class BinaryPerfIndicators(object):
     def toJson(self, f):
         perf = {}
         if self.auc:
-            perf['auc'] = {'mean': str(int(self.auc_mean * 10000) / 100) + '%',
-                           'std': int(self.auc_std * 10000) / 10000}
+            perf['auc'] = {'mean': '%.2f%%' % (self.auc_mean*100),
+                           'std': '%.3f' % (self.auc_std)}
         if self.probabilist_model:
             perf['thresholds'] = [{} for x in self.thresholds]
             for t in self.thresholds:
                 for v in self.perf_threshold_summary[t].index:
                     perf['thresholds'][t][v] = {}
-                    perf['thresholds'][t][v]['mean'] = str(
-                        int(self.perf_threshold_summary[t].loc[v, 'mean'] * 10000) / 100)
-                    perf['thresholds'][t][v]['mean'] += '%'
-                    perf['thresholds'][t][v]['std'] = int(
-                        self.perf_threshold_summary[t].loc[v, 'std'] * 10000) / 10000
+                    perf['thresholds'][t][v]['mean'] = '%.2f%%' % (self.perf_threshold_summary[t].loc[v, 'mean'])
+                    perf['thresholds'][t][v]['std'] = '%.3f' % (self.perf_threshold_summary[t].loc[v, 'std'])
         else:
             for v in self.perf_threshold_summary.index:
                 perf[v] = {}

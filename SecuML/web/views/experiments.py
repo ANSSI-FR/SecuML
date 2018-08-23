@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.web import app, session
+from SecuML.web import app, secuml_conf, session
 
 from flask import jsonify, redirect, render_template
 import operator
@@ -25,7 +25,9 @@ from SecuML.experiments import ExperimentFactory
 
 
 def updateCurrentExperiment(experiment_id):
-    experiment = ExperimentFactory.getFactory().fromJson(experiment_id, session)
+    experiment = ExperimentFactory.getFactory().fromJson(experiment_id,
+                                                         secuml_conf,
+                                                         session)
     return experiment
 
 
@@ -105,10 +107,12 @@ def getExperimentName(experiment_id):
 @app.route('/getDescriptiveStatsExp/<experiment_id>/')
 def getDescriptiveStatsExp(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
-    return str(experiment_db_tools.getDescriptiveStatsExp(experiment.session, experiment))
+    return str(experiment_db_tools.getDescriptiveStatsExp(experiment.session,
+                                                          experiment))
 
 
 @app.route('/SecuML/<experiment_id>/<feature>/')
 def getDescriptiveStatsExperiment(experiment_id, feature):
     experiment = updateCurrentExperiment(experiment_id)
-    return render_template(experiment.webTemplate(), feature={'feature': feature})
+    return render_template(experiment.webTemplate(),
+                           feature={'feature': feature})

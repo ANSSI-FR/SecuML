@@ -35,9 +35,10 @@ class ValidationExperiment(Experiment):
                 'The validation dataset does not have ground-truth.')
 
     @staticmethod
-    def fromJson(obj, session):
-        experiment = ValidationExperiment(obj['project'], obj['dataset'],
-                                          session, create=False)
+    def fromJson(obj, secuml_conf):
+        experiment = ValidationExperiment(secuml_conf)
+        experiment.initExperiment(obj['project'], obj['dataset'],
+                                  create=False)
         Experiment.expParamFromJson(experiment, obj, Configuration())
         return experiment
 

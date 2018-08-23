@@ -29,12 +29,14 @@ from .Monitoring.TestingMonitoring import TestingMonitoring
 from .Monitoring.TrainingMonitoring import TrainingMonitoring
 from .Predictions import Predictions
 
+from SecuML.core.Tools.core_exceptions import SecuMLcoreException
 
-class SupervisedLearningAtLeastTwoClasses(Exception):
+
+class SupervisedLearningAtLeastTwoClasses(SecuMLcoreException):
 
     def __str__(self):
-        return '''Supervised learning models requires that the training dataset
-                  contains at least two classes.'''
+        return('Supervised learning models requires that the training dataset '
+               'contains at least two classes.')
 
 
 class Classifier(object):
@@ -112,7 +114,8 @@ class Classifier(object):
 
     def crossValidationMonitoring(self, datasets):
         # CV datasets
-        cv_test_conf = CvConf(self.conf.num_folds, alerts_conf=None)
+        cv_test_conf = CvConf(self.conf.num_folds, alerts_conf=None,
+                              logger=self.conf.logger)
         cv_datasets = CvClassifierDatasets(cv_test_conf,
                                            self.conf.families_supervision,
                                            self.conf.sample_weight,
@@ -123,10 +126,11 @@ class Classifier(object):
         self.cv_monitoring.initMonitorings(cv_datasets)
         for fold_id, datasets in enumerate(cv_datasets.datasets):
             if datasets.sample_weight:
-                self.pipeline.fit(datasets.train_instances.features.getValues(),
-                                  self.getSupervision(
-                                      datasets.train_instances),
-                                  **{'model__sample_weight': datasets.sample_weight})
+                self.pipeline.fit(
+                             datasets.train_instances.features.getValues(),
+                             self.getSupervision(
+                                 datasets.train_instances),
+                             **{'model__sample_weight': datasets.sample_weight})
             else:
                 self.pipeline.fit(datasets.train_instances.features.getValues(),
                                   self.getSupervision(datasets.train_instances))
@@ -174,7 +178,7 @@ class Classifier(object):
                                    param_grid=param_grid,
                                    scoring=scoring,
                                    cv=cv,
-                                   n_jobs=-1)
+                                   n_jobs=self.conf.n_jobs)
         if datasets.sample_weight:
             grid_search.fit(datasets.train_instances.features.getValues(),
                             self.getSupervision(datasets.train_instances)

@@ -33,11 +33,12 @@ class KmeansConfiguration(ClusteringConfiguration):
         self.algo = Kmeans
 
     @staticmethod
-    def fromJson(obj):
-        conf = KmeansConfiguration(obj['num_clusters'])
+    def fromJson(obj, logger=None):
+        conf = KmeansConfiguration(obj['num_clusters'], logger=logger)
         if obj['projection_conf'] is not None:
-            projection_conf = DimensionReductionConfFactory.getFactory(
-            ).fromJson(obj['projection_conf'])
+            proj_factory = DimensionReductionConfFactory.getFactory()
+            projection_conf = proj_factory.fromJson(obj['projection_conf'],
+                                                    logger=logger)
             conf.setDimensionReductionConf(projection_conf)
         return conf
 

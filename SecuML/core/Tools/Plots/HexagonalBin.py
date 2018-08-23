@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import json
 import math
 
 
@@ -90,9 +89,3 @@ class HexagonalBin(object):
             len(self.malicious_ids) / \
             (len(self.malicious_ids) + len(self.ok_ids))
         return json
-
-
-class HexagonalBinEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if getattr(obj, 'toJson', None):
-            return obj.toJson()

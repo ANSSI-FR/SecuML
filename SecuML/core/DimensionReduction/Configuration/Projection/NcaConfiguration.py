@@ -15,23 +15,29 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from SecuML.core.DimensionReduction.Algorithms.Projection.Nca import Nca
-from SecuML.core.DimensionReduction.Configuration import DimensionReductionConfFactory
+from SecuML.core.DimensionReduction.Configuration \
+        import DimensionReductionConfFactory
 
-from .SemiSupervisedProjectionConfiguration import SemiSupervisedProjectionConfiguration
+from .SemiSupervisedProjectionConfiguration \
+        import SemiSupervisedProjectionConfiguration
 
 
 class NcaConfiguration(SemiSupervisedProjectionConfiguration):
 
-    def __init__(self, num_components=None, families_supervision=None):
-        SemiSupervisedProjectionConfiguration.__init__(self, Nca,
-                                                       num_components=num_components,
-                                                       families_supervision=families_supervision)
+    def __init__(self, num_components=None, families_supervision=None,
+                 logger=None):
+        SemiSupervisedProjectionConfiguration.__init__(
+                        self,
+                        Nca,
+                        num_components=num_components,
+                        families_supervision=families_supervision)
         self.num_components = num_components
 
     @staticmethod
-    def fromJson(obj):
+    def fromJson(obj, logger=None):
         conf = NcaConfiguration(num_components=obj['num_components'],
-                                families_supervision=obj['families_supervision'])
+                            families_supervision=obj['families_supervision'],
+                            logger=logger)
         return conf
 
     def toJson(self):

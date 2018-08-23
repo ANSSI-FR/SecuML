@@ -34,9 +34,9 @@ class DimensionReductionConfFactory(object):
     def registerClass(self, class_name, class_obj):
         self.register[class_name] = class_obj
 
-    def fromJson(self, obj):
+    def fromJson(self, obj, logger=None):
         class_name = obj['__type__']
-        obj = self.register[class_name].fromJson(obj)
+        obj = self.register[class_name].fromJson(obj, logger=logger)
         return obj
 
     def fromParam(self, projection_algo, args, logger=None):

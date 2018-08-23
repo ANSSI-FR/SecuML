@@ -22,22 +22,19 @@ from SecuML.core.Configuration import Configuration
 
 from SecuML.experiments import ExperimentFactory
 from SecuML.experiments import experiment_db_tools
-from SecuML.experiments.ActiveLearning.ActiveLearningExp import ActiveLearningExp
+from SecuML.experiments.ActiveLearning.ActiveLearningExp \
+        import ActiveLearningExp
 from SecuML.experiments.ActiveLearning.DatasetsExp import DatasetsExp
-from SecuML.experiments.Data.Dataset import Dataset
+from SecuML.experiments.Data.InstancesFromExperiment \
+        import InstancesFromExperiment
 from SecuML.experiments.Experiment import Experiment
-from SecuML.experiments.InstancesFromExperiment import InstancesFromExperiment
 from SecuML.experiments.ValidationExperiment import ValidationExperiment
 
 
 class ActiveLearningExperiment(Experiment):
 
-    def __init__(self, project, dataset, session, experiment_name=None,
-                 logger=None, create=True):
-        Experiment.__init__(self, project, dataset, session,
-                            experiment_name=experiment_name,
-                            logger=logger, create=create)
-        # query_strategy: vraiment utile  ?
+    def __init__(self, secuml_conf, session=None):
+        Experiment.__init__(self, secuml_conf, session=session)
         self.query_strategy = None
 
     def getKind(self):
@@ -48,7 +45,8 @@ class ActiveLearningExperiment(Experiment):
         active_learning = ActiveLearningExp(self, datasets)
         if not self.conf.auto:
             from SecuML.experiments.CeleryApp.app import secumlworker
-            from SecuML.experiments.ActiveLearning.CeleryTasks import IterationTask
+            from SecuML.experiments.ActiveLearning.CeleryTasks \
+                    import IterationTask
             options = {}
             # bind iterations object to IterationTask class
             active_learning.runNextIteration(
@@ -62,13 +60,10 @@ class ActiveLearningExperiment(Experiment):
 
     def createValidationExperiment(self):
         test_dataset = self.conf.validation_conf.test_dataset
-        load_dataset = Dataset(self.project, test_dataset, self.session)
-        if not load_dataset.isLoaded():
-            load_dataset.load(self.logger)
-        # Check if the validation experiments already exists
-        test_exp = ValidationExperiment(self.project, test_dataset,
-                                        self.session)
-        test_exp.setConf(Configuration(self.conf.logger), self.features_filename,
+        test_exp = ValidationExperiment(self.secuml_conf, session=self.session)
+        test_exp.initExperiment(self.project, test_dataset)
+        test_exp.setConf(Configuration(self.conf.logger),
+                         self.features_filename,
                          annotations_filename='ground_truth.csv')
         return test_exp
 
@@ -106,9 +101,10 @@ class ActiveLearningExperiment(Experiment):
         return suffix
 
     @staticmethod
-    def fromJson(obj, session):
-        experiment = ActiveLearningExperiment(obj['project'], obj['dataset'],
-                                              session, create=False)
+    def fromJson(obj, secuml_conf):
+        experiment = ActiveLearningExperiment(secuml_conf)
+        experiment.initExperiment(obj['project'], obj['dataset'],
+                                  create=False)
         conf = ActiveLearningConfFactory.getFactory().fromJson(obj['conf'])
         Experiment.expParamFromJson(experiment, obj, conf)
         experiment.query_strategy = obj['query_strategy']
@@ -123,13 +119,14 @@ class ActiveLearningExperiment(Experiment):
 
     @staticmethod
     def generateParser():
-        parser = argparse.ArgumentParser(description='Active Learning',
-                                         formatter_class=argparse.RawTextHelpFormatter)
+        parser = argparse.ArgumentParser(
+                description='Active Learning',
+                formatter_class=argparse.RawTextHelpFormatter)
         Experiment.projectDatasetFeturesParser(parser)
-        strategies = ['Ilab', 'RandomSampling', 'UncertaintySampling',
-                      'CesaBianchi', 'Aladin', 'Gornitz']
         subparsers = parser.add_subparsers(dest='strategy')
+        subparsers.required = True
         factory = ActiveLearningConfFactory.getFactory()
+        strategies = factory.getStrategies()
         for strategy in strategies:
             strategy_parser = subparsers.add_parser(strategy)
             factory.generateParser(strategy, strategy_parser)
@@ -143,6 +140,8 @@ class ActiveLearningExperiment(Experiment):
                                                        self.experiment_id)
 
     def setExperimentFromArgs(self, args):
+        self.initExperiment(args.project, args.dataset,
+                            experiment_name=args.exp_name)
         factory = ActiveLearningConfFactory.getFactory()
         conf = factory.fromArgs(args.strategy, args, logger=self.logger)
         self.setConf(conf, args.features_file,

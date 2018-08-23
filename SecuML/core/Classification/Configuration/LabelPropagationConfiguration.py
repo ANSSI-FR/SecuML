@@ -14,7 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.core.Classification.Classifiers.LabelPropagation import LabelPropagation
+from SecuML.core.Classification.Classifiers.LabelPropagation \
+        import LabelPropagation
 from . import ClassifierConfFactory
 from .ClassifierConfiguration import ClassifierConfiguration
 from .TestConfiguration import TestConfFactory
@@ -22,10 +23,11 @@ from .TestConfiguration import TestConfFactory
 
 class LabelPropagationConfiguration(ClassifierConfiguration):
 
-    def __init__(self, num_folds, families_supervision, test_conf, alerts_conf=None,
-                 logger=None):
-        ClassifierConfiguration.__init__(self, num_folds, False, families_supervision,
-                                         test_conf, logger=logger)
+    def __init__(self, n_jobs, num_folds, families_supervision, test_conf,
+                 alerts_conf=None, logger=None):
+        ClassifierConfiguration.__init__(self, n_jobs, num_folds, False,
+                                         families_supervision, test_conf,
+                                         logger=logger)
         self.model_class = LabelPropagation
 
     def getModelClassName(self):
@@ -41,10 +43,14 @@ class LabelPropagationConfiguration(ClassifierConfiguration):
         return None
 
     @staticmethod
-    def fromJson(obj):
-        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'])
-        conf = LabelPropagationConfiguration(
-            obj['num_folds'], obj['families_supervision'], test_conf)
+    def fromJson(obj, logger=None):
+        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'],
+                                                          logger=logger)
+        conf = LabelPropagationConfiguration(obj['n_jobs'],
+                                             obj['num_folds'],
+                                             obj['families_supervision'],
+                                             test_conf,
+                                             logger=logger)
         return conf
 
     def toJson(self):
@@ -62,5 +68,6 @@ class LabelPropagationConfiguration(ClassifierConfiguration):
         return None
 
 
-ClassifierConfFactory.getFactory().registerClass('LabelPropagationConfiguration',
-                                                 LabelPropagationConfiguration)
+ClassifierConfFactory.getFactory().registerClass(
+                        'LabelPropagationConfiguration',
+                        LabelPropagationConfiguration)

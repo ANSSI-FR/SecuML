@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # SecuML
-# Copyright (C) 2016-2017  ANSSI
+# Copyright (C) 2016-2018  ANSSI
 #
 # SecuML is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,30 +16,31 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import matplotlib
 matplotlib.use('Agg')
 import sys
 
-from SecuML.core.ActiveLearning.Configuration.ActiveLearningConfiguration import InvalidInputArguments
-from SecuML.experiments.ActiveLearning.ActiveLearningExperiment import ActiveLearningExperiment
+from SecuML.core.Tools import colors_tools
+from SecuML.experiments.ActiveLearning.ActiveLearningExperiment \
+        import ActiveLearningExperiment
+from SecuML.experiments.SecuMLConfiguration import SecuMLConfiguration
+
+from SecuML.core.Tools.core_exceptions import SecuMLcoreException
+from SecuML.experiments.Tools.exp_exceptions import SecuMLexpException
 
 if __name__ == '__main__':
-    logger = logging.getLogger('SecuML_ILAB')
-    logger.setLevel(logging.CRITICAL)
-
-    parser = ActiveLearningExperiment.generateParser()
-    args = parser.parse_args()
-
-    experiment = ActiveLearningExperiment(args.project, args.dataset, None,
-                                          experiment_name=args.exp_name,
-                                          logger=logger)
     try:
+        parser = ActiveLearningExperiment.generateParser()
+        args = parser.parse_args()
+        secuml_conf = SecuMLConfiguration(args.secuml_conf)
+        experiment = ActiveLearningExperiment(secuml_conf)
         experiment.setExperimentFromArgs(args)
-    except InvalidInputArguments as e:
-        logger.error(e)
-        experiment.closeSession()
-        sys.exit()
-
-    experiment.run()
-    experiment.closeSession()
+        experiment.run()
+        experiment.close()
+    except (SecuMLcoreException, SecuMLexpException) as e:
+        sys.stderr.write(colors_tools.displayInRed(e) + '\n')
+        experiment.rollbackSession()
+        sys.exit(-1)
+    except Exception as e:
+        experiment.rollbackSession()
+        raise(e)

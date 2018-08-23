@@ -17,14 +17,17 @@
 from . import ActiveLearningConfFactory
 from .ActiveLearningConfiguration import ActiveLearningConfiguration
 
-from SecuML.core.ActiveLearning.QueryStrategies.UncertaintySampling import UncertaintySampling
+from SecuML.core.ActiveLearning.QueryStrategies.UncertaintySampling \
+        import UncertaintySampling
 from SecuML.core.Classification.Configuration import ClassifierConfFactory
-from SecuML.core.Classification.Configuration.TestConfiguration.ValidationDatasetConf import ValidationDatasetConf
+from SecuML.core.Classification.Configuration.TestConfiguration.ValidationDatasetConf \
+        import ValidationDatasetConf
 
 
 class UncertaintySamplingConfiguration(ActiveLearningConfiguration):
 
-    def __init__(self, auto, budget, batch, binary_model_conf, validation_conf, logger=None):
+    def __init__(self, auto, budget, batch, binary_model_conf, validation_conf,
+                 logger=None):
         ActiveLearningConfiguration.__init__(
             self, auto, budget, validation_conf, logger=logger)
         self.query_strategy = 'UncertaintySampling'
@@ -69,14 +72,18 @@ class UncertaintySamplingConfiguration(ActiveLearningConfiguration):
         al_group.add_argument('--batch',
                               type=int,
                               default=100,
-                              help='Number of annotations asked from the user at each iteration.')
+                              help='Number of annotations asked from the user '
+                                   'at each iteration.')
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ActiveLearningConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = ActiveLearningConfiguration.generateParamsFromArgs(
+                                                        args,
+                                                        logger=logger)
         params['batch'] = args.batch
         return params
 
 
-ActiveLearningConfFactory.getFactory().registerClass('UncertaintySamplingConfiguration',
-                                                     UncertaintySamplingConfiguration)
+ActiveLearningConfFactory.getFactory().registerClass(
+                                    'UncertaintySamplingConfiguration',
+                                    UncertaintySamplingConfiguration)

@@ -12,18 +12,9 @@ function displayAnnotationQueries(conf, iteration) {
       } else if(conf.query_strategy == 'RareCategoryDetection') {
         var query = buildQuery('rareCategoryDetectionAnnotations',
             [experiment_id, iteration]);
-      } else if(conf.query_strategy == 'RandomSampling') {
-        var query = buildQuery('individualAnnotations',
-            [experiment_id, iteration, 'random']);
-      } else if(conf.query_strategy == 'CesaBianchi') {
-        var query = buildQuery('individualAnnotations',
-            [experiment_id, iteration, 'CesaBianchi']);
-      } else if (conf.query_strategy == 'Aladin'){
-        var query = buildQuery('individualAnnotations',
-            [experiment_id, iteration, 'aladin']);
       } else {
         var query = buildQuery('individualAnnotations',
-            [experiment_id, iteration, 'uncertain']);
+            [experiment_id, iteration]);
       }
       window.open(query);
   });

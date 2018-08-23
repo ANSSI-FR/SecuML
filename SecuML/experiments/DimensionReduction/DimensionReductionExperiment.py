@@ -14,10 +14,12 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from SecuML.core.DimensionReduction.Configuration import DimensionReductionConfFactory
+from SecuML.core.DimensionReduction.Configuration \
+        import DimensionReductionConfFactory
 
+from SecuML.experiments.Data.InstancesFromExperiment \
+        import InstancesFromExperiment
 from SecuML.experiments.Experiment import Experiment
-from SecuML.experiments.InstancesFromExperiment import InstancesFromExperiment
 
 
 class DimensionReductionExperiment(Experiment):
@@ -45,17 +47,21 @@ class DimensionReductionExperiment(Experiment):
     @staticmethod
     def generateDimensionReductionParser(parser):
         parser.add_argument('--families-supervision',
-                            action='store_true',
-                            default=False,
-                            help='When set to True, the semi-supervision is based on the families ' +
-                            'instead of the binary labels. Useless if an unsupervised projection method is used.')
+                 action='store_true',
+                 default=False,
+                 help='When set to True, the semi-supervision is based on the '
+                      'families instead of the binary labels. '
+                      'Useless if an unsupervised projection method is used.')
         parser.add_argument('--annotations', '-a',
-                            dest='annotations_file',
-                            default=None,
-                            help='CSV file containing the annotations of some instances. ' +
-                            'These annotations are used for semi-supervised projections.')
+                 dest='annotations_file',
+                 default=None,
+                 help='CSV file containing the annotations of some instances. '
+                      'These annotations are used for semi-supervised '
+                      'projections.')
 
     def setExperimentFromArgs(self, args):
+        self.initExperiment(args.project, args.dataset,
+                            experiment_name=args.exp_name)
         factory = DimensionReductionConfFactory.getFactory()
         conf = factory.fromArgs(args.algo, args, logger=self.logger)
         self.setConf(conf, args.features_file,

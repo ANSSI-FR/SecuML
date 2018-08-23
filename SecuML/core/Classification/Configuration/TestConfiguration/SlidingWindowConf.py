@@ -15,25 +15,29 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from . import TestConfFactory
-from .TestConfiguration import TestConfiguration
+from .SeveralFoldsTestConfiguration import SeveralFoldsTestConfiguration
 
 
-class SlidingWindowConf(TestConfiguration):
+def computeNumFolds(num_buckets, num_train_buckets, num_test_buckets):
+    r = num_buckets
+    r -= (num_train_buckets + num_test_buckets)
+    r += 1
+    return r
+
+
+class SlidingWindowConf(SeveralFoldsTestConfiguration):
 
     def __init__(self, num_buckets, num_train_buckets, num_test_buckets,
-                 alerts_conf=None):
-        TestConfiguration.__init__(self, alerts_conf=alerts_conf)
+                 alerts_conf=None, logger=None):
+        num_folds = computeNumFolds(num_buckets, num_train_buckets,
+                                    num_test_buckets)
+        SeveralFoldsTestConfiguration.__init__(self, num_folds,
+                                               alerts_conf=alerts_conf,
+                                               logger=logger)
         self.method = 'sliding_window'
         self.num_buckets = num_buckets
         self.num_train_buckets = num_train_buckets
         self.num_test_buckets = num_test_buckets
-        self.computeNumFolds()
-
-    def computeNumFolds(self):
-        r = self.num_buckets
-        r -= (self.num_train_buckets + self.num_test_buckets)
-        r += 1
-        self.num_folds = r
 
     def generateSuffix(self):
         buckets = [self.num_buckets,
@@ -41,30 +45,30 @@ class SlidingWindowConf(TestConfiguration):
                    self.num_test_buckets]
         buckets = '_'.join(map(str, buckets))
         suffix = '__Test_SlidingWindow_' + buckets
-        suffix += TestConfiguration.generateSuffix(self)
+        suffix += SeveralFoldsTestConfiguration.generateSuffix(self)
         return suffix
 
     @staticmethod
-    def fromJson(obj):
-        alerts_conf = TestConfiguration.alertConfFromJson(obj)
+    def fromJson(obj, logger=None):
+        alerts_conf = SeveralFoldsTestConfiguration.alertConfFromJson(obj, logger=logger)
         conf = SlidingWindowConf(obj['num_buckets'],
                                  obj['num_train_buckets'],
                                  obj['num_test_buckets'],
-                                 alerts_conf=alerts_conf)
+                                 alerts_conf=alerts_conf,
+                                 logger=logger)
         return conf
 
     def toJson(self):
-        conf = TestConfiguration.toJson(self)
+        conf = SeveralFoldsTestConfiguration.toJson(self)
         conf['__type__'] = 'SlidingWindowConf'
         conf['num_buckets'] = self.num_buckets
         conf['num_train_buckets'] = self.num_train_buckets
         conf['num_test_buckets'] = self.num_test_buckets
-        conf['num_folds'] = self.num_folds
         return conf
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = TestConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = SeveralFoldsTestConfiguration.generateParamsFromArgs(args, logger=logger)
         params['num_buckets'] = args.num_buckets
         params['num_train_buckets'] = args.num_train_buckets
         params['num_test_buckets'] = args.num_test_buckets

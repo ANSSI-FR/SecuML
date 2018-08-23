@@ -47,16 +47,20 @@ def getFamiliesInstancesToAnnotate(experiment_id, iteration, predicted_label):
 @app.route('/getInstancesToAnnotate/<experiment_id>/<iteration>/<predicted_label>/')
 def getInstancesToAnnotate(experiment_id, iteration, predicted_label):
     experiment = updateCurrentExperiment(experiment_id)
+    if predicted_label == 'None':
+        filename = 'toannotate.csv'
+    else:
+        filename = 'toannotate_%s.csv' % predicted_label
     filename = path.join(experiment.getOutputDirectory(),
-                         str(iteration),
-                         'toannotate_' + predicted_label + '.csv')
+                         iteration,
+                         filename)
     df = pd.read_csv(filename)
     queries = [int(x) for x in df.instance_id]
     return jsonify({'instances': queries})
 
 
-@app.route('/individualAnnotations/<experiment_id>/<iteration>/<predicted_label>/')
-def individualAnnotations(experiment_id, iteration, predicted_label):
+@app.route('/individualAnnotations/<experiment_id>/<iteration>/')
+def individualAnnotations(experiment_id, iteration):
     experiment = updateCurrentExperiment(experiment_id)
     return render_template('ActiveLearning/individual_annotations.html', project=experiment.project)
 

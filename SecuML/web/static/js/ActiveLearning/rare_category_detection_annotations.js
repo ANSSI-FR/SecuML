@@ -30,7 +30,9 @@ function getCurrentInstance() {
 
 function callback() {
     var main = $('#main')[0];
-    var nav_bars = createDivWithClass('nav_bars', 'col-md-12', parent_div = main);
+    var nav_bars = createDivWithClass('nav_bars',
+                                      'col-md-12',
+                                      parent_div = main);
     displayAnnotationDivision();
     displayInstancesToAnnotate('all', 'primary')();
 }
@@ -41,10 +43,12 @@ function loadConfigurationFile(callback) {
                 conf = data;
                 conf.interactive = false;
                 if (!conf.conf.auto) {
-                    var current_iteration = currentAnnotationIteration(experiment_id);
+                    var current_iteration = currentAnnotationIteration(
+                                                    experiment_id);
                     conf.interactive = label_iteration == current_iteration;
                 }
-                d3.json(buildQuery('getAnnotationsTypes', [experiment_id, label_iteration]),
+                d3.json(buildQuery('getAnnotationsTypes',
+                                   [experiment_id, label_iteration]),
                   function(error, data) {
                     annotations_types = data;
                     callback();
@@ -68,7 +72,10 @@ function displayInstancesToAnnotate(label, type) {
           annotation_queries = data;
           families_list = Object.keys(data);
           // The families with no annotation query are not displayed.
-          families_list = families_list.filter(function nonEmpty(x) {return annotation_queries[x]['instance_ids'].length > 0});
+          families_list = families_list.filter(
+                    function nonEmpty(x) {
+                        return annotation_queries[x]['instance_ids'].length > 0
+                    });
           num_families = families_list.length;
           current_family_index = 0;
           updateFamilyNavbar();
@@ -130,7 +137,8 @@ function displayPrevFamily() {
 
 function updateFamilyNavbar() {
   var iter_family = cleanDiv('iter_family');
-  iter_family.appendChild(document.createTextNode((current_family_index+1) + ' / ' + num_families));
+  iter_family.appendChild(document.createTextNode(
+                          (current_family_index+1) + ' / ' + num_families));
   var current_family = cleanDiv('current_family');
   var current_family_label = document.createElement('label');
   current_family_label.setAttribute('class', 'label label-' + current_type);
@@ -142,7 +150,8 @@ function updateFamilyNavbar() {
 
 function updateInstanceNavbar() {
   var iter_label = cleanDiv('iter_label');
-  iter_label.appendChild(document.createTextNode((current_instance_index+1) + ' / ' + num_instances));
+  iter_label.appendChild(document.createTextNode(
+                          (current_instance_index+1) + ' / ' + num_instances));
   var suggested_family = null;
   var suggested_label  = null;
   if (confidence_list) {
@@ -151,7 +160,9 @@ function updateInstanceNavbar() {
       suggested_label  = annotation_queries[suggested_family]['label'];
     }
   }
-  printInstanceInformation(instances_list[current_instance_index], suggested_label, suggested_family);
+  printInstanceInformation(instances_list[current_instance_index],
+                           suggested_label,
+                           suggested_family);
 }
 
 function displayNavbars(type, annotations_type, clustering_exp) {
@@ -233,7 +244,6 @@ function displayFamiliesBar(panel_body, type, clustering_exp) {
 }
 
 function displayEndButton(row) {
-  console.log(conf);
   if (conf.interactive) {
     var end_group = document.createElement('h3');
     end_group.setAttribute('class', 'row');
@@ -253,7 +263,8 @@ function displayAnnotationQueriesBar(panel_body, type) {
   var row = createDivWithClass(null,  'row', parent_div = panel_body);
   var annotation_query_label = document.createElement('label');
   annotation_query_label.setAttribute('class', 'col-md-4 control-label');
-  annotation_query_label.appendChild(document.createTextNode('Annotation Query'));
+  annotation_query_label.appendChild(document.createTextNode(
+                          'Annotation Query'));
   row.appendChild(annotation_query_label);
   var iter_label = document.createElement('label');
   iter_label.setAttribute('class', 'col-md-2 control-label');

@@ -1,6 +1,8 @@
 Data and Problem-Specific Visualizations
 ========================================
 
+.. _Data:
+
 Data
 ----
 
@@ -66,7 +68,7 @@ coming from the same spam campaign.
 
 :ref:`ILAB <ILAB>` and :ref:`rare category detection <RCD>` require that the families are specified.
 Besides, the families can be leveraged by :ref:`DIADEM <DIADEM>` to cluster alerts according to
-user defined malicious families.
+user-defined malicious families.
 
 **Ground Truth and Partial Annotations**
 

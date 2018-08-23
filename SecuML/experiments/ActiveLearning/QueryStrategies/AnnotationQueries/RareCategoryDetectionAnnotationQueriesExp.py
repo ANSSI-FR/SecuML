@@ -16,55 +16,67 @@
 
 from SecuML.core.ActiveLearning.QueryStrategies.AnnotationQueries.RareCategoryDetectionAnnotationQueries \
     import RareCategoryDetectionAnnotationQueries
-from SecuML.core.Clustering.Configuration.ClusteringConfiguration import ClusteringConfiguration
+from SecuML.core.Clustering.Configuration.ClusteringConfiguration \
+        import ClusteringConfiguration
 from SecuML.core.Clustering.Clustering import Clustering
 
-from SecuML.experiments.ActiveLearning.QueryStrategies.AnnotationQueries.AnnotationQueryExp import AnnotationQueryExp
-from SecuML.experiments.ActiveLearning.QueryStrategies.AnnotationQueries.CategoriesExp import CategoriesExp
-from SecuML.experiments.Classification.ClassificationExperiment import ClassificationExperiment
-from SecuML.experiments.Clustering.ClusteringExperiment import ClusteringExperiment
+from SecuML.experiments.ActiveLearning.QueryStrategies.AnnotationQueries.AnnotationQueryExp \
+        import AnnotationQueryExp
+from SecuML.experiments.ActiveLearning.QueryStrategies.AnnotationQueries.CategoriesExp \
+        import CategoriesExp
+from SecuML.experiments.Classification.ClassificationExperiment \
+        import ClassificationExperiment
+from SecuML.experiments.Clustering.ClusteringExperiment \
+        import ClusteringExperiment
 
 
 class RareCategoryDetectionAnnotationQueriesExp(RareCategoryDetectionAnnotationQueries):
 
-    def __init__(self, iteration, label, proba_min, proba_max, multiclass_exp=None,
-                 input_checking=True):
+    def __init__(self, iteration, label, proba_min, proba_max,
+                 multiclass_exp=None, input_checking=True):
         RareCategoryDetectionAnnotationQueries.__init__(
-            self, iteration, label, proba_min, proba_max, input_checking=input_checking)
+            self, iteration, label, proba_min, proba_max,
+            input_checking=input_checking)
         self.multiclass_exp = multiclass_exp
         self.experiment = iteration.experiment
 
     def generateAnnotationQuery(self, instance_id, predicted_proba,
-                                suggested_label, suggested_family, confidence=None):
+                                suggested_label, suggested_family,
+                                confidence=None):
         return AnnotationQueryExp(instance_id, predicted_proba,
-                                  suggested_label, suggested_family, confidence=confidence)
+                                  suggested_label, suggested_family,
+                                  confidence=confidence)
 
     def getMulticlassConf(self):
         conf = self.rare_category_detection_conf.classification_conf
         exp = self.experiment
-        name = '-'.join(['AL' + str(exp.experiment_id),
-                         'Iter' + str(self.iteration.iteration_number),
+        name = '-'.join(['AL%d' % exp.experiment_id,
+                         'Iter%d' % self.iteration.iteration_number,
                          self.label,
                          'analysis'])
-        self.multiclass_exp = ClassificationExperiment(exp.project, exp.dataset,
-                                                       exp.session,
-                                                       experiment_name=name,
-                                                       parent=exp.experiment_id)
+        self.multiclass_exp = ClassificationExperiment(exp.secuml_conf,
+                                                       session=exp.session)
+        self.multiclass_exp.initExperiment(exp.project, exp.dataset,
+                                           experiment_name=name,
+                                           parent=exp.experiment_id)
         self.multiclass_exp.setConf(conf, exp.features_filename,
                                     annotations_id=exp.annotations_id)
         self.multiclass_exp.export()
         return conf
 
     def createClusteringExperiment(self):
-        conf = ClusteringConfiguration(self.categories.numCategories())
         exp = self.experiment
-        name = '-'.join(['AL' + str(exp.experiment_id),
-                         'Iter' + str(self.iteration.iteration_number),
+        conf = ClusteringConfiguration(self.categories.numCategories(),
+                                       logger=exp.logger)
+        name = '-'.join(['AL%d' % exp.experiment_id,
+                         'Iter%d' % self.iteration.iteration_number,
                          self.label,
                          'clustering'])
-        clustering_exp = ClusteringExperiment(exp.project, exp.dataset, exp.session,
-                                              experiment_name=name,
-                                              parent=exp.experiment_id)
+        clustering_exp = ClusteringExperiment(exp.secuml_conf,
+                                              session=exp.session)
+        clustering_exp.initExperiment(exp.project, exp.dataset,
+                                      experiment_name=name,
+                                      parent=exp.experiment_id)
         clustering_exp.setConf(conf, exp.features_filename,
                                annotations_id=exp.annotations_id)
         clustering_exp.export()
@@ -80,7 +92,8 @@ class RareCategoryDetectionAnnotationQueriesExp(RareCategoryDetectionAnnotationQ
         else:
             self.clustering_exp = None
 
-    def setCategories(self, all_instances, assigned_categories, predicted_proba):
+    def setCategories(self, all_instances, assigned_categories,
+                      predicted_proba):
         self.categories = CategoriesExp(self.multiclass_exp,
                                         self.iteration,
                                         all_instances,

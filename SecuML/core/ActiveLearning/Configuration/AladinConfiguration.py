@@ -30,7 +30,7 @@ def aladinMulticlassModelConf(logger):
     classifier_args['families_supervision'] = True
     classifier_args['alerts_conf'] = None
     classifier_args['optim_algo'] = 'liblinear'
-    test_conf = UnlabeledLabeledConf()
+    test_conf = UnlabeledLabeledConf(logger=logger)
     classifier_args['test_conf'] = test_conf
     factory = ClassifierConfFactory.getFactory()
     multiclass_model_conf = factory.fromParam('LogisticRegression',
@@ -41,7 +41,8 @@ def aladinMulticlassModelConf(logger):
 
 class AladinConfiguration(ActiveLearningConfiguration):
 
-    def __init__(self, auto, budget, num_annotations, binary_model_conf, validation_conf, logger=None):
+    def __init__(self, auto, budget, num_annotations, binary_model_conf,
+                 validation_conf, logger=None):
         ActiveLearningConfiguration.__init__(
             self, auto, budget, validation_conf, logger=logger)
         self.query_strategy = 'Aladin'
@@ -71,7 +72,8 @@ class AladinConfiguration(ActiveLearningConfiguration):
         binary_model_conf = ClassifierConfFactory.getFactory().fromJson(
             obj['models_conf']['binary'])
         conf = AladinConfiguration(obj['auto'], obj['budget'],
-                                   obj['num_annotations'], binary_model_conf, validation_conf)
+                                   obj['num_annotations'], binary_model_conf,
+                                   validation_conf)
         return conf
 
     def toJson(self):
@@ -82,25 +84,29 @@ class AladinConfiguration(ActiveLearningConfiguration):
 
     @staticmethod
     def generateParser(parser):
-        al_group = ActiveLearningConfiguration.generateParser(parser,
-                                                              classifier_conf=False)
+        al_group = ActiveLearningConfiguration.generateParser(
+                parser,
+                classifier_conf=False)
         al_group.add_argument('--num-annotations',
                               type=int,
                               default=100,
-                              help='Number of annotations asked from the user at each iteration.')
+                              help='Number of annotations asked from the user '
+                                   'at each iteration.')
 
     @staticmethod
-    def generateParamsFromArgs(args):
+    def generateParamsFromArgs(args, logger=None):
         supervised_args = {}
         supervised_args['num_folds'] = 4
         supervised_args['sample_weight'] = False
         supervised_args['families_supervision'] = False
-        test_conf = UnlabeledLabeledConf()
+        test_conf = UnlabeledLabeledConf(logger=logger)
         supervised_args['test_conf'] = test_conf
         binary_model_conf = ClassifierConfFactory.getFactory().fromParam(
-            'LogisticRegression', supervised_args)
-        params = ActiveLearningConfiguration.generateParamsFromArgs(args,
-                                                                    binary_model_conf=binary_model_conf)
+            'LogisticRegression', supervised_args, logger=logger)
+        params = ActiveLearningConfiguration.generateParamsFromArgs(
+                args,
+                binary_model_conf=binary_model_conf,
+                logger=logger)
         params['num_annotations'] = args.num_annotations
         return params
 

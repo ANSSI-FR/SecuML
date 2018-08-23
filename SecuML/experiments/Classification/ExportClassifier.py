@@ -43,6 +43,7 @@ class ExportClassifier(object):
             self.dumpModel()
         else:
             alread_trained_dir = dir_exp_tools.getExperimentOutputDirectory(
+                    self.experiment.secuml_conf,
                     self.experiment.project,
                     self.experiment.dataset,
                     already_trained)

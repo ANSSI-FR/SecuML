@@ -1,10 +1,9 @@
 var path = window.location.pathname.split('/');
 var experiment_id     = path[2];
 var label_iteration   = path[3];
-var predicted_label   = path[4];
 var exp_type          = 'ActiveLearning';
 
-var label_method = 'annotation_' + predicted_label;
+var label_method = 'annotation';
 
 var instances_list           = null;
 var num_instances            = null;
@@ -42,7 +41,7 @@ function loadConfigurationFile(callback) {
 
 function displayInstancesToAnnotate() {
   var query = buildQuery('getInstancesToAnnotate',
-                         [experiment_id, label_iteration, predicted_label]);
+                         [experiment_id, label_iteration, 'None']);
   d3.json(query, function(error, data) {
       instances_list = data['instances'];
       current_instance_index = 0;
@@ -118,7 +117,7 @@ function displayDivisions(conf) {
     end_button.setAttribute('class', 'btn btn-primary');
     end_button.setAttribute('type', 'button');
     end_button.setAttribute('id', 'end_button');
-    var end_button_text = document.createTextNode('End');
+    var end_button_text = document.createTextNode('Next Iteration');
     end_button.appendChild(end_button_text);
     end_button.addEventListener('click', runNextIteration(conf));
     end_group.appendChild(end_button);

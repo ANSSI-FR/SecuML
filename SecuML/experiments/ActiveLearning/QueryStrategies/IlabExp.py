@@ -30,7 +30,8 @@ class IlabExp(Ilab):
     def setQueries(self):
         eps = self.iteration.conf.eps
         self.uncertain = UncertainAnnotationQueriesExp(self.iteration,
-                                                       self.iteration.conf.num_uncertain, 0, 1)
+                                                       self.iteration.conf.num_uncertain, 0, 1,
+                                                       label='uncertain')
         self.malicious = RareCategoryDetectionAnnotationQueriesExp(
             self.iteration, labels_tools.MALICIOUS, 1 - eps, 1,
             input_checking=False)
@@ -76,6 +77,11 @@ class IlabExp(Ilab):
                              'annotations_types.json')
         with open(filename, 'w') as f:
             json.dump(types, f, indent=2)
+
+    def getUrl(self):
+        return 'http://localhost:5000/ilabAnnotations/%d/%d/' % (
+                    self.iteration.experiment.experiment_id,
+                    self.iteration.iteration_number)
 
 
 ActiveLearningStrategyFactoryExp.getFactory().registerClass('IlabExp',

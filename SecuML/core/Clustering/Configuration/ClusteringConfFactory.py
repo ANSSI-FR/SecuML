@@ -34,9 +34,9 @@ class ClusteringConfFactory(object):
     def registerClass(self, class_name, class_obj):
         self.register[class_name] = class_obj
 
-    def fromJson(self, obj):
+    def fromJson(self, obj, logger=None):
         class_name = obj['__type__']
-        obj = self.register[class_name].fromJson(obj)
+        obj = self.register[class_name].fromJson(obj, logger=logger)
         return obj
 
     def fromParam(self, clustering_algo, args, logger=None):
@@ -50,10 +50,15 @@ class ClusteringConfFactory(object):
 
     def fromArgs(self, clustering_algo, args, logger=None):
         class_ = self.register[clustering_algo + 'Configuration']
-        params = class_.generateParamsFromArgs(args)
+        params = class_.generateParamsFromArgs(args, logger=logger)
         return self.fromParam(clustering_algo, params, logger=logger)
 
     def generateParser(self, clustering_algo, parser):
         class_ = self.register[clustering_algo + 'Configuration']
         parser = class_.generateParser(parser)
         return parser
+
+    def getAlgorithms(self):
+        algos = [k.split('Configuration')[0] for k in self.register.keys()]
+        algos.remove('Clustering')
+        return algos

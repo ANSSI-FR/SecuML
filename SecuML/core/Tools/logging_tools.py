@@ -19,17 +19,37 @@ import logging
 import pandas as pd
 
 
-def getDefaultConfig():
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+def getLogger(name, level, output_file):
+    logging.captureWarnings(True)
+    level = logging.getLevelName(level)
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    if output_file is None:
+        ch = logging.StreamHandler()
+    else:
+        ch = logging.FileHandler(output_file)
+    logger.addHandler(ch)
     return logger
+
+
+def getDefaultConfig():
+    return getLogger(None, 'INFO', None)
 
 
 def disableMatplotlibLogging():
     matplotlib_logger = logging.getLogger('matplotlib.font_manager')
     matplotlib_logger.setLevel(logging.CRITICAL)
+    ch = logging.StreamHandler()
+    matplotlib_logger.addHandler(ch)
 
 
 def warningsRaiseErrors():
     # np.seterr(all='raise')
-    pd.options.mode.chained_assignment = "raise"
+    pd.options.mode.chained_assignment = 'raise'
+
+
+def setLogger(logger):
+    if logger is not None:
+        return logger
+    else:
+        return getDefaultConfig()

@@ -26,8 +26,9 @@ from SecuML.core.Classification.Configuration.TestConfiguration.ValidationDatase
 
 class IlabConfiguration(ActiveLearningConfiguration):
 
-    def __init__(self, auto, budget, rare_category_detection_conf, num_uncertain, eps, binary_model_conf,
-                 validation_conf, logger=None):
+    def __init__(self, auto, budget, rare_category_detection_conf,
+                 num_uncertain, eps, binary_model_conf, validation_conf,
+                 logger=None):
         ActiveLearningConfiguration.__init__(
             self, auto, budget, validation_conf, logger=logger)
         self.query_strategy = 'Ilab'
@@ -55,11 +56,11 @@ class IlabConfiguration(ActiveLearningConfiguration):
         validation_conf = None
         if obj['validation_conf'] is not None:
             validation_conf = ValidationDatasetConf.fromJson(
-                obj['validation_conf'])
+                    obj['validation_conf'])
         rare_category_detection_conf = RareCategoryDetectionStrategy.fromJson(
             obj['rare_category_detection_conf'])
         binary_model_conf = ClassifierConfFactory.getFactory().fromJson(
-            obj['models_conf']['binary'])
+                obj['models_conf']['binary'])
         conf = IlabConfiguration(obj['auto'], obj['budget'],
                                  rare_category_detection_conf,
                                  obj['num_uncertain'], obj['eps'],
@@ -81,28 +82,37 @@ class IlabConfiguration(ActiveLearningConfiguration):
         al_group.add_argument('--num-uncertain',
                               type=int,
                               default=10,
-                              help='Number of instances queried close to the decision boundary.')
+                              help='Number of instances queried close to the '
+                                   'decision boundary.')
         al_group.add_argument('--num-annotations',
                               type=int,
                               default=45,
-                              help='Number of instances queried for each family.')
+                              help='Number of instances queried for each '
+                                   'family.')
         al_group.add_argument('--cluster-strategy',
                               default='center_anomalous')
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ActiveLearningConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = ActiveLearningConfiguration.generateParamsFromArgs(
+                                                                args,
+                                                                logger=logger)
         multiclass_classifier_args = {}
         multiclass_classifier_args['num_folds'] = args.num_folds
         multiclass_classifier_args['sample_weight'] = False
         multiclass_classifier_args['families_supervision'] = True
         multiclass_classifier_args['optim_algo'] = 'liblinear'
-        test_conf = UnlabeledLabeledConf()
+        test_conf = UnlabeledLabeledConf(logger=logger)
         multiclass_classifier_args['test_conf'] = test_conf
         multiclass_conf = ClassifierConfFactory.getFactory().fromParam(
-            'LogisticRegression', multiclass_classifier_args)
-        rare_category_detection_conf = RareCategoryDetectionStrategy(multiclass_conf,
-                                                                     args.cluster_strategy, args.num_annotations, 'uniform')
+                                        'LogisticRegression',
+                                        multiclass_classifier_args,
+                                        logger=logger)
+        rare_category_detection_conf = RareCategoryDetectionStrategy(
+                                                multiclass_conf,
+                                                args.cluster_strategy,
+                                                args.num_annotations,
+                                                'uniform')
         params['rare_category_detection_conf'] = rare_category_detection_conf
         params['num_uncertain'] = args.num_uncertain
         params['eps'] = 0.49

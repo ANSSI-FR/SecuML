@@ -15,21 +15,27 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from SecuML.core.DimensionReduction.Algorithms.Projection.Sdml import Sdml
-from SecuML.core.DimensionReduction.Configuration import DimensionReductionConfFactory
+from SecuML.core.DimensionReduction.Configuration \
+        import DimensionReductionConfFactory
 
-from .SemiSupervisedProjectionConfiguration import SemiSupervisedProjectionConfiguration
+from .SemiSupervisedProjectionConfiguration \
+        import SemiSupervisedProjectionConfiguration
 
 
 class SdmlConfiguration(SemiSupervisedProjectionConfiguration):
 
-    def __init__(self, families_supervision=None):
+    def __init__(self, families_supervision=None, logger=None):
         SemiSupervisedProjectionConfiguration.__init__(
-            self, Sdml, families_supervision=families_supervision)
+                        self,
+                        Sdml,
+                        families_supervision=families_supervision,
+                        logger=logger)
 
     @staticmethod
-    def fromJson(obj):
+    def fromJson(obj, logger=None):
         conf = SdmlConfiguration(
-            families_supervision=obj['families_supervision'])
+            families_supervision=obj['families_supervision'],
+            logger=logger)
         conf.num_components = obj['num_components']
         return conf
 

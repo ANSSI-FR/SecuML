@@ -14,8 +14,10 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+from SecuML.core.Tools.core_exceptions import SecuMLcoreException
 
-class InvalidPredictions(Exception):
+
+class InvalidPredictions(SecuMLcoreException):
 
     def __init__(self, message):
         self.message = message
@@ -46,34 +48,35 @@ class Predictions(object):
     def setGroundTruth(self, ground_truth):
         num_instances = self.numInstances()
         if len(self.ground_truth) != num_instances:
-            message = 'There are ' + str(num_instances) + ' instances '
-            message += 'but ' + str(len(self.ground_truth)) + \
-                'ground-truth annotations are provided.'
-            raise InvalidPredictions(message)
+            raise InvalidPredictions(
+                    'There are %d instances '
+                    'but %d ground-truth annotations are provided'
+                     % (num_instances, len(self.ground_truth)))
         self.ground_truth = ground_truth
 
     def checkValidity(self):
-        message = None
         num_instances = self.numInstances()
         if len(self.predictions) != num_instances:
-            message = 'There are ' + str(num_instances) + ' instances '
-            message += 'but ' + str(len(self.predictions)) + \
-                ' predictions are provided.'
+            raise InvalidPredictions('There are %d instances '
+                                     'but %d predictions are provided.'
+                                     % (num_instances, len(self.predictions)))
         elif len(self.all_predicted_proba) != num_instances:
-            message = 'There are ' + str(num_instances) + ' instances '
-            message += 'but ' + str(len(self.predictions)) + \
-                ' arrays of probabilities are provided.'
+            raise InvalidPredictions('There are %d instances '
+                                     'but %d arrays of probabilities '
+                                     'are provided.' % (num_instances,
+                                                        len(self.predictions)))
         elif len(self.predicted_proba) != num_instances:
-            message = 'There are ' + str(num_instances) + ' instances '
-            message += 'but ' + str(len(self.predicted_proba)) + \
-                ' probabilities are provided.'
+            raise InvalidPredictions('There are %d instances '
+                                     'but %d probabilities are provided.'
+                                     % (num_instances,
+                                        len(self.predicted_proba)))
         elif len(self.predicted_scores) != num_instances:
-            message = 'There are ' + str(num_instances) + ' instances '
-            message += 'but ' + \
-                str(len(self.predicted_scores)) + ' scores are provided.'
+            raise InvalidPredictions('There are %d instances '
+                                     'but %d scores are provided.'
+                                     % (num_instances,
+                                        len(self.predicted_scores)))
         elif len(self.ground_truth) != num_instances:
-            message = 'There are ' + str(num_instances) + ' instances '
-            message += 'but ' + str(len(self.ground_truth)) + \
-                'ground-truth annotations are provided.'
-        if message is not None:
-            raise InvalidPredictions(message)
+            raise InvalidPredictions('There are %d instances '
+                                     'but %d ground-truth annotations '
+                                     'are provided.' % (num_instances,
+                                                        len(self.ground_truth)))

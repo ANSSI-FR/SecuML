@@ -15,36 +15,40 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from . import TestConfFactory
-from .TestConfiguration import TestConfiguration
+from .SeveralFoldsTestConfiguration import SeveralFoldsTestConfiguration
 
 
-class CvConf(object):
+class CvConf(SeveralFoldsTestConfiguration):
 
-    def __init__(self, num_folds, alerts_conf=None):
-        TestConfiguration.__init__(self, alerts_conf=alerts_conf)
+    def __init__(self, num_folds, alerts_conf=None, logger=None):
+        SeveralFoldsTestConfiguration.__init__(self, num_folds,
+                                               alerts_conf=alerts_conf,
+                                               logger=logger)
         self.method = 'cv'
-        self.num_folds = num_folds
 
     def generateSuffix(self):
         suffix = '__Test_Cv_' + str(self.num_folds)
-        suffix += TestConfiguration.generateSuffix(self)
+        suffix += SeveralFoldsTestConfiguration.generateSuffix(self)
         return suffix
 
     @staticmethod
-    def fromJson(obj):
-        alerts_conf = TestConfiguration.alertConfFromJson(obj)
-        conf = CvConf(obj['num_folds'], alerts_conf)
+    def fromJson(obj, logger=None):
+        alerts_conf = SeveralFoldsTestConfiguration.alertConfFromJson(
+                                obj,
+                                logger=logger)
+        conf = CvConf(obj['num_folds'], alerts_conf, logger=logger)
         return conf
 
     def toJson(self):
-        conf = TestConfiguration.toJson(self)
+        conf = SeveralFoldsTestConfiguration.toJson(self)
         conf['__type__'] = 'CvConf'
-        conf['num_folds'] = self.num_folds
         return conf
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = TestConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = SeveralFoldsTestConfiguration.generateParamsFromArgs(
+                                    args,
+                                    logger=logger)
         params['num_folds'] = args.num_folds
         return params
 

@@ -50,7 +50,7 @@ class Rca(SemiSupervisedProjection):
     def getFittingInstances(self, instances):
         return instances
 
-    # RCA can handle chunks with one one instance.
+    # RCA can handle chunks with one instance.
     # There is no need to remove the instances those family is too rare.
     def generateInputLabels(self, instances):
         if self.conf.families_supervision:
@@ -58,11 +58,11 @@ class Rca(SemiSupervisedProjection):
         else:
             labels = instances.annotations.getLabels()
         # String labels are transformed into integer labels (0 -> num_labels-1).
-        # This format is required by the library metric-learn.
+        # This format is required by the metric-learn library.
         # None labels are transformed into -1.
         labels_values = list(set(labels).difference(set([None])))
         if len(labels_values) < 2:
             raise FewerThanTwoLabels()
-        labels = [labels_values.index(
-            x) if x is not None else -1 for x in labels]
+        labels = [labels_values.index(x) \
+                if x is not None else -1 for x in labels]
         return labels, instances

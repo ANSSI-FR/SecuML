@@ -26,11 +26,11 @@ def toPercentage(x):
     if math.isnan(x):
         return str(x)
     else:
-        return str(int(x * 10000) / 100) + '%'
+        return '%.2f%%' % (x*100)
 
 
 def trunc(x):
     if math.isnan(x):
         return x
     else:
-        return int(x * 10000) / 10000
+        return '%.2f' % (x)

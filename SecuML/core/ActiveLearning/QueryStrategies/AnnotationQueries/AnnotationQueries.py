@@ -25,7 +25,7 @@ from .AnnotationQuery import AnnotationQuery
 
 class AnnotationQueries(object):
 
-    def __init__(self, iteration, label):
+    def __init__(self, iteration, label=None):
         self.iteration = iteration
         self.label = label
         self.annotation_queries = []
@@ -73,8 +73,11 @@ class AnnotationQueries(object):
         iteration_dir = self.iteration.iteration_dir
         if iteration_dir is None:
             return
-        filename = path.join(iteration_dir,
-                             'toannotate_' + self.label + '.csv')
+        if self.label is None:
+            filename = 'toannotate.csv'
+        else:
+            filename = 'toannotate_%s.csv' % self.label
+        filename = path.join(iteration_dir, filename)
         with open(filename, 'w') as f:
             for i, annotation_query in enumerate(self.annotation_queries):
                 if i == 0:

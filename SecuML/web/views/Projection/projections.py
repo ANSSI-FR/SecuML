@@ -39,7 +39,7 @@ def getNumComponents(experiment_id):
 def getHexBin(experiment_id, x, y):
     experiment = updateCurrentExperiment(experiment_id)
     directory = experiment.getOutputDirectory()
-    filename = 'c_' + x + '_' + y + '_hexbin.json'
+    filename = '_'.join(['c', x, y, 'hexbin.json'])
     return send_file(path.join(directory, filename))
 
 

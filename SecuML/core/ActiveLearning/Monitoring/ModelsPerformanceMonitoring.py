@@ -72,16 +72,15 @@ class TrainTestValidationPerformanceMonitoring(object):
         if self.monitoring.iteration_number == 1:
             self.displayCsvHeader(evolution_file)
         with open(evolution_file, 'a') as f:
-            v = []
-            v.append(self.monitoring.iteration_number)
-            v += self.perf_indicators.getCsvLine()
+            v = [self.monitoring.iteration_number]
+            v.extend(self.perf_indicators.getCsvLine())
             csv_writer = csv.writer(f)
             csv_writer.writerow(v)
 
     def displayCsvHeader(self, evolution_file):
         with open(evolution_file, 'w') as f:
             header = ['iteration']
-            header += self.perf_indicators.getCsvHeader()
+            header.extend(self.perf_indicators.getCsvHeader())
             csv_writer = csv.writer(f)
             csv_writer.writerow(header)
 

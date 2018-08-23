@@ -50,12 +50,12 @@ class Aladin(QueryStrategy):
 
     def executionTimeHeader(self):
         header = ['logistic_regression', 'naive_bayes']
-        header += QueryStrategy.executionTimeHeader(self)
+        header.extend(QueryStrategy.executionTimeHeader(self))
         return header
 
     def executionTimeMonitoring(self):
         line = [self.unsure.lr_time, self.unsure.nb_time]
-        line += QueryStrategy.executionTimeMonitoring(self)
+        line.extend(QueryStrategy.executionTimeMonitoring(self))
         return line
 
     def executionTimeDisplay(self):
@@ -63,4 +63,6 @@ class Aladin(QueryStrategy):
         lr.setLinestyle('dotted')
         nb = PlotDataset(None, 'Naive Bayes')
         nb.setLinestyle('dashed')
-        return [lr, nb] + QueryStrategy.executionTimeDisplay(self)
+        v = [lr, nb]
+        v.extend(QueryStrategy.executionTimeDisplay(self))
+        return v

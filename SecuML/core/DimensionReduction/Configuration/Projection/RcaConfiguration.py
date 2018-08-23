@@ -15,22 +15,29 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from SecuML.core.DimensionReduction.Algorithms.Projection.Rca import Rca
-from SecuML.core.DimensionReduction.Configuration import DimensionReductionConfFactory
+from SecuML.core.DimensionReduction.Configuration \
+        import DimensionReductionConfFactory
 
-from .SemiSupervisedProjectionConfiguration import SemiSupervisedProjectionConfiguration
+from .SemiSupervisedProjectionConfiguration \
+        import SemiSupervisedProjectionConfiguration
 
 
 class RcaConfiguration(SemiSupervisedProjectionConfiguration):
 
-    def __init__(self, num_components=None, families_supervision=None):
-        SemiSupervisedProjectionConfiguration.__init__(self, Rca,
-                                                       num_components=num_components,
-                                                       families_supervision=families_supervision)
+    def __init__(self, num_components=None, families_supervision=None,
+                 logger=None):
+        SemiSupervisedProjectionConfiguration.__init__(
+                            self,
+                            Rca,
+                            num_components=num_components,
+                            families_supervision=families_supervision,
+                            logger=logger)
 
     @staticmethod
-    def fromJson(obj):
+    def fromJson(obj, logger=None):
         conf = RcaConfiguration(num_components=obj['num_components'],
-                                families_supervision=obj['families_supervision'])
+                             families_supervision=obj['families_supervision'],
+                             logger=logger)
         return conf
 
     def toJson(self):

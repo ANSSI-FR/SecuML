@@ -16,10 +16,11 @@
 
 import argparse
 
-from SecuML.core.DimensionReduction.Configuration import DimensionReductionConfFactory
+from SecuML.core.DimensionReduction.Configuration \
+        import DimensionReductionConfFactory
 
 from SecuML.experiments import ExperimentFactory
-from SecuML.experiments.DimensionReduction.DimensionReductionExperiment import DimensionReductionExperiment
+from .DimensionReductionExperiment import DimensionReductionExperiment
 
 
 class ProjectionExperiment(DimensionReductionExperiment):
@@ -33,10 +34,11 @@ class ProjectionExperiment(DimensionReductionExperiment):
         return suffix
 
     @staticmethod
-    def fromJson(obj, session):
+    def fromJson(obj, secuml_conf):
         conf = DimensionReductionConfFactory.getFactory().fromJson(obj['conf'])
-        experiment = ProjectionExperiment(obj['project'], obj['dataset'],
-                                          session, create=False)
+        experiment = ProjectionExperiment(secuml_conf)
+        experiment.initExperiment(obj['project'], obj['dataset'],
+                                  create=False)
         DimensionReductionExperiment.expParamFromJson(experiment, obj, conf)
         return experiment
 
@@ -54,6 +56,7 @@ class ProjectionExperiment(DimensionReductionExperiment):
         DimensionReductionExperiment.generateDimensionReductionParser(parser)
         algos = ['Pca', 'Rca', 'Lda', 'Lmnn', 'Nca', 'Itml']
         subparsers = parser.add_subparsers(dest='algo')
+        subparsers.required = True
         factory = DimensionReductionConfFactory.getFactory()
         for algo in algos:
             algo_parser = subparsers.add_parser(algo)

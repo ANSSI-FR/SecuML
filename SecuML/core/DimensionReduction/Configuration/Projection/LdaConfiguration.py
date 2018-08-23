@@ -15,22 +15,29 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from SecuML.core.DimensionReduction.Algorithms.Projection.Lda import Lda
-from SecuML.core.DimensionReduction.Configuration import DimensionReductionConfFactory
+from SecuML.core.DimensionReduction.Configuration \
+        import DimensionReductionConfFactory
 
-from .SemiSupervisedProjectionConfiguration import SemiSupervisedProjectionConfiguration
+from .SemiSupervisedProjectionConfiguration \
+        import SemiSupervisedProjectionConfiguration
 
 
 class LdaConfiguration(SemiSupervisedProjectionConfiguration):
 
-    def __init__(self, num_components=None, families_supervision=None):
-        SemiSupervisedProjectionConfiguration.__init__(self, Lda,
-                                                       num_components=num_components,
-                                                       families_supervision=families_supervision)
+    def __init__(self, num_components=None, families_supervision=None,
+                 logger=None):
+        SemiSupervisedProjectionConfiguration.__init__(
+                            self,
+                            Lda,
+                            num_components=num_components,
+                            families_supervision=families_supervision,
+                            logger=logger)
 
     @staticmethod
-    def fromJson(obj):
+    def fromJson(obj, logger=None):
         conf = LdaConfiguration(num_components=obj['num_components'],
-                                families_supervision=obj['families_supervision'])
+                                families_supervision=obj['families_supervision'],
+                                logger=logger)
         return conf
 
     def toJson(self):

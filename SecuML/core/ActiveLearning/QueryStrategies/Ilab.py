@@ -35,7 +35,8 @@ class Ilab(QueryStrategy):
         self.uncertain = UncertainAnnotationQueries(
             self.iteration,
             self.iteration.conf.num_uncertain,
-            0, 1)
+            0, 1,
+            label='uncertain')
         # input_checking set to False, because ILAB strategy handles
         # the case where the dataset contains too few families.
         # In this case, random sampling is used instead
@@ -97,15 +98,17 @@ class Ilab(QueryStrategy):
         clusters = []
         ground_truth_families = []
         if self.malicious.categories is not None:
-            clusters += list(self.malicious.categories.assigned_categories)
-            ground_truth_families += self.malicious.categories.instances.ground_truth.getFamilies()
+            clusters.extend(self.malicious.categories.assigned_categories)
+            ground_truth_families.extend(
+                    self.malicious.categories.instances.ground_truth.getFamilies())
         if self.benign.categories is not None:
             max_clusters = 0
             if len(clusters) > 0:
                 max_clusters = max(clusters)
-            clusters += [x + max_clusters +
-                         1 for x in list(self.benign.categories.assigned_categories)]
-            ground_truth_families += self.benign.categories.instances.ground_truth.getFamilies()
+            clusters.extend([x + max_clusters + 1 \
+                    for x in list(self.benign.categories.assigned_categories)])
+            ground_truth_families.extend(
+                    self.benign.categories.instances.ground_truth.getFamilies())
         return clusters, ground_truth_families
 
     def checkAnnotationQueriesAnswered(self):
@@ -128,12 +131,13 @@ class Ilab(QueryStrategy):
         return header
 
     def executionTimeMonitoring(self):
-        line = [self.malicious.analysis_time +
-                self.malicious.generate_queries_time]
-        line += [self.iteration.update_model.times['binary'] +
-                 self.uncertain.generate_queries_time]
-        line += [self.benign.analysis_time + self.benign.generate_queries_time]
-        return line
+        malicious_time = self.malicious.analysis_time
+        malicious_time += self.malicious.generate_queries_time
+        uncertain_time = self.iteration.update_model.times['binary']
+        uncertain_time += self.uncertain.generate_queries_time
+        benign_time = self.benign.analysis_time
+        benign_time += self.benign.generate_queries_time
+        return [malicious_time, uncertain_time, benign_time]
 
     def executionTimeDisplay(self):
         uncertain = PlotDataset(None, 'Uncertain Queries')

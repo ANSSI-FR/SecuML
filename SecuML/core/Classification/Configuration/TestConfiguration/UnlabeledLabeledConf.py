@@ -15,34 +15,35 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from . import TestConfFactory
-from .TestConfiguration import TestConfiguration
+from .OneFoldTestConfiguration import OneFoldTestConfiguration
 
 
-class UnlabeledLabeledConf(TestConfiguration):
+class UnlabeledLabeledConf(OneFoldTestConfiguration):
 
-    def __init__(self, alerts_conf=None):
-        TestConfiguration.__init__(self, alerts_conf=alerts_conf)
+    def __init__(self, alerts_conf=None, logger=None):
+        OneFoldTestConfiguration.__init__(self, alerts_conf=alerts_conf,
+                                          logger=logger)
         self.method = 'unlabeled'
 
     def generateSuffix(self):
         suffix = '__UnlabeledLabeled'
-        suffix += TestConfiguration.generateSuffix(self)
+        suffix += OneFoldTestConfiguration.generateSuffix(self)
         return suffix
 
     @staticmethod
-    def fromJson(obj):
-        alerts_conf = TestConfiguration.alertConfFromJson(obj)
-        conf = UnlabeledLabeledConf(alerts_conf=alerts_conf)
+    def fromJson(obj, logger=None):
+        alerts_conf = OneFoldTestConfiguration.alertConfFromJson(obj, logger=logger)
+        conf = UnlabeledLabeledConf(alerts_conf=alerts_conf, logger=logger)
         return conf
 
     def toJson(self):
-        conf = TestConfiguration.toJson(self)
+        conf = OneFoldTestConfiguration.toJson(self)
         conf['__type__'] = 'UnlabeledLabeledConf'
         return conf
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = TestConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = OneFoldTestConfiguration.generateParamsFromArgs(args, logger=logger)
         return params
 
 

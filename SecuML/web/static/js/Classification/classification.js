@@ -7,20 +7,19 @@ loadConfigurationFile(experiment_id, callback);
 
 function loadConfigurationFile(experiment_id, callback) {
   $.getJSON(buildQuery('getConf', [experiment_id]),
-            function(data) {
-                var conf = data;
-                console.log(conf);
-                if (conf.classification_conf.test_conf.method == 'dataset') {
-                    var test_dataset = conf.classification_conf.test_conf.test_dataset;
-                    var validation_exp = getTestExperimentId(conf.experiment_id);
-                    conf.validation_has_ground_truth = hasGroundTruth(validation_exp);
-                } else {
-                    conf.validation_has_ground_truth = conf.has_ground_truth;
-                }
-                conf.exp_type = exp_type;
-                callback(conf);
-            }
-           );
+     function(data) {
+         var conf = data;
+         if (conf.classification_conf.test_conf.method == 'dataset') {
+             var test_dataset = conf.classification_conf.test_conf.test_dataset;
+             var validation_exp = getTestExperimentId(conf.experiment_id);
+             conf.validation_has_ground_truth = hasGroundTruth(validation_exp);
+         } else {
+             conf.validation_has_ground_truth = conf.has_ground_truth;
+         }
+         conf.exp_type = exp_type;
+         callback(conf);
+     }
+    );
 }
 
 function displaySettings(conf) {

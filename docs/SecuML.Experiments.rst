@@ -16,12 +16,16 @@ All the experiments share the following arguments:
 * ``project``: the name of the project;
 * ``dataset``: the name of the dataset belonging to ``project``;
 * [optional] ``--features``: the name of the csv file containing the features;
-* [optional] ``--exp-name``: the name of the experiment.
+* [optional] ``--exp-name``: the name of the experiment;
+* [optional] ``--secuml-conf``: the name of the experiment.
 
 If ``--features`` is not specified, the features are read from the file ``features.csv``.
 
 If ``--exp-name`` is not specified, a name is automatically generated from the input parameters
 of the experiment.
+
+If ``--secuml-conf`` is not specified, the path of the configuration file is read in the environment variable
+``SECUMLCONF``.
 
 .. note::
 
@@ -30,14 +34,15 @@ of the experiment.
 
 Visualizing the Results
 -----------------------
-Once an experiment has been computed, its results can be displayed in the web user interface.
+Once an experiment has been successfully completed, the following message is displayed:
 
-``http://localhost:5000/SecuML/`` gives access to SecuML menu.
-It displays the list of projects and datasets available.
-Besides, for each dataset, it displays the list of experiments gathered by type.
+.. code-block:: bash
 
-``http://localhost:5000/SecuML/<experiment_id>/`` displays directly
-the results of an experiment identified by ``experiment_id``.
+  Experiment <experiment_id> has been successfully completed.
+  See http://localhost:5000/SecuML/<experiment_id>/ to display the results.
+
+
+The results can then be displayed in the :ref:`web user interface <GUI>` with the URL provided.
 
 .. note::
 
@@ -46,7 +51,7 @@ the results of an experiment identified by ``experiment_id``.
 Types of Experiments Available
 ------------------------------
 * :ref:`DIADEM: Training and Diagnosing Detection Model <DIADEM>`
-* :ref:`ILAB: Annotating a Dataset with a Workload <ILAB>`
+* :ref:`ILAB: Annotating a Dataset with a Reduced Workload <ILAB>`
 * :ref:`Exploring a Dataset Interactively with Rare Category Detection <RCD>`
 * :ref:`Clustering <clustering>`
 * :ref:`Projection <projection>`

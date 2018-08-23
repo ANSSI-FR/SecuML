@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import hashlib
 import os
 import shutil
 
@@ -36,6 +37,7 @@ def createDirectory(directory):
     removeDirectory(directory)
     os.makedirs(directory)
 
+
 # If the directory exists, it is deleted
 def removeDirectory(directory):
     if os.path.isdir(directory):
@@ -47,3 +49,14 @@ def countLines(filename):
         for i, l in enumerate(f):
             pass
     return i + 1
+
+
+def computeMD5(filename):
+    BLOCKSIZE = 65536
+    hasher = hashlib.md5()
+    with open(filename, 'rb') as f:
+        buf = f.read(BLOCKSIZE)
+        while len(buf) > 0:
+            hasher.update(buf)
+            buf = f.read(BLOCKSIZE)
+    return hasher.hexdigest()

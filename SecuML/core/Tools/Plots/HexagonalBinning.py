@@ -19,7 +19,7 @@ import numpy as np
 import math
 import matplotlib.transforms as mtrans
 
-from .HexagonalBin import HexagonalBin, HexagonalBinEncoder
+from .HexagonalBin import HexagonalBin
 
 epsilon = 0.001
 
@@ -110,30 +110,27 @@ class HexagonalBinning(object):
     def printBinning(self, pc_x_index, pc_y_index, output_file):
         with open(output_file, 'w') as f:
             k = 0
-            f.write('[')
-
+            f.write('[\n')
             # Prints xmin, xmax, ymin, ymax
-            line = '{'
-            line += '"xmin":' + str(self.xmin) + ','
-            line += '"xmax":' + str(self.xmax) + ','
-            line += '"ymin":' + str(self.ymin) + ','
-            line += '"ymax":' + str(self.ymax)
-            line += '},'
-            f.write(line)
-
+            min_max = {'xmin': self.xmin,
+                       'xmax': self.xmax,
+                       'ymin': self.ymin,
+                       'ymax': self.ymax}
+            json.dump(min_max, f)
+            f.write(',')
             # Prints information about each hexagonal bin
             for i in range(self.nx):
                 for j in range(self.ny):
                     if self.lattice1[i, j].hasInstances():
                         if k != 0:
                             f.write(',')
-                        json.dump(self.lattice1[i, j], f, cls=HexagonalBinEncoder,
+                        json.dump(self.lattice1[i, j].toJson(), f,
                                   sort_keys=True)
                         k += 1
                     if self.lattice2[i, j].hasInstances():
                         if k != 0:
                             f.write(',')
-                        json.dump(self.lattice2[i, j], f, cls=HexagonalBinEncoder,
+                        json.dump(self.lattice2[i, j].toJson(), f,
                                   sort_keys=True)
                         k += 1
             f.write('\n]')

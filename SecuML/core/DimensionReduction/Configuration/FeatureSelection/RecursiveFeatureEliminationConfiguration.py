@@ -21,20 +21,23 @@ from sklearn.tree import DecisionTreeClassifier
 
 from SecuML.core.DimensionReduction.Algorithms.FeatureSelection.RecursiveFeatureElimination \
     import RecursiveFeatureElimination
-from SecuML.core.DimensionReduction.Configuration import DimensionReductionConfFactory
+from SecuML.core.DimensionReduction.Configuration \
+        import DimensionReductionConfFactory
 
-from .SemiSupervisedFeatureSelectionConfiguration import SemiSupervisedFeatureSelectionConfiguration
+from .SemiSupervisedFeatureSelectionConfiguration \
+        import SemiSupervisedFeatureSelectionConfiguration
 
 
 class RecursiveFeatureEliminationConfiguration(SemiSupervisedFeatureSelectionConfiguration):
 
     def __init__(self, model, step, num_components=None,
                  families_supervision=None, logger=None):
-        SemiSupervisedFeatureSelectionConfiguration.__init__(self,
-                                                             RecursiveFeatureElimination,
-                                                             num_components=num_components,
-                                                             families_supervision=families_supervision,
-                                                             logger=logger)
+        SemiSupervisedFeatureSelectionConfiguration.__init__(
+                                     self,
+                                     RecursiveFeatureElimination,
+                                     num_components=num_components,
+                                     families_supervision=families_supervision,
+                                     logger=logger)
         self.model = model
         self.step = step
 
@@ -45,12 +48,13 @@ class RecursiveFeatureEliminationConfiguration(SemiSupervisedFeatureSelectionCon
         return suffix
 
     @staticmethod
-    def fromJson(obj):
+    def fromJson(obj, logger=None):
         conf = RecursiveFeatureEliminationConfiguration(
             None,
             obj['step'],
             num_components=obj['num_components'],
-            families_supervision=obj['families_supervision'])
+            families_supervision=obj['families_supervision'],
+            logger=logger)
         return conf
 
     def toJson(self):
@@ -88,5 +92,6 @@ class RecursiveFeatureEliminationConfiguration(SemiSupervisedFeatureSelectionCon
                             default='LogisticRegression')
 
 
-DimensionReductionConfFactory.getFactory().registerClass('RecursiveFeatureEliminationConfiguration',
-                                                         RecursiveFeatureEliminationConfiguration)
+DimensionReductionConfFactory.getFactory().registerClass(
+                        'RecursiveFeatureEliminationConfiguration',
+                        RecursiveFeatureEliminationConfiguration)

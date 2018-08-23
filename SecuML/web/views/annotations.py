@@ -47,6 +47,7 @@ def getAnnotation(experiment_id, instance_id):
 def removeAnnotation(experiment_id, inst_experiment_id, iteration_number, instance_id):
     annotations_db_tools.removeAnnotation(
         session, inst_experiment_id, instance_id)
+    session.commit()
     if user_exp:
         experiment = updateCurrentExperiment(experiment_id)
         filename = path.join(experiment.getOutputDirectory(),
@@ -62,13 +63,12 @@ def removeAnnotation(experiment_id, inst_experiment_id, iteration_number, instan
 
 # The new annotation is added.
 # If there is already an annotation for 'instance_id' in 'experiment' nothing is done.
-
-
 @app.route('/addAnnotation/<experiment_id>/<inst_experiment_id>/<iteration_number>/<instance_id>/<label>/<family>/<method>/')
 def addAnnotation(experiment_id, inst_experiment_id, iteration_number, instance_id, label, family, method):
     annotations_db_tools.addAnnotation(session, inst_experiment_id,
                                        instance_id, label, family,
                                        iteration_number, method)
+    session.commit()
     if user_exp:
         experiment = updateCurrentExperiment(experiment_id)
         filename = path.join(experiment.getOutputDirectory(),
@@ -131,6 +131,7 @@ def datasetHasFamilies(experiment_id):
 def changeFamilyName(experiment_id, label, family, new_family_name):
     annotations_db_tools.changeFamilyName(session, experiment_id, label, family,
                                           new_family_name)
+    session.commit()
     if user_exp:
         experiment = updateCurrentExperiment(experiment_id)
         filename = path.join(experiment.getOutputDirectory(),
@@ -148,8 +149,9 @@ def changeFamilyName(experiment_id, label, family, new_family_name):
 
 @app.route('/changeFamilyLabel/<experiment_id>/<label>/<family>/')
 def changeFamilyLabel(experiment_id, label, family):
-    annotations_db_tools.changeFamilyLabel(
-        session, experiment_id, label, family)
+    annotations_db_tools.changeFamilyLabel(session, experiment_id, label,
+                                           family)
+    session.commit()
     if user_exp:
         experiment = updateCurrentExperiment(experiment_id)
         filename = path.join(experiment.getOutputDirectory(),
@@ -170,6 +172,7 @@ def mergeFamilies(experiment_id, label, families, new_family_name):
     families = families.split(',')
     annotations_db_tools.mergeFamilies(session, experiment_id, label, families,
                                        new_family_name)
+    session.commit()
     if user_exp:
         experiment = updateCurrentExperiment(experiment_id)
         filename = path.join(experiment.getOutputDirectory(),

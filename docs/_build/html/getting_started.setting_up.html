@@ -87,7 +87,13 @@
 <li class="toctree-l3"><a class="reference internal" href="#automatic-installation">Automatic Installation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#input-and-output-directories">Input and Output Directories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#database-uri">Database URI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#logging-parameters">Logging Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#web-user-interface">Web User Interface</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Use Case: Spam Detection</a></li>
@@ -246,15 +252,34 @@ of <cite>metric-learn</cite> has not been released on PyPI yet.</p>
 </div>
 <div class="section" id="configuration">
 <span id="id1"></span><h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
-<p>The environment variable <code class="docutils literal notranslate"><span class="pre">SECUMLCONF</span></code> must be set to the path of the configuration file.
-It must follow the following format
-(see <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/blob/master/conf/SecuML_conf_template.yml">SecuML_conf_template.yml</a>):</p>
+<p>SecuML requires a configuration file that follows the following format:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">input_data_dir</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;directory containing the input datasets&gt;</span>
 <span class="l l-Scalar l-Scalar-Plain">output_data_dir</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;directory where the results of the experiments are stored&gt;</span>
 <span class="l l-Scalar l-Scalar-Plain">db_uri</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;URI of the database&gt;</span>
+<span class="l l-Scalar l-Scalar-Plain">logger_level</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;[optional] DEBUG,INFO,WARNING,ERROR or CRITICAL - default INFO&gt;</span>
+<span class="l l-Scalar l-Scalar-Plain">logger_output</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;[optional] name of the logging output file - default sys.stderr&gt;</span>
 </pre></div>
 </div>
-<p>The format of the URI of the database depends on its type:</p>
+<p>See <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/blob/master/conf/SecuML_conf_template.yml">SecuML_conf_template.yml</a>.</p>
+<div class="section" id="input-and-output-directories">
+<h3>Input and Output Directories<a class="headerlink" href="#input-and-output-directories" title="Permalink to this headline">¶</a></h3>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><cite>input_data_dir</cite> and <cite>output_data_dir</cite> must contain <strong>absolute paths</strong>.</p>
+</div>
+<ul class="simple">
+<li>The input directory contains the datasets that will be analyzed by SecuML. See <a class="reference internal" href="SecuML.Data.html#data"><span class="std std-ref">Data</span></a> for more information.</li>
+<li>The output directory contains all the results of the SecuML experiments. Users should not read the results from this directory directly, but rather from the <a class="reference internal" href="#gui"><span class="std std-ref">web user interface</span></a>.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal notranslate"><span class="pre">input_data_dir</span></code> must be set to <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/tree/master/input_data/">input_data</a>
+in the configuration file to test SecuML with the dataset we provide.</p>
+</div>
+</div>
+<div class="section" id="database-uri">
+<h3>Database URI<a class="headerlink" href="#database-uri" title="Permalink to this headline">¶</a></h3>
+<p>The format of the database URI depends on its type:</p>
 <ul>
 <li><p class="first">MySQL database</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mysql+mysqlconnector://&lt;user&gt;:&lt;password&gt;@&lt;host&gt;/&lt;db_name&gt;
@@ -267,15 +292,28 @@ It must follow the following format
 </div>
 </li>
 </ul>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last"><cite>input_data_dir</cite> and <cite>output_data_dir</cite> must contain <strong>absolute paths</strong>.</p>
 </div>
+<div class="section" id="logging-parameters">
+<h3>Logging Parameters<a class="headerlink" href="#logging-parameters" title="Permalink to this headline">¶</a></h3>
+<p>Logging parameters (<code class="docutils literal notranslate"><span class="pre">logger_level</span></code> and <code class="docutils literal notranslate"><span class="pre">logger_output</span></code>) are optional.
+By default, logging is displayed in the standard error with <code class="docutils literal notranslate"><span class="pre">INFO</span></code> level.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last"><code class="docutils literal notranslate"><span class="pre">input_data_dir</span></code> must be set to <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/tree/master/input_data/">input_data</a>
-in the configuration file to test SecuML with the dataset we provide.</p>
+<p class="last">The configuration file is required to run SecuML executables (e.g. <code class="docutils literal notranslate"><span class="pre">SecuML_server</span></code>, <code class="docutils literal notranslate"><span class="pre">SecuML_DIADEM</span></code>, <code class="docutils literal notranslate"><span class="pre">SecuML_ILAB</span></code>).
+It can be specified either with the parameter <code class="docutils literal notranslate"><span class="pre">--secuml-conf</span></code> for each execution, or globally
+with the environment variable <code class="docutils literal notranslate"><span class="pre">SECUMLCONF</span></code>.</p>
 </div>
+</div>
+</div>
+<div class="section" id="web-user-interface">
+<span id="gui"></span><h2>Web User Interface<a class="headerlink" href="#web-user-interface" title="Permalink to this headline">¶</a></h2>
+<p>SecuML comes with a web user interface to display the results of the experiments, and to interact with machine learning models (see <a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB</span></a> and <a class="reference internal" href="SecuML.RCD.html#rcd"><span class="std std-ref">Rare Category Detection</span></a>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">SecuML_server</span></code> must be executed to launch the web server.</p>
+<p><code class="docutils literal notranslate"><span class="pre">http://localhost:5000/SecuML/</span></code> gives access to SecuML menu.
+It displays the list of projects and datasets available.
+Besides, for each dataset, it displays the list of experiments gathered by type.</p>
+<p><code class="docutils literal notranslate"><span class="pre">http://localhost:5000/SecuML/&lt;experiment_id&gt;/</span></code> displays directly
+the results of an experiment identified by <code class="docutils literal notranslate"><span class="pre">experiment_id</span></code>.</p>
 </div>
 </div>
 

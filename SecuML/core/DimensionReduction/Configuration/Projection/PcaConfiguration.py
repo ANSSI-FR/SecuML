@@ -15,22 +15,28 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from SecuML.core.DimensionReduction.Algorithms.Projection.Pca import Pca
-from SecuML.core.DimensionReduction.Configuration import DimensionReductionConfFactory
+from SecuML.core.DimensionReduction.Configuration \
+        import DimensionReductionConfFactory
 
-from .UnsupervisedProjectionConfiguration import UnsupervisedProjectionConfiguration
+from .UnsupervisedProjectionConfiguration \
+        import UnsupervisedProjectionConfiguration
 
 
 class PcaConfiguration(UnsupervisedProjectionConfiguration):
 
-    def __init__(self, num_components=None):
-        UnsupervisedProjectionConfiguration.__init__(self, Pca,
-                                                     num_components=num_components)
+    def __init__(self, num_components=None, logger=None):
+        UnsupervisedProjectionConfiguration.__init__(
+                        self,
+                        Pca,
+                        num_components=num_components,
+                        logger=logger)
         if self.num_components is None:
             self.num_components = 20
 
     @staticmethod
-    def fromJson(obj):
-        conf = PcaConfiguration(num_components=obj['num_components'])
+    def fromJson(obj, logger=None):
+        conf = PcaConfiguration(num_components=obj['num_components'],
+                                logger=logger)
         return conf
 
     def toJson(self):

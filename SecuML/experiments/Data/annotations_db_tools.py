@@ -24,6 +24,7 @@ from SecuML.experiments.db_tables import ExperimentAnnotationsAlchemy
 from SecuML.experiments.db_tables import AnnotationsAlchemy
 from SecuML.experiments.db_tables import GroundTruthAlchemy
 
+
 def getAnnotationsId(session, experiment_id):
     # Get oldest parent
     query = session.query(ExperimentsAlchemy)
@@ -31,7 +32,6 @@ def getAnnotationsId(session, experiment_id):
     res = query.one()
     oldest_parent = res.oldest_parent
     dataset_id = res.dataset_id
-    # Get annotation id
     query = session.query(ExperimentAnnotationsAlchemy)
     query = query.filter(
         ExperimentAnnotationsAlchemy.experiment_id == oldest_parent)
@@ -213,7 +213,7 @@ def addAnnotation(session, experiment_id, instance_id, label, family,
                                iteration=iteration_number,
                                method=method)
     session.add(label)
-    session.commit()
+    session.flush()
 
 
 def removeAnnotation(session, experiment_id, instance_id):
@@ -224,7 +224,7 @@ def removeAnnotation(session, experiment_id, instance_id):
     try:
         label = query.one()
         session.delete(label)
-        session.commit()
+        session.flush()
     except NoResultFound:
         return None
 
@@ -242,7 +242,7 @@ def changeFamilyName(session, experiment_id, label, family, new_family_name):
     instances = query.all()
     for instance in instances:
         instance.family = new_family_name
-    session.commit()
+    session.flush()
 
 
 def changeFamilyLabel(session, experiment_id, label, family):
@@ -256,7 +256,7 @@ def changeFamilyLabel(session, experiment_id, label, family):
         not(labels_tools.labelStringToBoolean(label)))
     for instance in instances:
         instance.label = new_label
-    session.commit()
+    session.flush()
 
 
 def mergeFamilies(session, experiment_id, label, families, new_family_name):

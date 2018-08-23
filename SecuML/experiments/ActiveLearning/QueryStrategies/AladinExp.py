@@ -25,6 +25,11 @@ class AladinExp(Aladin):
     def setQueries(self):
         self.unsure = AladinAnnotationQueriesExp(self.iteration, self.conf)
 
+    def getUrl(self):
+        return 'http://localhost:5000/individualAnnotations/%d/%d/' % (
+                    self.iteration.experiment.experiment_id,
+                    self.iteration.iteration_number)
+
 
 ActiveLearningStrategyFactoryExp.getFactory().registerClass('AladinExp',
                                                             AladinExp)

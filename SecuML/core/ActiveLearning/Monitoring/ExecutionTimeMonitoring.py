@@ -44,9 +44,8 @@ class ExecutionTimeMonitoring(object):
             self.displayCsvHeader(evolution_file)
         iteration = self.monitoring.iteration
         with open(evolution_file, 'a') as f:
-            v = []
-            v.append(self.monitoring.iteration_number)
-            v += iteration.annotations.executionTimeMonitoring()
+            v = [self.monitoring.iteration_number]
+            v.extend(iteration.annotations.executionTimeMonitoring())
             csv_writer = csv.writer(f)
             csv_writer.writerow(v)
 
@@ -54,7 +53,7 @@ class ExecutionTimeMonitoring(object):
         iteration = self.monitoring.iteration
         with open(evolution_file, 'w') as f:
             header = ['iteration']
-            header += iteration.annotations.executionTimeHeader()
+            header.extend(iteration.annotations.executionTimeHeader())
             csv_writer = csv.writer(f)
             csv_writer.writerow(header)
 

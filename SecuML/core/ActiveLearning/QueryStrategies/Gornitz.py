@@ -47,14 +47,16 @@ class Gornitz(QueryStrategy):
 
     def executionTimeHeader(self):
         header = ['binary_model']
-        header += QueryStrategy.executionTimeHeader(self)
+        header.extend(QueryStrategy.executionTimeHeader(self))
         return header
 
     def executionTimeMonitoring(self):
         line = [self.iteration.update_model.times['binary']]
-        line += QueryStrategy.executionTimeMonitoring(self)
+        line.extend(QueryStrategy.executionTimeMonitoring(self))
         return line
 
     def executionTimeDisplay(self):
         binary_model = PlotDataset(None, 'Binary model')
-        return [binary_model] + QueryStrategy.executionTimeDisplay(self)
+        v = [binary_model]
+        v.extend(QueryStrategy.executionTimeDisplay(self))
+        return v

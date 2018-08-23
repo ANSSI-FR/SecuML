@@ -29,6 +29,11 @@ class UncertaintySamplingExp(UncertaintySampling):
         self.annotations = UncertainAnnotationQueriesExp(
             self.iteration, num_annotations, proba_min, proba_max)
 
+    def getUrl(self):
+        return 'http://localhost:5000/individualAnnotations/%d/%d/' % (
+                    self.iteration.experiment.experiment_id,
+                    self.iteration.iteration_number)
+
 
 ActiveLearningStrategyFactoryExp.getFactory().registerClass('UncertaintySamplingExp',
                                                             UncertaintySamplingExp)

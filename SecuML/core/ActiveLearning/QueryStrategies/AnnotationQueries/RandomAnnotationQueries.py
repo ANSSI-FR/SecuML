@@ -22,7 +22,7 @@ from .AnnotationQueries import AnnotationQueries
 class RandomAnnotationQueries(AnnotationQueries):
 
     def __init__(self, iteration, num_annotations):
-        AnnotationQueries.__init__(self, iteration, 'random')
+        AnnotationQueries.__init__(self, iteration)
         self.num_annotations = num_annotations
 
     def runModels(self):

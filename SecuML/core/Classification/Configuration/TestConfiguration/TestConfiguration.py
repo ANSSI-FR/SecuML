@@ -14,14 +14,16 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+from SecuML.core.Configuration import Configuration
 from SecuML.core.Clustering.Configuration import ClusteringConfFactory
 from SecuML.core.Classification.Configuration.AlertsConfiguration \
         import AlertsConfiguration
 
 
-class TestConfiguration(object):
+class TestConfiguration(Configuration):
 
-    def __init__(self, alerts_conf=None):
+    def __init__(self, alerts_conf=None, logger=None):
+        Configuration.__init__(self, logger=logger)
         self.method = None
         self.alerts_conf = alerts_conf
 
@@ -32,10 +34,11 @@ class TestConfiguration(object):
             return ''
 
     @staticmethod
-    def alertConfFromJson(obj):
+    def alertConfFromJson(obj, logger=None):
         if obj['alerts_conf'] is not None:
             alerts_conf = AlertsConfiguration.fromJson(
-                obj['alerts_conf'])
+                        obj['alerts_conf'],
+                        logger=logger)
             return alerts_conf
         else:
             return None
@@ -50,7 +53,7 @@ class TestConfiguration(object):
         return conf
 
     @staticmethod
-    def generateParamsFromArgs(args):
+    def generateParamsFromArgs(args, logger=None):
         params = {}
         params['num_clusters'] = args.num_clusters
         params['num_results'] = None
@@ -58,9 +61,11 @@ class TestConfiguration(object):
         params['label'] = 'all'
         clustering_conf = ClusteringConfFactory.getFactory().fromParam(
                 args.clustering_algo,
-                params)
+                params,
+                logger=logger)
         alerts_conf = AlertsConfiguration(args.top_n_alerts,
                                           args.detection_threshold,
-                                          clustering_conf)
+                                          clustering_conf,
+                                          logger=logger)
         params['alerts_conf'] = alerts_conf
         return params

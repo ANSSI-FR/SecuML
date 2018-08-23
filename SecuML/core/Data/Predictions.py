@@ -15,9 +15,10 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from . import Annotations
+from SecuML.core.Tools.core_exceptions import SecuMLcoreException
 
 
-class InvalidPredictions(Exception):
+class InvalidPredictions(SecuMLcoreException):
 
     def __init__(self, message):
         self.message = message
@@ -34,11 +35,9 @@ class Predictions(Annotations):
         self.checkValidity()
 
     def checkValidity(self):
-        message = None
         num_instances = self.ids.numInstances()
         if len(self.predicted_proba) != num_instances:
-            message = 'There are ' + str(num_instances) + ' instances '
-            message += 'but ' + str(len(self.predicted_proba)) + \
-                ' probabilities are provided.'
-        if message is not None:
-            raise InvalidPredictions(message)
+            raise InvalidPredictions('There are %d instances '
+                                     'but %d probabilities are provided.'
+                                     % (num_instances,
+                                        len(self.predicted_proba)))

@@ -21,8 +21,9 @@ from .AnnotationQueries import AnnotationQueries
 
 class UncertainAnnotationQueries(AnnotationQueries):
 
-    def __init__(self, iteration, num_annotations, proba_min, proba_max):
-        AnnotationQueries.__init__(self, iteration, 'uncertain')
+    def __init__(self, iteration, num_annotations, proba_min, proba_max,
+                 label=None):
+        AnnotationQueries.__init__(self, iteration, label=label)
         self.proba_min = proba_min
         self.proba_max = proba_max
         self.num_annotations = num_annotations

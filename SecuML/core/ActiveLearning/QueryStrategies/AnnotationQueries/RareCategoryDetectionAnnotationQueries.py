@@ -24,23 +24,25 @@ from SecuML.core.Classification.ClassifierDatasets import ClassifierDatasets
 from SecuML.core.Clustering.Clustering import Clustering
 
 from SecuML.core.Tools import matrix_tools
+from SecuML.core.Tools.core_exceptions import SecuMLcoreException
 
 from .AnnotationQueries import AnnotationQueries
 
 from .Categories import Categories
 
 
-class RareCategoryAtLeastTwoFamilies(Exception):
+class RareCategoryAtLeastTwoFamilies(SecuMLcoreException):
 
     def __str__(self):
-        return '''Rare category detection requires that the initial annotated dataset
-                  contains at least two different families.'''
+        return('Rare category detection requires that the initial annotated '
+               'dataset contains at least two different families.')
 
 
 class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
 
-    def __init__(self, iteration, label, proba_min, proba_max, input_checking=True):
-        AnnotationQueries.__init__(self, iteration, label)
+    def __init__(self, iteration, label, proba_min, proba_max,
+                 input_checking=True):
+        AnnotationQueries.__init__(self, iteration, label=label)
         self.proba_min = proba_min
         self.proba_max = proba_max
         self.rare_category_detection_conf = self.iteration.conf.rare_category_detection_conf
@@ -65,7 +67,9 @@ class RareCategoryDetectionAnnotationQueries(AnnotationQueries):
 
     def runModels(self, already_queried=None):
         df = matrix_tools.extractRowsWithThresholds(self.predictions,
-                                                    self.proba_min, self.proba_max, 'predicted_proba')
+                                                    self.proba_min,
+                                                    self.proba_max,
+                                                    'predicted_proba')
         if already_queried is not None:
             self.predicted_ids = list(
                 set(df.index).difference(set(already_queried)))

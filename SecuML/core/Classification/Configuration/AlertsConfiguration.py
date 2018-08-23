@@ -15,33 +15,33 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from SecuML.core.Clustering.Configuration import ClusteringConfFactory
-from SecuML.core.Tools import logging_tools
+from SecuML.core.Configuration import Configuration
 
 
-class AlertsConfiguration(object):
+class AlertsConfiguration(Configuration):
 
-    def __init__(self, num_max_alerts, detection_threshold, clustering_conf, logger=None):
+    def __init__(self, num_max_alerts, detection_threshold, clustering_conf,
+                 logger=None):
+        Configuration.__init__(self, logger=logger)
         self.num_max_alerts = num_max_alerts
         self.detection_threshold = detection_threshold
         self.clustering_conf = clustering_conf
-        if logger is not None:
-            self.logger = logger
-        else:
-            self.logger = logging_tools.getDefaultConfig()
 
     def generateSuffix(self):
-        suffix = '__numMaxAlerts_' + str(self.num_max_alerts)
-        suffix += '__detectionThreshold_' + \
-            str(int(self.detection_threshold * 100))
+        suffix = '__numMaxAlerts_%d__detectionThreshold_%.0f%%' % \
+                    (self.num_max_alerts, self.detection_threshold*100)
         suffix += self.clustering_conf.generateSuffix()
         return suffix
 
     @staticmethod
-    def fromJson(obj):
+    def fromJson(obj, logger=None):
         clustering_conf = ClusteringConfFactory.getFactory().fromJson(
-            obj['clustering_conf'])
-        conf = AlertsConfiguration(obj['num_max_alerts'], obj['detection_threshold'],
-                                   clustering_conf)
+            obj['clustering_conf'],
+            logger=logger)
+        conf = AlertsConfiguration(obj['num_max_alerts'],
+                                   obj['detection_threshold'],
+                                   clustering_conf,
+                                   logger=logger)
         return conf
 
     def toJson(self):

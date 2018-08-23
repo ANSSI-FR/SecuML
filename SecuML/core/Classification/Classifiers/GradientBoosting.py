@@ -16,6 +16,7 @@
 
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 from SecuML.core.Classification.Classifier import Classifier
 
@@ -24,6 +25,7 @@ class GradientBoosting(Classifier):
 
     def createPipeline(self):
         self.pipeline = Pipeline([
+            ('scaler', StandardScaler()),
             ('model', GradientBoostingClassifier(
                 loss=self.conf.loss,
                 learning_rate=self.conf.learning_rate,

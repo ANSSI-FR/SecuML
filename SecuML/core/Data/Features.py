@@ -16,8 +16,10 @@
 
 import numpy as np
 
+from SecuML.core.Tools.core_exceptions import SecuMLcoreException
 
-class InvalidFeatures(Exception):
+
+class InvalidFeatures(SecuMLcoreException):
 
     def __init__(self, message):
         self.message = message
@@ -36,30 +38,26 @@ class Features(object):
         self.checkValidity()
 
     def checkValidity(self):
-        message = None
         num_instances = self.ids.numInstances()
-
         if num_instances != 0:
             num_features = self.values.shape[1]
             if self.values.shape[0] != num_instances:
-                message = 'There are ' + str(num_instances) + ' instances '
-                message += 'but the features of ' + \
-                    str(self.values.shape[0]) + ' instances are provided.'
+                raise InvalidFeatures('There are %d instances '
+                                      'but the features of %d are provided.'
+                                      % (num_instances, self.values.shape[0]))
             elif len(self.names) != num_features:
-                message = 'There are ' + str(num_features) + ' features '
-                message += 'but ' + str(len(self.names)) + \
-                    ' features names are provided.'
+                raise InvalidFeatures('There are %d features '
+                                      'but %d features names are provided.'
+                                      % (num_features, len(self.names)))
             elif len(self.descriptions) != num_features:
-                message = 'There are ' + str(num_features) + ' features '
-                message += 'but ' + str(len(self.names)) + \
-                    ' features names are provided.'
+                raise InvalidFeatures('There are %d features '
+                                      'but %d features descriptions are '
+                                      'provided.' % (num_features,
+                                                     len(self.names)))
         else:
             if self.values.size != 0:
-                message = 'There is 0 instance but some features are provided.'
-
-        if message is not None:
-            raise InvalidFeatures(message)
-
+                raise InvalidFeatures('There is 0 instance but some features '
+                                      'are provided.')
     def union(self, features):
         if features.getValues().shape[0] == 0:
             return

@@ -15,36 +15,43 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from . import TestConfFactory
-from .TestConfiguration import TestConfiguration
+from .OneFoldTestConfiguration import OneFoldTestConfiguration
 
 
-class RandomSplitConf(TestConfiguration):
+class RandomSplitConf(OneFoldTestConfiguration):
 
-    def __init__(self, test_size, alerts_conf=None):
-        TestConfiguration.__init__(self, alerts_conf=alerts_conf)
+    def __init__(self, test_size, alerts_conf=None, logger=None):
+        OneFoldTestConfiguration.__init__(self, alerts_conf=alerts_conf,
+                                          logger=logger)
         self.method = 'random_split'
         self.test_size = test_size
 
     def generateSuffix(self):
-        suffix = '__Test_RandomSplit_' + str(int(self.test_size * 100))
-        suffix += TestConfiguration.generateSuffix(self)
+        suffix = '__Test_RandomSplit_%.0f%%' % (self.test_size*100)
+        suffix += OneFoldTestConfiguration.generateSuffix(self)
         return suffix
 
     @staticmethod
-    def fromJson(obj):
-        alerts_conf = TestConfiguration.alertConfFromJson(obj)
-        conf = RandomSplitConf(obj['test_size'], alerts_conf=alerts_conf)
+    def fromJson(obj, logger=None):
+        alerts_conf = OneFoldTestConfiguration.alertConfFromJson(
+                                                    obj,
+                                                    logger=logger)
+        conf = RandomSplitConf(obj['test_size'],
+                               alerts_conf=alerts_conf,
+                               logger=logger)
         return conf
 
     def toJson(self):
-        conf = TestConfiguration.toJson(self)
+        conf = OneFoldTestConfiguration.toJson(self)
         conf['__type__'] = 'RandomSplitConf'
         conf['test_size'] = self.test_size
         return conf
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = TestConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = OneFoldTestConfiguration.generateParamsFromArgs(
+                                                        args,
+                                                        logger=logger)
         params['test_size'] = args.test_size
         return params
 

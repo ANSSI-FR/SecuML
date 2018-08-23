@@ -24,11 +24,11 @@ from .TestConfiguration import TestConfFactory
 
 class SvcConfiguration(ClassifierConfiguration):
 
-    def __init__(self, num_folds, sample_weight, families_supervision, test_conf,
-                 logger=None):
-        ClassifierConfiguration.__init__(self, num_folds, sample_weight,
-                                         families_supervision, test_conf=test_conf,
-                                         logger=logger)
+    def __init__(self, n_jobs, num_folds, sample_weight, families_supervision,
+                 test_conf, logger=None):
+        ClassifierConfiguration.__init__(self, n_jobs, num_folds, sample_weight,
+                                         families_supervision,
+                                         test_conf=test_conf, logger=logger)
         self.model_class = Svc
         self.c = LearningParameter(list(10. ** np.arange(-2, 2)))
 
@@ -50,10 +50,15 @@ class SvcConfiguration(ClassifierConfiguration):
         return best_values
 
     @staticmethod
-    def fromJson(obj):
-        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'])
-        conf = SvcConfiguration(obj['num_folds'], obj['sample_weight'],
-                                obj['families_supervision'], test_conf)
+    def fromJson(obj, logger=None):
+        test_conf = TestConfFactory.getFactory().fromJson(obj['test_conf'],
+                                                          logger=logger)
+        conf = SvcConfiguration(obj['n_jobs'],
+                                obj['num_folds'],
+                                obj['sample_weight'],
+                                obj['families_supervision'],
+                                test_conf,
+                                logger=logger)
         conf.c = LearningParameter.fromJson(obj['c'])
         return conf
 
@@ -77,10 +82,11 @@ class SvcConfiguration(ClassifierConfiguration):
         ClassifierConfiguration.generateParser(parser)
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ClassifierConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = ClassifierConfiguration.generateParamsFromArgs(args,
+                                                                logger=logger)
         return params
 
 
-ClassifierConfFactory.getFactory().registerClass(
-    'SvcConfiguration', SvcConfiguration)
+ClassifierConfFactory.getFactory().registerClass('SvcConfiguration',
+                                                 SvcConfiguration)

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # SecuML
-# Copyright (C) 2016  ANSSI
+# Copyright (C) 2016-2018  ANSSI
 #
 # SecuML is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,16 +16,46 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+
+import argparse
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 import sys
 
 from SecuML.core.Tools import colors_tools
-from SecuML.experiments.Tools.dir_exp_tools import MissingWebLibraries
 
-try:
-    from SecuML.web import app
-except MissingWebLibraries as e:
-    sys.stderr.write(colors_tools.displayInRed(e))
-    sys.exit(-1)
+from SecuML.experiments.SecuMLConfiguration import SecuMLConfiguration
+
+from SecuML.core.Tools.core_exceptions import SecuMLcoreException
+from SecuML.experiments.Tools.exp_exceptions import SecuMLexpException
+
+from SecuML.web import setApp, setSession, setSecuMlConf, setUserExp
+
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=5000, debug=True)
+    parser = argparse.ArgumentParser(description='SecuML web server')
+    parser.add_argument('--secuml-conf',
+                        type=str,
+                        default=None)
+    parser.add_argument('--user-exp',
+                        action='store_true',
+                        default=False,
+                        help='Log the user actions in the web interface.')
+    args = parser.parse_args()
+    try:
+        secuml_conf = SecuMLConfiguration(args.secuml_conf)
+        setSecuMlConf(secuml_conf)
+        setUserExp(args.user_exp)
+
+        app = Flask(__name__)
+        app.config['SQLALCHEMY_DATABASE_URI'] = secuml_conf.db_uri
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        setApp(app)
+        setSession(SQLAlchemy(app).session)
+
+        import SecuML.web.views
+        app.run(host='localhost', port=5000, debug=True)
+
+    except (SecuMLcoreException, SecuMLexpException) as e:
+        sys.stderr.write(colors_tools.displayInRed(e) + '\n')
+        sys.exit(-1)

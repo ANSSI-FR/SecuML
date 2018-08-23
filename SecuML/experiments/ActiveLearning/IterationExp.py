@@ -19,6 +19,7 @@ import os.path as path
 from SecuML.core.ActiveLearning.Iteration import Iteration
 from SecuML.core.ActiveLearning.QueryStrategies.AnnotationQueries.AnnotationQuery \
         import NoAnnotationBudget
+from SecuML.core.Tools import colors_tools
 from SecuML.core.Tools import dir_tools
 
 from SecuML.experiments.ActiveLearning.QueryStrategies \
@@ -81,14 +82,17 @@ class IterationExp(Iteration):
                              self.experiment.experiment_id)
         exp_db = query.one()
         exp_db.current_iter = self.iteration_number
-        self.experiment.session.commit()
-
         self.annotations.generateAnnotationQueries()
-
         exp_db.annotations = True
-        self.experiment.session.commit()
         self.monitoring.exportExecutionTimeMonitoring(
             self.al_dir, self.iteration_dir)
+        if not self.conf.auto:
+            print(colors_tools.displayInGreen(
+                    '\nAnnotation queries for iteration %d have been successfully '
+                    'computed. \n'
+                    'Go to %s to answer the annotation queries. \n' %
+                    (self.iteration_number,
+                     self.annotations.getUrl())))
 
     def answerAnnotationQueries(self):
         if self.conf.auto:
@@ -96,19 +100,19 @@ class IterationExp(Iteration):
 
     def updateAnnotatedInstances(self):
         self.datasets.new_annotations = False
-        # Update the datasets according to the new labels
-        self.experiment.session.commit()
+        # Update the datasets according to the new annotations
         self.datasets.checkAnnotationsWithDB(self.experiment)
         self.annotations.getManualAnnotations()
         # Save the currently annotated instances
         self.saveAnnotatedInstances()
 
     def saveAnnotatedInstances(self):
-        filename  = 'annotations_'
-        filename += self.experiment.query_strategy + '_'
-        filename += 'exp' + str(self.experiment.experiment_id) + '_'
-        filename += 'it' + str(self.iteration_number) + '.csv'
+        filename = 'annotations_%s_exp%d_it%d.csv' % (
+                self.experiment.query_strategy,
+                self.experiment.experiment_id,
+                self.iteration_number)
         filename = path.join(dir_exp_tools.getDatasetDirectory(
+                                    self.experiment.secuml_conf,
                                     self.experiment.project,
                                     self.experiment.dataset),
                              'annotations',

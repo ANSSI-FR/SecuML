@@ -14,42 +14,40 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import csv
 from os import listdir
 import os.path as path
-from urllib.parse import urlparse
 
 from SecuML.core.Tools import dir_tools
 
-from SecuML.experiments.config import INPUTDATA_DIR
-from SecuML.experiments.config import OUTPUTDATA_DIR
-from SecuML.experiments.config import SECUML_DIR
+
+def getProjectDirectory(secuml_conf, project):
+    return path.join(secuml_conf.input_data_dir, project)
 
 
-class MissingWebLibraries(Exception):
-
-    def __init__(self):
-        self.message  = 'Some JS or CSS libraries are missing in SecuML/web/static/lib/. '
-        self.message += 'You can download them with the script download_libraries. \n'
-
-    def __str__(self):
-        return self.message
+def getDatasetDirectory(secuml_conf, project, dataset):
+    return path.join(getProjectDirectory(secuml_conf, project),
+                     dataset)
 
 
-def getProjectDirectory(project):
-    return path.join(INPUTDATA_DIR, project)
+def getIdentsFilename(secuml_conf, project, dataset):
+    return path.join(getDatasetDirectory(secuml_conf, project, dataset),
+                     'idents.csv')
 
 
-def getDatasetDirectory(project, dataset):
-    return path.join(getProjectDirectory(project), dataset)
+def getGroundTruthFilename(secuml_conf, project, dataset):
+    return path.join(getDatasetDirectory(secuml_conf, project, dataset),
+                     'annotations',
+                     'ground_truth.csv')
 
 
-def getDatasets(project):
-    project_dir = getProjectDirectory(project)
+def getDatasets(secuml_conf, project):
+    project_dir = getProjectDirectory(secuml_conf, project)
     return listdir(project_dir)
 
 
-def createDataset(project, dataset):
-    dataset_dir = getDatasetDirectory(project, dataset)
+def createDataset(secuml_conf, project, dataset):
+    dataset_dir = getDatasetDirectory(secuml_conf, project, dataset)
     dir_tools.createDirectory(dataset_dir)
     features_dir = path.join(dataset_dir, 'features')
     dir_tools.createDirectory(features_dir)
@@ -58,57 +56,46 @@ def createDataset(project, dataset):
     return dataset_dir, features_dir, annotations_dir
 
 
-def getProjectOutputDirectory(project):
-    return path.join(OUTPUTDATA_DIR, project)
+def getProjectOutputDirectory(secuml_conf, project):
+    return path.join(secuml_conf.output_data_dir, project)
 
 
-def getDatasetOutputDirectory(project, dataset):
-    return path.join(getProjectOutputDirectory(project), dataset)
+def getDatasetOutputDirectory(secuml_conf, project, dataset):
+    return path.join(getProjectOutputDirectory(secuml_conf, project), dataset)
 
 
-def getExperimentOutputDirectory(project, dataset, experiment_id):
-    return path.join(getDatasetOutputDirectory(project, dataset),
+def getExperimentOutputDirectory(secuml_conf, project, dataset, experiment_id):
+    return path.join(getDatasetOutputDirectory(secuml_conf, project, dataset),
                      str(experiment_id))
 
 
-def createDatasetOutputDirectory(project, dataset):
-    dir_tools.createDirectory(getDatasetOutputDirectory(project, dataset))
+def createDatasetOutputDirectory(secuml_conf, project, dataset):
+    dir_tools.createDirectory(getDatasetOutputDirectory(secuml_conf,
+                                                        project,
+                                                        dataset))
 
 
-def getExperimentConfigurationFilename(project, dataset, experiment_id):
-    return path.join(getExperimentOutputDirectory(project,
+def getExperimentConfigurationFilename(secuml_conf, project, dataset,
+                                       experiment_id):
+    return path.join(getExperimentOutputDirectory(secuml_conf,
+                                                  project,
                                                   dataset,
                                                   experiment_id),
                      'conf.json')
 
 
-def removeProjectOutputDirectory(project):
-    project_dir = getProjectOutputDirectory(project)
+def removeProjectOutputDirectory(secuml_conf, project):
+    project_dir = getProjectOutputDirectory(secuml_conf, project)
     dir_tools.removeDirectory(project_dir)
 
 
-def removeDatasetOutputDirectory(project, dataset):
-    dataset_dir = getDatasetOutputDirectory(project, dataset)
+def removeDatasetOutputDirectory(secuml_conf, project, dataset):
+    dataset_dir = getDatasetOutputDirectory(secuml_conf, project, dataset)
     dir_tools.removeDirectory(dataset_dir)
 
 
-def getWebUrls():
-    urls = {}
-    urls['js'] = ['https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js',
-                  'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js',
-                  'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
-                  'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.2/Chart.min.js',
-                  'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.0/js/bootstrap.min.js']
-    urls['css'] = ['http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css',
-                   'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css']
-    return urls
-
-def checkWebLibraries():
-    lib_dir = path.join(SECUML_DIR, 'web', 'static', 'lib')
-    web_urls = getWebUrls()
-    for k in ['js', 'css']:
-        directory = path.join(lib_dir, k)
-        libs = [path.basename(urlparse(u).path) for u in web_urls[k]]
-        for lib in libs:
-            if not dir_tools.checkFileExists(path.join(directory, lib)):
-                raise MissingWebLibraries()
+def annotationsWithFamilies(filename):
+    with open(filename, 'r') as f:
+        reader = csv.reader(f)
+        header = next(reader)
+        return len(header) == 3

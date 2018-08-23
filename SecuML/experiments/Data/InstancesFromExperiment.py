@@ -30,7 +30,8 @@ class InstancesFromExperiment(object):
         ids = self.getIds()
         timestamps = self.getTimestamps()
         features, features_names, features_descriptions = self.getFeatures()
-        labels, families, gt_labels, gt_families = self.getLabels(len(ids))
+        labels, families = self.getAnnotations()
+        gt_labels, gt_families = self.getGroundTruth()
         instances = Instances(ids, features,
                               features_names, features_descriptions,
                               labels, families,
@@ -41,6 +42,7 @@ class InstancesFromExperiment(object):
     def getIds(self):
         ids = db_tables.getDatasetIds(self.experiment.session,
                                       self.experiment.dataset_id)
+        self.num_instances = len(ids)
         self.indexes = {}
         for i in range(len(ids)):
             self.indexes[ids[i]] = i
@@ -56,18 +58,17 @@ class InstancesFromExperiment(object):
         names, descriptions = self.experiment.getFeaturesNamesDescriptions()
         return features, names, descriptions
 
-    def getLabels(self, num_instances):
-        labels = [None] * num_instances
-        families = [None] * num_instances
-        gt_labels = [None] * num_instances
-        gt_families = [None] * num_instances
-        # Labels/Families
-        benign_ids = annotations_db_tools.getLabelIds(self.experiment.session,
-                                                      self.experiment.experiment_id,
-                                                      labels_tools.BENIGN)
-        malicious_ids = annotations_db_tools.getLabelIds(self.experiment.session,
-                                                         self.experiment.experiment_id,
-                                                         labels_tools.MALICIOUS)
+    def getAnnotations(self):
+        labels = [None] * self.num_instances
+        families = [None] * self.num_instances
+        benign_ids = annotations_db_tools.getLabelIds(
+                self.experiment.session,
+                self.experiment.experiment_id,
+                labels_tools.BENIGN)
+        malicious_ids = annotations_db_tools.getLabelIds(
+                self.experiment.session,
+                self.experiment.experiment_id,
+                labels_tools.MALICIOUS)
         for instance_id in benign_ids + malicious_ids:
             label, family, method = annotations_db_tools.getAnnotationDetails(
                 self.experiment.session,
@@ -76,10 +77,14 @@ class InstancesFromExperiment(object):
             labels[self.indexes[instance_id]
                    ] = labels_tools.labelStringToBoolean(label)
             families[self.indexes[instance_id]] = family
-        # True Labels
+        return labels, families
+
+    def getGroundTruth(self, ):
+        gt_labels = [None] * self.num_instances
+        gt_families = [None] * self.num_instances
         has_ground_truth = db_tables.hasGroundTruth(self.experiment)
         if has_ground_truth:
             gt_labels, gt_families = annotations_db_tools.getGroundTruth(
                 self.experiment.session,
                 self.experiment.experiment_id)
-        return labels, families, gt_labels, gt_families
+        return gt_labels, gt_families

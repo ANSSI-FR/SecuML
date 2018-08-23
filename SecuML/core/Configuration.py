@@ -20,7 +20,4 @@ from SecuML.core.Tools import logging_tools
 class Configuration(object):
 
     def __init__(self, logger=None):
-        if logger is not None:
-            self.logger = logger
-        else:
-            self.logger = logging_tools.getDefaultConfig()
+        self.logger = logging_tools.setLogger(logger)

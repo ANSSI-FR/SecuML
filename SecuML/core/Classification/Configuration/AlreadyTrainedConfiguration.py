@@ -30,7 +30,7 @@ class AlreadyTrainedConfiguration(ClassifierConfiguration):
         assert(False)
 
     @staticmethod
-    def fromJson(obj):
+    def fromJson(obj, logger=None):
         assert(False)
 
     def toJson(self):
@@ -47,9 +47,11 @@ class AlreadyTrainedConfiguration(ClassifierConfiguration):
         parser.add_argument('--model-exp-id',
                             required=True,
                             type=int,
-                            help='Id of the experiment that has trained the model.')
+                            help='Id of the experiment that has trained the '
+                                 'model.')
         validation_group = parser.add_argument_group('Validation parameters')
-        validation_group.add_argument('--validation-dataset')
+        validation_group.add_argument('--validation-dataset',
+                                      required=True)
 
     @staticmethod
     def generateParser(parser):
@@ -57,8 +59,9 @@ class AlreadyTrainedConfiguration(ClassifierConfiguration):
         ClassifierConfiguration.generateAlertParser(parser)
 
     @staticmethod
-    def generateParamsFromArgs(args):
-        params = ClassifierConfiguration.generateParamsFromArgs(args)
+    def generateParamsFromArgs(args, logger=None):
+        params = ClassifierConfiguration.generateParamsFromArgs(args,
+                                                                logger=logger)
         return params
 
 

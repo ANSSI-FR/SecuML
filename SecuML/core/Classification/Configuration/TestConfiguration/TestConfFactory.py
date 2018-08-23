@@ -16,10 +16,6 @@
 
 import inspect
 
-from SecuML.core.Classification.Configuration.AlertsConfiguration \
-        import AlertsConfiguration
-from SecuML.core.Clustering.Configuration import ClusteringConfFactory
-
 test_conf_factory = None
 
 
@@ -29,20 +25,6 @@ def getFactory():
         test_conf_factory = TestConfFactory()
     return test_conf_factory
 
-def generateAlertConfFromArgs(args):
-    params = {}
-    params['num_clusters'] = args.num_clusters
-    params['num_results'] = None
-    params['projection_conf'] = None
-    params['label'] = 'all'
-    clustering_conf = ClusteringConfFactory.getFactory().fromParam(
-        args.clustering_algo,
-        params)
-    alerts_conf = AlertsConfiguration(args.top_n_alerts,
-                                      args.detection_threshold,
-                                      clustering_conf)
-    return alerts_conf
-
 class TestConfFactory(object):
 
     def __init__(self):
@@ -51,9 +33,9 @@ class TestConfFactory(object):
     def registerClass(self, class_name, class_obj):
         self.register[class_name] = class_obj
 
-    def fromJson(self, obj):
+    def fromJson(self, obj, logger=None):
         class_name = obj['__type__']
-        obj = self.register[class_name].fromJson(obj)
+        obj = self.register[class_name].fromJson(obj, logger=logger)
         return obj
 
     def fromParam(self, test_method, args, logger=None):
@@ -67,5 +49,5 @@ class TestConfFactory(object):
 
     def fromArgs(self, test_method, args, logger=None):
         class_ = self.register[test_method + 'Conf']
-        params = class_.generateParamsFromArgs(args)
+        params = class_.generateParamsFromArgs(args, logger=logger)
         return self.fromParam(test_method, params, logger=logger)

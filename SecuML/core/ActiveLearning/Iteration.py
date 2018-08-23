@@ -17,11 +17,13 @@
 import time
 
 from .Monitoring.Monitoring import Monitoring
-from .QueryStrategies.AnnotationQueries.AnnotationQuery import NoAnnotationBudget
+from .QueryStrategies.AnnotationQueries.AnnotationQuery \
+        import NoAnnotationBudget
 from .UpdateModel import UpdateModel
+from SecuML.core.Tools.core_exceptions import SecuMLcoreException
 
 
-class NoLabelAdded(Exception):
+class NoLabelAdded(SecuMLcoreException):
 
     def __str__(self):
         return 'The iteration has not added any label.'

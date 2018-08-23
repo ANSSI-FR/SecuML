@@ -48,6 +48,11 @@ class RareCategoryDetectionExp(RareCategoryDetection):
         with open(filename, 'w') as f:
             json.dump(types, f, indent=2)
 
+    def getUrl(self):
+        return 'http://localhost:5000/rareCategoryDetectionAnnotations/%d/%d/' % (
+                    self.iteration.experiment.experiment_id,
+                    self.iteration.iteration_number)
+
 
 ActiveLearningStrategyFactoryExp.getFactory().registerClass('RareCategoryDetectionExp',
                                                             RareCategoryDetectionExp)

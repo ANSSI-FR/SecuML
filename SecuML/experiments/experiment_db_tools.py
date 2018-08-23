@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import os.path as path
 from sqlalchemy.orm.exc import NoResultFound
 
 from SecuML.experiments import db_tables
@@ -82,7 +83,7 @@ def addExperiment(session, kind, name, dataset_id, parent):
     exp = ExperimentsAlchemy(kind=kind, name=name, dataset_id=dataset_id,
                              parent=parent)
     session.add(exp)
-    session.commit()
+    session.flush()
     experiment_id = exp.id
     if parent is None:
         oldest_parent = experiment_id
@@ -92,7 +93,6 @@ def addExperiment(session, kind, name, dataset_id, parent):
         parent = query.one()
         oldest_parent = parent.oldest_parent
     exp.oldest_parent = oldest_parent
-    session.commit()
     return experiment_id, oldest_parent
 
 
@@ -101,7 +101,7 @@ def removeExperiment(session, experiment_id):
     query = query.filter(ExperimentsAlchemy.id == experiment_id)
     experiment = query.one()
     session.delete(experiment)
-    session.commit()
+    session.flush()
 
 
 def getChildren(session, experiment_id):
@@ -112,7 +112,7 @@ def getChildren(session, experiment_id):
 
 
 def getDescriptiveStatsExp(session, experiment):
-    features_filename = experiment.features_filename.split('.')[0]
+    features_filename = path.splitext(experiment.features_filename)[0]
     exp_name = features_filename
     query = session.query(ExperimentsAlchemy)
     query = query.filter(ExperimentsAlchemy.dataset_id ==
@@ -181,4 +181,4 @@ def updateExperimentName(session, experiment_id, experiment_name):
     query = query.filter(ExperimentsAlchemy.id == experiment_id)
     exp = query.one()
     exp.name = experiment_name
-    session.commit()
+    session.flush()
