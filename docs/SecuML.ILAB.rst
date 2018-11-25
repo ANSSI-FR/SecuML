@@ -20,7 +20,7 @@ They ask to annotate the most informative instances
 to minimize the number of manual annotations while maximizing the detection performance.
 
 **Annotation System.**
-ILAB comes with a :ref:`graphical user interface <ILAB-gui>` to display the annotation queries and 
+ILAB comes with a :ref:`graphical user interface <ILAB-gui>` to display the annotation queries and
 gather the corresponding answers.
 The graphical user interface offers other features to assist experts along the annotation process.
 
@@ -40,7 +40,7 @@ Interactive Process
 ILAB relies on an interactive process where an expert is asked to annotate some unlabeled instances to improve the performance
 of the supervised detection model.
 At each iteration, some instances are queried from the unlabeled pool for annotation. The expert annotates the queried instances, and
-the new annotated instances are added to annotated dataset. Then, the supervised detection model is updated, 
+the new annotated instances are added to annotated dataset. Then, the supervised detection model is updated,
 and new instances are queried for annotation.
 
 .. _ILAB-interactive:
@@ -87,8 +87,8 @@ ILAB offers many active learning strategies:
 
 Parameters
 ----------
-In addition to the 
-:ref:`parameters shared by all experiments <exp-params>`, 
+In addition to the
+:ref:`parameters shared by all experiments <exp-params>`,
 active learning strategies have the following optional parameters.
 
 Initial Annotations
@@ -111,7 +111,7 @@ Mode: Interactive or Oracle
 ILAB offers to modes: *Interactive* (without ``--auto``) and *Oracle* (with ``--auto``).
 
 **Interactive Mode.**
-A human must answer the annotation queries manually 
+A human must answer the annotation queries manually
 from the :ref:`web interface <ILAB-gui>` at each iteration.
 
 **Oracle Mode.**
@@ -163,7 +163,7 @@ Monitoring Interface
 ILAB Monitoring Interface displays information
 about the current detection model (*Model Coefficients*, *Train* and *Cross Validation* panels),
 and feedback about the annotation progress (*Evolution Monitoring* panel).
-Moreover, the Monitoring Interface gives access 
+Moreover, the Monitoring Interface gives access
 to the :ref:`ILAB-annotated-instances` and to the :ref:`ILAB-family-editor`.
 
 .. image:: figs/screen_shots/ILAB/monitoring.png
@@ -185,7 +185,7 @@ ILAB *Evolution Monitoring* panel displays two kinds of feedback that do not req
 
 .. note::
 
-    The accuracy of the suggested labels and families is available onyl with ILAB active learning strategy.
+    The accuracy of the suggested labels and families is available only with ILAB active learning strategy.
     At each iteration, ILAB suggests a family for the high likelihood queries.
     At the next iteration, ILAB computes the accuracy of these suggestions according to the last annotations performed by the expert.
 

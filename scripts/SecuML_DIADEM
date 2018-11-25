@@ -20,28 +20,28 @@ import matplotlib
 matplotlib.use('Agg')
 import sys
 
-from SecuML.core.Tools import colors_tools
+from SecuML.core.tools import colors_tools
 
-from SecuML.experiments.Classification.ClassificationExperiment \
+from SecuML.exp.classification.ClassificationConf \
+        import ClassificationConf
+from SecuML.exp.classification.ClassificationExperiment \
         import ClassificationExperiment
-from SecuML.experiments.SecuMLConfiguration import SecuMLConfiguration
 
-from SecuML.core.Tools.core_exceptions import SecuMLcoreException
-from SecuML.experiments.Tools.exp_exceptions import SecuMLexpException
+from SecuML.core.tools.core_exceptions import SecuMLcoreException
+from SecuML.exp.tools.exp_exceptions import SecuMLexpException
 
 if __name__ == '__main__':
     try:
-        parser = ClassificationExperiment.generateParser()
+        parser = ClassificationConf.generateParser()
         args = parser.parse_args()
-        secuml_conf = SecuMLConfiguration(args.secuml_conf)
-        experiment = ClassificationExperiment(secuml_conf)
-        experiment.setExperimentFromArgs(args)
-        experiment.run()
-        experiment.close()
+        exp_conf = ClassificationConf.fromArgs(args)
+        exp = ClassificationExperiment(exp_conf)
+        exp.run()
+        exp.close()
     except (SecuMLcoreException, SecuMLexpException) as e:
-        sys.stderr.write(colors_tools.displayInRed(e) + '\n')
-        experiment.rollbackSession()
+        sys.stderr.write(colors_tools.display_in_red(e) + '\n')
+        exp.rollbackSession()
         sys.exit(-1)
     except Exception as e:
-        experiment.rollbackSession()
+        exp.rollbackSession()
         raise(e)

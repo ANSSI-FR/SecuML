@@ -17,33 +17,32 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import os
 import sys
 
-from SecuML.core.Tools import colors_tools
+from SecuML.core.tools import colors_tools
+from SecuML.core.tools import dir_tools
 
-from SecuML.experiments import db_tables
-from SecuML.experiments import ExperimentFactory
-from SecuML.experiments.Data.Dataset import Dataset
-from SecuML.experiments.Tools import dir_exp_tools
+from SecuML.exp import db_tables
+from SecuML.exp import ExperimentFactory
+from SecuML.exp.data.ProjectDataset import ProjectDataset
 
-from SecuML.experiments.ActiveLearning.ActiveLearningExperiment \
+from SecuML.exp.active_learning.ActiveLearningExperiment \
         import ActiveLearningExperiment
-from SecuML.experiments.ActiveLearning.RareCategoryDetectionExperiment \
+from SecuML.exp.active_learning.RareCategoryDetectionExperiment \
         import RareCategoryDetectionExperiment
-from SecuML.experiments.Classification.ClassificationExperiment \
+from SecuML.exp.classification.ClassificationExperiment \
         import ClassificationExperiment
-from SecuML.experiments.Clustering.ClusteringExperiment \
+from SecuML.exp.clustering.ClusteringExperiment \
         import ClusteringExperiment
-from SecuML.experiments.Data.DescriptiveStatisticsExperiment \
-        import DescriptiveStatisticsExperiment
-from SecuML.experiments.DimensionReduction.FeatureSelectionExperiment \
-        import FeatureSelectionExperiment
-from SecuML.experiments.DimensionReduction.ProjectionExperiment \
-        import ProjectionExperiment
-from SecuML.experiments.SecuMLConfiguration import SecuMLConfiguration
+from SecuML.exp.conf.DatasetConf import DatasetConf
+from SecuML.exp.features_analysis.FeaturesAnalysisExperiment \
+        import FeaturesAnalysisExperiment
+from SecuML.exp.projection.ProjectionExperiment import ProjectionExperiment
+from SecuML.exp.SecuMLConf import SecuMLConf
 
-from SecuML.core.Tools.core_exceptions import SecuMLcoreException
-from SecuML.experiments.Tools.exp_exceptions import SecuMLexpException
+from SecuML.core.tools.core_exceptions import SecuMLcoreException
+from SecuML.exp.tools.exp_exceptions import SecuMLexpException
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -61,24 +60,26 @@ if __name__ == '__main__':
                         default=None)
     args = parser.parse_args()
     try:
-        secuml_conf = SecuMLConfiguration(args.secuml_conf)
+        secuml_conf = SecuMLConf(args.secuml_conf)
         session = secuml_conf.Session()
         if args.experiment_id is not None:
-            experiment = ExperimentFactory.getFactory().fromJson(
-                    args.experiment_id,
-                    session)
-            experiment.remove()
+            factory = ExperimentFactory.getFactory()
+            exp = factory.from_exp_id(args.experiment_id, secuml_conf, session)
+            exp.remove()
         elif args.dataset is not None:
-            dataset = Dataset(args.project, args.dataset, session)
+            dataset_conf = DatasetConf(args.project, args.dataset,
+                                       secuml_conf.logger)
+            dataset = ProjectDataset(dataset_conf, secuml_conf, session)
             dataset.remove()
         else:
             db_tables.removeProject(session, args.project)
-            dir_exp_tools.removeProjectOutputDirectory(secuml_conf,
-                                                       args.project)
+            project_output_dir = os.path.join(secuml_conf.output_data_dir,
+                                              args.project)
+            dir_tools.removeDirectory(project_output_dir)
         session.commit()
         session.close()
     except (SecuMLcoreException, SecuMLexpException) as e:
-        sys.stderr.write(colors_tools.displayInRed(e) + '\n')
+        sys.stderr.write(colors_tools.display_in_red(e) + '\n')
         session.rollback()
         session.close()
         sys.exit(-1)

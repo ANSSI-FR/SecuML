@@ -54,6 +54,11 @@ to let security experts focus mainly on detection.
   SecuML.projection
   SecuML.stats
 
+.. toctree::
+  :maxdepth: 1
+  :caption: Miscellaneous
+
+  miscellaneous.detection_perf.rst
 
 .. Indices and tables
 .. ==================

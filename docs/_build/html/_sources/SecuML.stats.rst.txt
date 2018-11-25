@@ -1,11 +1,11 @@
 .. _stats:
 
-Descriptive Statistics
-======================
+Features Analysis
+=================
 
-| *Usage:* ``SecuML_descriptive_statistics <project> <dataset>``.
+| *Usage:* ``SecuML_features_analysis <project> <dataset>``.
 | For more information about the available options:
-| ``SecuML_descriptive_statistics <project> <dataset> -h``.
+| ``SecuML_features_analysis <project> <dataset> -h``.
 
 Graphical User Interface
 ------------------------

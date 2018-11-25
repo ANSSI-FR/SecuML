@@ -42,26 +42,25 @@ Requirements
     * flask_sqlalchemy (>= 1.0)
     * matplotlib (>= 2.1.1)
     * metric-learn (>= 0.4.0)
-    * numpy (== 1.12.1)
+    * numpy (== 1.14)
     * pandas (== 0.19.2)
-    * scikit-learn (== 0.19.0)
-    * sqlalchemy (>= 1.0.12)
-    * yaml (>= 3.11)
+    * scikit-learn (== 0.20.0)
+    * sqlalchemy (>= 0.9.8)
+    * yaml
 
 Automatic Installation
 """""""""""""""""""""""
 
 .. code-block:: bash
 
-    virtualenv venv_SecuML --no-site-packages --python python3
+    virtualenv venv_SecuML --no-site-packages --python python3.5
     source venv_SecuML/bin/activate
     python3 setup.py install
 
 .. warning::
 
-    The dependencies stored in `requirements.txt` are automatically installed by `setup.py`.
-    They cannot be installed with `pip install -r requirements.txt` because the required version
-    of `metric-learn` has not been released on PyPI yet.
+    SecuML does not work currrently with python3.6 because of
+    dependency installation issues.
 
 
 .. _configuration:
@@ -122,12 +121,6 @@ Logging Parameters
 Logging parameters (``logger_level`` and ``logger_output``) are optional.
 By default, logging is displayed in the standard error with ``INFO`` level.
 
-.. note::
-
-  The configuration file is required to run SecuML executables (e.g. ``SecuML_server``, ``SecuML_DIADEM``, ``SecuML_ILAB``).
-  It can be specified either with the parameter ``--secuml-conf`` for each execution, or globally
-  with the environment variable ``SECUMLCONF``.
-
 
 .. _GUI:
 
@@ -136,7 +129,11 @@ Web User Interface
 
 SecuML comes with a web user interface to display the results of the experiments, and to interact with machine learning models (see :ref:`ILAB <ILAB>` and :ref:`Rare Category Detection <RCD>`).
 
-``SecuML_server`` must be executed to launch the web server.
+You can launch the web server with the following command line.
+
+.. code-block:: bash
+
+    SecuML_server --secuml-conf <path_to_conf_file>
 
 ``http://localhost:5000/SecuML/`` gives access to SecuML menu.
 It displays the list of projects and datasets available.
@@ -145,3 +142,8 @@ Besides, for each dataset, it displays the list of experiments gathered by type.
 ``http://localhost:5000/SecuML/<experiment_id>/`` displays directly
 the results of an experiment identified by ``experiment_id``.
 
+.. note::
+
+  The configuration file is required to run SecuML executables (e.g. ``SecuML_server``, ``SecuML_DIADEM``, ``SecuML_ILAB``).
+  It can be specified either with the parameter ``--secuml-conf`` for each execution, or globally
+  with the environment variable ``SECUMLCONF``.

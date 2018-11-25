@@ -1,4 +1,4 @@
-# SecuML
+# SecuML [https://anssi-fr.github.io/SecuML/](https://anssi-fr.github.io/SecuML/)
 SecuML is a Python tool that aims to foster the use of Machine Learning in Computer Security. It is distributed under the GPL2+ license.
 
 It allows security experts to train detection models easily and comes with a web user interface to visualize the results and interact with the models.
@@ -24,6 +24,10 @@ and offers the additionnal features:
 See the [sphinx documentation](https://anssi-fr.github.io/SecuML/) for more detail.
 
 #### Papers
+* Beaugnon, Anaël, and Pierre Chifflier. ["Machine Learning for Computer Security Detection Systems: Practical Feedback and Solutions"](https://www.ssi.gouv.fr/uploads/2018/11/machine-learning-for-computer-security-abeaugnon-pchifflier-anssi-.pdf) 
+Computer & Electronics Security Applications Rendez-vous (C&ESAR 2018)
+* Beaugnon, Anaël, Pierre Chifflier, and Francis Bach. ["End-to-End Active Learning for Computer Security Experts."](https://hal.archives-ouvertes.fr/hal-01888983/file/idea18-paper1-beaugnon.pdf)   
+KDD Workshop on Interactive Data Exploration and Analytics (IDEA 2018). *Extended version of AICS 2018.*
 * Beaugnon, Anaël, Pierre Chifflier, and Francis Bach. ["End-to-End Active Learning for Computer Security Experts."](https://www.ssi.gouv.fr/uploads/2018/02/end-to-end-active-learning-for-computer-security-experts_abeaugnon_pchifflier_fbach_anssi_inria.pdf)   
 AAAI Workshop on Artificial Intelligence for Computer Security (AICS 2018).
 * Beaugnon, Anaël, Pierre Chifflier, and Francis Bach. ["ILAB: An Interactive Labelling Strategy for Intrusion Detection."](https://www.ssi.gouv.fr/uploads/2017/09/ilab_beaugnonchifflierbach_raid2017.pdf)   

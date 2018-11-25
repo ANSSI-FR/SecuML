@@ -1,0 +1,339 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Detection Performance Metrics &mdash; SecuML  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Features Analysis" href="SecuML.stats.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SecuML
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.setting_up.html">Seeting up SecuML</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.lingspam.html">Use Case: Spam Detection</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Data and Experiments</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Data.html">Data and Problem-Specific Visualizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Experiments.html">Experiments</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Available Experiments</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Features Analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Miscellaneous</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Detection Performance Metrics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#classification-error-rate">Classification Error Rate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#confusion-matrix">Confusion Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#detection-rate">Detection Rate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-compute-the-false-alarm-rate">How to Compute the False Alarm Rate ?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#roc-and-far-dr-curves">ROC and FAR-DR Curves</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SecuML</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Detection Performance Metrics</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/miscellaneous.detection_perf.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="detection-performance-metrics">
+<span id="misc-detection-perf-metrics"></span><h1>Detection Performance Metrics<a class="headerlink" href="#detection-performance-metrics" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="classification-error-rate">
+<h2>Classification Error Rate<a class="headerlink" href="#classification-error-rate" title="Permalink to this headline">¶</a></h2>
+<p>The most prominent measure of performance is the classification error rate, i.e.
+the percentage of misclassified instances,
+but it is not suitable in the context of threat detection.
+Indeed, the data are usually unbalanced with a small proportion of malicious
+instances.</p>
+<p>We present an example demonstrating the limits of the classification error rate.
+We consider 100 instances: 2 malicious and 98 benign. In this situation, a dumb
+detection model predicting always benign has a classification error rate of only
+2% while it is not able to detect any malicious instance.</p>
+</div>
+<div class="section" id="confusion-matrix">
+<h2>Confusion Matrix<a class="headerlink" href="#confusion-matrix" title="Permalink to this headline">¶</a></h2>
+<p>To assess properly the performance of a detection method, we must begin by
+writing the confusion matrix. The confusion matrix takes into account
+the two possible types of errors:
+<em>false negatives</em>, i.e. malicious instances which have not been detected, and
+<em>false positives</em>, i.e. benign instances which have triggered a false alarm.</p>
+<div class="figure align-center" id="id1">
+<a class="reference internal image-reference" href="_images/confusion_matrix.svg"><img alt="_images/confusion_matrix.svg" src="_images/confusion_matrix.svg" width="70%" /></a>
+<p class="caption"><span class="caption-text">Explanation of the Confusion Matrix.</span></p>
+</div>
+</div>
+<div class="section" id="detection-rate">
+<h2>Detection Rate<a class="headerlink" href="#detection-rate" title="Permalink to this headline">¶</a></h2>
+<p>The confusion matrix allows to express performance metrics such as the
+<em>detection rate</em> and the <em>false alarm rate</em>.
+There is a consensus on the definition of the <em>detection rate</em>,also called
+<em>True Positive Rate (TPR)</em>:</p>
+<ul class="simple">
+<li><span class="math notranslate nohighlight">\(TPR = \frac{TP}{TP + FN}\)</span>.</li>
+</ul>
+<p>On the contrary, the <em>false alarm rate</em> is not clearly defined.</p>
+</div>
+<div class="section" id="how-to-compute-the-false-alarm-rate">
+<h2>How to Compute the False Alarm Rate ?<a class="headerlink" href="#how-to-compute-the-false-alarm-rate" title="Permalink to this headline">¶</a></h2>
+<p>There are two competing definitions for the <em>false alarm rate</em>:
+the <em>False Positive Rate (FPR)</em>, the most commonly used, and the
+<em>False Discovery Rate (FDR)</em>:</p>
+<ul class="simple">
+<li><span class="math notranslate nohighlight">\(FPR = \frac{FP}{FP + TN}\)</span></li>
+<li><span class="math notranslate nohighlight">\(FDR = \frac{FP}{FP + TP}\)</span>.</li>
+</ul>
+<p>The FPR is the proportion of benign instances that have triggered a false
+alarm, while the FDR measures the proportion of the alerts that are irrelevant.</p>
+<p>The FDR makes more sense than the FPR from an operational point of view.
+First of all, it can be computed in operational environments in contrast
+to the FPR (the number of benign instances, <span class="math notranslate nohighlight">\(FP + TN\)</span>, is unknown in practice).
+Moreover, the FDR reveals the proportion of security operators’ time wasted
+analyzing meaningless alerts, while the FPR has no tangible interpretation.
+Finally, the FPR can be highly misleading when the proportion of malicious
+instances is extremely low because of the base-rate fallacy.
+Let’s take an example.
+We consider 10,000 instances (10 malicious and 9990 benign) and we suppose
+that there are 10 false positives and 2 false negatives
+(<span class="math notranslate nohighlight">\(FP = 10\)</span>, <span class="math notranslate nohighlight">\(FN = 2\)</span>, <span class="math notranslate nohighlight">\(TP = 8\)</span>, <span class="math notranslate nohighlight">\(TN = 9980\)</span>).
+In this case, the FPR seems negligible (<span class="math notranslate nohighlight">\(FPR = 0.1\%\)</span>)
+while security operators spend more than half of their reviewing time analyzing
+meaningless alerts (<span class="math notranslate nohighlight">\(FDR = 55\%\)</span>).</p>
+<p>For all these reasons, the False Discovery Rate (FDR) should be preferred
+over the False Positive Rate (FPR) even if it is still less prevalent in
+practice.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In SecuML the False Alarm Rate (FAR) corresponds to the
+False Discovery Rate (FDR).</p>
+</div>
+</div>
+<div class="section" id="roc-and-far-dr-curves">
+<h2>ROC and FAR-DR Curves<a class="headerlink" href="#roc-and-far-dr-curves" title="Permalink to this headline">¶</a></h2>
+<p>The measures of performance we have introduced so far depend on the value of
+the detection threshold.
+The ROC (Receiver Operating Characteristic) is another measure of performance.
+It has the benefit of being independent of the detection threshold.
+This curve represents the detection rate according to the false positive rate
+for various values of the detection threshold.</p>
+<div class="figure align-center" id="id2">
+<a class="reference internal image-reference" href="_images/roc_explanation.svg"><img alt="_images/roc_explanation.svg" src="_images/roc_explanation.svg" width="70%" /></a>
+<p class="caption"><span class="caption-text">Explanation of the ROC Curve.</span></p>
+</div>
+<p>For a threshold of <span class="math notranslate nohighlight">\(100\%\)</span>, the detection and false alarm rates are null,
+and for a threshold of <span class="math notranslate nohighlight">\(0\%\)</span> they are both equal to <span class="math notranslate nohighlight">\(100\%\)</span>.
+A good detection model has a ROC curve close to the upper left corner : a high
+detection rate with a low false alarm rate.
+The AUC, which stands for Area Under the ROC Curve, is often computed to assess
+the performance of a detection model independently of the detection threshold.
+A good detection model has an AUC close to <span class="math notranslate nohighlight">\(100\%\)</span>.</p>
+<p>The ROC curve of a classifier predicting randomly the probability of
+maliciousness  is the straight red line.
+A ROC curve is always above this straight line and the AUC is at least
+<span class="math notranslate nohighlight">\(50\%\)</span>.
+Thanks to the ROC curve, we can set the value of the  detection threshold
+according to the detection rate desired or the false alarm rate tolerated.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The ROC curve is interesting to check whether machine learning has learned
+something from the data, i.e. the ROC curve is away from those of a random
+generator.
+However, the False Alarm Rate - Detection Rate (FAR-DR) curve must be
+preferred to set the value of the detection threshold according to the
+desired detection rate or the tolerated FAR (FDR),
+for the same reason that the FDR should be preferred over the FPR.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="SecuML.stats.html" class="btn btn-neutral" title="Features Analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Anaël Beaugnon, Pierre Collet, Antoine Husson
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

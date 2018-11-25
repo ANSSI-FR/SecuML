@@ -1,5 +1,5 @@
 # SecuML
-# Copyright (C) 2016  ANSSI
+# Copyright (C) 2016-2018  ANSSI
 #
 # SecuML is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,13 +14,13 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from .ActiveLearning import active_learning
-from .ActiveLearning import queries
-from .ActiveLearning import monitoring
-from .Classification import classification
-from .Clustering import clusterings
-from .DescriptiveStatistics import descriptive_statistics
-from .Projection import projections
+from .active_learning import active_learning
+from .active_learning import queries
+from .active_learning import monitoring
+from .classification import classification
+from .clustering import clusterings
+from .features_analysis import features_analysis
+from .projection import projections
 
 from . import annotations
 from . import experiments

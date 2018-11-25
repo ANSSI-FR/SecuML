@@ -22,12 +22,12 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import sys
 
-from SecuML.core.Tools import colors_tools
+from SecuML.core.tools import colors_tools
 
-from SecuML.experiments.SecuMLConfiguration import SecuMLConfiguration
+from SecuML.exp.SecuMLConf import SecuMLConf
 
-from SecuML.core.Tools.core_exceptions import SecuMLcoreException
-from SecuML.experiments.Tools.exp_exceptions import SecuMLexpException
+from SecuML.core.tools.core_exceptions import SecuMLcoreException
+from SecuML.exp.tools.exp_exceptions import SecuMLexpException
 
 from SecuML.web import setApp, setSession, setSecuMlConf, setUserExp
 
@@ -43,7 +43,7 @@ if __name__ == '__main__':
                         help='Log the user actions in the web interface.')
     args = parser.parse_args()
     try:
-        secuml_conf = SecuMLConfiguration(args.secuml_conf)
+        secuml_conf = SecuMLConf(args.secuml_conf)
         setSecuMlConf(secuml_conf)
         setUserExp(args.user_exp)
 
@@ -57,5 +57,5 @@ if __name__ == '__main__':
         app.run(host='localhost', port=5000, debug=True)
 
     except (SecuMLcoreException, SecuMLexpException) as e:
-        sys.stderr.write(colors_tools.displayInRed(e) + '\n')
+        sys.stderr.write(colors_tools.display_in_red(e) + '\n')
         sys.exit(-1)

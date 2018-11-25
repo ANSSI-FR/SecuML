@@ -10,13 +10,16 @@ SecuML considers projects which correspond to different detection problems
 on different data types
 (PDF files , PE, Android applications or Spam for instance).
 For a given project, several datasets can be used.
-The directory ``<input_data_dir>/<project>/<dataset>/`` must contain the following items
-a file ``idents.csv``, a ``features`` and an ``annotations`` directories.
-See `input_data/SpamHam/lingspam/ <https://github.com/ANSSI-FR/SecuML/tree/master/input_data/SpamHam/lingspam>`_ for an example of input dataset.
+The directory ``<input_data_dir>/<project>/<dataset>/`` must contain the
+following items a file ``idents.csv``, a ``features`` and an ``annotations``
+directories.
+See `input_data/SpamHam/lingspam/ <https://github.com/ANSSI-FR/SecuML/tree/master/input_data/SpamHam/lingspam>`_
+for an example of input dataset.
 
 .. note::
 
-  The input data directory ``<input_data_dir>`` is specified in the :ref:`configuration file <configuration>`.
+  The input data directory ``<input_data_dir>`` is specified in the
+  :ref:`configuration file <configuration>`.
 
 ``idents.csv``
 ^^^^^^^^^^^^^^
@@ -27,7 +30,8 @@ It has the following columns:
 * **ident**: string describing the instance ;
 * **[optional] timestamp**: date (``YYYY-MM-DD HH:MM:SS`` format) of the instance.
 
-The timestamps are required for :ref:`DIADEM's temporal validation modes <diadem-validation-modes>`.
+The timestamps are required for
+:ref:`DIADEM's temporal validation modes <diadem-validation-modes>`.
 
 ``features`` directory
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -39,11 +43,24 @@ It has the following columns:
 
 .. warning::
 
-  The instances in the features files must be stored in the same order as in ``idents.csv``.
+  The instances in the features files must be stored in the same order as in
+  ``idents.csv``.
 
-SecuML does not take raw data as input, but data that has already been transformed into
-fixed-length vectors of features.
-Currently, SecuML supports only numerical features.
+The header of a features csv file ``<filename>.csv`` may be human-readable
+names or integer ids.
+Names and more detailed descriptions can be associated to
+each feature in a file called ``<filename>_description.csv``.
+This description file is optional.
+
+Some features files can be stored in a folder to run experiments
+on several files. In this case, the features of the different
+files are concatenated to build a dataset.
+See :ref:`exp-params` for more information.
+
+.. note::
+
+  SecuML supports only boolean and numerical features.
+  Categorical features are not supported yet.
 
 ``annotations`` directory
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -54,66 +71,74 @@ It has the following columns:
 * **label**: binary label, ``malicious`` or ``benign`` ;
 * **[optional] family**: string.
 
-.. warning::
-
-  The end of line character of the annotations file must be LF.
-
 **Families**
 
 Families detail the binary label.
 Instances sharing the same family behave similarly.
-For example, malicious instances belonging to the same family may exploit the same vulnerability,
-they may be polymorphic variants of the same malware, or they may be email messages
-coming from the same spam campaign.
+For example, malicious instances belonging to the same family may exploit the
+same vulnerability, they may be polymorphic variants of the same malware, or
+they may be email messages coming from the same spam campaign.
 
-:ref:`ILAB <ILAB>` and :ref:`rare category detection <RCD>` require that the families are specified.
-Besides, the families can be leveraged by :ref:`DIADEM <DIADEM>` to cluster alerts according to
-user-defined malicious families.
+:ref:`ILAB <ILAB>` and :ref:`rare category detection <RCD>` require that the
+families are specified.
+Besides, the families can be leveraged by :ref:`DIADEM <DIADEM>` to cluster
+alerts according to user-defined malicious families.
 
 **Ground Truth and Partial Annotations**
 
-If the ground truth is known, it must be stored in the file ``annotations/ground_truth.csv``.
+If the ground truth is known, it must be stored in the file
+``annotations/ground_truth.csv``.
 
 .. warning::
 
-  The instances in ``annotations/ground_truth.csv`` must be stored in the same order as in ``idents.csv``.
+  The instances in ``annotations/ground_truth.csv`` must be stored in the same
+  order as in ``idents.csv``.
 
-If only some instances are annotated, their annotations can be stored, in any order,
-in an annotation file ``annotations/<filename>.csv``.
+If only some instances are annotated, their annotations can be stored, in any
+order, in an annotation file ``annotations/<filename>.csv``.
 
-The ground truth is required to train supervised detection models with :ref:`DIADEM <diadem>`.
-Partial annotations are required for :ref:`ILAB <ILAB>` and :ref:`rare category detection <RCD>`.
-:ref:`Clustering <clustering>`, :ref:`projection <projection>`, and :ref:`descriptive statistics <stats>`
-do not require any annotation file, but annotations can be leveraged to ease analysis.
+Partial annotations are required for
+:ref:`DIADEM <diadem>`, :ref:`ILAB <ILAB>` and
+:ref:`rare category detection <RCD>`.
+:ref:`Clustering <clustering>`, :ref:`projection <projection>`, and
+:ref:`features analysis <stats>` do not require annotations,
+but they can be leveraged to ease analyses.
 
 .. _problem-specific-visu:
 
 Problem-Specific Visualizations
 -------------------------------
-SecuML web user interface displays individual instances (e.g. errors from the confusion matrix with DIADEM, or instances to annotate with ILAB) in a *Description* panel.
+SecuML web user interface displays individual instances (e.g. errors from the
+confusion matrix with DIADEM, or instances to annotate with ILAB) in a
+*Description* panel.
 By default, the *Description* panel displays only the features of the instance.
-This visualization may be hard to interpret especially when the feature space is in high dimension.
+This visualization may be hard to interpret especially when the feature space is
+in high dimension.
 
 SecuML enables to plug problem-specific visualizations for each project
-(the datasets belonging to the same project share the same problem-specific visualizations).
-They should be easily interpretable by security experts and display the most relevant elements from a detection perspective.
+(the datasets belonging to the same project share the same problem-specific
+visualizations).
+They should be easily interpretable by security experts and display the most
+relevant elements from a detection perspective.
 They may point out to external tools or information to provide some context.
-Several custom visualizations can be implemented (in different tabs) to show the instances from various angles.
+Several custom visualizations can be implemented (in different tabs) to show the
+instances from various angles.
 
 Implementation
 ^^^^^^^^^^^^^^
 .. note::
 
-  Problem-specific visualizations are not required to use SecuML web user interface.
-  However, we strongly encourage to implement convenient problem-specific visualizations,
-  since they can significantly ease the analysis of individual instances.
+  Problem-specific visualizations are not required to use SecuML web user
+  interface. However, we strongly encourage to implement convenient
+  problem-specific visualizations, since they can significantly ease the
+  analysis of individual instances.
 
 JavaScript code
 """""""""""""""
-| The code must be stored in ``SecuML/web/static/js/InstancesInformation/<project>.js``.
-| See `SecuML/web/static/js/InstancesInformation/SpamHam.js <https://github.com/ANSSI-FR/SecuML/blob/master/SecuML/web/static/js/InstancesInformation/SpamHam.js>`_ for an example.
+| The code must be stored in ``SecuML/web/static/js/instances_visu/<project>.js``.
+| See `SecuML/web/static/js/instances_visu/SpamHam.js <https://github.com/ANSSI-FR/SecuML/blob/master/SecuML/web/static/js/instances_visu/SpamHam.js>`_ for an example.
 
 Flask code
 """"""""""
-| The code must be stored in ``SecuML/web/views/Projects/<project>.py``.
-| See `SecuML/web/views/Projects/SpamHam.py <https://github.com/ANSSI-FR/SecuML/blob/master/SecuML/web/views/Projects/SpamHam.py>`_ for an example.
+| The code must be stored in ``SecuML/web/views/projects/<project>.py``.
+| See `SecuML/web/views/projects/SpamHam.py <https://github.com/ANSSI-FR/SecuML/blob/master/SecuML/web/views/projects/SpamHam.py>`_ for an example.

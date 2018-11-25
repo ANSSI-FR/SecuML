@@ -5,18 +5,21 @@ DIADEM: DIAgnosis of DEtection Models
 
 **Training and Analysing a Detection Model before Deployment.**
 
-| *Usage:* ``SecuML_DIADEM <project> <dataset> <model_class>``.
+| *Usage:* ``SecuML_DIADEM <project> <dataset> <model_class> -a <annotations_file>``.
 | For more information about the available options for a given model class:
 | ``SecuML_DIADEM <project> <dataset> <model_class> -h``.
 
 DIADEM trains and evaluates supervised detection models.
-It hides some of the machine learning machinery (feature standardization, setting of the hyperparameters)
+It hides some of the machine learning machinery
+(feature standardization, setting of the hyperparameters)
 to let security experts focus mainly on detection.
-Besides, it comes with a :ref:`graphical user interface <diadem-gui>` to evaluate and diagnose detection models.
+Besides, it comes with a :ref:`graphical user interface <diadem-gui>` to
+evaluate and diagnose detection models.
 
 .. rubric:: References
 
-* Beaugnon, Anaël. `"Expert-in-the-Loop Supervised Learning for Computer Security Detection Systems."] <https://www.ssi.gouv.fr/uploads/2018/06/beaugnon-a_these_manuscrit.pdf>`_, Ph.D. thesis, École Normale Superieure (2018).
+* Beaugnon, Anaël, and Pierre Chifflier. `"Machine Learning for Computer Security Detection Systems: Practical Feedback and Solutions" <https://www.ssi.gouv.fr/uploads/2018/11/machine-learning-for-computer-security-abeaugnon-pchifflier-anssi-.pdf>`_, C&ESAR 2018.
+* Beaugnon, Anaël. `"Expert-in-the-Loop Supervised Learning for Computer Security Detection Systems." <https://www.ssi.gouv.fr/uploads/2018/06/beaugnon-a_these_manuscrit.pdf>`_, Ph.D. thesis, École Normale Superieure (2018).
 * [FRENCH] Bonneton, Anaël, and Antoine Husson, `"Le Machine Learning confronté aux contraintes opérationnelles des systèmes de détection" <https://www.sstic.org/media/SSTIC2017/SSTIC-actes/le_machine_learning_confront_aux_contraintes_oprat/SSTIC2017-Article-le_machine_learning_confront_aux_contraintes_oprationnelles_des_systmes_de_dtection-bonneton_husson.pdf>`_, SSTIC 2017.
 
 Model Classes Available
@@ -35,24 +38,27 @@ Model Classes Available
     It does not support unsupervised and semi-supervised detection models yet.
 
 | DIADEM can train a new supervised detection model,
-| ``SecuML_DIADEM <project> <dataset> <model_class>``,
+| ``SecuML_DIADEM <project> <dataset> <model_class> -a <annotations_file>``,
 | or apply a previously trained detection model,
 | ``SecuML_DIADEM <project> <dataset> AlreadyTrained --model-exp-id <exp_id>``.
 
 .. note::
 
-  In the latter case, ``--model-exp-id`` must correspond to a :ref:`DIADEM <DIADEM>` or an :ref:`ILAB <ILAB>` experiment.
+  In the latter case, ``--model-exp-id`` must correspond to a
+  :ref:`DIADEM <DIADEM>` or an :ref:`ILAB <ILAB>` experiment.
 
 
 .. _diadem-validation-modes:
 
 Validation Modes Available
 --------------------------
-DIADEM offers several validation modes, i.e. ways to build the training and the validation datasets.
-Temporal validation modes (:ref:`temporal-split`, :ref:`cutoff-time`, :ref:`temporal-cv`, and :ref:`sliding-window`)
-should be preferred when
+DIADEM offers several validation modes, i.e. ways to build the training and the
+validation datasets.
+Temporal validation modes (:ref:`temporal-split`, :ref:`cutoff-time`,
+:ref:`temporal-cv`, and :ref:`sliding-window`) should be preferred when
 the instances are timestamped since they better reflect real-world conditions.
-These validation modes ensure that no instance from the future is used when the detection model is trained:
+These validation modes ensure that no instance from the future is used when the
+detection model is trained:
 the training instances predate the validation instances.
 
 .. _random-split:
@@ -61,8 +67,8 @@ Random Split
 ^^^^^^^^^^^^
 ``--test-mode RandomSplit --test-size <prop>``
 
-``<prop>`` instances of ``<dataset>`` are selected uniformly for the validation dataset.
-The remaining instances constitute the training dataset.
+``<prop>`` instances of ``<dataset>`` are selected uniformly for the validation
+dataset. The remaining instances constitute the training dataset.
 
 .. _temporal-split:
 
@@ -70,8 +76,8 @@ Temporal Split
 ^^^^^^^^^^^^^^
 ``--test-mode TemporalSplit --test-size <prop>``
 
-The ``<prop>`` most recent instances of ``<dataset>`` are selected for the validation dataset.
-The remaining instances constitute the training dataset.
+The ``<prop>`` most recent instances of ``<dataset>`` are selected for the
+validation dataset. The remaining instances constitute the training dataset.
 
 .. _cutoff-time:
 
@@ -79,8 +85,9 @@ Cutoff Time
 ^^^^^^^^^^^
 ``--test-mode CutoffTime --cutoff-time <cutoff_time>``
 
-The instances of ``<dataset>`` with a timestamp before ``<cutoff_time>`` constitutes
-the training dataset, and the instances after constitute the validation dataset.
+The instances of ``<dataset>`` with a timestamp before ``<cutoff_time>``
+constitutes the training dataset, and the instances after constitute the
+validation dataset.
 ``<cutoff_time>`` must be formatted as follows:
 ``YYYY-MM-DD HH:MM:SS``.
 
@@ -93,9 +100,10 @@ Cross Validation
 
 The dataset ``<dataset>`` is divided uniformly into ``<num_folds>`` buckets.
 Each bucket has approximately the same number
-of instances and the same proportion of benign/malicious instances as the whole dataset.
-The detection model is trained ``<num_folds>`` times: each time, one bucket is the validation dataset and the other buckets
-form the training dataset.
+of instances and the same proportion of benign/malicious instances as the whole
+dataset.
+The detection model is trained ``<num_folds>`` times: each time, one bucket is
+the validation dataset and the other buckets form the training dataset.
 
 *Example with* :math:`\text{num_folds} = 4`:
 
@@ -119,8 +127,9 @@ where
 
 * :math:`\Delta = \frac{T^{max} - T^{min}}{\text{num_folds} + 1}`.
 
-For each fold :math:`f\in[0,\text{num_folds}-1]`, the buckets from :math:`b_0` to :math:`b_f` constitute
-the training dataset, and the remaining buckets form the validation dataset.
+For each fold :math:`f\in[0,\text{num_folds}-1]`, the buckets from :math:`b_0`
+to :math:`b_f` constitute the training dataset, and the remaining buckets form
+the validation dataset.
 
 *Example with* :math:`\text{num_folds} = 4`:
 
@@ -166,8 +175,8 @@ Validation Dataset
 
 ``--test-mode ValidationDataset --validation-dataset <validation_dataset>``
 
-The whole dataset ``<dataset>`` constitutes the training data, and ``<validation_dataset>`` constitutes
-the validation data.
+The whole dataset ``<dataset>`` constitutes the training data, and
+``<validation_dataset>`` constitutes the validation data.
 
 .. _diadem-gui:
 
@@ -176,10 +185,11 @@ Graphical User Interface
 
 Model Performance and Predictions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-DIADEM displays the performance evaluation and the predictions of the detection model
-both on the training and validation datasets.
+DIADEM displays the performance evaluation and the predictions of the detection
+model both on the training and validation datasets.
 The predictions analysis is always available,
-while the performance evaluation can be computed only when the data are annotated.
+while the performance evaluation can be computed only when the data are
+annotated.
 
 **Performance.**
 The *Performance* tab displays the detection and the false alarm rates
@@ -187,6 +197,7 @@ for a given detection threshold.
 The value of the detection threshold can be modified through a slider
 to see the impact on the detection and false alarm rates.
 The confusion matrix and the ROC curve are also displayed.
+See :ref:`misc_detection_perf_metrics` for more information.
 
 .. _performance-tab:
 
@@ -196,7 +207,8 @@ The confusion matrix and the ROC curve are also displayed.
   Performance Tab
 
 **Predictions.**
-The *Predictions* tab displays the histograms of the predicted probabilities of maliciousness.
+The *Predictions* tab displays the histograms of the predicted probabilities of
+maliciousness.
 When annotations are available, the instances are grouped by label.
 
 .. _predictions-tab:
@@ -218,10 +230,10 @@ DIADEM does not yet support model-agnostic interpretation methods.
 
 These graphic depictions allow a focus on the most influential features
 of the detection model.
-Clicking on a given feature gives access to its descriptive statistics on the training data
-(see :ref:`Descriptive Statistics <stats>`).
-These statistics allow to understand why a feature has a significant impact on decision-making,
-and may point out biases in the training dataset.
+Clicking on a given feature gives access to its descriptive statistics on the
+training data (see :ref:`Features Analysis <stats>`).
+These statistics allow to understand why a feature has a significant impact on
+decision-making, and may point out biases in the training dataset.
 
 .. _linear-model-coeff:
 
@@ -251,8 +263,9 @@ whose predicted probability is within a given range.
 For instance, the instances close to the decision boundary
 (probability of maliciousness close to 50%) can be reviewed
 to understand why the detection model is undecided.
-Moreover, the instances that have been misclassified with a high level of confidence can be inspected
-to point out potential annotation errors, or help finding new discriminating features.
+Moreover, the instances that have been misclassified with a high level of
+confidence can be inspected to point out potential annotation errors, or help
+finding new discriminating features.
 
 **Description Panel**
 
@@ -276,23 +289,29 @@ the *Description* panel (available for any data type).
 
   Most Important Features
 
-By default, the *Description* panel displays the features of the instance (see :ref:`all-features` ).
-This visualization may be hard to interpret especially when the feature space is in high dimension.
-:ref:`all-features` displays the features extracted from an email:
+By default, the *Description* panel displays the features of the instance
+(see :ref:`all-features` ). This visualization may be hard to interpret
+especially when the feature space is in high dimension. :ref:`all-features`
+displays the features extracted from an email:
 the number of occurrences of each word in the vocabulary.
-Since the vocabulary contains 1000 words, this visualization is hardly interpretable for humans.
+Since the vocabulary contains 1000 words, this visualization is hardly
+interpretable for humans.
 
 If an interpretable model has been trained, DIADEM also displays
-the features that have the most impact on the prediction (see :ref:`important-features` ).
+the features that have the most impact on the prediction
+(see :ref:`important-features` ).
 This visualization is easier to interpret than the previous one
-since the features are sorted according to their impact in the decision-making process.
+since the features are sorted according to their impact in the decision-making
+process.
 
-Other visualizations specific to the detection problem may be more relevant to analyze individual predictions.
-In order to address this need, DIADEM enables users to plug problem-specific visualizations.
+Other visualizations specific to the detection problem may be more relevant to
+analyze individual predictions. In order to address this need, DIADEM enables
+users to plug problem-specific visualizations.
 :ref:`mail-specific-visu` depicts a problem-specific visualization
-we have implemented for spam detection. It displays simply the raw content of the email.
-We strongly encourage to implement convenient problem-specific visualizations (see :ref:`problem-specific-visu`),
-since they can significantly ease the analysis of individual predictions.
+we have implemented for spam detection. It displays simply the raw content of
+the email. We strongly encourage to implement convenient problem-specific
+visualizations (see :ref:`problem-specific-visu`), since they can significantly
+ease the analysis of individual predictions.
 
 .. _mail-specific-visu:
 

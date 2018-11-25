@@ -1,5 +1,5 @@
 # SecuML
-# Copyright (C) 2016-2017  ANSSI
+# Copyright (C) 2016-2018  ANSSI
 #
 # SecuML is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,24 +16,23 @@
 
 from SecuML.web import app, secuml_conf, session
 
-from flask import jsonify, redirect, render_template
+from flask import jsonify, redirect, render_template, send_file
 import operator
+import os
 
-from SecuML.experiments import db_tables
-from SecuML.experiments import experiment_db_tools
-from SecuML.experiments import ExperimentFactory
+from SecuML.exp import db_tables
+from SecuML.exp.tools import db_tools
+from SecuML.exp import ExperimentFactory
 
 
 def updateCurrentExperiment(experiment_id):
-    experiment = ExperimentFactory.getFactory().fromJson(experiment_id,
-                                                         secuml_conf,
-                                                         session)
-    return experiment
+    return ExperimentFactory.getFactory().from_exp_id(experiment_id,
+                                                      secuml_conf, session)
 
 
 @app.route('/SecuML/')
 def secumlMenu():
-    return render_template('main_menu.html')
+    return render_template('menus/main.html')
 
 
 @app.route('/')
@@ -43,23 +42,19 @@ def secumlRootMenu():
 
 @app.route('/SecuML/<project>/menu/')
 def projectMenu(project):
-    return render_template('project_menu.html')
+    return render_template('menus/projects.html')
 
 
 @app.route('/SecuML/<project>/<dataset>/menu/')
 def datasetMenu(project, dataset):
-    return render_template('dataset_menu.html')
-
-
-@app.route('/SecuML/<project>/<dataset>/<exp_type>/menu/')
-def expMenu(project, dataset, exp_type):
-    return render_template('experiments_menu.html')
+    return render_template('menus/datasets.html')
 
 
 @app.route('/SecuML/<experiment_id>/')
 def getExperiment(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
-    return render_template(experiment.webTemplate(), project=experiment.project)
+    return render_template(experiment.webTemplate(),
+                           project=experiment.exp_conf.dataset_conf.project)
 
 
 @app.route('/getProjects/')
@@ -74,24 +69,16 @@ def getDatasets(project):
     return jsonify({'datasets': datasets})
 
 
-@app.route('/hasGroundTruth/<experiment_id>/')
-def hasGroundTruth(experiment_id):
-    experiment = updateCurrentExperiment(experiment_id)
-    return str(db_tables.hasGroundTruth(experiment))
-
-
-@app.route('/getConf/<experiment_id>/')
-def getConf(experiment_id):
-    experiment = updateCurrentExperiment(experiment_id)
-    conf = experiment.toJson()
-    conf['has_ground_truth'] = db_tables.hasGroundTruth(experiment)
-    return jsonify(conf)
-
+@app.route('/getConf/<exp_id>/')
+def getConf(exp_id):
+    project, dataset = db_tools.getProjectDataset(session, exp_id)
+    conf_filename = os.path.join(secuml_conf.output_data_dir, project, dataset,
+                                 str(exp_id), 'conf.json')
+    return send_file(conf_filename)
 
 @app.route('/getAllExperiments/<project>/<dataset>/')
 def getAllExperiments(project, dataset):
-    experiments = experiment_db_tools.getAllExperiments(
-        session, project, dataset)
+    experiments = db_tools.getAllExperiments(session, project, dataset)
     for k, v in experiments.items():
         t = [(x['id'], x['name']) for x in v]
         t.sort(key=operator.itemgetter(0), reverse=True)
@@ -101,18 +88,17 @@ def getAllExperiments(project, dataset):
 
 @app.route('/getExperimentName/<experiment_id>/')
 def getExperimentName(experiment_id):
-    return experiment_db_tools.getExperimentName(session, experiment_id)
+    return db_tools.getExperimentName(session, experiment_id)
 
 
-@app.route('/getDescriptiveStatsExp/<experiment_id>/')
-def getDescriptiveStatsExp(experiment_id):
+@app.route('/getFeaturesAnalysisExp/<experiment_id>/')
+def getFeaturesAnalysisExp(experiment_id):
     experiment = updateCurrentExperiment(experiment_id)
-    return str(experiment_db_tools.getDescriptiveStatsExp(experiment.session,
-                                                          experiment))
+    return str(db_tools.getFeaturesAnalysisExp(experiment.session, experiment))
 
 
 @app.route('/SecuML/<experiment_id>/<feature>/')
-def getDescriptiveStatsExperiment(experiment_id, feature):
+def getFeaturesAnalysisExperiment(experiment_id, feature):
     experiment = updateCurrentExperiment(experiment_id)
     return render_template(experiment.webTemplate(),
                            feature={'feature': feature})

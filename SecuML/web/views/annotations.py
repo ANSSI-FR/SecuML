@@ -1,5 +1,5 @@
 # SecuML
-# Copyright (C) 2016-2017  ANSSI
+# Copyright (C) 2016-2018  ANSSI
 #
 # SecuML is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,168 +21,154 @@ import os.path as path
 from SecuML.web import app, user_exp, session
 from SecuML.web.views.experiments import updateCurrentExperiment
 
-from SecuML.core.Data import labels_tools
-from SecuML.core.Tools import dir_tools
-
-from SecuML.experiments.Data import annotations_db_tools
+from SecuML.exp.conf.AnnotationsConf import AnnotationsTypes
+from SecuML.exp.data import annotations_db_tools
 
 
-@app.route('/getAnnotation/<experiment_id>/<instance_id>/')
-def getAnnotation(experiment_id, instance_id):
+@app.route('/getAnnotation/<annotations_type>/<annotations_id>/<dataset_id>/'
+           '<instance_id>/')
+def getAnnotation(annotations_type, annotations_id, dataset_id, instance_id):
+    annotations_type = AnnotationsTypes[annotations_type]
     annotation = annotations_db_tools.getAnnotation(session,
-                                                    experiment_id,
+                                                    annotations_type,
+                                                    annotations_id,
+                                                    dataset_id,
                                                     instance_id)
     if annotation is None:
-        annotation = {}
+        return jsonify({})
     else:
-        annotation = {'label': annotation[0], 'family': annotation[1]}
-    return jsonify(annotation)
+        return jsonify({'label': annotation[0], 'family': annotation[1]})
+
 
 # If there is already an annotation for 'instance_id' in 'experiment',
 # then the annotation is removed
 # Otherwise, nothing is done
-
-
-@app.route('/removeAnnotation/<experiment_id>/<inst_experiment_id>/<iteration_number>/<instance_id>/')
-def removeAnnotation(experiment_id, inst_experiment_id, iteration_number, instance_id):
-    annotations_db_tools.removeAnnotation(
-        session, inst_experiment_id, instance_id)
+@app.route('/removeAnnotation/<exp_id>/<inst_exp_id><instance_id>/')
+def removeAnnotation(exp_id, inst_exp_id, instance_id):
+    annotations_db_tools.removeAnnotation(session, inst_exp_id, instance_id)
     session.commit()
     if user_exp:
-        experiment = updateCurrentExperiment(experiment_id)
-        filename = path.join(experiment.getOutputDirectory(),
-                             'user_actions.log')
-        file_exists = dir_tools.checkFileExists(filename)
+        exp = updateCurrentExperiment(exp_id)
+        filename = path.join(exp.output_dir(), 'user_actions.log')
+        file_exists = path.isfile(filename)
         mode = 'a' if file_exists else 'w'
-        to_print = [datetime.datetime.now(), 'removeAnnotation', instance_id]
-        to_print = list(map(str, to_print))
-        to_print = ','.join(to_print)
+        to_print = ','.join(map(str, [datetime.datetime.now(),
+                                      'removeAnnotation', instance_id]))
         with open(filename, mode) as f:
             f.write(to_print)
     return ''
 
-# The new annotation is added.
-# If there is already an annotation for 'instance_id' in 'experiment' nothing is done.
-@app.route('/addAnnotation/<experiment_id>/<inst_experiment_id>/<iteration_number>/<instance_id>/<label>/<family>/<method>/')
-def addAnnotation(experiment_id, inst_experiment_id, iteration_number, instance_id, label, family, method):
-    annotations_db_tools.addAnnotation(session, inst_experiment_id,
-                                       instance_id, label, family,
-                                       iteration_number, method)
+@app.route('/updateAnnotation/<exp_id>/<inst_annotations_id>/<iter_num>/'
+           '<instance_id>/<label>/<family>/<method>/')
+def updateAnnotation(exp_id, inst_annotations_id, iter_num, instance_id, label,
+                     family, method):
+    iter_num = None if iter_num == 'None' else int(iter_num)
+    annotations_db_tools.updateAnnotation(session, inst_annotations_id,
+                                          instance_id, label, family,
+                                          iter_num, method)
     session.commit()
     if user_exp:
-        experiment = updateCurrentExperiment(experiment_id)
-        filename = path.join(experiment.getOutputDirectory(),
-                             'user_actions.log')
-        file_exists = dir_tools.checkFileExists(filename)
+        exp = updateCurrentExperiment(exp_id)
+        filename = path.join(exp.output_dir(), 'user_actions.log')
+        file_exists = path.isfile(filename)
         mode = 'a' if file_exists else 'w'
-        to_print = [datetime.datetime.now(), 'addAnnotation',
-                    iteration_number, instance_id, label, family, method]
-        to_print = list(map(str, to_print))
-        to_print = ','.join(to_print)
+        to_print = ','.join(map(str, [datetime.datetime.now(), 'addAnnotation',
+                                      iter_num, instance_id, label, family,
+                                      method]))
         with open(filename, mode) as f:
             f.write(to_print)
     return ''
 
 
-@app.route('/getAnnotatedInstances/<experiment_id>/')
-def getAnnotatedInstances(experiment_id):
-    res = {}
-    for label in [labels_tools.MALICIOUS, labels_tools.BENIGN]:
-        res[label] = annotations_db_tools.getLabelIds(session, experiment_id,
-                                                      label)
-    return jsonify(res)
+@app.route('/getLabelsFamilies/<annotations_type>/<annotations_id>/'
+           '<dataset_id>/<iter_max>/')
+def getLabelsFamilies(annotations_type, annotations_id, dataset_id, iter_max):
+    iter_max = None if iter_max == 'None' else int(iter_max)
+    annotations_type = AnnotationsTypes[annotations_type]
+    return jsonify(annotations_db_tools.get_labels_families(session,
+                                                            annotations_type,
+                                                            annotations_id,
+                                                            dataset_id,
+                                                            iter_max=iter_max))
 
 
-@app.route('/getLabelsFamilies/<experiment_id>/<iteration_max>/')
-def getLabelsFamilies(experiment_id, iteration_max):
-    if iteration_max == 'None':
-        iteration_max = None
-    else:
-        iteration_max = int(iteration_max)
-    labels_families = annotations_db_tools.getLabelsFamilies(session,
-                                                             experiment_id, iteration_max=iteration_max)
-    return jsonify(labels_families)
+@app.route('/getFamiliesInstances/<annotations_type>/<annotations_id>/'
+           '<dataset_id>/<label>/<iter_max>/')
+def getFamiliesInstances(annotations_type, annotations_id, dataset_id, label,
+                         iter_max):
+    annotations_type = AnnotationsTypes[annotations_type]
+    iter_max = None if iter_max == 'None' else int(iter_max)
+    families = annotations_db_tools.get_labels_families(session,
+                                                        annotations_type,
+                                                        annotations_id,
+                                                        dataset_id,
+                                                        iter_max=iter_max)
+    instances = {}
+    for f in families[label]:
+        instances[f] = annotations_db_tools.get_label_family_ids(session,
+                                                              annotations_type,
+                                                              annotations_id,
+                                                              dataset_id,
+                                                              label,
+                                                              family=f,
+                                                              iter_max=iter_max)
+    return jsonify(instances)
 
 
-@app.route('/getFamiliesInstances/<experiment_id>/<label>/<iteration_max>/')
-def getFamiliesInstances(experiment_id, label, iteration_max):
-    if iteration_max == 'None':
-        iteration_max = None
-    else:
-        iteration_max = int(iteration_max)
-    families = annotations_db_tools.getLabelsFamilies(session, experiment_id,
-                                                      iteration_max=iteration_max)[label]
-    families_instances = {}
-    for f in families:
-        families_instances[f] = annotations_db_tools.getLabelFamilyIds(session, experiment_id,
-                                                                       label, family=f,
-                                                                       iteration_max=iteration_max)
-    return jsonify(families_instances)
+@app.route('/datasetHasFamilies/<annotations_id>/')
+def datasetHasFamilies(annotations_id):
+    return str(annotations_db_tools.datasetHasFamilies(session, annotations_id))
 
 
-@app.route('/datasetHasFamilies/<experiment_id>/')
-def datasetHasFamilies(experiment_id):
-    has_families = annotations_db_tools.datasetHasFamilies(
-        session, experiment_id)
-    return str(has_families)
-
-
-@app.route('/changeFamilyName/<experiment_id>/<label>/<family>/<new_family_name>/')
-def changeFamilyName(experiment_id, label, family, new_family_name):
-    annotations_db_tools.changeFamilyName(session, experiment_id, label, family,
-                                          new_family_name)
+@app.route('/changeFamilyName/<exp_id>/<annotations_id>/<label>/<family>/'
+           '<new_family>/')
+def changeFamilyName(exp_id, annotations_id, label, family, new_family):
+    annotations_db_tools.changeFamilyName(session, annotations_id, label,
+                                          family, new_family)
     session.commit()
     if user_exp:
-        experiment = updateCurrentExperiment(experiment_id)
-        filename = path.join(experiment.getOutputDirectory(),
-                             'user_actions.log')
-        file_exists = dir_tools.checkFileExists(filename)
+        exp = updateCurrentExperiment(exp_id)
+        filename = path.join(exp.output_dir(), 'user_actions.log')
+        file_exists = path.isfile(filename)
         mode = 'a' if file_exists else 'w'
-        to_print = [datetime.datetime.now(), 'changeFamilyName',
-                    family, new_family_name]
-        to_print = list(map(str, to_print))
-        to_print = ','.join(to_print)
+        to_print = ','.join(map(str, [datetime.datetime.now(),
+                                      'changeFamilyName', family, new_family]))
         with open(filename, mode) as f:
             f.write(to_print)
     return ''
 
 
-@app.route('/changeFamilyLabel/<experiment_id>/<label>/<family>/')
-def changeFamilyLabel(experiment_id, label, family):
-    annotations_db_tools.changeFamilyLabel(session, experiment_id, label,
+@app.route('/changeFamilyLabel/<exp_id>/<annotations_id>/<label>/<family>/')
+def changeFamilyLabel(exp_id, annotations_id, label, family):
+    annotations_db_tools.changeFamilyLabel(session, annotations_id, label,
                                            family)
     session.commit()
     if user_exp:
-        experiment = updateCurrentExperiment(experiment_id)
-        filename = path.join(experiment.getOutputDirectory(),
-                             'user_actions.log')
-        file_exists = dir_tools.checkFileExists(filename)
+        exp = updateCurrentExperiment(exp_id)
+        filename = path.join(exp.output_dir(), 'user_actions.log')
+        file_exists = path.isfile(filename)
         mode = 'a' if file_exists else 'w'
-        to_print = [datetime.datetime.now(), 'changeFamilyLabel',
-                    family, label]
-        to_print = list(map(str, to_print))
-        to_print = ','.join(to_print)
+        to_print = ','.join(map(str, [datetime.datetime.now(),
+                                      'changeFamilyLabel', family, label]))
         with open(filename, mode) as f:
             f.write(to_print)
     return ''
 
 
-@app.route('/mergeFamilies/<experiment_id>/<label>/<families>/<new_family_name>/')
-def mergeFamilies(experiment_id, label, families, new_family_name):
+@app.route('/mergeFamilies/<exp_id>/<annotations_id>/<label>/<families>/'
+           '<new_family>/')
+def mergeFamilies(exp_id, annotations_id, label, families, new_family):
     families = families.split(',')
-    annotations_db_tools.mergeFamilies(session, experiment_id, label, families,
-                                       new_family_name)
+    annotations_db_tools.mergeFamilies(session, annotations_id, label, families,
+                                       new_family)
     session.commit()
     if user_exp:
-        experiment = updateCurrentExperiment(experiment_id)
-        filename = path.join(experiment.getOutputDirectory(),
-                             'user_actions.log')
-        file_exists = dir_tools.checkFileExists(filename)
+        exp = updateCurrentExperiment(exp_id)
+        filename = path.join(exp.output_dir(), 'user_actions.log')
+        file_exists = path.isfile(filename)
         mode = 'a' if file_exists else 'w'
-        to_print = [datetime.datetime.now(), 'mergeFamilies', new_family_name]
-        to_print += list(map(str, families))
-        to_print = list(map(str, to_print))
-        to_print = ','.join(to_print)
+        to_print = ','.join(map(str, [datetime.datetime.now(), 'mergeFamilies',
+                                      new_family] + families))
         with open(filename, mode) as f:
             f.write(to_print)
     return ''

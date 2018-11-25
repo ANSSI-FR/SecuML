@@ -99,7 +99,11 @@
 <li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Descriptive Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Features Analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Miscellaneous</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.detection_perf.html">Detection Performance Metrics</a></li>
 </ul>
 
             
@@ -168,13 +172,24 @@
 <h1>Use Case: Spam Detection<a class="headerlink" href="#use-case-spam-detection" title="Permalink to this headline">¶</a></h1>
 <p>We provide a dataset intended for spam detection for quick testing.
 See <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/tree/master/input_data/SpamHam/lingspam">lingspam</a> for more information.</p>
-<ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">SecuML_server</span></code> must be executed to launch the web server. <code class="docutils literal notranslate"><span class="pre">http://localhost:5000/SecuML/</span></code> gives access to SecuML menu.</li>
-<li>In the <a class="reference internal" href="getting_started.setting_up.html#configuration"><span class="std std-ref">configuration file</span></a>, <code class="docutils literal notranslate"><span class="pre">input_data_dir</span></code> must be set to <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/tree/master/input_data/">input_data</a> to test SecuML with the <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/tree/master/input_data/SpamHam/lingspam">lingspam</a> dataset we provide.</li>
+<ul>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">SecuML_server</span></code> must be executed to launch the <a class="reference internal" href="getting_started.setting_up.html#gui"><span class="std std-ref">web server</span></a>. <code class="docutils literal notranslate"><span class="pre">http://localhost:5000/SecuML/</span></code> gives access to SecuML menu.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_server --secuml-conf &lt;path_to_conf_file&gt;
+</pre></div>
+</div>
+</li>
+<li><p class="first">In the <a class="reference internal" href="getting_started.setting_up.html#configuration"><span class="std std-ref">configuration file</span></a>, <code class="docutils literal notranslate"><span class="pre">input_data_dir</span></code> must be set to <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/tree/master/input_data/">input_data</a> to test SecuML with the <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/tree/master/input_data/SpamHam/lingspam">lingspam</a> dataset we provide.</p>
+</li>
 </ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The configuration file is required to run SecuML executables (e.g. <code class="docutils literal notranslate"><span class="pre">SecuML_server</span></code>, <code class="docutils literal notranslate"><span class="pre">SecuML_DIADEM</span></code>, <code class="docutils literal notranslate"><span class="pre">SecuML_ILAB</span></code>).
+It can be specified either with the parameter <code class="docutils literal notranslate"><span class="pre">--secuml-conf</span></code> for each execution, or globally
+with the environment variable <code class="docutils literal notranslate"><span class="pre">SECUMLCONF</span></code>.</p>
+</div>
 <div class="section" id="training-and-diagnosing-a-detection-model">
 <h2>Training and Diagnosing a Detection Model<a class="headerlink" href="#training-and-diagnosing-a-detection-model" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_DIADEM SpamHam lingspam LogisticRegression --secuml-conf &lt;path_to_your_config_file&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_DIADEM SpamHam lingspam --secuml-conf &lt;conf_file&gt; LogisticRegression -a ground_truth.csv
 </pre></div>
 </div>
 <div class="figure" id="id2">
@@ -185,7 +200,7 @@ See <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/tree/
 </div>
 <div class="section" id="annotating-a-dataset-with-a-reduced-workload">
 <h2>Annotating a Dataset with a Reduced Workload<a class="headerlink" href="#annotating-a-dataset-with-a-reduced-workload" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_ILAB SpamHam lingspam Ilab --auto --budget <span class="m">500</span> --secuml-conf &lt;path_to_your_config_file&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_ILAB SpamHam lingspam --secuml-conf &lt;conf_file &gt;Ilab --auto --budget <span class="m">500</span>
 </pre></div>
 </div>
 <div class="figure" id="id3">
@@ -216,7 +231,7 @@ See <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/tree/
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Anaël Beaugnon, Pierre Collet, Antoine Husson.
+        &copy; Copyright 2018, Anaël Beaugnon, Pierre Collet, Antoine Husson
 
     </p>
   </div>
@@ -235,21 +250,14 @@ See <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/tree/
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 
