@@ -182,9 +182,9 @@ class LoadFeatures(object):
             names = ids
             descriptions = ids
         # Add features to the DB
-        for i, id in enumerate(ids):
+        for id, name, description in zip(ids, names, descriptions):
             feature = FeaturesAlchemy(user_id=id, file_id=file_id,
-                                  dataset_features_id=self.dataset_features_id,
-                                  name=names[i], description=descriptions[i])
+                                      dataset_features_id=self.dataset_features_id,
+                                      name=name, description=description)
             self.session.add(feature)
         self.session.flush()
