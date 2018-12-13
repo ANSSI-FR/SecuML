@@ -55,7 +55,7 @@ Automatic Installation
 
     virtualenv venv_SecuML --no-site-packages --python python3.5
     source venv_SecuML/bin/activate
-    python3 setup.py install
+    pip install -e <path_to_SecuML_project>
 
 .. warning::
 
