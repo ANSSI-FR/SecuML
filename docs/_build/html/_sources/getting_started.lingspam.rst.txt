@@ -38,7 +38,7 @@ Annotating a Dataset with a Reduced Workload
 
 .. code-block:: bash
 
-    SecuML_ILAB SpamHam lingspam --secuml-conf <conf_file >Ilab --auto --budget 500
+    SecuML_ILAB SpamHam lingspam --secuml-conf <conf_file> Ilab --auto --budget 500
 
 .. figure:: figs/screen_shots/ILAB/monitoring.png
 
