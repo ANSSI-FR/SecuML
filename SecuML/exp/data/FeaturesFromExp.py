@@ -60,24 +60,38 @@ class FeaturesFromExp(Features):
             row = query.one()
             # file path
             file_path = os.path.join(dir_, row.filename)
+            # user ids
+            with open(file_path, 'r') as f:
+                user_ids = f.readline().rstrip().split(',')[1:]
+                user_ids_indexes = {}
+                for i, user_id in enumerate(user_ids):
+                    user_ids_indexes[user_id] = i
             # mask
             if self.features_conf.filter_in is not None:
-                mask = [f.user_id in self.features_conf.filter_in
-                        for f in row.features]
+                mask = [user_id in self.features_conf.filter_in
+                        for user_id in user_ids]
             elif self.features_conf.filter_out is not None:
-                mask = [f.user_id not in self.features_conf.filter_out
-                        for f in row.features]
+                mask = [user_id not in self.features_conf.filter_out
+                        for user_id in user_ids]
             else:
-                mask = [True for _ in range(len(row.features))]
+                mask = [True for _ in row.features]
             self.paths_masks.append((file_path, mask))
+
             # ids, names, descriptions
-            ids.extend([f.id for i, f in enumerate(row.features)
-                        if mask[i]])
-            names.extend([f.name for i, f in enumerate(row.features)
-                          if mask[i]])
-            descriptions.extend([f.description
-                                 for i, f in enumerate(row.features)
-                                 if mask[i]])
+            f_ids = [None for _ in user_ids]
+            f_names = [None for _ in user_ids]
+            f_descriptions = [None for _ in user_ids]
+
+            for f in row.features:
+                index = user_ids_indexes[f.user_id]
+                f_ids[index] = f.id
+                f_names[index] = f.name
+                f_descriptions[index] = f.description
+
+            ids.extend([id for i, id in enumerate(f_ids) if mask[i]])
+            names.extend([name for i, name in enumerate(f_names) if mask[i]])
+            descriptions.extend([d for i, d in enumerate(f_descriptions) if mask[i]])
+
         return ids, names, descriptions
 
     def get_instance(self, instance_id):
@@ -103,7 +117,7 @@ class FeaturesFromExp(Features):
         features = None
         for csv_file, mask in self.paths_masks:
             with open(csv_file, 'r') as f:
-                f.readline()
+                f.readline() # skip header
                 reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
                 matrix = list(list(rec) for rec in reader)
                 matrix = np.array([l[1:] for l in matrix])[:, mask]
