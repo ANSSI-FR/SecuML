@@ -60,7 +60,7 @@ class Features(object):
                 raise InvalidFeatures('There are %d features '
                                       'but %d features descriptions are '
                                       'provided.' % (num_features,
-                                                     len(self.names)))
+                                                     len(self.descriptions)))
         else:
             if self.values.size != 0:
                 raise InvalidFeatures('There is 0 instance but some features '
