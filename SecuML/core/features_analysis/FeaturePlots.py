@@ -43,12 +43,27 @@ class FeaturePlots(object):
             self._gen_binary_histogram()
         elif self.feature_type == FeatureType.numeric:
             self._gen_bloxplot()
-            self._gen_histogram()
+            # Added to deal with numpy issue #8627
+            # In this case, the variance is null.
+            # The plots are not generated, since the scoring metrics
+            # contain all the informations.
+            try:
+                self._gen_histogram()
+            except:
+                print('Barplot not generated for feature %s'
+                      % self.feature_name)
+                self.barplot = None
+                pass
             self._gen_density()
 
     def export(self, output_dir):
         output_dir = path.join(output_dir, str(self.feature_id))
         dir_tools.createDirectory(output_dir)
+
+        ## TODO: remove when numpy issue #8627 is solved.
+        if self.barplot is None:
+            return
+
         if self.feature_type == FeatureType.binary:
             with open(path.join(output_dir, 'binary_histogram.json'), 'w') as f:
                 self.barplot.export_json(f)
