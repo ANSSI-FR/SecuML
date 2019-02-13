@@ -20,26 +20,27 @@ import matplotlib
 matplotlib.use('Agg')
 import sys
 
-from SecuML.core.tools import colors_tools
+from secuml.core.tools.color import display_in_red
 
-from SecuML.exp.projection.ProjectionConf import ProjectionConf
-from SecuML.exp.projection.ProjectionExperiment import ProjectionExperiment
+from secuml.exp.projection import ProjectionExperiment
+from secuml.exp.projection.conf import ProjectionConf
 
-from SecuML.core.tools.core_exceptions import SecuMLcoreException
-from SecuML.exp.tools.exp_exceptions import SecuMLexpException
+from secuml.core.tools.core_exceptions import SecuMLcoreException
+from secuml.exp.tools.exp_exceptions import SecuMLexpException
+
 
 if __name__ == '__main__':
     try:
-        parser = ProjectionConf.generateParser()
+        parser = ProjectionConf.gen_parser()
         args = parser.parse_args()
-        exp_conf = ProjectionConf.fromArgs(args)
+        exp_conf = ProjectionConf.from_args(args)
         exp = ProjectionExperiment(exp_conf)
         exp.run()
         exp.close()
     except (SecuMLcoreException, SecuMLexpException) as e:
-        sys.stderr.write(colors_tools.display_in_red(e) + '\n')
-        exp.rollbackSession()
+        sys.stderr.write(display_in_red(e) + '\n')
+        exp.rollback_session()
         sys.exit(-1)
     except Exception as e:
-        exp.rollbackSession()
+        exp.rollback_session()
         raise(e)

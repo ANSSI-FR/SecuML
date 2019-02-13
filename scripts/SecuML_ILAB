@@ -20,26 +20,26 @@ import matplotlib
 matplotlib.use('Agg')
 import sys
 
-from SecuML.core.tools import colors_tools
-from SecuML.exp.active_learning.ActiveLearningConf import ActiveLearningConf
-from SecuML.exp.active_learning.ActiveLearningExperiment \
-        import ActiveLearningExperiment
+from secuml.core.tools.color import display_in_red
+from secuml.exp.active_learning.active_learning import ActiveLearningExperiment
+from secuml.exp.active_learning.active_learning_conf import ActiveLearningConf
 
-from SecuML.core.tools.core_exceptions import SecuMLcoreException
-from SecuML.exp.tools.exp_exceptions import SecuMLexpException
+from secuml.core.tools.core_exceptions import SecuMLcoreException
+from secuml.exp.tools.exp_exceptions import SecuMLexpException
+
 
 if __name__ == '__main__':
     try:
-        parser = ActiveLearningConf.generateParser()
+        parser = ActiveLearningConf.gen_parser()
         args = parser.parse_args()
-        exp_conf = ActiveLearningConf.fromArgs(args)
+        exp_conf = ActiveLearningConf.from_args(args)
         exp = ActiveLearningExperiment(exp_conf)
         exp.run()
         exp.close()
     except (SecuMLcoreException, SecuMLexpException) as e:
-        sys.stderr.write(colors_tools.display_in_red(e) + '\n')
-        exp.rollbackSession()
+        sys.stderr.write(display_in_red(e) + '\n')
+        exp.rollback_session()
         sys.exit(-1)
     except Exception as e:
-        exp.rollbackSession()
+        exp.rollback_session()
         raise(e)

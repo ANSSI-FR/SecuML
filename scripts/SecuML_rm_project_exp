@@ -1,0 +1,78 @@
+#!/usr/bin/python3
+
+# SecuML
+# Copyright (C) 2016-2018  ANSSI
+#
+# SecuML is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# SecuML is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with SecuML. If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import os
+import shutil
+import sys
+
+from secuml.core.tools.color import display_in_red
+
+from secuml.exp import experiment
+from secuml.exp.data.project_dataset import rm_project_from_db
+
+from secuml.exp.active_learning.active_learning import ActiveLearningExperiment
+from secuml.exp.active_learning.rcd import RcdExperiment
+from secuml.exp.diadem import DiademExp
+from secuml.exp.clustering import ClusteringExperiment
+from secuml.exp.conf.dataset import DatasetConf
+from secuml.exp.features_analysis import FeaturesAnalysisExperiment
+from secuml.exp.projection import ProjectionExperiment
+
+from secuml.exp.conf.secuml import SecuMLConf
+
+from secuml.core.tools.core_exceptions import SecuMLcoreException
+from secuml.exp.tools.exp_exceptions import SecuMLexpException
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Delete the experiments for a given dataset in a project. '
+                    'If no experiment id is specified, all the experiments '
+                    'of the project are deleted.')
+    parser.add_argument('project')
+    parser.add_argument('--exp-id',
+                        type=int,
+                        default=None)
+    parser.add_argument('--secuml-conf',
+                        type=str,
+                        default=None)
+    args = parser.parse_args()
+    try:
+        secuml_conf = SecuMLConf(args.secuml_conf)
+        session = secuml_conf.Session()
+        if args.exp_id is not None:
+            exp = experiment.get_factory().from_exp_id(args.exp_id, secuml_conf,
+                                                       session)
+            exp.remove()
+        else:
+            rm_project_from_db(session, args.project)
+            project_output_dir = os.path.join(secuml_conf.output_data_dir,
+                                              args.project)
+            if os.path.isdir(project_output_dir):
+                shutil.rmtree(project_output_dir)
+        session.commit()
+        session.close()
+    except (SecuMLcoreException, SecuMLexpException) as e:
+        sys.stderr.write(display_in_red(e) + '\n')
+        session.rollback()
+        session.close()
+        sys.exit(-1)
+    except Exception as e:
+        session.rollback()
+        session.close()
+        raise(e)

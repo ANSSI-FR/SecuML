@@ -20,26 +20,26 @@ import matplotlib
 matplotlib.use('Agg')
 import sys
 
-from SecuML.core.tools.core_exceptions import SecuMLcoreException
-from SecuML.core.tools import colors_tools
+from secuml.core.tools.color import display_in_red
+from secuml.core.tools.core_exceptions import SecuMLcoreException
 
-from SecuML.exp.clustering.ClusteringConf import ClusteringConf
-from SecuML.exp.clustering.ClusteringExperiment import ClusteringExperiment
-from SecuML.exp.tools.exp_exceptions import SecuMLexpException
+from secuml.exp.clustering import ClusteringExperiment
+from secuml.exp.clustering.conf import ClusteringConf
+from secuml.exp.tools.exp_exceptions import SecuMLexpException
 
 
 if __name__ == '__main__':
     try:
-        parser = ClusteringConf.generateParser()
+        parser = ClusteringConf.gen_parser()
         args = parser.parse_args()
-        exp_conf = ClusteringConf.fromArgs(args)
+        exp_conf = ClusteringConf.from_args(args)
         exp = ClusteringExperiment(exp_conf)
         exp.run(quick=True)
         exp.close()
     except (SecuMLcoreException, SecuMLexpException) as e:
-        sys.stderr.write(colors_tools.display_in_red(e) + '\n')
-        exp.rollbackSession()
+        sys.stderr.write(display_in_red(e) + '\n')
+        exp.rollback_session()
         sys.exit(-1)
     except Exception as e:
-        exp.rollbackSession()
+        exp.rollback_session()
         raise(e)

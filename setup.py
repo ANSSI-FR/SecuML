@@ -31,9 +31,9 @@ setup(
         author_email = 'anael.beaugnon@ssi.gouv.fr',
         url = 'https://github.com/ANSSI-FR/SecuML',
         license = 'GPL2+',
-        package_dir = {'SecuML_core': 'SecuML/core',
-                       'SecuML_exp': 'SecuML/exp',
-                       'SecuML_web': 'SecuML/web'},
+        package_dir = {'SecuML_core': 'secuml/core',
+                       'SecuML_exp': 'secuml/exp',
+                       'SecuML_web': 'secuml/web'},
         packages = find_packages(),
         include_package_data = True,
         install_requires = requires,
@@ -44,6 +44,6 @@ setup(
             'scripts/SecuML_features_analysis',
             'scripts/SecuML_projection',
             'scripts/SecuML_rare_category_detection',
-            'scripts/SecuML_remove_project_dataset',
-            'SecuML/web/SecuML_server']
+            'scripts/SecuML_rm_project_exp',
+            'secuml/web/SecuML_server']
 )
