@@ -42,12 +42,12 @@ def interp_recall(ground_truth, scores, precision_sample):
 
 class FdrTprCurve(object):
 
-    def __init__(self, num_folds, conf):
+    def __init__(self, num_folds, probabilist):
         self.mean_recall = None
         self.mean_precision = np.linspace(0, 1, 101)
         self.thresholds = None
         self.fig, (self.ax1) = plt.subplots(1, 1)
-        self.probabilist = conf.is_probabilist()
+        self.probabilist = probabilist
         self.num_folds = num_folds
 
     def add_fold(self, fold_id, predictions):
@@ -70,6 +70,7 @@ class FdrTprCurve(object):
         else:
             self.ax1.plot(1-self.mean_precision, recall, lw=3,
                           color=get_label_color('all'), label='FAR/DR')
+        return 1-self.mean_precision, recall
 
     def display(self, directory):
         self.plot(path.join(directory, 'false_discovery_recall_curve.png'))

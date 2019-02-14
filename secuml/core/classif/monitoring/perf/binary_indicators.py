@@ -27,7 +27,7 @@ from secuml.core.tools.float import to_percentage, trunc
 # The thresholds are considered only for probabilist models
 
 
-class BinaryPerfIndicators(object):
+class BinaryIndicators(object):
 
     def __init__(self, num_folds, probabilist, auc=True):
         self.probabilist = probabilist

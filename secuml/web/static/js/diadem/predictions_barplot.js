@@ -1,7 +1,7 @@
 function displayPredictionsBarplot(div, child_exp_id, callback) {
   var div_obj = cleanDiv(div);
   var query = buildQuery('supervisedLearningMonitoring',
-                         [child_exp_id, 'predictions_barplot']);
+                         [child_exp_id, 'proba_barplot']);
   $.getJSON(query, function (data) {
       var options = barPlotOptions(data);
       var barPlot = drawBarPlot(div_obj.id,

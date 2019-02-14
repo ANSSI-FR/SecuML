@@ -16,12 +16,10 @@
 
 import os.path as path
 
+from .binary_indicators import BinaryIndicators
 from .confusion_matrix import ConfusionMatrix
-from .binary_errors import BinaryErrors
-from .binary_perf_indicators import BinaryPerfIndicators
-from .multiclass_errors import MulticlassErrors
-from .multiclass_perf_indicators import MulticlassPerfIndicators
 from .fdr_tpr_curve import FdrTprCurve
+from .multiclass_indicators import MulticlassIndicators
 from .roc_curve import RocCurve
 
 
@@ -30,19 +28,16 @@ class PerformanceMonitoring(object):
     def __init__(self, num_folds, conf):
         self.conf = conf
         if self.conf.multiclass:
-            self.perf_indicators = MulticlassPerfIndicators(num_folds)
-            self.errors = MulticlassErrors()
+            self.perf_indicators = MulticlassIndicators(num_folds)
         else:
-            self.perf_indicators = BinaryPerfIndicators(num_folds,
-                                                        conf.is_probabilist())
-            self.errors = BinaryErrors(conf)
+            self.perf_indicators = BinaryIndicators(num_folds,
+                                                    conf.is_probabilist())
             self.confusion_matrix = ConfusionMatrix()
-            self.roc = RocCurve(num_folds, conf)
-            self.fdr_tpr_curve = FdrTprCurve(num_folds, conf)
+            self.roc = RocCurve(num_folds, conf.is_probabilist())
+            self.fdr_tpr_curve = FdrTprCurve(num_folds, conf.is_probabilist())
 
     def add_fold(self, fold, predictions):
         self.perf_indicators.add_fold(fold, predictions)
-        self.errors.add_fold(predictions)
         if not self.conf.multiclass:
             self.confusion_matrix.add_fold(predictions)
             self.roc.add_fold(fold, predictions)
@@ -54,10 +49,7 @@ class PerformanceMonitoring(object):
     def display(self, directory):
         with open(path.join(directory, 'perf_indicators.json'), 'w') as f:
             self.perf_indicators.to_json(f)
-        with open(path.join(directory, 'errors.json'), 'w') as f:
-            self.errors.to_json(f)
         if not self.conf.multiclass:
-            with open(path.join(directory, 'confusion_matrix.json'), 'w') as f:
-                self.confusion_matrix.to_json(f)
+            self.confusion_matrix.display(directory)
             self.roc.display(directory)
             self.fdr_tpr_curve.display(directory)

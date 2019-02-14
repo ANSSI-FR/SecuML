@@ -18,7 +18,7 @@ from sklearn.externals import joblib
 import os.path as path
 
 from .interp.coeff import Coefficients
-from .performance import PerformanceMonitoring
+from .perf import PerformanceMonitoring
 from .prediction import PredictionsMonitoring
 
 

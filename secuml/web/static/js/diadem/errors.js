@@ -40,10 +40,10 @@ function updateInstancesDisplay(exp_id, label) {
             function(data) {
                 if (label == 'all') {
                     instances_list = data['FP']['ids'].concat(data['FN']['ids']);
-                    proba_list = data['FP']['scores'].concat(data['FN']['scores']);
+                    proba_list = data['FP']['probas'].concat(data['FN']['probas']);
                 } else {
                     instances_list = data[label]['ids'];
-                    proba_list = data[label]['scores']
+                    proba_list = data[label]['probas']
                 }
                 current_instance_index = 0;
                 num_instances = instances_list.length;

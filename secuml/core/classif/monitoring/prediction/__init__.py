@@ -19,7 +19,7 @@ import pandas as pd
 import os.path as path
 
 from secuml.core.tools.matrix import sort_data_frame
-from .pred_barplot import PredictionsBarplots
+from .proba_barplot import ProbaBarplot
 
 
 class PredictionsMonitoring(object):
@@ -31,18 +31,18 @@ class PredictionsMonitoring(object):
         self.all_predicted_proba = None
         # PredictionsBarplots only for probabilist binary models
         if not self.conf.multiclass and self.conf.is_probabilist():
-            self.predictions_barplots = PredictionsBarplots(
-                                                          self.has_ground_truth)
+            self.proba_barplot = ProbaBarplot(self.has_ground_truth)
         else:
-            self.predictions_barplots = None
+            self.proba_barplot = None
 
     def add_fold(self, predictions):
-        if self.predictions_barplots is not None:
-            self.predictions_barplots.add_fold(predictions)
+        if self.proba_barplot is not None:
+            self.proba_barplot.add_fold(predictions)
         columns = ['predicted_proba', 'predictions', 'ground_truth', 'scores']
-        fold_predictions = pd.DataFrame(
-            np.zeros((predictions.num_instances(), len(columns))),
-            index=predictions.ids.ids, columns=columns)
+        fold_predictions = pd.DataFrame(np.zeros((predictions.num_instances(),
+                                                  len(columns))),
+                                        index=predictions.ids.ids,
+                                        columns=columns)
         fold_predictions['predicted_proba'] = predictions.probas
         fold_predictions['predictions'] = predictions.values
         fold_predictions['ground_truth'] = predictions.ground_truth
@@ -56,7 +56,8 @@ class PredictionsMonitoring(object):
         sort_data_frame(self.predictions, 'predicted_proba', True, True)
 
     def display(self, directory):
+        # TODO a mettre dans la base de donnees.
         with open(path.join(directory, 'predictions.csv'), 'w') as f:
             self.predictions.to_csv(f, index_label='instance_id')
-        if self.predictions_barplots is not None:
-            self.predictions_barplots.display(directory)
+        if self.proba_barplot is not None:
+            self.proba_barplot.display(directory)

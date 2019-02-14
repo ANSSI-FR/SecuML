@@ -31,8 +31,7 @@ function updateInstancesDisplay(exp_id, selected_index, label) {
     if (!label) {
         label = 'all';
     }
-    var query = buildQuery('getPredictions', [exp_id, selected_index,
-                                              label]);
+    var query = buildQuery('getPredictions', [exp_id, selected_index, label]);
     $.getJSON(query,
             function(data) {
                 instances_list = data['instances'];

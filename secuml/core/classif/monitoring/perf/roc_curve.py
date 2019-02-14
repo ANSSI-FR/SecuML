@@ -26,12 +26,12 @@ from secuml.core.tools.color import get_label_color
 
 class RocCurve(object):
 
-    def __init__(self, num_folds, conf):
+    def __init__(self, num_folds, probabilist):
         self.mean_tpr = None
         self.mean_fpr = np.linspace(0, 1, 101)
         self.thresholds = None
         self.fig, (self.ax1) = plt.subplots(1, 1)
-        self.probabilist = conf.is_probabilist()
+        self.probabilist = probabilist
         self.num_folds = num_folds
 
     def add_fold(self, fold_id, predictions):
@@ -63,6 +63,7 @@ class RocCurve(object):
         else:
             self.ax1.plot(fpr, tpr, lw=3, color=get_label_color('all'),
                           label='ROC (area = %0.2f)' % (roc_auc))
+        return fpr, tpr, roc_auc
 
     def display(self, directory):
         self.plot(path.join(directory, 'ROC.png'))

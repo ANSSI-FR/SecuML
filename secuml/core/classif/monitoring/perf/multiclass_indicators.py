@@ -23,7 +23,7 @@ from secuml.core.clustering.monitoring.perf_indicators \
 from secuml.core.tools.float import to_percentage, trunc
 
 
-class MulticlassPerfIndicators(object):
+class MulticlassIndicators(object):
 
     def __init__(self, num_folds):
         self.num_folds = num_folds
@@ -34,34 +34,10 @@ class MulticlassPerfIndicators(object):
         self.ground_truth = []
         self.predictions = []
 
-    def set_fscores(self, fold_id, predictions):
-        diff = set(predictions.ground_truth) - set(predictions.values)
-        if predictions.num_instances() > 0 and len(diff) == 0:
-            self.f1_micro[fold_id] = f1_score(predictions.ground_truth,
-                                              predictions.values,
-                                              average='micro')
-            self.f1_macro[fold_id] = f1_score(predictions.ground_truth,
-                                              predictions.values,
-                                              average='macro')
-        else:
-            self.f1_micro[fold_id] = 0
-            self.f1_macro[fold_id] = 0
-
-    def set_accuracy(self, fold_id, predictions):
-        if predictions.num_instances() == 0:
-            self.accuracy[fold_id] = 0
-        else:
-            self.accuracy[fold_id] = accuracy_score(predictions.ground_truth,
-                                                    predictions.values)
-
     def add_fold(self, fold_id, predictions):
-        self.set_fscores(fold_id, predictions)
-        self.set_accuracy(fold_id, predictions)
+        self._set_fscores(fold_id, predictions)
+        self._set_accuracy(fold_id, predictions)
         self._update_gt_predictions(predictions)
-
-    def _update_gt_predictions(self, predictions):
-        self.ground_truth.extend(predictions.ground_truth)
-        self.predictions.extend(predictions.values)
 
     def get_accuracy(self):
         return self.accuracy_mean
@@ -91,3 +67,27 @@ class MulticlassPerfIndicators(object):
 
     def get_csv_line(self):
         return [self.accuracy_mean, self.f1_micro_mean, self.f1_macro_mean]
+
+    def _set_fscores(self, fold_id, predictions):
+        diff = set(predictions.ground_truth) - set(predictions.values)
+        if predictions.num_instances() > 0 and len(diff) == 0:
+            self.f1_micro[fold_id] = f1_score(predictions.ground_truth,
+                                              predictions.values,
+                                              average='micro')
+            self.f1_macro[fold_id] = f1_score(predictions.ground_truth,
+                                              predictions.values,
+                                              average='macro')
+        else:
+            self.f1_micro[fold_id] = 0
+            self.f1_macro[fold_id] = 0
+
+    def _set_accuracy(self, fold_id, predictions):
+        if predictions.num_instances() == 0:
+            self.accuracy[fold_id] = 0
+        else:
+            self.accuracy[fold_id] = accuracy_score(predictions.ground_truth,
+                                                    predictions.values)
+
+    def _update_gt_predictions(self, predictions):
+        self.ground_truth.extend(predictions.ground_truth)
+        self.predictions.extend(predictions.values)

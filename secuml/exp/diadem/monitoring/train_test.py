@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from secuml.core.classif.monitoring.performance import PerformanceMonitoring
+from secuml.core.classif.monitoring.perf import PerformanceMonitoring
 from secuml.core.classif.monitoring.prediction import PredictionsMonitoring
 from secuml.core.classif.monitoring.test import TestMonitoring \
         as TestMonitoringCore

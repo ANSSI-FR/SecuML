@@ -17,8 +17,7 @@
 import numpy as np
 from sklearn.metrics import make_scorer
 
-from secuml.core.classif.monitoring.performance.fdr_tpr_curve \
-        import interp_recall
+from secuml.core.classif.monitoring.perf.fdr_tpr_curve import interp_recall
 from secuml.core.conf import exportFieldMethod
 
 from . import ObjectiveFuncConf

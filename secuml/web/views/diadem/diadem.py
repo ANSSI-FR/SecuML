@@ -129,8 +129,8 @@ def getPredictions(exp_id, index, label):
                 selection = data.loc[:, 'ground_truth'] == False
             data = data.loc[selection, :]
         selected_instances = [int(x) for x in list(data.index.values)]
-        proba = list(data['predicted_proba'])
-    return jsonify({'instances': selected_instances, 'proba': proba})
+    return jsonify({'instances': selected_instances,
+                    'proba': list(data['predicted_proba'])})
 
 
 @app.route('/supervisedLearningMonitoring/<exp_id>/<kind>/')

@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from .performance import PerformanceMonitoring
+from .perf import PerformanceMonitoring
 from .prediction import PredictionsMonitoring
 
 
