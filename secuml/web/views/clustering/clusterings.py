@@ -101,7 +101,7 @@ def getClusterLabelFamilyIds(exp_id, cluster_id, label, family, num_results):
     clustering = ClustersExp.from_json(exp.output_dir())
     ids = clustering.get_labe_family_ids(exp, cluster_id, label, family)
     return jsonify({'num_ids': len(ids),
-                    'ids': _random_selection(ids, num_res)})
+                    'ids': _random_selection(ids, num_results)})
 
 
 @app.route('/getClusterStats/<exp_id>/')
