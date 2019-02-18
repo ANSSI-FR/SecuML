@@ -53,6 +53,7 @@ def load_idents(cursor, filename, dataset_id):
                    'FROM instances_import;')
     cursor.execute('DROP TABLE instances_import;')
 
+
 def load_ground_truth(cursor, filename, dataset_id):
     families = annotations_with_families(filename)
     cursor.execute('CREATE TEMPORARY TABLE ground_truth_import('

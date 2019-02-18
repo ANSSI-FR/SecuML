@@ -25,45 +25,20 @@ from secuml.core.data.labels_tools import BENIGN, MALICIOUS
 Base = declarative_base()
 
 
-class ProjectsAlchemy(Base):
-
-    __tablename__ = 'projects'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    project = Column(String(200), index=True)
-
-    datasets = relationship('DatasetsAlchemy', back_populates='project',
-                            uselist=True, cascade='all, delete-orphan')
-
-
 class DatasetsAlchemy(Base):
 
     __tablename__ = 'datasets'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    project_id = Column(Integer, ForeignKey('projects.id'))
+    project = Column(String(200), index=True)
     dataset = Column(String(200), index=True)
-
-    project = relationship('ProjectsAlchemy', back_populates='datasets',
-                           uselist=False)
-    hashes = relationship('DatasetsHashesAlchemy', back_populates='dataset',
-                          uselist=False, cascade='all, delete-orphan')
-    instances = relationship('InstancesAlchemy', back_populates='dataset',
-                             uselist=True, cascade='all, delete-orphan')
-    features = relationship('DatasetFeaturesAlchemy', back_populates='dataset',
-                            uselist=True, cascade='all, delete-orphan')
-
-
-class DatasetsHashesAlchemy(Base):
-
-    __tablename__ = 'datasets_hashes'
-
-    id = Column(Integer, ForeignKey('datasets.id'), primary_key=True)
     idents_hash = Column(String(32), nullable=False)
     ground_truth_hash = Column(String(32), nullable=True)
 
-    dataset = relationship('DatasetsAlchemy', back_populates='hashes',
-                           uselist=False)
+    instances = relationship('InstancesAlchemy', back_populates='dataset',
+                             uselist=True, cascade='all, delete-orphan')
+    features = relationship('FeaturesSetsAlchemy', back_populates='dataset',
+                            uselist=True, cascade='all, delete-orphan')
 
 
 class ExpAlchemy(Base):
@@ -71,17 +46,19 @@ class ExpAlchemy(Base):
     __tablename__ = 'experiments'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    dataset_features_id = Column(Integer, ForeignKey('dataset_features.id'))
-    annotations_id = Column(Integer, ForeignKey('exp_annotations.id'))
+    features_set_id = Column(Integer, ForeignKey('features_set.id',
+                                                 ondelete='CASCADE'))
+    annotations_id = Column(Integer, ForeignKey('exp_annotations.id',
+                                                ondelete='CASCADE'))
     kind = Column(Enum('FeaturesAnalysis', 'ActiveLearning', 'Rcd', 'Diadem',
                        'Train', 'Test', 'Clustering', 'Projection',
                        name='exp_kind'),
                   nullable=False)
     name = Column(String(1000))
 
-    dataset_features = relationship('DatasetFeaturesAlchemy',
-                                    back_populates='experiments',
-                                    uselist=False)
+    features_set = relationship('FeaturesSetsAlchemy',
+                                back_populates='experiments',
+                                uselist=False)
     exp_annotations = relationship('ExpAnnotationsAlchemy',
                                    back_populates='exp', uselist=False,
                                    single_parent=True,
@@ -118,7 +95,8 @@ class DiademExpAlchemy(Base):
 
     __tablename__ = 'diadem_exp'
 
-    exp_id = Column(Integer, ForeignKey('experiments.id'), primary_key=True)
+    exp_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'),
+                    primary_key=True)
     fold_id = Column(Integer, nullable=True)
     type = Column(Enum('train', 'cv', 'test', 'validation', 'alerts',
                        name='diadem_exp_type'),
@@ -128,14 +106,16 @@ class DiademExpAlchemy(Base):
     model_interpretation = Column(Boolean, nullable=True)
     predictions_interpretation = Column(Boolean, nullable=True)
 
-    exp = relationship('ExpAlchemy', back_populates='diadem_exp', uselist=False)
+    exp = relationship('ExpAlchemy', back_populates='diadem_exp',
+                       uselist=False)
 
 
 class ActiveLearningExpAlchemy(Base):
 
     __tablename__ = 'active_learning_exp'
 
-    id = Column(Integer, ForeignKey('experiments.id'), primary_key=True)
+    id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'),
+                primary_key=True)
     current_iter = Column(Integer, nullable=False)
     finished = Column(Boolean, nullable=False)
 
@@ -151,7 +131,9 @@ class IlabExpAlchemy(Base):
 
     __tablename__ = 'ilab_exp'
 
-    id = Column(Integer, ForeignKey('active_learning_exp.id'), primary_key=True)
+    id = Column(Integer,
+                ForeignKey('active_learning_exp.id', ondelete='CASCADE'),
+                primary_key=True)
     iter = Column(Integer, primary_key=True)
     # null: the queries are not available yet.
     # -1:   the queries are available, but there is no clustering analysis.
@@ -160,15 +142,17 @@ class IlabExpAlchemy(Base):
     malicious = Column(Integer, nullable=True)
     benign = Column(Integer, nullable=True)
 
-    al_exp = relationship('ActiveLearningExpAlchemy', back_populates='ilab_exp',
-                          uselist=False)
+    al_exp = relationship('ActiveLearningExpAlchemy',
+                          back_populates='ilab_exp', uselist=False)
 
 
 class RcdClusteringExpAlchemy(Base):
 
     __tablename__ = 'rcd_exp'
 
-    id = Column(Integer, ForeignKey('active_learning_exp.id'), primary_key=True)
+    id = Column(Integer,
+                ForeignKey('active_learning_exp.id', ondelete='CASCADE'),
+                primary_key=True)
     iter = Column(Integer, primary_key=True)
     # -1:   there is no clustering analysis.
     # >= 0: the id of the clustering experiment.
@@ -182,14 +166,15 @@ class FeaturesAnalysisExpAlchemy(Base):
 
     __tablename__ = 'features_analysis_exp'
 
-    id = Column(Integer, ForeignKey('experiments.id'), primary_key=True)
-    dataset_features_id = Column(Integer, ForeignKey('dataset_features.id'),
-                                 nullable=False)
+    id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'),
+                primary_key=True)
+    features_set_id = Column(Integer, ForeignKey('features_set.id'),
+                             nullable=False)
     annotations_filename = Column(String(1000), nullable=False, index=True)
 
     exp = relationship('ExpAlchemy', back_populates='features_analysis_exp',
                        uselist=False)
-    dataset = relationship('DatasetFeaturesAlchemy',
+    dataset = relationship('FeaturesSetsAlchemy',
                            back_populates='features_analysis_exp',
                            uselist=False)
 
@@ -219,7 +204,8 @@ class InstancesAlchemy(Base):
     user_instance_id = Column(Integer, index=True)
     ident = Column(Text())
     timestamp = Column(DateTime())
-    dataset_id = Column(Integer, ForeignKey('datasets.id'), index=True)
+    dataset_id = Column(Integer, ForeignKey('datasets.id', ondelete='CASCADE'),
+                        index=True)
     row_number = Column(Integer, nullable=True)
     id = Column(Integer, primary_key=True, autoincrement=True)
 
@@ -240,10 +226,10 @@ class GroundTruthAlchemy(Base):
 
     __tablename__ = 'ground_truth'
 
-    instance_id = Column(Integer, ForeignKey('instances.id'),
-                         primary_key=True,
-                         autoincrement=False)
-    dataset_id = Column(Integer, ForeignKey('datasets.id'))
+    instance_id = Column(Integer,
+                         ForeignKey('instances.id', ondelete='CASCADE'),
+                         primary_key=True)
+    dataset_id = Column(Integer, ForeignKey('datasets.id', ondelete='CASCADE'))
 
     label = Column(Enum(MALICIOUS, BENIGN, name='ground_truth_enum'),
                    nullable=False)
@@ -258,9 +244,12 @@ class AnnotationsAlchemy(Base):
 
     __tablename__ = 'annotations'
 
-    instance_id = Column(Integer, ForeignKey('instances.id'), primary_key=True,
-                         autoincrement=False)
-    annotations_id = Column(Integer, ForeignKey('exp_annotations.id'),
+    instance_id = Column(Integer,
+                         ForeignKey('instances.id', ondelete='CASCADE'),
+                         primary_key=True)
+    annotations_id = Column(Integer,
+                            ForeignKey('exp_annotations.id',
+                                       ondelete='CASCADE'),
                             primary_key=True)
     label = Column(Enum(MALICIOUS, BENIGN, name='labels_enum'),
                    nullable=False)
@@ -275,25 +264,26 @@ class AnnotationsAlchemy(Base):
                             uselist=False)
 
 
-class DatasetFeaturesAlchemy(Base):
+class FeaturesSetsAlchemy(Base):
 
-    __tablename__ = 'dataset_features'
+    __tablename__ = 'features_set'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    dataset_id = Column(Integer, ForeignKey('datasets.id'), nullable=False)
+    dataset_id = Column(Integer, ForeignKey('datasets.id', ondelete='CASCADE'),
+                        nullable=False)
     name = Column(String(256), nullable=False, index=True)
     type = Column(Enum('file', 'dir', name='file_dir_enum'), nullable=False)
 
     dataset = relationship('DatasetsAlchemy', back_populates='features',
                            uselist=False)
-    experiments = relationship('ExpAlchemy', back_populates='dataset_features',
+    experiments = relationship('ExpAlchemy', back_populates='features_set',
                                uselist=True,
                                cascade='all, delete-orphan')
     files = relationship('FeaturesFilesAlchemy',
-                         back_populates='dataset_features', uselist=True,
+                         back_populates='features_set', uselist=True,
                          cascade='all, delete-orphan')
     features = relationship('FeaturesAlchemy',
-                            back_populates='features_dataset', uselist=True,
+                            back_populates='features_set', uselist=True,
                             cascade='all, delete-orphan')
     features_analysis_exp = relationship('FeaturesAnalysisExpAlchemy',
                                          back_populates='dataset',
@@ -306,13 +296,14 @@ class FeaturesFilesAlchemy(Base):
     __tablename__ = 'features_files'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    dataset_features_id = Column(Integer, ForeignKey('dataset_features.id'),
-                                 nullable=False)
+    features_set_id = Column(Integer, ForeignKey('features_set.id',
+                                                 ondelete='CASCADE'),
+                             nullable=False)
     filename = Column(String(256), nullable=False)
     hash = Column(String(32), nullable=False)
 
-    dataset_features = relationship('DatasetFeaturesAlchemy',
-                                    back_populates='files', uselist=False)
+    features_set = relationship('FeaturesSetsAlchemy',
+                                back_populates='files', uselist=False)
     features = relationship('FeaturesAlchemy', back_populates='features_file',
                             uselist=True)
 
@@ -323,13 +314,16 @@ class FeaturesAlchemy(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Text, nullable=False)
-    file_id = Column(Integer, ForeignKey('features_files.id'), nullable=False)
-    dataset_features_id = Column(Integer, ForeignKey('dataset_features.id'),
-                                 nullable=False)
+    file_id = Column(Integer,
+                     ForeignKey('features_files.id', ondelete='CASCADE'),
+                     nullable=False)
+    features_set_id = Column(Integer, ForeignKey('features_set.id',
+                                                 ondelete='CASCADE'),
+                             nullable=False)
     name = Column(Text, nullable=False)
     description = Column(Text, nullable=False)
 
     features_file = relationship('FeaturesFilesAlchemy',
                                  back_populates='features', uselist=False)
-    features_dataset = relationship('DatasetFeaturesAlchemy',
-                                    back_populates='features', uselist=False)
+    features_set = relationship('FeaturesSetsAlchemy',
+                                back_populates='features', uselist=False)

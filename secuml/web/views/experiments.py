@@ -22,16 +22,12 @@ import os
 from sqlalchemy import desc
 
 from secuml.exp import experiment
-from secuml.exp.data.annotations_db_tools import has_ground_truth
-from secuml.exp.data.project_dataset import get_project_dataset_ids
-from secuml.exp.data.project_dataset import get_project_id
-from secuml.exp.experiment import get_projecy_dataset
+from secuml.exp.experiment import get_project_dataset
 from secuml.exp.tools.db_tables import DatasetsAlchemy
-from secuml.exp.tools.db_tables import DatasetFeaturesAlchemy
+from secuml.exp.tools.db_tables import FeaturesSetsAlchemy
 from secuml.exp.tools.db_tables import ExpAlchemy
 from secuml.exp.tools.db_tables import ExpRelationshipsAlchemy
 from secuml.exp.tools.db_tables import FeaturesAnalysisExpAlchemy
-from secuml.exp.tools.db_tables import ProjectsAlchemy
 
 
 def update_curr_exp(exp_id):
@@ -67,23 +63,20 @@ def getExperiment(exp_id):
 
 @app.route('/getProjects/')
 def getProjects():
-    query = session.query(ProjectsAlchemy)
+    query = session.query(DatasetsAlchemy.project).distinct()
     return jsonify({'projects': [r.project for r in query.all()]})
 
 
 @app.route('/getDatasets/<project>/')
 def getDatasets(project):
-    project_id = get_project_id(session, project)
-    if project_id is None:
-        return []
     query = session.query(DatasetsAlchemy)
-    query = query.filter(DatasetsAlchemy.project_id == project_id)
+    query = query.filter(DatasetsAlchemy.project == project)
     return jsonify({'datasets': [r.dataset for r in query.all()]})
 
 
 @app.route('/getConf/<exp_id>/')
 def getConf(exp_id):
-    project, dataset = get_projecy_dataset(session, exp_id)
+    project, dataset = get_project_dataset(session, exp_id)
     conf_filename = os.path.join(secuml_conf.output_data_dir, project, dataset,
                                  str(exp_id), 'conf.json')
     return send_file(conf_filename)
@@ -91,18 +84,19 @@ def getConf(exp_id):
 
 @app.route('/hasGroundTruth/<project>/<dataset>/')
 def hasGroundTruth(project, dataset):
-    _, dataset_id = get_project_dataset_ids(session, project, dataset)
-    return str(has_ground_truth(session, dataset_id))
+    query = session.query(DatasetsAlchemy)
+    query = query.filter(DatasetsAlchemy.project == project)
+    query = query.filter(DatasetsAlchemy.dataset == dataset)
+    return query.one().ground_truth_hash is not None
 
 
 @app.route('/getAllExperiments/<project>/<dataset>/')
 def getAllExperiments(project, dataset):
     query = session.query(ExpAlchemy)
-    query = query.join(ExpAlchemy.dataset_features)
-    query = query.join(DatasetFeaturesAlchemy.dataset)
-    query = query.join(DatasetsAlchemy.project)
+    query = query.join(ExpAlchemy.features_set)
+    query = query.join(FeaturesSetsAlchemy.dataset)
     query = query.outerjoin(ExpAlchemy.parents)
-    query = query.filter(ProjectsAlchemy.project == project)
+    query = query.filter(DatasetsAlchemy.project == project)
     query = query.filter(DatasetsAlchemy.dataset == dataset)
     query = query.filter(ExpRelationshipsAlchemy.parent_id == None)
     experiments = {}
@@ -121,10 +115,10 @@ def getAllExperiments(project, dataset):
 def getFeaturesAnalysisExp(exp_id):
     exp = update_curr_exp(exp_id)
     features_exp_id = None
-    dataset_features_id = exp.exp_conf.features_conf.dataset_features_id
+    features_set_id = exp.exp_conf.features_conf.features_set_id
     query = exp.session.query(FeaturesAnalysisExpAlchemy)
-    query = query.filter(FeaturesAnalysisExpAlchemy.dataset_features_id ==
-                         dataset_features_id)
+    query = query.filter(FeaturesAnalysisExpAlchemy.features_set_id ==
+                         features_set_id)
     query = query.filter(FeaturesAnalysisExpAlchemy.annotations_filename ==
                          'ground_truth.csv')
     query = query.order_by(desc(FeaturesAnalysisExpAlchemy.id))
@@ -133,8 +127,8 @@ def getFeaturesAnalysisExp(exp_id):
         features_exp_id = res.id
     else:
         query = exp.session.query(FeaturesAnalysisExpAlchemy)
-        query = query.filter(FeaturesAnalysisExpAlchemy.dataset_features_id ==
-                             dataset_features_id)
+        query = query.filter(FeaturesAnalysisExpAlchemy.features_set_id ==
+                             features_set_id)
         query = query.order_by(desc(FeaturesAnalysisExpAlchemy.id))
         res = query.first()
         if res is not None:

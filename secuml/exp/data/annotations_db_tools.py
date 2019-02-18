@@ -20,14 +20,7 @@ from sqlalchemy import func
 from secuml.core.data import labels_tools
 from secuml.exp.conf.annotations import AnnotationsTypes
 from secuml.exp.tools.db_tables import AnnotationsAlchemy
-from secuml.exp.tools.db_tables import DatasetsHashesAlchemy
 from secuml.exp.tools.db_tables import GroundTruthAlchemy
-
-
-def has_ground_truth(session, dataset_id):
-    query = session.query(DatasetsHashesAlchemy)
-    query = query.filter(DatasetsHashesAlchemy.id == dataset_id)
-    return query.one().ground_truth_hash is not None
 
 
 def get_annotation(session, annotations_type, annotations_id, dataset_id,
@@ -225,6 +218,7 @@ def update_annotation(session, annotations_id, instance_id, label, family,
         session.flush()
 
 
+# FIXME: tester avec query.delete()
 def remove_annotation(session, annotations_id, instance_id):
     query = session.query(AnnotationsAlchemy)
     query = query.filter(AnnotationsAlchemy.instance_id == instance_id)

@@ -17,7 +17,7 @@
 import os.path as path
 
 from . import compute_hash
-from secuml.exp.tools.db_tables import DatasetsHashesAlchemy
+from secuml.exp.tools.db_tables import DatasetsAlchemy
 from secuml.exp.tools import mysql_specific
 from secuml.exp.tools import postgresql_specific
 from secuml.exp.tools.exp_exceptions import SecuMLexpException
@@ -41,33 +41,13 @@ class Idents(object):
         self.session = session
         self.cursor = cursor
 
-    def load(self, already_loaded):
-        self._check(already_loaded)
-        if not already_loaded:
-            self._add_to_db()
-
-    def _check(self, already_loaded):
-        # Check whether the file exists
-        input_dir = self.dataset_conf.input_dir(self.secuml_conf)
-        self.filepath = path.join(input_dir, 'idents.csv')
-        if not path.isfile(self.filepath):
-            raise IdentsFileNotFound(self.filepath)
-        # Check the hash
-        self.idents_hash = compute_hash(self.filepath)
-        dataset_id = self.dataset_conf.dataset_id
-        if already_loaded:
-            query = self.session.query(DatasetsHashesAlchemy)
-            query = query.filter(DatasetsHashesAlchemy.id == dataset_id)
-            idents_hash = query.one().idents_hash
-            if idents_hash != self.idents_hash:
-                raise UpdatedFile(self.filepath, self.dataset_conf.dataset)
-
-    def _add_to_db(self):
+    def load(self):
+        filepath, _ = self.get_filepath_hash()
         if self.secuml_conf.db_type == 'mysql':
-            mysql_specific.load_idents(self.cursor, self.filepath,
+            mysql_specific.load_idents(self.cursor, filepath,
                                        self.dataset_conf.dataset_id)
         elif self.secuml_conf.db_type == 'postgresql':
-            postgresql_specific.load_idents(self.cursor, self.filepath,
+            postgresql_specific.load_idents(self.cursor, filepath,
                                             self.dataset_conf.dataset_id)
         else:
             assert(False)
@@ -75,4 +55,20 @@ class Idents(object):
                                      'into the database (%s).'
                                      % (self.dataset_conf.project,
                                         self.dataset_conf.dataset,
-                                        self.filepath))
+                                        filepath))
+
+    def check(self):
+        filepath, curr_idents_hash = self.get_filepath_hash()
+        dataset_id = self.dataset_conf.dataset_id
+        query = self.session.query(DatasetsAlchemy)
+        query = query.filter(DatasetsAlchemy.id == dataset_id)
+        idents_hash = query.one().idents_hash
+        if idents_hash != curr_idents_hash:
+            raise UpdatedFile(filepath, self.dataset_conf.dataset)
+
+    def get_filepath_hash(self):
+        input_dir = self.dataset_conf.input_dir(self.secuml_conf)
+        filepath = path.join(input_dir, 'idents.csv')
+        if not path.isfile(filepath):
+            raise IdentsFileNotFound(filepath)
+        return filepath, compute_hash(filepath)

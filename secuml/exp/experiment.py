@@ -126,11 +126,11 @@ class Experiment(object):
         self.exp_conf.export()
 
     def add_to_db(self):
-        dataset_features_id = self.exp_conf.features_conf.dataset_features_id
+        features_set_id = self.exp_conf.features_conf.features_set_id
         annotations_id = self.exp_conf.annotations_conf.annotations_id
         exp = ExpAlchemy(kind=self.exp_conf.get_kind(),
                          name=self.exp_conf.name,
-                         dataset_features_id=dataset_features_id,
+                         features_set_id=features_set_id,
                          annotations_id=annotations_id)
         self.session.add(exp)
         self.session.flush()
@@ -158,12 +158,12 @@ def get_factory():
     return experiment_factory
 
 
-def get_projecy_dataset(session, exp_id):
+def get_project_dataset(session, exp_id):
     query = session.query(ExpAlchemy)
     query = query.filter(ExpAlchemy.id == exp_id)
     exp = query.one()
-    dataset = exp.dataset_features.dataset
-    return dataset.project.project, dataset.dataset
+    dataset = exp.features_set.dataset
+    return dataset.project, dataset.dataset
 
 
 class ExpFactory(object):
@@ -175,7 +175,7 @@ class ExpFactory(object):
         self.classes[class_name] = (exp_class, conf_class)
 
     def from_exp_id(self, exp_id, secuml_conf, session):
-        project, dataset = get_projecy_dataset(session, exp_id)
+        project, dataset = get_project_dataset(session, exp_id)
         conf_filename = os.path.join(secuml_conf.output_data_dir, project,
                                      dataset, str(exp_id), 'conf.json')
         with open(conf_filename, 'r') as conf_file:

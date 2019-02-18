@@ -21,7 +21,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from . import compute_hash
 from secuml.exp.conf.features import InputFeaturesTypes
-from secuml.exp.tools.db_tables import DatasetFeaturesAlchemy
+from secuml.exp.tools.db_tables import FeaturesSetsAlchemy
 from secuml.exp.tools.db_tables import FeaturesFilesAlchemy
 from secuml.exp.tools.db_tables import FeaturesAlchemy
 from secuml.exp.tools.exp_exceptions import SecuMLexpException
@@ -52,16 +52,16 @@ class LoadFeatures(object):
                                        self.features_conf.input_features)
         self._check()
         if not self.already_loaded:
-            self._load_dataset_features()
+            self._load_features_set()
         self._set_features_conf()
 
     def _set_features_conf(self):
-        # Set dataset_features_id
-        self.features_conf.dataset_features_id = self.dataset_features_id
+        # Set features_set_id
+        self.features_conf.features_set_id = self.features_set_id
         # Set features_files_ids
         query = self.session.query(FeaturesFilesAlchemy)
-        query = query.filter(FeaturesFilesAlchemy.dataset_features_id ==
-                             self.dataset_features_id)
+        query = query.filter(FeaturesFilesAlchemy.features_set_id ==
+                             self.features_set_id)
         query = query.order_by(FeaturesFilesAlchemy.id)
         self.features_files_ids = [r.id for r in query.all()]
         self.features_conf.features_files_ids = self.features_files_ids
@@ -96,33 +96,33 @@ class LoadFeatures(object):
     def _check_already_loaded(self):
         self.already_loaded = False
         self._set_input_features_type()
-        query = self.session.query(DatasetFeaturesAlchemy)
-        query = query.filter(DatasetFeaturesAlchemy.dataset_id ==
+        query = self.session.query(FeaturesSetsAlchemy)
+        query = query.filter(FeaturesSetsAlchemy.dataset_id ==
                              self.exp_conf.dataset_conf.dataset_id)
-        query = query.filter(DatasetFeaturesAlchemy.name ==
+        query = query.filter(FeaturesSetsAlchemy.name ==
                              self.features_conf.input_features)
-        query = query.filter(DatasetFeaturesAlchemy.type ==
+        query = query.filter(FeaturesSetsAlchemy.type ==
                              self.input_type.name)
         try:
-            self.dataset_features_id = query.one().id
+            self.features_set_id = query.one().id
             self.already_loaded = True
         except NoResultFound:
-            self.dataset_features_id = None
+            self.features_set_id = None
 
-    def _load_dataset_features(self):
-        dataset_features = DatasetFeaturesAlchemy(
+    def _load_features_set(self):
+        features_set = FeaturesSetsAlchemy(
                 dataset_id=self.exp_conf.dataset_conf.dataset_id,
                 name=self.features_conf.input_features,
                 type=self.input_type.name)
-        self.session.add(dataset_features)
+        self.session.add(features_set)
         self.session.flush()
-        self.dataset_features_id = dataset_features.id
+        self.features_set_id = features_set.id
         self._load_features_files()
 
     def _check_hashes(self):
         query = self.session.query(FeaturesFilesAlchemy)
-        query = query.filter(FeaturesFilesAlchemy.dataset_features_id ==
-                             self.dataset_features_id)
+        query = query.filter(FeaturesFilesAlchemy.features_set_id ==
+                             self.features_set_id)
         db_files = {r.filename: r.hash for r in query.all()}
         if self.input_type == InputFeaturesTypes.file:
             files = [self.features_conf.input_features]
@@ -157,7 +157,7 @@ class LoadFeatures(object):
     def _load_features_file(self, file_path, filename):
         file_hash = compute_hash(file_path)
         features_file = FeaturesFilesAlchemy(
-                dataset_features_id=self.dataset_features_id,
+                features_set_id=self.features_set_id,
                 filename=filename,
                 hash=file_hash)
         self.session.add(features_file)
@@ -183,7 +183,7 @@ class LoadFeatures(object):
         # Add features to the DB
         for id, name, description in zip(ids, names, descriptions):
             feature = FeaturesAlchemy(user_id=id, file_id=file_id,
-                                      dataset_features_id=self.dataset_features_id,
+                                      features_set_id=self.features_set_id,
                                       name=name, description=description)
             self.session.add(feature)
         self.session.flush()

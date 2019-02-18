@@ -34,7 +34,7 @@ class FeaturesConf(Conf):
         self.filter_in_filename = filter_in_filename
         self.filter_out_filename = filter_out_filename
         self.input_type = None
-        self.dataset_features_id = None
+        self.features_set_id = None
         self.features_files_ids = []
         self.filter_in = None
         self.filter_out = None
@@ -42,7 +42,7 @@ class FeaturesConf(Conf):
     def fields_to_export(self):
         return [('input_features', exportFieldMethod.primitive),
                 ('input_type', exportFieldMethod.enum_value),
-                ('dataset_features_id', exportFieldMethod.primitive),
+                ('features_set_id', exportFieldMethod.primitive),
                 ('features_files_ids', exportFieldMethod.primitive),
                 ('filter_in', exportFieldMethod.primitive),
                 ('filter_out', exportFieldMethod.primitive)]
@@ -86,7 +86,7 @@ class FeaturesConf(Conf):
     def from_json(conf_json, logger):
         conf = FeaturesConf(conf_json['input_features'], logger)
         conf.input_type = InputFeaturesTypes[conf_json['input_type']]
-        conf.dataset_features_id = conf_json['dataset_features_id']
+        conf.features_set_id = conf_json['features_set_id']
         conf.features_files_ids = conf_json['features_files_ids']
         conf.filter_in = conf_json['filter_in']
         conf.filter_out = conf_json['filter_out']

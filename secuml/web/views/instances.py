@@ -23,7 +23,7 @@ from secuml.web.views.experiments import update_curr_exp
 from secuml.exp.data import idents_tools
 from secuml.exp.data.features import FeaturesFromExp
 from secuml.exp.tools.db_tables import DatasetsAlchemy
-from secuml.exp.tools.db_tables import DatasetFeaturesAlchemy
+from secuml.exp.tools.db_tables import FeaturesSetsAlchemy
 from secuml.exp.tools.db_tables import InstancesAlchemy
 from secuml.exp.tools.db_tables import ExpAlchemy
 
@@ -52,7 +52,7 @@ def getIdent(exp_id, instance_id):
     query = session.query(InstancesAlchemy)
     query = query.join(InstancesAlchemy.dataset)
     query = query.join(DatasetsAlchemy.features)
-    query = query.join(DatasetFeaturesAlchemy.experiments)
+    query = query.join(FeaturesSetsAlchemy.experiments)
     query = query.filter(ExpAlchemy.id == exp_id)
     query = query.filter(InstancesAlchemy.id == instance_id)
     res = query.one()
