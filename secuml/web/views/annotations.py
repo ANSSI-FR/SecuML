@@ -43,9 +43,10 @@ def getAnnotation(annotations_type, annotations_id, dataset_id, instance_id):
 # If there is already an annotation for 'instance_id' in 'experiment',
 # then the annotation is removed
 # Otherwise, nothing is done
-@app.route('/removeAnnotation/<exp_id>/<instance_id>/')
+@app.route('/removeAnnotation/<exp_id>/<annotations_id>/<instance_id>/')
 def removeAnnotation(exp_id, annotations_id, instance_id):
-    annotations_db_tools.remove_annotation(session, annotations_id, instance_id)
+    annotations_db_tools.remove_annotation(session, annotations_id,
+                                           instance_id)
     session.commit()
     if user_exp:
         exp = update_curr_exp(exp_id)
