@@ -1,47 +1,47 @@
-function displayPerformanceTabs(train_test) {
-    var performance_div_name =  train_test + '_performance';
-    if (classifier_conf.multiclass) {
-      var menu_labels = [train_test + '_performance_indicators'];
+function displayPerformanceTabs(train_test, exp_info) {
+    var performance_div_name =  train_test + '_perf';
+    if (exp_info.multiclass) {
+      var menu_labels = [train_test + '_perf_indicators'];
       var menu_titles = ['Indicators'];
     } else {
-      var menu_labels = [train_test + '_performance_indicators',
-                         train_test + '_performance_curves',
-                         train_test + '_performance_confusion_matrix'];
+      var menu_labels = [train_test + '_perf_indicators',
+                         train_test + '_perf_curves',
+                         train_test + '_confusion_matrix'];
       var menu_titles = ['Indicators', 'Curves', 'Matrix'];
     }
     var menu = createTabsMenu(menu_labels, menu_titles,
             document.getElementById(performance_div_name),
-            train_test + '_performance_monitoring_tabs');
+            train_test + '_perf_monitoring_tabs');
     document.getElementById(performance_div_name).style.marginTop = '2px';
-    if (!classifier_conf.multiclass) {
+    if (!exp_info.multiclass) {
         displayCurvesTabs(train_test);
     }
 }
 
 function displayCurvesTabs(train_test) {
-    var curves_div_name =  train_test + '_performance_curves';
-    var menu_labels = [train_test + '_roc_curve',
-                       train_test + '_false_disc_recall_curve'];
+    var curves_div_name =  train_test + '_perf_curves';
+    var menu_labels = [train_test + '_roc',
+                       train_test + '_far_tpr'];
     var menu_titles = ['ROC',
                        'FAR-DR'];
     var menu = createTabsMenu(menu_labels, menu_titles,
             document.getElementById(curves_div_name),
-            train_test + '_performance_curves_tabs');
+            train_test + '_perf_curves_tabs');
     document.getElementById(curves_div_name).style.marginTop = '2px';
 }
 
-function updatePerformanceDisplay(train_test, exp) {
+function updatePerformanceDisplay(train_test, exp, proba, multiclass) {
     // Indicators
-    var indicators = cleanDiv(train_test + '_performance_indicators');
-    displayPerfIndicators(indicators, train_test, exp);
-    if (! classifier_conf.multiclass) {
+    var indicators = cleanDiv(train_test + '_perf_indicators');
+    displayPerfIndicators(indicators, train_test, exp, proba, multiclass);
+    if (!multiclass) {
       // ROC
-      var roc = cleanDiv(train_test + '_roc_curve');
+      var roc = cleanDiv(train_test + '_roc');
       displayROC(roc, train_test, exp);
-      var precision_recall = cleanDiv(train_test + '_false_disc_recall_curve');
+      var precision_recall = cleanDiv(train_test + '_far_tpr');
       displayPrecisionRecall(precision_recall, train_test, exp)
       // Confusion Matrix
-      var confusion_matrix = cleanDiv(train_test + '_performance_confusion_matrix');
+      var confusion_matrix = cleanDiv(train_test + '_confusion_matrix');
       displayConfusionMatrix(confusion_matrix, train_test, exp);
     }
 }
@@ -71,15 +71,15 @@ function sliderCallback(train_test, sup_exp, event, ui) {
   }
 }
 
-function displayPerfIndicators(div_obj, train_test, exp) {
-  if (classifier_conf.probabilist && !classifier_conf.multiclass) {
+function displayPerfIndicators(div_obj, train_test, exp, proba, multiclass) {
+  if (proba && !multiclass) {
       displayThresholdPerfIndicators(div_obj, train_test, exp);
   } else {
-      displayNoThresholdPerfIndicators(div_obj, train_test, exp);
+      displayNoThresholdPerfIndicators(div_obj, train_test, exp, multiclass);
   }
 }
 
-function displayNoThresholdPerfIndicators(div_obj, train_test, exp) {
+function displayNoThresholdPerfIndicators(div_obj, train_test, exp, multiclass) {
   var train_performance_path = buildQuery('supervisedLearningMonitoring',
                                           [exp, 'perf_indicators']);
   var header = null;
@@ -90,7 +90,7 @@ function displayNoThresholdPerfIndicators(div_obj, train_test, exp) {
                          table_id='perf_ind_table_' + train_test);
   $.getJSON(train_performance_path,
             function(data) {
-                if (classifier_conf.multiclass) {
+                if (multiclass) {
                   var fields_names = ['f1_micro', 'f1_macro', 'accuracy'];
                   var fields_names_display = ['F1-micro', 'F1-macro', 'Accuracy'];
                 } else {

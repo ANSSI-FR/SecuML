@@ -153,8 +153,7 @@ function updateInstanceNavbar() {
 function displayNavbars(type, annotations_type, clustering_exp) {
   var nav_bars = cleanDiv('nav_bars');
   var panel_body = createPanel('panel-' + type, 'col-md-10',
-          'Annotation Queries',
-          nav_bars);
+                               'Annotation Queries', nav_bars);
   var col = createDivWithClass(null, 'col-md-10', panel_body);
   if (annotations_type == 'families') {
     displayFamiliesBar(col, type, clustering_exp);

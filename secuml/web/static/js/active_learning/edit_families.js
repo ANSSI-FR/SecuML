@@ -93,7 +93,8 @@ function displayRename(modif_div) {
   }
 
   cleanDiv(modif_div.id);
-  var panel = createPanel('panel-primary', 'row', 'Rename a Family', modif_div);
+  var panel = createPanel('panel-primary', 'row', 'Rename a Family',
+                          modif_div);
   displayFamiliesSelectors(panel);
 
   // Label
@@ -282,10 +283,10 @@ function displayDivisions() {
   var stats_panel = createPanel('panel-primary', 'col-md-12',
                                 'Number of Instances per Family', stats_row);
   var stats_panel_m = createPanel('panel-danger', 'col-md-6',
-                                  'Malicious Families', stats_panel);
-  stats_panel_m.setAttribute('id', 'stats_panel_malicious');
+                                  'Malicious Families', stats_panel,
+                                  'stats_panel_malicious');
   var stats_panel_b = createPanel('panel-success', 'col-md-6',
-                                  'Benign Families', stats_panel);
-  stats_panel_b.setAttribute('id', 'stats_panel_benign');
+                                  'Benign Families', stats_panel,
+                                  'stats_panel_benign');
   updateFamiliesStats();
 }

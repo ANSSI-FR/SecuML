@@ -86,19 +86,19 @@ class TrainExp(Experiment):
 
 class TestExp(Experiment):
 
-    def __init__(self, exp_conf, alerts_conf=None, create=True, session=None):
-        Experiment.__init__(self, exp_conf, create=create, session=session)
+    def __init__(self, exp_conf, classifier=None, alerts_conf=None,
+                 create=True, session=None):
+        self.classifier = classifier
         self.kind = exp_conf.kind
         self.alerts_conf = alerts_conf
         self.test_instances = None
-        self.classifier = None
         self.predictions = None
         self.monitoring = None
+        Experiment.__init__(self, exp_conf, create=create, session=session)
 
-    def run(self, classifier, test_instances):
+    def run(self, test_instances):
         Experiment.run(self)
         self.test_instances = self.get_instances(test_instances)
-        self.classifier = classifier
         self._test()
         self._export()
 
@@ -108,7 +108,7 @@ class TestExp(Experiment):
         add_diadem_exp_to_db(self.session, self.exp_conf.exp_id,
                              self.exp_conf.fold_id, self.kind,
                              alerts_conf=self.alerts_conf,
-                             classifier_conf=self.exp_conf.core_conf)
+                             classifier_conf=self.classifier.conf)
 
     def _test(self):
         if self.test_instances.has_ground_truth():

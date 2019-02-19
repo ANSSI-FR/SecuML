@@ -36,15 +36,13 @@ function generate_feature_selector() {
 
 function generate_plots_panel() {
     var plots_col = $('#col_stats')[0];
-    var panel = createPanel('panel-primary', null, 'Feature',
-                            parent_div=plots_col, return_heading=true);
-    var menu_div = panel[0];
-    menu_div.setAttribute('id', 'menu_div');
+    var panel = createPanel('panel-primary', null, 'Feature', plots_col,
+                            'menu_div', return_heading=true);
     var feature_title = panel[1];
     feature_title.setAttribute('id', 'feature_title');
     var menu = createTabsMenu(['boxplot', 'hist', 'density', 'scores'],
                               ['Boxplot', 'Histogram', 'Density', 'Scores'],
-                              menu_div);
+                              panel[0]);
 }
 
 function create_tabs_structure() {

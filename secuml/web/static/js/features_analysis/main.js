@@ -180,11 +180,10 @@ function display_feature_description(feature) {
         return;
     }
     var title = info.name;
-    var panel = createPanel('panel-primary', null, title,
-                            parent_div=col_description, return_heading=true);
+    var panel = createPanel('panel-primary', null, title, col_description,
+                            'description_div', return_heading=true);
     var description_div = panel[0];
     description_div.style.whiteSpace = 'pre';
-    description_div.setAttribute('id', 'description_div');
     var description_title = panel[1];
     description_title.setAttribute('id', 'description_title');
     description_div.innerHTML = info.description;

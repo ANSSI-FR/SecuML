@@ -106,7 +106,8 @@ function updateInstanceNavbar() {
 }
 
 function displayButton(buttons_group, l, type) {
-    var label_group = createDivWithClass(null, 'btn-group', parent_div=buttons_group);
+    var label_group = createDivWithClass(null, 'btn-group',
+                                         parent_div=buttons_group);
     var label_button = document.createElement('button');
     label_button.setAttribute('class', 'btn btn-lg btn-' + type);
     label_button.setAttribute('type', 'button');
@@ -124,14 +125,14 @@ function displayButtons() {
                                            parent_div=main);
     displayButton(buttons_group, 'malicious', 'danger');
     displayButton(buttons_group, 'benign', 'success');
-    var nav_bars = createDivWithClass('nav_bars', 'col-md-12', parent_div=main);
+    var nav_bars = createDivWithClass('nav_bars', 'col-md-12',
+                                      parent_div=main);
 }
 
 function displayNavbars(type) {
     var nav_bars = cleanDiv('nav_bars');
     var panel_body = createPanel('panel-' + type, 'col-md-6',
-            'Annotated Instances',
-            nav_bars);
+                                 'Annotated Instances', nav_bars);
     displayFamiliesBar(panel_body, type);
     displayInstancesBar(panel_body, type);
     var query = buildQuery('getFamiliesInstances',

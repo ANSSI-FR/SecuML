@@ -43,7 +43,7 @@ function displayIteration(conf) {
                 var sup_exp_conf = data;
                 children_exps = {};
                 for (var i in monitorings) {
-                  displayMonitoring(sup_exp_conf, monitorings[i], 'None');
+                  displayChildMonitoring(sup_exp_conf, monitorings[i], 'None');
                 }
             });
     }

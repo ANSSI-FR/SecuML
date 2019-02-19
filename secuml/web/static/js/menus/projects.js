@@ -19,7 +19,8 @@ $.getJSON(query,
                 var dataset = datasets[i];
                 var li = document.createElement('a');
                 li.setAttribute('class', 'list-group-item');
-                var dataset_query = buildQuery('SecuML', [project, dataset, 'menu']);
+                var dataset_query = buildQuery('SecuML', [project, dataset,
+                                                          'menu']);
                 li.setAttribute('href', dataset_query);
                 var e_text = document.createTextNode(dataset);
                 li.appendChild(e_text);

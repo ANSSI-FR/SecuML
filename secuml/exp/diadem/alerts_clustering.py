@@ -28,5 +28,4 @@ class AlertsClusteringExp(ClusteringExperiment):
         ClusteringExperiment.add_to_db(self)
         # add the AlertsClustering exp. to the DB.
         from secuml.exp.diadem import add_diadem_exp_to_db
-        add_diadem_exp_to_db(self.session, self.exp_id, None, 'alerts',
-                             classifier_tup=(False, False))
+        add_diadem_exp_to_db(self.session, self.exp_id, None, 'alerts')

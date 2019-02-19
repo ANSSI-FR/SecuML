@@ -65,18 +65,23 @@ function generateDivisions(conf) {
 
   //// Select Components
   var col1 = createDivWithClass(null, 'col-md-3', row);
-  var select_components = createPanel('panel-primary', null, 'Select the Components', col1);
-  select_components.setAttribute('id', 'select_components');
+  var select_components = createPanel('panel-primary', null,
+                                      'Select the Components', col1,
+                                      'select_components');
   //// Instances in Bin
-  var instances_in_bin = createPanel('panel-primary', null, 'Instances in Bin', col1);
+  var instances_in_bin = createPanel('panel-primary', null, 'Instances in Bin',
+                                     col1);
   var col_ok = createDivWithClass(null, 'col-md-6', instances_in_bin);
-  var selector_ok = createSelectList('instances_selector_ok', 5, null, col_ok, label = 'Ok');
+  var selector_ok = createSelectList('instances_selector_ok', 5, null, col_ok,
+                                     label='Ok');
   var col_ko = createDivWithClass(null, 'col-md-6', instances_in_bin);
-  var selector_ko = createSelectList('instances_selector_malicious', 5, null, col_ko, label = 'Malicious');
+  var selector_ko = createSelectList('instances_selector_malicious', 5, null,
+                                     col_ko, label='Malicious');
 
   //// Projected Data
-  var projected_data_graph = createPanel('panel-primary', 'col-md-6', 'Projected Instances',row);
-  projected_data_graph.setAttribute('id', 'projected_data_graph');
+  var projected_data_graph = createPanel('panel-primary', 'col-md-6',
+                                         'Projected Instances', row,
+                                         'projected_data_graph');
 
   // 2nd row: Selected instance - data and annotation
   var row = createDivWithClass(null, 'col-md-12', main);

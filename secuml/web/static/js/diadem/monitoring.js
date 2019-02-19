@@ -77,43 +77,49 @@ function displayAlertsButtons(child_exp_id) {
     }
 }
 
-function displayMonitoring(conf, train_test, fold_id) {
+function displayChildMonitoring(conf, train_test, fold_id) {
     d3.json(buildQuery('getDiademChildExp',
                        [conf.exp_id, train_test, fold_id]),
             function(data) {
                 var child_exp_id = data.exp_id;
                 children_exps[child_exp_id] = data;
-                createTrainTestMonitoring(child_exp_id, train_test);
-                displayMonitoringTabs(train_test, child_exp_id);
-                updateMonitoringDisplay(train_test, child_exp_id);
+                displayMonitoring(train_test, child_exp_id, data);
             });
 }
 
-function updateMonitoringDisplay(train_test, child_exp_id) {
-    if (!classifier_conf.multiclass) {
-    updatePredictionsDisplay(train_test, child_exp_id);
+function displayMonitoring(train_test, exp_id, exp_info) {
+    createTrainTestMonitoring(exp_id, train_test);
+    displayMonitoringTabs(train_test, exp_id, exp_info);
+    updateMonitoringDisplay(train_test, exp_id, exp_info.proba,
+                            exp_info.multiclass, exp_info.perf_monitoring);
+}
+
+function updateMonitoringDisplay(train_test, child_exp_id, proba, multiclass,
+                                 perf_monitoring) {
+    if (!multiclass && proba) {
+        updatePredictionsDisplay(train_test, child_exp_id);
     }
-    if (children_exps[child_exp_id].perf_monitoring) {
-        updatePerformanceDisplay(train_test, child_exp_id);
+    if (perf_monitoring) {
+        updatePerformanceDisplay(train_test, child_exp_id, proba, multiclass);
     }
 }
 
-function displayMonitoringTabs(train_test, child_exp_id) {
+function displayMonitoringTabs(train_test, child_exp_id, exp_info) {
     var tabs_div = document.getElementById(train_test + '_monitoring');;
     var menu_titles = [];
     var menu_labels = [];
-    if (children_exps[child_exp_id].perf_monitoring) {
+    if (exp_info.perf_monitoring) {
         menu_titles.push('Performance');
-        menu_labels.push(train_test + '_performance');
+        menu_labels.push(train_test + '_perf');
     }
-    if (!classifier_conf.multiclass) {
+    if (!exp_info.multiclass && exp_info.proba) {
         menu_titles.push('Predictions');
-        menu_labels.push(train_test + '_predictions');
+        menu_labels.push(train_test + '_pred');
     }
     var menu = createTabsMenu(menu_labels, menu_titles, tabs_div,
                               train_test + '_monitoring_tabs');
-    if (children_exps[child_exp_id].perf_monitoring) {
-        displayPerformanceTabs(train_test);
+    if (exp_info.perf_monitoring) {
+        displayPerformanceTabs(train_test, exp_info);
     }
 }
 

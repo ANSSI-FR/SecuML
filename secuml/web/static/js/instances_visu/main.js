@@ -2,11 +2,8 @@ var num_coeff = 15;
 
 // Annotation and Description panels
 function displayInstancePanel(parent_div, annotation=true) {
-    var instance_panel = createPanel('panel-primary',
-                                     'col-md-12',
-                                     'Instance',
-                                     parent_div,
-                                     return_heading=true);
+    var instance_panel = createPanel('panel-primary', 'col-md-12', 'Instance',
+                                     parent_div, null, return_heading=true);
     var instance = instance_panel[0];
     var instance_title = instance_panel[1];
     instance_title.setAttribute('id', 'instance_title');

@@ -105,6 +105,8 @@ class DiademExpAlchemy(Base):
     perf_monitoring = Column(Boolean, nullable=True)
     model_interpretation = Column(Boolean, nullable=True)
     predictions_interpretation = Column(Boolean, nullable=True)
+    multiclass = Column(Boolean, nullable=True)
+    proba = Column(Boolean, nullable=True)
 
     exp = relationship('ExpAlchemy', back_populates='diadem_exp',
                        uselist=False)

@@ -67,8 +67,7 @@ function displayDivisions(conf) {
 
     // Navigation bar
     var row = createDivWithClass(null,  'row', parent_div = main);
-    var panel_body = createPanel('panel-primary', 'col-md-12',
-            null, row);
+    var panel_body = createPanel('panel-primary', 'col-md-12', null, row);
     var annotation_query_label = document.createElement('label');
     annotation_query_label.setAttribute('class', 'col-lg-2 control-label');
     annotation_query_label.appendChild(document.createTextNode('Annotation Query'));

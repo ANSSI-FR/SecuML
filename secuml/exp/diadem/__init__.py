@@ -64,8 +64,10 @@ class InvalidModelExperimentKind(SecuMLexpException):
 
 
 def add_diadem_exp_to_db(session, exp_id, fold_id, kind, alerts_conf=None,
-                         classifier_conf=None, classifier_tup=None):
+                         classifier_conf=None):
     if classifier_conf is not None:
+        multiclass = classifier_conf.multiclass
+        proba = classifier_conf.is_probabilist()
         if kind in ['train', 'cv']:
             perf_monitoring = True
             alerts = False
@@ -77,16 +79,13 @@ def add_diadem_exp_to_db(session, exp_id, fold_id, kind, alerts_conf=None,
             predictions_interp = False
         else:
             predictions_interp = classifier_conf.interpretable_predictions()
-    elif classifier_tup is not None:
-        model_interp, predictions_interp = classifier_tup
-        alerts = False
-        perf_monitoring = True  # used only for AlreadyTrained models.
+        exp = DiademExpAlchemy(exp_id=exp_id, fold_id=fold_id, type=kind,
+                               perf_monitoring=perf_monitoring, alerts=alerts,
+                               model_interpretation=model_interp,
+                               predictions_interpretation=predictions_interp,
+                               multiclass=multiclass, proba=proba)
     else:
-        assert(False)
-    exp = DiademExpAlchemy(exp_id=exp_id, fold_id=fold_id, type=kind,
-                           perf_monitoring=perf_monitoring, alerts=alerts,
-                           model_interpretation=model_interp,
-                           predictions_interpretation=predictions_interp)
+        exp = DiademExpAlchemy(exp_id=exp_id, fold_id=fold_id, type=kind)
     session.add(exp)
     session.flush()
 
@@ -181,7 +180,7 @@ class DiademExp(Experiment):
         else:
             raise InvalidModelExperimentKind(model_exp.kind)
 
-    def _create_test_exp(self, fold_id=None):
+    def _create_test_exp(self, classifier, fold_id=None):
         diadem_id = self.exp_conf.exp_id
         exp_name = 'DIADEM_%i_Test' % diadem_id
         if fold_id is not None:
@@ -202,7 +201,7 @@ class DiademExp(Experiment):
                                  self.exp_conf.core_conf.classifier_conf,
                                  name=exp_name, parent=diadem_id,
                                  fold_id=fold_id, kind='test')
-        return TestExp(test_exp_conf,
+        return TestExp(test_exp_conf, classifier=classifier,
                        alerts_conf=self._get_alerts_conf(fold_id),
                        session=self.session)
 
@@ -252,8 +251,8 @@ class DiademExp(Experiment):
             return train_exp.classifier
 
     def _test(self, classifier, datasets, fold_id):
-        test_exp = self._create_test_exp(fold_id=fold_id)
-        test_exp.run(classifier, datasets.test_instances)
+        test_exp = self._create_test_exp(classifier, fold_id=fold_id)
+        test_exp.run(datasets.test_instances)
         self._set_train_test_exp('test', test_exp, fold_id)
         return test_exp.predictions
 

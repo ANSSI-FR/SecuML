@@ -80,7 +80,7 @@ function displayDivisions(selected_kind) {
 function displayNavigationPanel(selected_kind) {
     var parent_div = cleanDiv('navigation_row');
     var panel_body = createPanel('panel-primary', 'col-md-12',
-            'Detection Errors', parent_div);
+                                 'Detection Errors', parent_div);
     // Select kind of errors (all, FP, or FN)
     var select_col = createDivWithClass(null, 'col-md-3',
             parent_div=panel_body);

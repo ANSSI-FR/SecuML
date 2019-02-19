@@ -45,9 +45,9 @@ function displayMonitoringRow(conf, selected_fold) {
   }
 
   if (selected_fold == 'all') {
-    displayMonitoring(conf, 'cv', 'None');
+    displayChildMonitoring(conf, 'cv', 'None');
   } else {
-    displayMonitoring(conf, 'train', selected_fold);
-    displayMonitoring(conf, 'test', selected_fold);
+    displayChildMonitoring(conf, 'train', selected_fold);
+    displayChildMonitoring(conf, 'test', selected_fold);
   }
 }

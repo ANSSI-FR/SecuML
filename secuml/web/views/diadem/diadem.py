@@ -38,6 +38,10 @@ from secuml.exp.tools.db_tables import ExpRelationshipsAlchemy
 TOP_N_ALERTS = 100
 
 
+def db_row_to_json(row):
+    return {c.name: getattr(row, c.name) for c in row.__table__.columns}
+
+
 @app.route('/getDiademChildExp/<diadem_exp_id>/<child_type>/<fold_id>/')
 def getDiademChildExp(diadem_exp_id, child_type, fold_id):
     fold_id = None if fold_id == 'None' else int(fold_id)
@@ -50,13 +54,7 @@ def getDiademChildExp(diadem_exp_id, child_type, fold_id):
         query = query.filter(DiademExpAlchemy.exp_id == diadem_exp_id)
     query = query.filter(DiademExpAlchemy.type == child_type)
     query = query.filter(DiademExpAlchemy.fold_id == fold_id)
-    row = query.one()
-    return jsonify({
-                'exp_id':  row.exp_id,
-                'perf_monitoring': row.perf_monitoring,
-                'model_interpretation': row.model_interpretation,
-                'predictions_interpretation': row.predictions_interpretation,
-                'alerts': row.alerts})
+    return jsonify(db_row_to_json(query.one()))
 
 
 @app.route('/predictionsAnalysis/<train_exp_id>/<index>/')

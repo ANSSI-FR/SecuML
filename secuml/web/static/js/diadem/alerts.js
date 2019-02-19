@@ -88,8 +88,7 @@ function displayPrevInstance() {
 }
 
 function displayNavigationPanel(main) {
-    var panel_body = createPanel('panel-primary', 'col-md-12', 'Alerts',
-                                 parent_div=main);
+    var panel_body = createPanel('panel-primary', 'col-md-12', 'Alerts', main);
 
     // Go trough the selected instances
     var form_group = createDivWithClass(null, 'col-md-9 form-group',
