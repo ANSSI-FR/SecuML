@@ -102,6 +102,9 @@ class TestExp(Experiment):
         self._test()
         self._export()
 
+    def web_template(self):
+        return 'diadem/test.html'
+
     def add_to_db(self):
         Experiment.add_to_db(self)
         from secuml.exp.diadem import add_diadem_exp_to_db

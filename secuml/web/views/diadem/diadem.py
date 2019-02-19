@@ -57,6 +57,13 @@ def getDiademChildExp(diadem_exp_id, child_type, fold_id):
     return jsonify(db_row_to_json(query.one()))
 
 
+@app.route('/getDiademExp/<exp_id>/')
+def getDiademExp(exp_id):
+    query = session.query(DiademExpAlchemy)
+    query = query.filter(DiademExpAlchemy.exp_id == exp_id)
+    return jsonify(db_row_to_json(query.one()))
+
+
 @app.route('/predictionsAnalysis/<train_exp_id>/<index>/')
 def predictionsAnalysis(train_exp_id, index):
     exp = update_curr_exp(train_exp_id)
