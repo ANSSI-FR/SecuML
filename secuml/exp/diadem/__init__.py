@@ -205,7 +205,7 @@ class DiademExp(Experiment):
                        alerts_conf=self._get_alerts_conf(fold_id),
                        session=self.session)
 
-    def _create_validation_exp(self, fold_id=None):
+    def _create_validation_exp(self, classifier, fold_id=None):
         assert(self.validation_conf.method == 'dataset')
         diadem_id = self.exp_conf.exp_id
         exp_name = 'DIADEM_%i_Validation' % diadem_id
@@ -223,7 +223,7 @@ class DiademExp(Experiment):
                                  self.exp_conf.core_conf.classifier_conf,
                                  name=exp_name, parent=diadem_id,
                                  kind='validation')
-        return TestExp(test_exp_conf,
+        return TestExp(test_exp_conf, classifier=classifier,
                        alerts_conf=self._get_alerts_conf(fold_id),
                        session=self.session)
 
@@ -257,8 +257,9 @@ class DiademExp(Experiment):
         return test_exp.predictions
 
     def _validate(self, classifier, datasets, fold_id):
-        validation_exp = self._create_validation_exp(fold_id=fold_id)
-        validation_exp.run(classifier, None)
+        validation_exp = self._create_validation_exp(classifier,
+                                                     fold_id=fold_id)
+        validation_exp.run(None)
         self._set_train_test_exp('validation', validation_exp, fold_id)
 
     def _run_cv(self, cv_datasets, cv_monitoring):
