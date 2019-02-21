@@ -17,54 +17,64 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import os
+import os.path as path
 import shutil
 import sys
 
+from secuml.core.tools.color import display_in_green
 from secuml.core.tools.color import display_in_red
 
 from secuml.exp import experiment
+from secuml.exp.conf.secuml import SecuMLConf
 from secuml.exp.data.project_dataset import rm_project_from_db
 
 from secuml.exp.active_learning.active_learning import ActiveLearningExperiment
 from secuml.exp.active_learning.rcd import RcdExperiment
 from secuml.exp.diadem import DiademExp
 from secuml.exp.clustering import ClusteringExperiment
-from secuml.exp.conf.dataset import DatasetConf
 from secuml.exp.features_analysis import FeaturesAnalysisExperiment
 from secuml.exp.projection import ProjectionExperiment
-
-from secuml.exp.conf.secuml import SecuMLConf
 
 from secuml.core.tools.core_exceptions import SecuMLcoreException
 from secuml.exp.tools.exp_exceptions import SecuMLexpException
 
+
+def delete_exp(session, exp_id):
+    exp = experiment.get_factory().from_exp_id(args.exp_id, secuml_conf,
+                                               session)
+    exp.remove()
+    print(display_in_green('\nThe experiment %d has been successfully '
+                           'deleted.\n' % args.exp_id))
+
+
+def delete_project(session, project):
+    rm_project_from_db(session, args.project)
+    shutil.rmtree(path.join(secuml_conf.output_data_dir, args.project))
+    print(display_in_green('\nThe project %s has been successfully '
+                           'deleted.\n' % args.project))
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Delete the experiments for a given dataset in a project. '
-                    'If no experiment id is specified, all the experiments '
-                    'of the project are deleted.')
-    parser.add_argument('project')
-    parser.add_argument('--exp-id',
-                        type=int,
-                        default=None)
-    parser.add_argument('--secuml-conf',
-                        type=str,
-                        default=None)
+        description='Delete all the experiments of a project, '
+                    'or a given experiment.')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--project', help='the name of the project to delete')
+    group.add_argument('--exp-id', type=int,
+                       help='the id of the experiment to delete')
+    parser.add_argument('--secuml-conf', type=str, default=None,
+                        help='YAML file containing the configuration. '
+                             'If not set, the configuration is read from the'
+                             'file stored in the environment variable '
+                             'SECUMLCONF.')
     args = parser.parse_args()
     try:
         secuml_conf = SecuMLConf(args.secuml_conf)
         session = secuml_conf.Session()
         if args.exp_id is not None:
-            exp = experiment.get_factory().from_exp_id(args.exp_id, secuml_conf,
-                                                       session)
-            exp.remove()
+            delete_exp(session, args.exp_id)
         else:
-            rm_project_from_db(session, args.project)
-            project_output_dir = os.path.join(secuml_conf.output_data_dir,
-                                              args.project)
-            if os.path.isdir(project_output_dir):
-                shutil.rmtree(project_output_dir)
+            delete_project(session, args.project)
         session.commit()
         session.close()
     except (SecuMLcoreException, SecuMLexpException) as e:

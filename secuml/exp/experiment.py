@@ -17,6 +17,7 @@
 import json
 import os
 import shutil
+from sqlalchemy.orm.exc import NoResultFound
 
 from secuml.core.tools.color import display_in_green
 
@@ -35,6 +36,15 @@ class NotMainExperiment(SecuMLexpException):
     def __str__(self):
         return('The experiment %i is not a main experiment. '
                'It cannot be deleted. ' % self.exp_id)
+
+
+class UndefinedExperiment(SecuMLexpException):
+
+    def __init__(self, exp_id):
+        self.exp_id = exp_id
+
+    def __str__(self):
+        return 'There is no experiment with the id %i.' % self.exp_id
 
 
 class Experiment(object):
@@ -161,7 +171,10 @@ def get_factory():
 def get_project_dataset(session, exp_id):
     query = session.query(ExpAlchemy)
     query = query.filter(ExpAlchemy.id == exp_id)
-    exp = query.one()
+    try:
+        exp = query.one()
+    except NoResultFound:
+        raise UndefinedExperiment(exp_id)
     dataset = exp.features_set.dataset
     return dataset.project, dataset.dataset
 

@@ -76,10 +76,10 @@ To remove all the experiments carried out for a given project:
 
 .. code-block:: bash
 
-    SecuML_remove_project_dataset <project>
+    SecuML_rm_project_exp --project <project>
 
-To remove all the experiments carried out for a given dataset:
+To remove a given experiment:
 
 .. code-block:: bash
 
-    SecuML_remove_project_dataset <project> --dataset <dataset>
+    SecuML_rm_project_exp --exp-id <exp_id>

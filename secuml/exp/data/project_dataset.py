@@ -27,33 +27,6 @@ from .idents import Idents
 from .ground_truth import GroundTruth
 
 
-def rm_project_from_db(session, project):
-    # Delete all the links between the experiments for the project
-    query = session.query(ExpAlchemy.id)
-    query = query.join(ExpAlchemy.features_set)
-    query = query.join(FeaturesSetsAlchemy.dataset)
-    query = query.filter(DatasetsAlchemy.project == project)
-    all_exps = [x[0] for x in query.all()]
-    query = session.query(ExpRelationshipsAlchemy)
-    query = query.filter(ExpRelationshipsAlchemy.child_id.in_(all_exps))
-    query.delete(synchronize_session='fetch')
-    # Delete all the datasets of the project
-    query = session.query(DatasetsAlchemy)
-    query = query.filter(DatasetsAlchemy.project == project)
-    query.delete()
-    session.flush()
-
-
-def get_dataset_id(session, project, dataset):
-    query = session.query(DatasetsAlchemy)
-    query = query.filter(DatasetsAlchemy.project == project)
-    query = query.filter(DatasetsAlchemy.dataset == dataset)
-    try:
-        return query.one().id
-    except NoResultFound:
-        return None
-
-
 class ProjectDirNotFound(SecuMLexpException):
 
     def __init__(self, input_data_dir, project):
@@ -78,6 +51,47 @@ class DatasetDirNotFound(SecuMLexpException):
                'directory %s.'
                % (self.dataset, path.join(self.input_data_dir,
                                           self.project)))
+
+
+class UndefinedProject(SecuMLexpException):
+
+    def __init__(self, project):
+        self.project = project
+
+    def __str__(self):
+        return('There is no experiment for the project %s.' % self.project)
+
+
+def rm_project_from_db(session, project):
+    # Check whether the project exists.
+    query = session.query(DatasetsAlchemy)
+    query = query.filter(DatasetsAlchemy.project == project)
+    if query.first() is None:
+        raise UndefinedProject(project)
+    # Delete all the links between the experiments for the project
+    query = session.query(ExpAlchemy.id)
+    query = query.join(ExpAlchemy.features_set)
+    query = query.join(FeaturesSetsAlchemy.dataset)
+    query = query.filter(DatasetsAlchemy.project == project)
+    all_exps = [x[0] for x in query.all()]
+    query = session.query(ExpRelationshipsAlchemy)
+    query = query.filter(ExpRelationshipsAlchemy.child_id.in_(all_exps))
+    query.delete(synchronize_session='fetch')
+    # Delete all the datasets of the project
+    query = session.query(DatasetsAlchemy)
+    query = query.filter(DatasetsAlchemy.project == project)
+    query.delete()
+    session.flush()
+
+
+def get_dataset_id(session, project, dataset):
+    query = session.query(DatasetsAlchemy)
+    query = query.filter(DatasetsAlchemy.project == project)
+    query = query.filter(DatasetsAlchemy.dataset == dataset)
+    try:
+        return query.one().id
+    except NoResultFound:
+        return None
 
 
 class ProjectDataset(object):

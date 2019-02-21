@@ -17,34 +17,37 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="DIADEM: DIAgnosis of DEtection Models" href="SecuML.DIADEM.html" />
     <link rel="prev" title="Data and Problem-Specific Visualizations" href="SecuML.Data.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -234,11 +237,11 @@ the URL provided.</p>
 <div class="section" id="removing-experiments">
 <h2>Removing Experiments<a class="headerlink" href="#removing-experiments" title="Permalink to this headline">¶</a></h2>
 <p>To remove all the experiments carried out for a given project:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_remove_project_dataset &lt;project&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_rm_project_exp --project &lt;project&gt;
 </pre></div>
 </div>
-<p>To remove all the experiments carried out for a given dataset:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_remove_project_dataset &lt;project&gt; --dataset &lt;dataset&gt;
+<p>To remove a given experiment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_rm_project_exp --exp-id &lt;exp_id&gt;
 </pre></div>
 </div>
 </div>
@@ -255,7 +258,7 @@ the URL provided.</p>
         <a href="SecuML.DIADEM.html" class="btn btn-neutral float-right" title="DIADEM: DIAgnosis of DEtection Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="SecuML.Data.html" class="btn btn-neutral" title="Data and Problem-Specific Visualizations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="SecuML.Data.html" class="btn btn-neutral float-left" title="Data and Problem-Specific Visualizations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -281,26 +284,16 @@ the URL provided.</p>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
