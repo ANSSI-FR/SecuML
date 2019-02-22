@@ -1,6 +1,7 @@
+.. _lingspam-use-case:
+
 Use Case: Spam Detection
 ========================
-
 We provide a dataset intended for spam detection for quick testing.
 See `lingspam <https://github.com/ANSSI-FR/SecuML/tree/master/input_data/SpamHam/lingspam>`_ for more information.
 

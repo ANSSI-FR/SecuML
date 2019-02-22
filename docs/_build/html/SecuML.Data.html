@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Data and Problem-Specific Visualizations &mdash; SecuML  documentation</title>
+  <title>Data &mdash; SecuML  documentation</title>
   
 
   
@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Experiments" href="SecuML.Experiments.html" />
+    <link rel="next" title="Visualization of Individual Instances" href="SecuML.SpecificVisu.html" />
     <link rel="prev" title="Use Case: Spam Detection" href="getting_started.lingspam.html" /> 
 </head>
 
@@ -88,23 +88,13 @@
 </ul>
 <p class="caption"><span class="caption-text">Data and Experiments</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Data and Problem-Specific Visualizations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#data">Data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#idents-csv"><code class="docutils literal notranslate"><span class="pre">idents.csv</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#features-directory"><code class="docutils literal notranslate"><span class="pre">features</span></code> directory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#annotations-directory"><code class="docutils literal notranslate"><span class="pre">annotations</span></code> directory</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#idents-csv"><code class="docutils literal notranslate"><span class="pre">idents.csv</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#features-directory"><code class="docutils literal notranslate"><span class="pre">features</span></code> directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#annotations-directory"><code class="docutils literal notranslate"><span class="pre">annotations</span></code> directory</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#problem-specific-visualizations">Problem-Specific Visualizations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#javascript-code">JavaScript code</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#flask-code">Flask code</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.SpecificVisu.html">Visualization of Individual Instances</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.Experiments.html">Experiments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Available Experiments</span></p>
@@ -164,7 +154,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Data and Problem-Specific Visualizations</li>
+      <li>Data</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -183,10 +173,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="data-and-problem-specific-visualizations">
-<h1>Data and Problem-Specific Visualizations<a class="headerlink" href="#data-and-problem-specific-visualizations" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="data">
-<span id="id1"></span><h2>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="data">
+<span id="id1"></span><h1>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h1>
 <p>SecuML considers projects which correspond to different detection problems
 on different data types
 (PDF files , PE, Android applications or Spam for instance).
@@ -202,7 +190,7 @@ for an example of input dataset.</p>
 <a class="reference internal" href="getting_started.setting_up.html#configuration"><span class="std std-ref">configuration file</span></a>.</p>
 </div>
 <div class="section" id="idents-csv">
-<h3><code class="docutils literal notranslate"><span class="pre">idents.csv</span></code><a class="headerlink" href="#idents-csv" title="Permalink to this headline">¶</a></h3>
+<h2><code class="docutils literal notranslate"><span class="pre">idents.csv</span></code><a class="headerlink" href="#idents-csv" title="Permalink to this headline">¶</a></h2>
 <p>A csv file containing the identifiers of the instances.
 It has the following columns:</p>
 <ul class="simple">
@@ -214,7 +202,7 @@ It has the following columns:</p>
 <a class="reference internal" href="SecuML.DIADEM.html#diadem-validation-modes"><span class="std std-ref">DIADEM’s temporal validation modes</span></a>.</p>
 </div>
 <div class="section" id="features-directory">
-<h3><code class="docutils literal notranslate"><span class="pre">features</span></code> directory<a class="headerlink" href="#features-directory" title="Permalink to this headline">¶</a></h3>
+<h2><code class="docutils literal notranslate"><span class="pre">features</span></code> directory<a class="headerlink" href="#features-directory" title="Permalink to this headline">¶</a></h2>
 <p>It contains csv files with the features of the instances.
 It has the following columns:</p>
 <ul class="simple">
@@ -242,7 +230,7 @@ Categorical features are not supported yet.</p>
 </div>
 </div>
 <div class="section" id="annotations-directory">
-<h3><code class="docutils literal notranslate"><span class="pre">annotations</span></code> directory<a class="headerlink" href="#annotations-directory" title="Permalink to this headline">¶</a></h3>
+<h2><code class="docutils literal notranslate"><span class="pre">annotations</span></code> directory<a class="headerlink" href="#annotations-directory" title="Permalink to this headline">¶</a></h2>
 <p>It contains csv files with the annotations associated to the instances.
 It has the following columns:</p>
 <ul class="simple">
@@ -278,48 +266,6 @@ order, in an annotation file <code class="docutils literal notranslate"><span cl
 but they can be leveraged to ease analyses.</p>
 </div>
 </div>
-<div class="section" id="problem-specific-visualizations">
-<span id="problem-specific-visu"></span><h2>Problem-Specific Visualizations<a class="headerlink" href="#problem-specific-visualizations" title="Permalink to this headline">¶</a></h2>
-<p>SecuML web user interface displays individual instances (e.g. errors from the
-confusion matrix with DIADEM, or instances to annotate with ILAB) in a
-<em>Description</em> panel.
-By default, the <em>Description</em> panel displays only the features of the instance.
-This visualization may be hard to interpret especially when the feature space is
-in high dimension.</p>
-<p>SecuML enables to plug problem-specific visualizations for each project
-(the datasets belonging to the same project share the same problem-specific
-visualizations).
-They should be easily interpretable by security experts and display the most
-relevant elements from a detection perspective.
-They may point out to external tools or information to provide some context.
-Several custom visualizations can be implemented (in different tabs) to show the
-instances from various angles.</p>
-<div class="section" id="implementation">
-<h3>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h3>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Problem-specific visualizations are not required to use SecuML web user
-interface. However, we strongly encourage to implement convenient
-problem-specific visualizations, since they can significantly ease the
-analysis of individual instances.</p>
-</div>
-<div class="section" id="javascript-code">
-<h4>JavaScript code<a class="headerlink" href="#javascript-code" title="Permalink to this headline">¶</a></h4>
-<div class="line-block">
-<div class="line">The code must be stored in <code class="docutils literal notranslate"><span class="pre">SecuML/web/static/js/instances_visu/&lt;project&gt;.js</span></code>.</div>
-<div class="line">See <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/blob/master/SecuML/web/static/js/instances_visu/SpamHam.js">SecuML/web/static/js/instances_visu/SpamHam.js</a> for an example.</div>
-</div>
-</div>
-<div class="section" id="flask-code">
-<h4>Flask code<a class="headerlink" href="#flask-code" title="Permalink to this headline">¶</a></h4>
-<div class="line-block">
-<div class="line">The code must be stored in <code class="docutils literal notranslate"><span class="pre">SecuML/web/views/projects/&lt;project&gt;.py</span></code>.</div>
-<div class="line">See <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/blob/master/SecuML/web/views/projects/SpamHam.py">SecuML/web/views/projects/SpamHam.py</a> for an example.</div>
-</div>
-</div>
-</div>
-</div>
-</div>
 
 
            </div>
@@ -329,7 +275,7 @@ analysis of individual instances.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="SecuML.Experiments.html" class="btn btn-neutral float-right" title="Experiments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="SecuML.SpecificVisu.html" class="btn btn-neutral float-right" title="Visualization of Individual Instances" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="getting_started.lingspam.html" class="btn btn-neutral float-left" title="Use Case: Spam Detection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

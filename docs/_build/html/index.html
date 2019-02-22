@@ -87,7 +87,8 @@
 </ul>
 <p class="caption"><span class="caption-text">Data and Experiments</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.Data.html">Data and Problem-Specific Visualizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Data.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.SpecificVisu.html">Visualization of Individual Instances</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.Experiments.html">Experiments</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Available Experiments</span></p>
@@ -182,7 +183,7 @@ it hides some of the machine learning machinery to let security experts focus ma
 It visualizes the results of the machine learning analyses
 and allows to interact with the models (e.g. active learning, rare category detection).
 It is generic and can be used on any data type thanks to the pluggable
-<a class="reference internal" href="SecuML.Data.html#problem-specific-visu"><span class="std std-ref">problem-specific visualizations</span></a>.</p>
+<a class="reference internal" href="SecuML.SpecificVisu.html#problem-specific-visu"><span class="std std-ref">problem-specific visualizations</span></a>.</p>
 <p><strong>Hiding some of the Machine Learning Machinery.</strong>
 SecuML deals with data loading and performs automatically
 some parts of the machine learning pipeline (e.g. feature standardization, search of the best hyperparameters)
@@ -207,9 +208,16 @@ to let security experts focus mainly on detection.</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Data and Experiments</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.Data.html">Data and Problem-Specific Visualizations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="SecuML.Data.html#data">Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="SecuML.Data.html#problem-specific-visualizations">Problem-Specific Visualizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.Data.html">Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="SecuML.Data.html#idents-csv"><code class="docutils literal notranslate"><span class="pre">idents.csv</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SecuML.Data.html#features-directory"><code class="docutils literal notranslate"><span class="pre">features</span></code> directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SecuML.Data.html#annotations-directory"><code class="docutils literal notranslate"><span class="pre">annotations</span></code> directory</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.SpecificVisu.html">Visualization of Individual Instances</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="SecuML.SpecificVisu.html#default-visualization-all-the-features">Default Visualization: All the Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SecuML.SpecificVisu.html#pluggable-problem-specific-visualizations">Pluggable Problem-Specific Visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SecuML.SpecificVisu.html#implementation">Implementation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.Experiments.html">Experiments</a><ul>
