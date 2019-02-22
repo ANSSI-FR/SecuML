@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 SecuML's documentation
-==================================
+======================
 
 SecuML is a Python tool that aims to foster the use of machine learning in computer security.
 It is distributed under the GPL2+ license.
@@ -41,6 +41,7 @@ to let security experts focus mainly on detection.
   :caption: Data and Experiments
 
   SecuML.Data
+  SecuML.SpecificVisu
   SecuML.Experiments
 
 .. toctree::

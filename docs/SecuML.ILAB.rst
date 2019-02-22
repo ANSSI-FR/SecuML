@@ -213,7 +213,7 @@ gathers the annotations (*Annotation* panel).
 
 Description Panel
 """""""""""""""""
-The *Description* panel contains information about the instance that must be annotated.
+The :ref:`Description panel<instance-visu>` contains information about the instance that must be annotated.
 It consists of a standard visualization depicting the instance features, and of optional
 :ref:`problem-specific visualizations <problem-specific-visu>`.
 

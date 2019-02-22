@@ -55,14 +55,15 @@ class Hyperparams(Conf):
         for p, params in hyperparam_desc.items():
             if cv_optim:
                 params['nargs'] = '+'
-                params['help'] = '%s Default value: [%s]' % \
+                params['help'] = '%s Default value: [%s].' % \
                     (sklearn_mess,
-                     ','.join(map(str, params['values']['default'])))
+                     ', '.join(map(str, params['values']['default'])))
             else:
-                params['help'] = '%s Default value: %s' % \
+                params['help'] = '%s Default value: %s.' % \
                         (sklearn_mess, str(params['values']['default']))
             p.replace('_', '-')
-            group.add_argument('--%s' % p, **params['values'])
+            group.add_argument('--%s' % p, help=params['help'],
+                               **params['values'])
 
     @staticmethod
     def from_args(args, hyperparam_desc, cv_optim, logger):

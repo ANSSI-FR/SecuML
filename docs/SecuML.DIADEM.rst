@@ -1,17 +1,18 @@
 .. _DIADEM:
 
+#####################################
 DIADEM: DIAgnosis of DEtection Models
-=====================================
+#####################################
 
 **Training and Analysing a Detection Model before Deployment.**
 
-| *Usage:* ``SecuML_DIADEM <project> <dataset> <model_class> -a <annotations_file>``.
-| For more information about the available options for a given model class:
-| ``SecuML_DIADEM <project> <dataset> <model_class> -h``.
-
-DIADEM trains and evaluates supervised detection models.
+DIADEM trains and evaluates detection models
+(:ref:`supervised<DIADEM_supervised>`,
+:ref:`semi-supervised<DIADEM_semisupervised>` and
+:ref:`unsupervised<DIADEM_unsupervised>`).
 It hides some of the machine learning machinery
-(feature standardization, setting of the hyperparameters)
+(feature standardization,
+:ref:`setting of the hyperparameters<DIADEM_hyperparameters>`)
 to let security experts focus mainly on detection.
 Besides, it comes with a :ref:`graphical user interface <diadem-gui>` to
 evaluate and diagnose detection models.
@@ -22,36 +23,118 @@ evaluate and diagnose detection models.
 * Beaugnon, Anaël. `"Expert-in-the-Loop Supervised Learning for Computer Security Detection Systems." <https://www.ssi.gouv.fr/uploads/2018/06/beaugnon-a_these_manuscrit.pdf>`_, Ph.D. thesis, École Normale Superieure (2018).
 * [FRENCH] Bonneton, Anaël, and Antoine Husson, `"Le Machine Learning confronté aux contraintes opérationnelles des systèmes de détection" <https://www.sstic.org/media/SSTIC2017/SSTIC-actes/le_machine_learning_confront_aux_contraintes_oprat/SSTIC2017-Article-le_machine_learning_confront_aux_contraintes_oprationnelles_des_systmes_de_dtection-bonneton_husson.pdf>`_, SSTIC 2017.
 
-Model Classes Available
------------------------
+*****
+Usage
+*****
 
-* LogisticRegression
-* Svc
-* GaussianNaiveBayes
-* DecisionTree
-* RandomForest
-* GradientBoosting
+| **Semi-supervised and supervised model classes:**
+| ``SecuML_DIADEM <project> <dataset> <model_class> -a <annotations_file>``.
 
-.. note::
-
-    For now, DIADEM supports only supervised detection models.
-    It does not support unsupervised and semi-supervised detection models yet.
-
-| DIADEM can train a new supervised detection model,
-| ``SecuML_DIADEM <project> <dataset> <model_class> -a <annotations_file>``,
-| or apply a previously trained detection model,
-| ``SecuML_DIADEM <project> <dataset> AlreadyTrained --model-exp-id <exp_id>``.
+| **Unsupervised model classes:**
+| ``SecuML_DIADEM <project> <dataset> <model_class>``.
 
 .. note::
 
-  In the latter case, ``--model-exp-id`` must correspond to a
-  :ref:`DIADEM <DIADEM>` or an :ref:`ILAB <ILAB>` experiment.
+    These arguments are enough to launch DIADEM on a given dataset.
+    The parameters presented below are completely optional.
+
+The following sections present the :ref:`model classes available
+<DIADEM_model_classes>`, and some **optional parameters** for
+:ref:`setting the hyperparameters<DIADEM_hyperparameters>`
+and :ref:`selecting a specific validation mode<DIADEM-validation-modes>`.
+If these parameters are not provided,
+DIADEM uses default values for the hyperparameters, and splits the input
+dataset into a training (90%) and a validation dataset (10%).
 
 
-.. _diadem-validation-modes:
+.. _DIADEM_model_classes:
 
-Validation Modes Available
+Model Classes
+=============
+
+.. _DIADEM_supervised:
+
+Supervised Model Classes
+------------------------
+* LogisticRegression (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html>`_)
+* Svc (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html>`_)
+* GaussianNaiveBayes (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html>`_)
+* DecisionTree (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier>`_)
+* RandomForest (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html>`_)
+* GradientBoosting (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html>`_)
+
+.. _DIADEM_unsupervised:
+
+Unsupervised Model Classes
 --------------------------
+* Lof (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.LocalOutlierFactor.html>`_)
+* IsolationForest (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html>`_)
+* OneClassSvm (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.svm.OneClassSVM.html>`_)
+* EllipticEnvelope (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.covariance.EllipticEnvelope.html>`_)
+
+.. _DIADEM_semisupervised:
+
+Semi-supervised Model Classes
+-----------------------------
+* LabelPropagation (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.semi_supervised.LabelPropagation.html>`_)
+* Sssvdd (new implementation)
+
+
+| For more information about the available options for a given model class:
+| ``SecuML_DIADEM <project> <dataset> <model_class> -h``.
+
+
+.. _DIADEM_hyperparameters:
+
+Hyperparameters
+===============
+Some model classes have *hyperparameters*, i.e. parameters that must be set
+before the training phase. These parameters are not fit automatically
+by the training algorithm.
+
+For example, logistic regression has two hyperparameters: the regularization
+strength, ``--regularization``, and the penalty norm, ``--penalty``.
+The number of trees, ``--n-estimators``, is one hyperparameter of random
+forests among many others.
+
+Hyperparameters Values
+----------------------
+To list the hyperparameters of a given detection model see the
+*Hyperparameters* group of the help message displayed by
+``SecuML_DIADEM <project> <dataset> <model_class> -h``.
+For each hyperparameter, the help message displays its name and its default
+value.
+
+Semi-supervised and unsupervised model classes accept only a single value
+for each hyperparameter. On the contrary, supervised model classes
+accept a list of values for each hyperparameter, and the best combination
+of hyperparameters is selected automatically with a grid-search.
+
+Automatic Selection
+-------------------
+In the case of supervised model classes, DIADEM selects the best combination
+of hyperparameters automatically. It considers all the combinations
+of hyperparameters values in a *grid search* to find the best one.
+First, DIADEM evaluates the performance (through :ref:`cross-validation <cv>`)
+of the detection model trained with each combination, then it selects the one
+that results in the best-performing detection model.
+
+DIADEM allows to parametrize the grid search:
+
+* [optional] ``--num-folds``: number of folds built in the cross-validation (default: 4);
+* [optional] ``--n-jobs``:  number of CPU cores used when parallelizing the cross-validation, -1 means using all cores (default: -1);
+* [optional] ``--objective-func``: the performance indicator (``Ndcg``, ``RocAuc``, ``Accuracy``, or ``DrAtFdr``) to optimize during the grid-search (default: ``RocAuc``). ;
+* [optional] ``--far``: the false alarm rate (far) to consider if ``--objective-func`` is set to ``DrAtFdr``.
+
+These options are listed in the *Hyperparameters Optimization* group of the help
+message displayed by
+``SecuML_DIADEM <project> <dataset> <supervised_model_class> -h``.
+
+
+.. _DIADEM-validation-modes:
+
+Validation Modes
+================
 DIADEM offers several validation modes, i.e. ways to build the training and the
 validation datasets.
 Temporal validation modes (:ref:`temporal-split`, :ref:`cutoff-time`,
@@ -64,7 +147,7 @@ the training instances predate the validation instances.
 .. _random-split:
 
 Random Split
-^^^^^^^^^^^^
+------------
 ``--test-mode RandomSplit --test-size <prop>``
 
 ``<prop>`` instances of ``<dataset>`` are selected uniformly for the validation
@@ -73,7 +156,7 @@ dataset. The remaining instances constitute the training dataset.
 .. _temporal-split:
 
 Temporal Split
-^^^^^^^^^^^^^^
+--------------
 ``--test-mode TemporalSplit --test-size <prop>``
 
 The ``<prop>`` most recent instances of ``<dataset>`` are selected for the
@@ -82,7 +165,7 @@ validation dataset. The remaining instances constitute the training dataset.
 .. _cutoff-time:
 
 Cutoff Time
-^^^^^^^^^^^
+-----------
 ``--test-mode CutoffTime --cutoff-time <cutoff_time>``
 
 The instances of ``<dataset>`` with a timestamp before ``<cutoff_time>``
@@ -94,7 +177,7 @@ validation dataset.
 .. _cv:
 
 Cross Validation
-^^^^^^^^^^^^^^^^
+----------------
 
 ``--test-mode Cv --validation-folds <num_folds>``
 
@@ -114,7 +197,7 @@ the validation dataset and the other buckets form the training dataset.
 .. _temporal-cv:
 
 Temporal Cross Validation
-^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------
 ``--test-mode TemporalCv --validation-folds <num_folds>``
 
 The dataset ``<dataset>`` is divided into ``<num_folds> + 1`` buckets.
@@ -140,7 +223,7 @@ the validation dataset.
 .. _sliding-window:
 
 Sliding Window
-^^^^^^^^^^^^^^
+--------------
 
 ``--test-mode SlidingWindow --buckets <n> --train-buckets <n_train> --test-buckets <n_test>``
 
@@ -171,20 +254,40 @@ form the validation dataset.
 .. _validation-dataset:
 
 Validation Dataset
-^^^^^^^^^^^^^^^^^^
+------------------
 
 ``--test-mode ValidationDataset --validation-dataset <validation_dataset>``
 
 The whole dataset ``<dataset>`` constitutes the training data, and
 ``<validation_dataset>`` constitutes the validation data.
 
+
+Applying a Previous Detection Model
+===================================
+
+DIADEM can apply a previously trained detection model with the following
+command line:
+
+.. code-block:: bash
+
+    SecuML_DIADEM <project> <dataset> AlreadyTrained --model-exp-id <exp_id> \
+        --test-mode ValidationDataset --validation-dataset <validation_dataset>
+
+In this case, there are two restrictions:
+
+* ``--model-exp-id`` must correspond to a
+  :ref:`DIADEM <DIADEM>` or an :ref:`ILAB <ILAB>` experiment ;
+* ``ValidationDataset`` is the only validation mode available.
+
+
 .. _diadem-gui:
 
+************************
 Graphical User Interface
-------------------------
+************************
 
 Model Performance and Predictions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+=================================
 DIADEM displays the performance evaluation and the predictions of the detection
 model both on the training and validation datasets.
 The predictions analysis is always available,
@@ -219,7 +322,7 @@ When annotations are available, the instances are grouped by label.
   Predictions Tab
 
 Model Behavior
-^^^^^^^^^^^^^^
+==============
 DIADEM displays information about the global behavior of detection models.
 This visualization allows to grasp how detection models make decisions
 and to diagnose potential training biases.
@@ -253,7 +356,7 @@ decision-making, and may point out biases in the training dataset.
 
 
 Individual Predictions
-^^^^^^^^^^^^^^^^^^^^^^
+======================
 DIADEM diagnosis interface also allows to examine individual predictions.
 For example, the false positives and negatives can be reviewed
 by clicking on the confusion matrix displayed by the :ref:`performance-tab`.
@@ -269,33 +372,11 @@ finding new discriminating features.
 
 **Description Panel**
 
-DIADEM displays each instance in a *Description* panel.
-:ref:`all-features` and :ref:`important-features` depict the default views of
-the *Description* panel (available for any data type).
-
-.. _all-features:
-
-.. figure:: figs/screen_shots/DIADEM/features_values.png
-  :width: 80%
-  :align: center
-
-  All the Features
-
-.. _important-features:
-
-.. figure:: figs/screen_shots/DIADEM/feature_weights.png
-  :width: 80%
-  :align: center
-
-  Most Important Features
-
-By default, the *Description* panel displays the features of the instance
-(see :ref:`all-features` ). This visualization may be hard to interpret
-especially when the feature space is in high dimension. :ref:`all-features`
-displays the features extracted from an email:
-the number of occurrences of each word in the vocabulary.
-Since the vocabulary contains 1000 words, this visualization is hardly
-interpretable for humans.
+DIADEM displays each instance in a :ref:`Description panel<instance-visu>`.
+By default, all the values of the features of the instance are displayed.
+Other visualizations specific to the detection problem may be more relevant to
+analyze individual predictions. In order to address this need, SecuML enables
+users to plug :ref:`problem-specific visualizations <problem-specific-visu>`.
 
 If an interpretable model has been trained, DIADEM also displays
 the features that have the most impact on the prediction
@@ -304,19 +385,10 @@ This visualization is easier to interpret than the previous one
 since the features are sorted according to their impact in the decision-making
 process.
 
-Other visualizations specific to the detection problem may be more relevant to
-analyze individual predictions. In order to address this need, DIADEM enables
-users to plug problem-specific visualizations.
-:ref:`mail-specific-visu` depicts a problem-specific visualization
-we have implemented for spam detection. It displays simply the raw content of
-the email. We strongly encourage to implement convenient problem-specific
-visualizations (see :ref:`problem-specific-visu`), since they can significantly
-ease the analysis of individual predictions.
+.. _important-features:
 
-.. _mail-specific-visu:
-
-.. figure:: figs/screen_shots/DIADEM/mail.png
+.. figure:: figs/screen_shots/DIADEM/feature_weights.png
   :width: 80%
   :align: center
 
-  Problem-specific Visualization for Spam Detection
+  Most Important Features

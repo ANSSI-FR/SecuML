@@ -1,10 +1,7 @@
-Data and Problem-Specific Visualizations
-========================================
-
 .. _Data:
 
 Data
-----
+====
 
 SecuML considers projects which correspond to different detection problems
 on different data types
@@ -103,42 +100,3 @@ Partial annotations are required for
 :ref:`Clustering <clustering>`, :ref:`projection <projection>`, and
 :ref:`features analysis <stats>` do not require annotations,
 but they can be leveraged to ease analyses.
-
-.. _problem-specific-visu:
-
-Problem-Specific Visualizations
--------------------------------
-SecuML web user interface displays individual instances (e.g. errors from the
-confusion matrix with DIADEM, or instances to annotate with ILAB) in a
-*Description* panel.
-By default, the *Description* panel displays only the features of the instance.
-This visualization may be hard to interpret especially when the feature space is
-in high dimension.
-
-SecuML enables to plug problem-specific visualizations for each project
-(the datasets belonging to the same project share the same problem-specific
-visualizations).
-They should be easily interpretable by security experts and display the most
-relevant elements from a detection perspective.
-They may point out to external tools or information to provide some context.
-Several custom visualizations can be implemented (in different tabs) to show the
-instances from various angles.
-
-Implementation
-^^^^^^^^^^^^^^
-.. note::
-
-  Problem-specific visualizations are not required to use SecuML web user
-  interface. However, we strongly encourage to implement convenient
-  problem-specific visualizations, since they can significantly ease the
-  analysis of individual instances.
-
-JavaScript code
-"""""""""""""""
-| The code must be stored in ``SecuML/web/static/js/instances_visu/<project>.js``.
-| See `SecuML/web/static/js/instances_visu/SpamHam.js <https://github.com/ANSSI-FR/SecuML/blob/master/SecuML/web/static/js/instances_visu/SpamHam.js>`_ for an example.
-
-Flask code
-""""""""""
-| The code must be stored in ``SecuML/web/views/projects/<project>.py``.
-| See `SecuML/web/views/projects/SpamHam.py <https://github.com/ANSSI-FR/SecuML/blob/master/SecuML/web/views/projects/SpamHam.py>`_ for an example.
