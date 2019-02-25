@@ -18,8 +18,7 @@ import os.path as path
 
 from . import compute_hash
 from secuml.exp.tools.db_tables import DatasetsAlchemy
-from secuml.exp.tools import mysql_specific
-from secuml.exp.tools import postgresql_specific
+from secuml.exp.tools.db_tables import call_specific_db_func
 from secuml.exp.tools.exp_exceptions import SecuMLexpException
 from secuml.exp.tools.exp_exceptions import UpdatedFile
 
@@ -43,14 +42,9 @@ class Idents(object):
 
     def load(self):
         filepath, _ = self.get_filepath_hash()
-        if self.secuml_conf.db_type == 'mysql':
-            mysql_specific.load_idents(self.cursor, filepath,
-                                       self.dataset_conf.dataset_id)
-        elif self.secuml_conf.db_type == 'postgresql':
-            postgresql_specific.load_idents(self.cursor, filepath,
-                                            self.dataset_conf.dataset_id)
-        else:
-            assert(False)
+        call_specific_db_func(self.secuml_conf.db_type, 'load_idents',
+                              (self.cursor, filepath,
+                               self.dataset_conf.dataset_id))
         self.secuml_conf.logger.info('Idents file for the dataset %s/%s '
                                      'loaded into the database (%s).'
                                      % (self.dataset_conf.project,

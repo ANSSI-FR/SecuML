@@ -15,6 +15,8 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 
+import sqlalchemy
+
 from .postgresql_specific import annotations_with_families
 
 
@@ -112,3 +114,7 @@ def load_partial_annotations(cursor, filename, annotations_id, dataset_id):
                    'SELECT instance_id,annotations_id,label,family,iteration,'
                    'method '
                    'FROM labels_import;')
+
+
+def get_engine(db_uri):
+    return sqlalchemy.create_engine(db_uri + '?charset=utf8', echo=False)

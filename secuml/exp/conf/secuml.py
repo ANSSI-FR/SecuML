@@ -15,12 +15,12 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import sqlalchemy
-import sqlalchemy.orm
+from sqlalchemy.orm import sessionmaker
 import yaml
 
 from secuml.core.tools.logging import close_logger, get_logger
 from secuml.exp.tools.db_tables import Base
+from secuml.exp.tools.db_tables import call_specific_db_func
 from secuml.exp.tools.exp_exceptions import SecuMLexpException
 
 
@@ -67,7 +67,7 @@ class SecuMLConf(object):
     def _set_session(self):
         self.engine = self.get_engine()
         Base.metadata.create_all(self.engine)
-        self.Session = sqlalchemy.orm.sessionmaker(bind=self.engine)
+        self.Session = sessionmaker(bind=self.engine)
 
     def _set_logger(self, cfg):
         logger_level = 'INFO'
@@ -115,11 +115,5 @@ class SecuMLConf(object):
             raise WrongDatabase()
 
     def get_engine(self):
-        if self.db_type == 'mysql':
-            engine = sqlalchemy.create_engine(self.db_uri + '?charset=utf8',
-                                              echo=False)
-        elif self.db_type == 'postgresql':
-            engine = sqlalchemy.create_engine(self.db_uri, echo=False)
-        else:
-            assert(False)
-        return engine
+        return call_specific_db_func(self.db_type, 'get_engine',
+                                     (self.db_uri,))

@@ -17,9 +17,8 @@
 import os.path as path
 
 from . import compute_hash
+from secuml.exp.tools.db_tables import call_specific_db_func
 from secuml.exp.tools.db_tables import DatasetsAlchemy
-from secuml.exp.tools import mysql_specific
-from secuml.exp.tools import postgresql_specific
 from secuml.exp.tools.exp_exceptions import UpdatedFile
 
 
@@ -37,14 +36,9 @@ class GroundTruth(object):
         self.exists = filepath is not None
         if not self.exists:
             return
-        if self.secuml_conf.db_type == 'mysql':
-            mysql_specific.load_ground_truth(self.cursor, filepath,
-                                             self.dataset_conf.dataset_id)
-        elif self.secuml_conf.db_type == 'postgresql':
-            postgresql_specific.load_ground_truth(self.cursor, filepath,
-                                                  self.dataset_conf.dataset_id)
-        else:
-            assert(False)
+        call_specific_db_func(self.secuml_conf.db_type, 'load_ground_truth',
+                              (self.cursor, filepath,
+                               self.dataset_conf.dataset_id))
         self.secuml_conf.logger.info('Ground-truth file for the dataset %s/%s '
                                      'loaded into the database (%s).'
                                      % (self.dataset_conf.project,

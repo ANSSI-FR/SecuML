@@ -21,6 +21,9 @@ from sqlalchemy.orm import relationship
 
 from secuml.core.data.labels_tools import BENIGN, MALICIOUS
 
+from . import mysql_specific
+from . import postgresql_specific
+
 
 Base = declarative_base()
 
@@ -331,3 +334,14 @@ class FeaturesAlchemy(Base):
                                  back_populates='features', uselist=False)
     features_set = relationship('FeaturesSetsAlchemy',
                                 back_populates='features', uselist=False)
+
+
+# db_type: mysql or postgresql
+def call_specific_db_func(db_type, function, args):
+    if db_type == 'mysql':
+        module = mysql_specific
+    elif db_type == 'postgresql':
+        module = postgresql_specific
+    else:
+        assert(False)
+    return getattr(module, function)(*args)

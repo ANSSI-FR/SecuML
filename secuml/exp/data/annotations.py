@@ -17,10 +17,9 @@
 import os.path as path
 
 from secuml.exp.conf.annotations import AnnotationsTypes
+from secuml.exp.tools.db_tables import call_specific_db_func
 from secuml.exp.tools.db_tables import ExpAnnotationsAlchemy
 from secuml.exp.tools.exp_exceptions import SecuMLexpException
-from secuml.exp.tools import mysql_specific
-from secuml.exp.tools import postgresql_specific
 
 
 class Annotations(object):
@@ -59,20 +58,10 @@ class Annotations(object):
                                      % filename)
         conn = self.session.connection().connection
         cursor = conn.cursor()
-        if self.secuml_conf.db_type == 'mysql':
-            mysql_specific.load_partial_annotations(
-                                                  cursor,
-                                                  filename,
-                                                  annotations_id,
-                                                  self.dataset_conf.dataset_id)
-        elif self.secuml_conf.db_type == 'postgresql':
-            postgresql_specific.load_partial_annotations(
-                                                  cursor,
-                                                  filename,
-                                                  annotations_id,
-                                                  self.dataset_conf.dataset_id)
-        else:
-            assert(False)
+        call_specific_db_func(self.secuml_conf.db_type,
+                              'load_partial_annotations',
+                              (cursor, filename, annotations_id,
+                               self.dataset_conf.dataset_id))
         self.session.flush()
 
     def get_annotations_type(self, annotations_id):

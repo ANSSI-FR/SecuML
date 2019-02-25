@@ -15,6 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import csv
+import sqlalchemy
 
 
 def annotations_with_families(filename):
@@ -115,3 +116,7 @@ def load_partial_annotations(cursor, filename, annotations_id, dataset_id):
                    'method '
                    'FROM annotations_import;')
     cursor.execute('DROP TABLE annotations_import;')
+
+
+def get_engine(db_uri):
+    return sqlalchemy.create_engine(db_uri, echo=False)
