@@ -30,6 +30,9 @@ class GradientBoostingConf(SupervisedClassifierConf):
     def is_probabilist(self):
         return True
 
+    def scoring_function(self):
+        return 'decision_function'
+
     def get_feature_importance(self):
         return 'score'
 

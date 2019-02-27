@@ -68,6 +68,7 @@ def add_diadem_exp_to_db(session, exp_id, fold_id, kind, alerts_conf=None,
     if classifier_conf is not None:
         multiclass = classifier_conf.multiclass
         proba = classifier_conf.is_probabilist()
+        with_scoring = classifier_conf.scoring_function() is not None
         if kind in ['train', 'cv']:
             perf_monitoring = True
             alerts = False
@@ -83,7 +84,8 @@ def add_diadem_exp_to_db(session, exp_id, fold_id, kind, alerts_conf=None,
                                perf_monitoring=perf_monitoring, alerts=alerts,
                                model_interpretation=model_interp,
                                predictions_interpretation=predictions_interp,
-                               multiclass=multiclass, proba=proba)
+                               multiclass=multiclass, proba=proba,
+                               with_scoring=with_scoring)
     else:
         exp = DiademExpAlchemy(exp_id=exp_id, fold_id=fold_id, type=kind)
     session.add(exp)

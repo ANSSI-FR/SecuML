@@ -91,16 +91,18 @@ function displayMonitoring(train_test, exp_id, exp_info) {
     createTrainTestMonitoring(exp_id, train_test);
     displayMonitoringTabs(train_test, exp_id, exp_info);
     updateMonitoringDisplay(train_test, exp_id, exp_info.proba,
-                            exp_info.multiclass, exp_info.perf_monitoring);
+                            exp_info.with_scoring, exp_info.multiclass,
+                            exp_info.perf_monitoring);
 }
 
-function updateMonitoringDisplay(train_test, child_exp_id, proba, multiclass,
-                                 perf_monitoring) {
+function updateMonitoringDisplay(train_test, child_exp_id, proba, with_scoring,
+                                 multiclass, perf_monitoring) {
     if (!multiclass && proba) {
         updatePredictionsDisplay(train_test, child_exp_id);
     }
     if (perf_monitoring) {
-        updatePerformanceDisplay(train_test, child_exp_id, proba, multiclass);
+        updatePerformanceDisplay(train_test, child_exp_id, proba, with_scoring,
+                                 multiclass);
     }
 }
 

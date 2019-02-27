@@ -31,6 +31,9 @@ class GaussianNaiveBayesConf(SupervisedClassifierConf):
     def is_probabilist(self):
         return True
 
+    def scoring_function(self):
+        return None
+
     def get_feature_importance(self):
         return None
 

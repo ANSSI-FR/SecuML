@@ -29,8 +29,9 @@ from secuml.core.tools.float import to_percentage, trunc
 
 class BinaryIndicators(object):
 
-    def __init__(self, num_folds, probabilist, auc=True):
+    def __init__(self, num_folds, probabilist, with_scoring, auc=True):
         self.probabilist = probabilist
+        self.with_scoring = with_scoring
         self.auc = auc
         self.num_folds = num_folds
         if self.auc:
@@ -59,7 +60,9 @@ class BinaryIndicators(object):
             scores = predictions.probas
         else:
             scores = predictions.scores
-        if (predictions.num_instances() == 0
+        if not self.probabilist and not self.with_scoring:
+            roc_auc = 0
+        elif (predictions.num_instances() == 0
                 or sum(predictions.ground_truth) == 0):
             roc_auc = 0
         else:

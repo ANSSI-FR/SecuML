@@ -8,25 +8,30 @@ function callback(conf) {
   generateTitle('Detection Method Results');
   d3.json(buildQuery('getDiademExp', [exp_id]),
           function(data) {
-              displayPanels(data.proba, data.multiclass, data.perf_monitoring);
+              displayPanels(data.proba, data.with_scoring, data.multiclass,
+                            data.perf_monitoring);
               updateMonitoringDisplay('test', exp_id, data.proba,
-                                      data.multiclass, data.perf_monitoring);
+                                      data.with_scoring, data.multiclass,
+                                      data.perf_monitoring);
           });
 }
 
-function displayPanels(proba, multiclass, perf_monitoring) {
+function displayPanels(proba, with_scoring, multiclass, perf_monitoring) {
     if (perf_monitoring) {
         var perf_indicators = createPanel(
                              'panel-primary', null, 'Performance Indicators',
                              document.getElementById('perf_indicators'),
                              'test_perf_indicators');
         if (!multiclass) {
-            var roc = createPanel('panel-primary', null, 'ROC Curve',
-                                  document.getElementById('roc'),
-                                  'test_roc');
-            var far_tpr = createPanel('panel-primary', null, 'FAR-DR Curve',
-                                  document.getElementById('far_tpr'),
-                                  'test_far_tpr');
+            if (proba || with_scoring) {
+                var roc = createPanel('panel-primary', null, 'ROC Curve',
+                                      document.getElementById('roc'),
+                                      'test_roc');
+                var far_tpr = createPanel('panel-primary', null,
+                                          'FAR-DR Curve',
+                                           document.getElementById('far_tpr'),
+                                           'test_far_tpr');
+            }
             var confusion_matrix = createPanel(
                                   'panel-primary', null, 'Confusion Matrix',
                                   document.getElementById('confusion_matrix'),

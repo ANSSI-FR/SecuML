@@ -103,6 +103,10 @@ class ClassifierConf(Conf):
         return
 
     @abc.abstractmethod
+    def scoring_function(self):
+        return
+
+    @abc.abstractmethod
     def get_feature_importance(self):
         return
 
@@ -147,6 +151,12 @@ class UnsupervisedClassifierConf(ClassifierConf):
     @staticmethod
     def is_supervised():
         return False
+
+    # TODO scikit-learn Pipeline does not support 'score_samples' yet.
+    # scikit-learn issue #12542
+    def scoring_function(self):
+        # return 'score_samples'
+        return None
 
     @staticmethod
     def gen_parser(parser, hyperparam_desc):

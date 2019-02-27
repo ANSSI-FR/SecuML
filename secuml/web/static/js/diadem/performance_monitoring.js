@@ -4,16 +4,22 @@ function displayPerformanceTabs(train_test, exp_info) {
       var menu_labels = [train_test + '_perf_indicators'];
       var menu_titles = ['Indicators'];
     } else {
-      var menu_labels = [train_test + '_perf_indicators',
-                         train_test + '_perf_curves',
-                         train_test + '_confusion_matrix'];
-      var menu_titles = ['Indicators', 'Curves', 'Matrix'];
+      if (exp_info.proba || exp_info.with_scoring) {
+        var menu_labels = [train_test + '_perf_indicators',
+                           train_test + '_perf_curves',
+                           train_test + '_confusion_matrix'];
+        var menu_titles = ['Indicators', 'Curves', 'Matrix'];
+      } else {
+        var menu_labels = [train_test + '_perf_indicators',
+                           train_test + '_confusion_matrix'];
+        var menu_titles = ['Indicators', 'Matrix'];
+      }
     }
     var menu = createTabsMenu(menu_labels, menu_titles,
             document.getElementById(performance_div_name),
             train_test + '_perf_monitoring_tabs');
     document.getElementById(performance_div_name).style.marginTop = '2px';
-    if (!exp_info.multiclass) {
+    if (!exp_info.multiclass && (exp_info.proba || exp_info.with_scoring)) {
         displayCurvesTabs(train_test);
     }
 }
@@ -30,16 +36,19 @@ function displayCurvesTabs(train_test) {
     document.getElementById(curves_div_name).style.marginTop = '2px';
 }
 
-function updatePerformanceDisplay(train_test, exp, proba, multiclass) {
+function updatePerformanceDisplay(train_test, exp, proba, with_scoring,
+                                  multiclass) {
     // Indicators
     var indicators = cleanDiv(train_test + '_perf_indicators');
     displayPerfIndicators(indicators, train_test, exp, proba, multiclass);
     if (!multiclass) {
       // ROC
-      var roc = cleanDiv(train_test + '_roc');
-      displayROC(roc, train_test, exp);
-      var precision_recall = cleanDiv(train_test + '_far_tpr');
-      displayPrecisionRecall(precision_recall, train_test, exp)
+      if (proba || with_scoring) {
+        var roc = cleanDiv(train_test + '_roc');
+        displayROC(roc, train_test, exp);
+        var precision_recall = cleanDiv(train_test + '_far_tpr');
+        displayPrecisionRecall(precision_recall, train_test, exp)
+      }
       // Confusion Matrix
       var confusion_matrix = cleanDiv(train_test + '_confusion_matrix');
       displayConfusionMatrix(confusion_matrix, train_test, exp);

@@ -126,10 +126,11 @@ class Classifier(object):
         return all_predicted_proba, predicted_proba
 
     def _get_predicted_scores(self, features, num_instances):
-        try:
-            return self.pipeline.decision_function(features)
-        except:
-            return [0 for i in range(num_instances)]
+        scoring_func = self.conf.scoring_function()
+        if scoring_func is not None:
+            return getattr(self.pipeline, scoring_func)(features)
+        else:
+            return [None for i in range(num_instances)]
 
     def testing(self, instances):
         start = time.time()

@@ -28,6 +28,9 @@ class SvcConf(SupervisedClassifierConf):
     def is_probabilist(self):
         return False
 
+    def scoring_function(self):
+        return 'decision_function'
+
     def get_feature_importance(self):
         return None
 

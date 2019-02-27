@@ -47,6 +47,9 @@ class AlreadyTrainedConf(ClassifierConf):
     def is_probabilist(self):
         return None
 
+    def scoring_function(self):
+        return None
+
     @staticmethod
     def is_supervised():
         return None

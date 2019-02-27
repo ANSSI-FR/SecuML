@@ -107,6 +107,7 @@ class DiademExpAlchemy(Base):
     predictions_interpretation = Column(Boolean, nullable=True)
     multiclass = Column(Boolean, nullable=True)
     proba = Column(Boolean, nullable=True)
+    with_scoring = Column(Boolean, nullable=True)
 
     exp = relationship('ExpAlchemy', back_populates='diadem_exp',
                        uselist=False)

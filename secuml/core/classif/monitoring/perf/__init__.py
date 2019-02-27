@@ -30,18 +30,27 @@ class PerformanceMonitoring(object):
         if self.conf.multiclass:
             self.perf_indicators = MulticlassIndicators(num_folds)
         else:
-            self.perf_indicators = BinaryIndicators(num_folds,
-                                                    conf.is_probabilist())
+            self.perf_indicators = BinaryIndicators(
+                                           num_folds,
+                                           conf.is_probabilist(),
+                                           conf.scoring_function() is not None)
             self.confusion_matrix = ConfusionMatrix()
-            self.roc = RocCurve(num_folds, conf.is_probabilist())
-            self.fdr_tpr_curve = FdrTprCurve(num_folds, conf.is_probabilist())
+            if conf.is_probabilist() or conf.scoring_function() is not None:
+                self.roc = RocCurve(num_folds, conf.is_probabilist())
+                self.fdr_tpr_curve = FdrTprCurve(num_folds,
+                                                 conf.is_probabilist())
+            else:
+                self.roc = None
+                self.fdr_tpr_curve = None
 
     def add_fold(self, fold, predictions):
         self.perf_indicators.add_fold(fold, predictions)
         if not self.conf.multiclass:
             self.confusion_matrix.add_fold(predictions)
-            self.roc.add_fold(fold, predictions)
-            self.fdr_tpr_curve.add_fold(fold, predictions)
+            if self.roc is not None:
+                self.roc.add_fold(fold, predictions)
+            if self.fdr_tpr_curve is not None:
+                self.fdr_tpr_curve.add_fold(fold, predictions)
 
     def final_computations(self):
         self.perf_indicators.final_computations()
@@ -51,5 +60,7 @@ class PerformanceMonitoring(object):
             self.perf_indicators.to_json(f)
         if not self.conf.multiclass:
             self.confusion_matrix.display(directory)
-            self.roc.display(directory)
-            self.fdr_tpr_curve.display(directory)
+            if self.roc is not None:
+                self.roc.display(directory)
+            if self.fdr_tpr_curve is not None:
+                self.fdr_tpr_curve.display(directory)

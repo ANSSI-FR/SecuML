@@ -30,6 +30,9 @@ class SssvddConf(SemiSupervisedClassifierConf):
     def is_probabilist(self):
         return False
 
+    def scoring_function(self):
+        return None
+
     def get_feature_importance(self):
         return None
 
