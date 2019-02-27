@@ -1,0 +1,9 @@
+language: python
+python:
+    - '3.5'
+
+sudo: false
+cache: pip
+
+install: 'pip install -r doc_requirements.txt'
+script: sphinx-build -nWT -b dummy docs/ docs/_build/html
