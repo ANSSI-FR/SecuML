@@ -5,5 +5,19 @@ python:
 sudo: false
 cache: pip
 
-install: 'pip install -r doc_requirements.txt'
-script: sphinx-build -nWT -b dummy docs/ docs/_build/html
+install:
+    - pip install pip --upgrade
+    - pip install -r doc_requirements.txt
+
+script:
+    - sphinx-build -nWT docs/ docs/_build/html
+
+deploy:
+    provider: pages
+    target-branch: gh-pages
+    local-dir: docs/_build/html
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    keep-history: true
+    on:
+        branch: master
