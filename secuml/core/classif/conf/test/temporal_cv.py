@@ -54,7 +54,8 @@ class TemporalCvConf(SeveralFoldsTestConf):
         cutoff_time = t_start + delta
         for i in range(self.num_folds):
             train = instances.ids.get_ids_before(cutoff_time)
-            test = instances.ids.get_ids_after(cutoff_time)
+            test = instances.ids.get_ids_between(cutoff_time,
+                                                 cutoff_time + delta)
             cv_split[i] = (train, test)
             cutoff_time += delta
         return cv_split

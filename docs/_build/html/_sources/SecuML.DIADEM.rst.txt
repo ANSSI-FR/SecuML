@@ -56,27 +56,27 @@ Model Classes
 
 Supervised Model Classes
 ------------------------
-* LogisticRegression (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html>`_)
-* Svc (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html>`_)
-* GaussianNaiveBayes (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html>`_)
-* DecisionTree (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier>`_)
-* RandomForest (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html>`_)
-* GradientBoosting (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html>`_)
+* LogisticRegression (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html>`__)
+* Svc (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html>`__)
+* GaussianNaiveBayes (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html>`__)
+* DecisionTree (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier>`__)
+* RandomForest (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html>`__)
+* GradientBoosting (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html>`__)
 
 .. _DIADEM_unsupervised:
 
 Unsupervised Model Classes
 --------------------------
-* Lof (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.LocalOutlierFactor.html>`_)
-* IsolationForest (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html>`_)
-* OneClassSvm (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.svm.OneClassSVM.html>`_)
-* EllipticEnvelope (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.covariance.EllipticEnvelope.html>`_)
+* Lof (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.LocalOutlierFactor.html>`__)
+* IsolationForest (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html>`__)
+* OneClassSvm (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.svm.OneClassSVM.html>`__)
+* EllipticEnvelope (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.covariance.EllipticEnvelope.html>`__)
 
 .. _DIADEM_semisupervised:
 
 Semi-supervised Model Classes
 -----------------------------
-* LabelPropagation (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.semi_supervised.LabelPropagation.html>`_)
+* LabelPropagation (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.semi_supervised.LabelPropagation.html>`__)
 * Sssvdd (new implementation)
 
 
