@@ -188,6 +188,13 @@ class UnsupervisedClassifier(Classifier):
         best_values = hyperparam_conf.values.get_best_values()
         self.pipeline.set_params(**best_values)
 
+    def get_supervision(self, instances, ground_truth=False, check=True):
+        if not ground_truth:
+            return None
+        return Classifier.get_supervision(self, instances,
+                                          ground_truth=ground_truth,
+                                          check=check)
+
     # sklearn unsupervised learning algorithms return
     #   -1 for outliers
     #   1 for inliers
@@ -205,6 +212,13 @@ class SemiSupervisedClassifier(Classifier):
         hyperparam_conf = self.conf.hyperparam_conf
         best_values = hyperparam_conf.values.get_best_values()
         self.pipeline.set_params(**best_values)
+
+    # -1 for unlabeled instances.
+    def get_supervision(self, instances, ground_truth=False, check=True):
+        supervision = Classifier.get_supervision(self, instances,
+                                                 ground_truth=ground_truth,
+                                                 check=check)
+        return [s if s is not None else -1 for s in supervision]
 
     def _fit(self, train_instances):
         self.pipeline.fit(train_instances.features.get_values(),
