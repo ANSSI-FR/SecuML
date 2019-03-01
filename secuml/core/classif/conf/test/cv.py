@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+from sklearn.model_selection import KFold
 from sklearn.model_selection import StratifiedKFold
 
 from . import SeveralFoldsTestConf
@@ -49,9 +50,14 @@ class CvConf(SeveralFoldsTestConf):
         return CvConf(logger, alerts_conf, obj['num_folds'])
 
     def _gen_cv_split(self, classifier_conf, instances):
-        cv = StratifiedKFold(n_splits=self.num_folds)
         annotations = instances.get_annotations(False)
         supervision = annotations.get_supervision(classifier_conf.multiclass)
+        # sklearn does not support StratifiedKFold if some instances are not
+        # annotated (e.g. LabelPropagation).
+        if any(l is None for l in supervision):
+            cv = KFold(n_splits=self.num_folds)
+        else:
+            cv = StratifiedKFold(n_splits=self.num_folds)
         split = cv.split(instances.features.get_values(), supervision)
         # cv_split with instance_ids instead of indexes
         cv_split = [None for _ in range(self.num_folds)]
