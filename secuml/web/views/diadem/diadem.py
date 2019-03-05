@@ -165,8 +165,17 @@ def get_train_exp(exp_id):
     if row.type == 'train':
         return exp_id
     elif row.type == 'test':
+        fold_id = row.fold_id
+        # get diadem_exp
+        query = session.query(ExpRelationshipsAlchemy)
+        query = query.filter(ExpRelationshipsAlchemy.child_id == exp_id)
+        diadem_exp_id = query.one().parent_id
+        # get train_exp
         query = session.query(DiademExpAlchemy)
-        query = query.filter(DiademExpAlchemy.diadem_id == row.diadem_id)
+        query = query.join(DiademExpAlchemy.exp)
+        query = query.join(ExpAlchemy.parents)
+        query = query.filter(
+                ExpRelationshipsAlchemy.parent_id == diadem_exp_id)
         query = query.filter(DiademExpAlchemy.fold_id == row.fold_id)
         query = query.filter(DiademExpAlchemy.type == 'train')
         return query.one().exp_id
