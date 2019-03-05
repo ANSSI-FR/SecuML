@@ -173,7 +173,7 @@ class FeaturesAnalysisExpAlchemy(Base):
                 primary_key=True)
     features_set_id = Column(Integer, ForeignKey('features_set.id'),
                              nullable=False)
-    annotations_filename = Column(String(1000), nullable=False, index=True)
+    annotations_filename = Column(String(1000), nullable=True, index=True)
 
     exp = relationship('ExpAlchemy', back_populates='features_analysis_exp',
                        uselist=False)

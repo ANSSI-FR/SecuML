@@ -29,7 +29,7 @@ class FeaturesAnalysisConf(ExpConf):
         parser = argparse.ArgumentParser(description='Features Analysis')
         ExpConf.gen_parser(parser, filters=False)
         AnnotationsConf.gen_parser(
-                    parser, required=True,
+                    parser, required=False,
                     message='CSV file containing the annotations of some or all'
                             ' the instances.')
         return parser
