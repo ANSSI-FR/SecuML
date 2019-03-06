@@ -26,7 +26,7 @@ class FeaturesAnalysisExperiment(Experiment):
 
     def add_to_db(self):
         Experiment.add_to_db(self)
-        features_set_id = self.exp_conf.features_conf.features_set_id
+        features_set_id = self.exp_conf.features_conf.set_id
         annotations_file = self.exp_conf.annotations_conf.annotations_filename
         stats_exp = FeaturesAnalysisExpAlchemy(
                                        id=self.exp_id,

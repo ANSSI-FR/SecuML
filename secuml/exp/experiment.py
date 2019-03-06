@@ -136,11 +136,10 @@ class Experiment(object):
         self.exp_conf.export()
 
     def add_to_db(self):
-        features_set_id = self.exp_conf.features_conf.features_set_id
         annotations_id = self.exp_conf.annotations_conf.annotations_id
         exp = ExpAlchemy(kind=self.exp_conf.get_kind(),
                          name=self.exp_conf.name,
-                         features_set_id=features_set_id,
+                         features_set_id=self.exp_conf.features_conf.set_id,
                          annotations_id=annotations_id)
         self.session.add(exp)
         self.session.flush()

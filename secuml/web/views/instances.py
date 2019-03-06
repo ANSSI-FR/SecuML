@@ -63,7 +63,5 @@ def getIdent(exp_id, instance_id):
 def getFeatures(exp_id, instance_id):
     instance_id = int(instance_id)
     experiment = update_curr_exp(exp_id)
-    features_from_exp = FeaturesFromExp(experiment)
-    features_names, features_values = features_from_exp.get_instance(instance_id)
-    features = {features_names[i]: v for i, v in enumerate(features_values)}
-    return jsonify(features)
+    f_names, f_values = FeaturesFromExp.get_instance(experiment, instance_id)
+    return jsonify({f_names[i]: v for i, v in enumerate(f_values)})

@@ -55,14 +55,14 @@ function getCoefficientsCallback(exp_id) {
     var callback = function coefficientsCallback(active_bars) {
       var selected_index = active_bars[0]._index;
       var selected_feature = active_bars[0]._view.label;
-
       var query = buildQuery('getFeaturesAnalysisExp', [exp_id]);
       var xmlHttp = new XMLHttpRequest();
       xmlHttp.open('GET', query, false);
       xmlHttp.send(null);
       var stats_exp_id = xmlHttp.responseText;
       if (stats_exp_id != 'None') {
-        var page_query = buildQuery('SecuML', [stats_exp_id, selected_feature]);
+        var page_query = buildQuery('SecuML', ['featuresExp', stats_exp_id,
+                                               selected_feature]);
         window.open(page_query);
       } else {
         var message = ['Features analysis is not available.',

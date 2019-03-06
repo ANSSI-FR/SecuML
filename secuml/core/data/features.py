@@ -34,33 +34,78 @@ class InvalidFeatures(SecuMLcoreException):
         return self.message
 
 
-class Features(object):
+class FeaturesInfo(object):
 
-    def __init__(self, values, ids, names, descriptions, instance_ids):
-        self.instance_ids = instance_ids
-        self.values = np.array(values)
+    def __init__(self, ids, names, descriptions, types):
         self.ids = ids
         self.names = names
         self.descriptions = descriptions
-        self.check_validity()
+        self.types = types
+        self._check_validity()
 
-    def check_validity(self):
+    def num_features(self):
+        return len(self.ids)
+
+    def union(self, info):
+        self.ids.extend(info.ids)
+        self.names.extend(info.names)
+        self.descriptions.extend(info.descriptions)
+        self.types.extend(info.types)
+        self._check_validity()
+
+    def to_json(self):
+        return {'ids': self.ids,
+                'names': self.names,
+                'descriptions': self.descriptions,
+                'types': [type_.name for type_ in self.types]}
+
+    @staticmethod
+    def from_json(obj):
+        return FeaturesInfo(obj['ids'], obj['names'], obj['descriptions'],
+                            [FeatureType[type_] for type_ in obj['types']])
+
+    def _check_validity(self):
+        num_features = len(self.ids)
+        if len(self.names) != num_features:
+            raise InvalidFeatures('There are %d features ids '
+                                  'but %d features names are provided.'
+                                  % (num_features, len(self.names)))
+        if len(self.descriptions) != num_features:
+            raise InvalidFeatures('There are %d features ids '
+                                  'but %d features descriptions are '
+                                  'provided.' % (num_features,
+                                                 len(self.descriptions)))
+        if len(self.types) != num_features:
+            raise InvalidFeatures('There are %d features ids '
+                                  'but %d features types are provided.'
+                                  % (num_features, len(self.types)))
+        for type_ in self.types:
+            if not isinstance(type_, FeatureType):
+                raise InvalidFeatures(
+                            'Features types must be an enum of FeatureType. '
+                            '%s is not a valid value.' % str(type_))
+
+
+class Features(object):
+
+    def __init__(self, values, info, instance_ids):
+        self.values = np.array(values)
+        self.info = info
+        self.instance_ids = instance_ids
+        self._check_validity()
+
+    def _check_validity(self):
         num_instances = self.instance_ids.num_instances()
         if num_instances != 0:
-            num_features = self.values.shape[1]
             if self.values.shape[0] != num_instances:
                 raise InvalidFeatures('There are %d instances '
                                       'but the features of %d are provided.'
                                       % (num_instances, self.values.shape[0]))
-            elif len(self.names) != num_features:
-                raise InvalidFeatures('There are %d features '
-                                      'but %d features names are provided.'
-                                      % (num_features, len(self.names)))
-            elif len(self.descriptions) != num_features:
-                raise InvalidFeatures('There are %d features '
-                                      'but %d features descriptions are '
-                                      'provided.' % (num_features,
-                                                     len(self.descriptions)))
+            num_features = self.info.num_features()
+            if self.values.shape[1] != num_features:
+                raise InvalidFeatures('There are %d features ids '
+                                      'but the features of %d are provided.'
+                                      % (num_features, self.values.shape[1]))
         else:
             if self.values.size != 0:
                 raise InvalidFeatures('There is 0 instance but some features '
@@ -73,39 +118,29 @@ class Features(object):
             self.values = features.values
         else:
             self.values = np.vstack((self.values, features.values))
-        self.check_validity()
-
-    def set_types(self):
-        self.types = [None] * self.num_features()
-        for i in range(self.num_features()):
-            values = self.get_values_from_index(i)
-            if all(v in [0, 1] for v in values):
-                self.types[i] = FeatureType.binary
-            else:
-                self.types[i] = FeatureType.numeric
+        self._check_validity()
 
     def all_positives(self):
         return np.all(self.values >= 0)
 
     def get_from_ids(self, instance_ids):
         values = [self.get_instance_features(i) for i in instance_ids.ids]
-        return Features(values, self.ids, self.names, self.descriptions,
-                        instance_ids)
+        return Features(values, self.info, instance_ids)
 
     def get_names(self):
-        return self.names
+        return self.info.names
 
     def get_descriptions(self):
-        return self.descriptions
+        return self.info.descriptions
 
     def get_ids(self):
-        return self.ids
+        return self.info.ids
 
     def get_values(self):
         return self.values
 
     def num_features(self):
-        return len(self.ids)
+        return self.info.num_features()
 
     def set_instance_features(self, instance_id, features):
         index = self.instance_ids.get_index(instance_id)
@@ -116,5 +151,7 @@ class Features(object):
         return self.values[index]
 
     def get_values_from_index(self, feature_index):
-        return [self.values[i][feature_index]
-                for i in range(self.instance_ids.num_instances())]
+        if self.instance_ids.num_instances() == 0:
+            return []
+        else:
+            return self.values[:, feature_index]

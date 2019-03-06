@@ -31,11 +31,12 @@ class FeaturePlots(object):
 
     def __init__(self, instances, feature_index):
         self.feature_index = feature_index
-        features = instances.features
-        self.feature_type = features.types[self.feature_index]
-        self.feature_name = features.names[self.feature_index]
-        self.feature_id = features.ids[self.feature_index]
-        self.all_values = features.get_values_from_index(self.feature_index)
+        features_info = instances.features.info
+        self.feature_type = features_info.types[self.feature_index]
+        self.feature_name = features_info.names[self.feature_index]
+        self.feature_id = features_info.ids[self.feature_index]
+        self.all_values = instances.features.get_values_from_index(
+                                                            self.feature_index)
         self._gen_plot_datasets(instances)
 
     def compute(self):
@@ -57,10 +58,8 @@ class FeaturePlots(object):
     def export(self, output_dir):
         output_dir = path.join(output_dir, str(self.feature_id))
         os.makedirs(output_dir)
-
         if self.barplot is None:
             return
-
         if self.feature_type == FeatureType.binary:
             self.barplot.export_to_json(path.join(output_dir,
                                                   'binary_histogram.json'))

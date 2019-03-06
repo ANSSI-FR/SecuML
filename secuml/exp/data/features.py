@@ -15,15 +15,12 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import csv
-import os
 import numpy as np
 
 from secuml.core.data.features import Features
 from secuml.core.data.ids import Ids
 from secuml.exp.data import get_dataset_ids
-from secuml.exp.tools.db_tables import FeaturesFilesAlchemy
 from secuml.exp.tools.db_tables import InstancesAlchemy
-from secuml.exp.conf.features import InputFeaturesTypes
 
 
 class FeaturesFromExp(Features):
@@ -32,98 +29,48 @@ class FeaturesFromExp(Features):
         if instance_ids is None:
             dataset_id = exp.exp_conf.dataset_conf.dataset_id
             instance_ids = Ids(get_dataset_ids(exp.session, dataset_id))
-        self._set_exp_conf(exp)
-        ids, names, descriptions = self._set_paths_masks_names()
-        values = self._get_matrix()
-        Features.__init__(self, values, ids, names, descriptions, instance_ids)
+        values = FeaturesFromExp.get_matrix(exp.exp_conf.features_conf.files)
+        Features.__init__(self, values, exp.exp_conf.features_conf.info,
+                          instance_ids)
 
-    def _set_exp_conf(self, exp):
-        self.session = exp.session
-        self.dataset_conf = exp.exp_conf.dataset_conf
-        self.dataset_id = self.dataset_conf.dataset_id
-        self.exp_id = exp.exp_conf.exp_id
-        self.exp_conf = exp.exp_conf
-        self.features_conf = self.exp_conf.features_conf
+    @staticmethod
+    def get_matrix(features_files):
+        features = None
+        for _, f_path, f_mask in features_files:
+            with open(f_path, 'r') as f:
+                f.readline()  # skip header
+                reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+                matrix = list(list(rec) for rec in reader)
+                matrix = np.array([l[1:] for l in matrix])
+                if f_mask is not None:
+                    matrix = matrix[:, f_mask]
+                if features is None:
+                    features = matrix
+                else:
+                    features = np.hstack((features, matrix))
+        return features
 
-    def _set_paths_masks_names(self):
-        ids = []
-        names = []
-        descriptions = []
-        dataset_dir = self.dataset_conf.input_dir(self.exp_conf.secuml_conf)
-        dir_ = os.path.join(dataset_dir, 'features')
-
-        if self.features_conf.input_type == InputFeaturesTypes.dir:
-            dir_ = os.path.join(dir_, self.features_conf.input_features)
-        self.paths_masks = []
-        for file_id in self.features_conf.features_files_ids:
-            query = self.session.query(FeaturesFilesAlchemy)
-            query = query.filter(FeaturesFilesAlchemy.id == file_id)
-            row = query.one()
-            # file path
-            file_path = os.path.join(dir_, row.filename)
-            # user ids
-            with open(file_path, 'r') as f:
-                user_ids = f.readline().rstrip().split(',')[1:]
-                user_ids_indexes = {}
-                for i, user_id in enumerate(user_ids):
-                    user_ids_indexes[user_id] = i
-            # mask
-            if self.features_conf.filter_in is not None:
-                mask = [user_id in self.features_conf.filter_in
-                        for user_id in user_ids]
-            elif self.features_conf.filter_out is not None:
-                mask = [user_id not in self.features_conf.filter_out
-                        for user_id in user_ids]
-            else:
-                mask = [True for _ in row.features]
-            self.paths_masks.append((file_path, mask))
-
-            # ids, names, descriptions
-            f_ids = [None for _ in user_ids]
-            f_names = [None for _ in user_ids]
-            f_descriptions = [None for _ in user_ids]
-
-            for f in row.features:
-                index = user_ids_indexes[f.user_id]
-                f_ids[index] = f.id
-                f_names[index] = f.name
-                f_descriptions[index] = f.description
-
-            ids.extend([id for i, id in enumerate(f_ids) if mask[i]])
-            names.extend([name for i, name in enumerate(f_names) if mask[i]])
-            descriptions.extend([d for i, d in enumerate(f_descriptions) if mask[i]])
-
-        return ids, names, descriptions
-
-    def get_instance(self, instance_id):
-        query = self.session.query(InstancesAlchemy)
-        query = query.filter(InstancesAlchemy.dataset_id == self.dataset_id)
+    @staticmethod
+    def get_instance(exp, instance_id):
+        dataset_id = exp.exp_conf.dataset_conf.dataset_id
+        query = exp.session.query(InstancesAlchemy)
+        query = query.filter(InstancesAlchemy.dataset_id == dataset_id)
         query = query.filter(InstancesAlchemy.id == instance_id)
         row_number = query.one().row_number
-        features_values = []
-        for features_file, mask in self.paths_masks:
+        values = []
+        features_conf = exp.exp_conf.features_conf
+        for _, f_path, f_mask in features_conf.files:
             line = 1
-            with open(features_file, 'r') as f_file:
+            with open(f_path, 'r') as f_file:
                 next(f_file)  # skip header
                 while line < row_number:
                     next(f_file)
                     line = line + 1
                 row = next(f_file).rstrip(),
                 features_reader = csv.reader(row)
-                values = np.array(next(features_reader)[1:])[mask]
-                features_values = np.hstack((features_values, values))
-        return self.names, features_values
-
-    def _get_matrix(self):
-        features = None
-        for csv_file, mask in self.paths_masks:
-            with open(csv_file, 'r') as f:
-                f.readline()  # skip header
-                reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-                matrix = list(list(rec) for rec in reader)
-                matrix = np.array([l[1:] for l in matrix])[:, mask]
-                if features is None:
-                    features = matrix
-                else:
-                    features = np.hstack((features, matrix))
-        return features
+                v = np.array(next(features_reader)[1:])
+                if f_mask is not None:
+                    v = v[f_mask]
+                values = np.hstack((values, v))
+        values = [float(x) for x in values]
+        return features_conf.info.names, values

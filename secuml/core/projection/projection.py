@@ -23,6 +23,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from secuml.core.data.features import Features
+from secuml.core.data.features import FeaturesInfo
+from secuml.core.data.features import FeatureType
 from secuml.core.data.instances import Instances
 from .monitoring.perf import PerfMonitoring
 from .monitoring.visu import Visualization
@@ -59,10 +61,13 @@ class Projection(object):
         features_values = instances.features.get_values()
         features_names = instances.features.get_names()
         projected_features = self.component_labels(features_names)
+        projection_types = [FeatureType.numeric
+                            for _ in range(self.num_components)]
         projection = Features(self.pipeline.transform(features_values),
-                              range(len(projected_features)),
-                              projected_features,
-                              projected_features,
+                              FeaturesInfo(range(len(projected_features)),
+                                           projected_features,
+                                           projected_features,
+                                           projection_types),
                               instances.ids)
         return Instances(instances.ids, projection, instances.annotations,
                          instances.ground_truth)

@@ -299,10 +299,10 @@ class FeaturesFilesAlchemy(Base):
     __tablename__ = 'features_files'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    features_set_id = Column(Integer, ForeignKey('features_set.id',
-                                                 ondelete='CASCADE'),
-                             nullable=False)
+    set_id = Column(Integer, ForeignKey('features_set.id', ondelete='CASCADE'),
+                    nullable=False)
     filename = Column(String(256), nullable=False)
+    path = Column(String(256), nullable=False)
     hash = Column(String(32), nullable=False)
 
     features_set = relationship('FeaturesSetsAlchemy',
@@ -320,11 +320,12 @@ class FeaturesAlchemy(Base):
     file_id = Column(Integer,
                      ForeignKey('features_files.id', ondelete='CASCADE'),
                      nullable=False)
-    features_set_id = Column(Integer, ForeignKey('features_set.id',
-                                                 ondelete='CASCADE'),
-                             nullable=False)
+    set_id = Column(Integer, ForeignKey('features_set.id', ondelete='CASCADE'),
+                    nullable=False)
     name = Column(Text, nullable=False)
     description = Column(Text, nullable=False)
+    type = Column(Enum('binary', 'numeric', name='feature_type'),
+                  nullable=False)
 
     features_file = relationship('FeaturesFilesAlchemy',
                                  back_populates='features', uselist=False)

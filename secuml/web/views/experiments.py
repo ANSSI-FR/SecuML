@@ -24,6 +24,7 @@ from sqlalchemy import desc
 from secuml.exp import experiment
 from secuml.exp.experiment import get_project_dataset
 from secuml.exp.tools.db_tables import DatasetsAlchemy
+from secuml.exp.tools.db_tables import FeaturesAlchemy
 from secuml.exp.tools.db_tables import FeaturesSetsAlchemy
 from secuml.exp.tools.db_tables import ExpAlchemy
 from secuml.exp.tools.db_tables import ExpRelationshipsAlchemy
@@ -115,7 +116,7 @@ def getAllExperiments(project, dataset):
 def getFeaturesAnalysisExp(exp_id):
     exp = update_curr_exp(exp_id)
     features_exp_id = None
-    features_set_id = exp.exp_conf.features_conf.features_set_id
+    features_set_id = exp.exp_conf.features_conf.set_id
     query = exp.session.query(FeaturesAnalysisExpAlchemy)
     query = query.filter(FeaturesAnalysisExpAlchemy.features_set_id ==
                          features_set_id)
@@ -136,7 +137,19 @@ def getFeaturesAnalysisExp(exp_id):
     return str(features_exp_id)
 
 
-@app.route('/SecuML/<exp_id>/<feature>/')
-def getFeaturesAnalysisExperiment(exp_id, feature):
+@app.route('/SecuML/featuresExp/<exp_id>/<f_user_id>/')
+def featuresExp(exp_id, f_user_id):
     exp = update_curr_exp(exp_id)
-    return render_template(exp.web_template(), feature={'feature': feature})
+    # get feature intern id from feature user_id
+    features_set_id = exp.exp_conf.features_conf.set_id
+    query = exp.session.query(FeaturesAlchemy)
+    query = query.filter(FeaturesAlchemy.set_id == features_set_id)
+    query = query.filter(FeaturesAlchemy.user_id == f_user_id)
+    f_id = query.one().id
+    return redirect('/SecuML/%s/%i/' % (exp_id, f_id))
+
+
+@app.route('/SecuML/<exp_id>/<f_id>/')
+def getFeaturesAnalysisExperiment(exp_id, f_id):
+    exp = update_curr_exp(exp_id)
+    return render_template(exp.web_template())

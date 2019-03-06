@@ -98,15 +98,16 @@ class FeaturesScoring(object):
             if has_pvalue:
                 scores_dict['_'.join([func, 'pvalues'])] = p_values
         self.scores = pd.DataFrame(scores_dict,
-                                   index=self.instances.features.ids)
+                                   index=self.instances.features.info.ids)
 
     def _compute_features_scoring_ranking(self):
         self.features_scores = {}
-        for i, feature_id in enumerate(self.instances.features.ids):
+        for i, feature_id in enumerate(self.instances.features.info.ids):
             # Store values / pvalues
-            self.features_scores[feature_id] = FeatureScoring(feature_id,
-                                                              self.scores,
-                                                              self.scoring_func)
+            self.features_scores[feature_id] = FeatureScoring(
+                                                            feature_id,
+                                                            self.scores,
+                                                            self.scoring_func)
         # Store ranks
         for func, _ in self.scoring_func:
             sort_data_frame(self.scores, func, False, True)
@@ -129,13 +130,14 @@ class FeaturesScoring(object):
         if func == 'f_classif':
             return f_classif(features, annotations)
         elif func == 'mutual_info_classif':
-            features_types = self.instances.features.types
+            features_types = self.instances.features.info.types
             discrete_indexes = [i for i, t in enumerate(features_types)
                                 if t == FeatureType.binary]
             if not discrete_indexes:
                 discrete_indexes = False
-            return mutual_info_classif(features, annotations,
-                                       discrete_features=discrete_indexes), None
+            return (mutual_info_classif(features, annotations,
+                                        discrete_features=discrete_indexes),
+                    None)
         elif func == 'chi2':
             return chi2(features, annotations)
         else:

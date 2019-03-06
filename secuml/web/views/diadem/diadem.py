@@ -195,26 +195,22 @@ def getTopWeightedFeatures(exp_id, instance_id, size):
     classifier = get_classifier(exp_id)
     # get the features
     exp = update_curr_exp(exp_id)
-    features_from_exp = FeaturesFromExp(exp)
-    features_names, features_values = features_from_exp.get_instance(instance_id)
-    features_values = [float(value) for value in features_values]
+    f_names, f_values = FeaturesFromExp.get_instance(exp, instance_id)
     # scale the features
     scaled_values = classifier.named_steps['scaler'].transform(np.reshape(
-                                                    features_values, (1, -1)))
+                                                    f_values, (1, -1)))
     weighted_values = np.multiply(scaled_values,
                                   classifier.named_steps['model'].coef_)
     features = list(map(lambda name, value, w_value: (name, value, w_value),
-                        features_names, features_values, weighted_values[0]))
+                        f_names, f_values, weighted_values[0]))
     features.sort(key=lambda tup: abs(tup[2]))
     features = features[:-int(size) - 1:-1]
-    features_names = [x[0] for x in features]
-    features_values = [x[1] for x in features]
-    features_weighted_values = [x[2] for x in features]
-    labels = [str(name) for name in features_names]
-    tooltips = ['%s (%.2f)' % (name, features_values[i])
-                for i, name in enumerate(features_names)]
+    f_names, f_values, f_weighted = list(zip(*features))
+    labels = [str(name) for name in f_names]
+    tooltips = ['%s (%.2f)' % (name, f_values[i])
+                for i, name in enumerate(f_names)]
     barplot = BarPlot(labels)
-    dataset = PlotDataset(features_weighted_values, None)
+    dataset = PlotDataset(f_weighted, None)
     dataset.set_color(red)
     barplot.add_dataset(dataset)
     return jsonify(barplot.to_json(tooltip_data=tooltips))

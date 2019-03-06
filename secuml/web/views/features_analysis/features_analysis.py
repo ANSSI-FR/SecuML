@@ -31,20 +31,14 @@ from secuml.exp.features_analysis import FeaturesAnalysisExperiment
 @app.route('/getFeaturesInfo/<exp_id>/')
 def getFeaturesInfo(exp_id):
     exp = update_curr_exp(exp_id)
-    features_types_f = path.join(exp.output_dir(), 'features_types.json')
-    with open(features_types_f, 'r') as f:
-        features_types = json.load(f)
-        types_descriptions = {}
-        for feature_id, feature_type in features_types.items():
-            query = session.query(FeaturesAlchemy)
-            query = query.filter(FeaturesAlchemy.id == feature_id)
-            res = query.one()
-            user_id, name, description = res.user_id, res.name, res.description
-            types_descriptions[feature_id] = {'type': feature_type,
-                                              'user_id': user_id,
-                                              'name': name,
-                                              'description': description}
-    return jsonify(types_descriptions)
+    features_set_id = exp.exp_conf.features_conf.set_id
+    query = session.query(FeaturesAlchemy)
+    query = query.filter(FeaturesAlchemy.set_id == features_set_id)
+    return jsonify({res.id: {'type': res.type,
+                             'user_id': res.user_id,
+                             'name': res.name,
+                             'description': res.description
+                             } for res in query.all()})
 
 
 @app.route('/getSortingCriteria/<exp_id>/')

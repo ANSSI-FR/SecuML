@@ -18,6 +18,7 @@ from enum import Enum
 
 from secuml.core.conf import Conf
 from secuml.core.conf import exportFieldMethod
+from secuml.core.data.features import FeaturesInfo
 
 
 class InputFeaturesTypes(Enum):
@@ -27,25 +28,37 @@ class InputFeaturesTypes(Enum):
 
 class FeaturesConf(Conf):
 
-    def __init__(self, input_features, logger, filter_in_filename=None,
-                 filter_out_filename=None):
+    def __init__(self, input_features, logger, filter_in_f=None,
+                 filter_out_f=None):
         Conf.__init__(self, logger)
         self.input_features = input_features
-        self.filter_in_filename = filter_in_filename
-        self.filter_out_filename = filter_out_filename
+        self.filter_in_f = filter_in_f
+        self.filter_out_f = filter_out_f
         self.input_type = None
-        self.features_set_id = None
-        self.features_files_ids = []
-        self.filter_in = None
-        self.filter_out = None
+        self.set_id = None
+        self.files = None
+        self.info = None
+
+    def set_input_type(self, input_type):
+        self.input_type = input_type
+
+    def set_set_id(self, set_id):
+        self.set_id = set_id
+
+    def set_info(self, info):
+        self.info = info
+
+    def set_files(self, files):
+        self.files = files
 
     def fields_to_export(self):
         return [('input_features', exportFieldMethod.primitive),
                 ('input_type', exportFieldMethod.enum_value),
-                ('features_set_id', exportFieldMethod.primitive),
-                ('features_files_ids', exportFieldMethod.primitive),
-                ('filter_in', exportFieldMethod.primitive),
-                ('filter_out', exportFieldMethod.primitive)]
+                ('set_id', exportFieldMethod.primitive),
+                ('files', exportFieldMethod.primitive),
+                ('info', exportFieldMethod.obj),
+                ('filter_in_f', exportFieldMethod.primitive),
+                ('filter_out_f', exportFieldMethod.primitive)]
 
     @staticmethod
     def gen_parser(parser, filters=True):
@@ -73,21 +86,21 @@ class FeaturesConf(Conf):
     @staticmethod
     def from_args(args, logger):
         if hasattr(args, 'filter_in'):
-            filter_in_filename = args.filter_in
-            filter_out_filename = args.filter_out
+            filter_in_f = args.filter_in
+            filter_out_f = args.filter_out
         else:
-            filter_in_filename = None
-            filter_out_filename = None
+            filter_in_f = None
+            filter_out_f = None
         return FeaturesConf(args.input_features, logger,
-                            filter_in_filename=filter_in_filename,
-                            filter_out_filename=filter_out_filename)
+                            filter_in_f=filter_in_f, filter_out_f=filter_out_f)
 
     @staticmethod
     def from_json(conf_json, logger):
-        conf = FeaturesConf(conf_json['input_features'], logger)
-        conf.input_type = InputFeaturesTypes[conf_json['input_type']]
-        conf.features_set_id = conf_json['features_set_id']
-        conf.features_files_ids = conf_json['features_files_ids']
-        conf.filter_in = conf_json['filter_in']
-        conf.filter_out = conf_json['filter_out']
+        conf = FeaturesConf(conf_json['input_features'], logger,
+                            filter_in_f=conf_json['filter_in_f'],
+                            filter_out_f=conf_json['filter_out_f'])
+        conf.set_input_type(conf_json['input_type'])
+        conf.set_set_id(conf_json['set_id'])
+        conf.set_info(FeaturesInfo.from_json(conf_json['info']))
+        conf.set_files(conf_json['files'])
         return conf

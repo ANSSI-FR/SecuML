@@ -74,7 +74,8 @@ class AladinQueries(Queries):
         self.naive_bayes = GaussianNaiveBayes(naive_bayes_conf)
         _, self.nb_time = self.naive_bayes.training(train_instances)
         num_test_instances = self.test_instances.num_instances()
-        self.test_instances.annotations.set_families([None] * num_test_instances)
+        self.test_instances.annotations.set_families(
+                                [None for i in range(num_test_instances)])
         start_time = time.time()
         if num_test_instances == 0:
             self.nb_predicted_log_proba = []
