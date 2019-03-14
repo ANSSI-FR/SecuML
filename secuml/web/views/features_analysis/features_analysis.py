@@ -16,7 +16,6 @@
 
 from decimal import Decimal
 from flask import jsonify, send_file
-import json
 import os.path as path
 import pandas as pd
 
@@ -25,7 +24,7 @@ from secuml.web.views.experiments import update_curr_exp
 
 from secuml.core.tools.matrix import sort_data_frame
 from secuml.exp.tools.db_tables import FeaturesAlchemy
-from secuml.exp.features_analysis import FeaturesAnalysisExperiment
+from secuml.exp.features_analysis import FeaturesAnalysisExperiment   # NOQA
 
 
 @app.route('/getFeaturesInfo/<exp_id>/')

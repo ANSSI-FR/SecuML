@@ -73,11 +73,11 @@ class ClusteringExperiment(Experiment):
         clustering.generate(drop_annotated_instances=drop_annotated_instances)
         clustering.export(self.output_dir(), quick=quick)
 
-    def set_clusters(self, instances, assigned_clusters, assignment_proba,
-                     centroids, drop_annotated_instances, cluster_labels):
+    def set_clusters(self, instances, assigned_clusters, centroids,
+                     drop_annotated_instances, cluster_labels):
         Experiment.run(self)
         clustering = Clusters(instances, assigned_clusters)
-        clustering.generate(assignment_proba, centroids,
+        clustering.generate(centroids,
                             drop_annotated_instances=drop_annotated_instances,
                             cluster_labels=cluster_labels)
         clustering.export(self.output_dir(),

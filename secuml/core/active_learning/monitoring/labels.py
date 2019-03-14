@@ -29,7 +29,8 @@ class LabelsMonitoring(object):
 
     def __init__(self, monitoring):
         self.monitoring = monitoring
-        self.has_ground_truth = self.monitoring.datasets.instances.has_ground_truth()
+        instances = self.monitoring.datasets.instances
+        self.has_ground_truth = instances.has_ground_truth()
 
     def generate(self):
         instances = self.monitoring.datasets.instances

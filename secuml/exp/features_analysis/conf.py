@@ -30,8 +30,8 @@ class FeaturesAnalysisConf(ExpConf):
         ExpConf.gen_parser(parser, filters=False)
         AnnotationsConf.gen_parser(
                     parser, required=False,
-                    message='CSV file containing the annotations of some or all'
-                            ' the instances.')
+                    message='CSV file containing the annotations of some or '
+                            'all the instances.')
         return parser
 
     @staticmethod
@@ -52,8 +52,8 @@ class FeaturesAnalysisConf(ExpConf):
         features_conf = FeaturesConf.from_json(conf_json['features_conf'],
                                                secuml_conf.logger)
         annotations_conf = AnnotationsConf.from_json(
-                                                  conf_json['annotations_conf'],
-                                                  secuml_conf.logger)
+                                                 conf_json['annotations_conf'],
+                                                 secuml_conf.logger)
         conf = FeaturesAnalysisConf(secuml_conf, dataset_conf, features_conf,
                                     annotations_conf, None,
                                     name=conf_json['name'],

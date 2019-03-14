@@ -31,8 +31,10 @@ class ClusteringEvaluationMonitoring(object):
             'homogeneity', 'completeness', 'v_measure']
         self.adjusted_estimators = [
             'adjusted_rand_score', 'adjusted_mutual_info_score']
+        self.all_estimators = self.homogeneity_estimators
+        self.all_estimators.extend(self.adjusted_estimators)
         self.evolution_file = path.join(self.monitoring.AL_directory,
-                                        'clustering_homogeneity_monitoring.csv')
+                                        'homogeneity_monitoring.csv')
         self.annotations = self.monitoring.iteration.annotations
         self.set_output_dir()
 
@@ -57,11 +59,10 @@ class ClusteringEvaluationMonitoring(object):
             v.append(self.monitoring.iter_num)
             for l, evaluation in clusterings.items():
                 if evaluation is not None:
-                    for e in self.homogeneity_estimators + self.adjusted_estimators:
+                    for e in self.all_estimators:
                         v.append(getattr(evaluation, e))
                 else:
-                    v += [0] * (len(self.homogeneity_estimators) +
-                                len(self.adjusted_estimators))
+                    v.extend([0 for _ in range(len(self.all_estimators))])
             csv_writer = csv.writer(f)
             csv_writer.writerow(v)
 
@@ -70,7 +71,7 @@ class ClusteringEvaluationMonitoring(object):
             header = ['iteration']
             clusterings = self.annotations.getClusteringsEvaluations()
             for l in list(clusterings.keys()):
-                for e in self.homogeneity_estimators + self.adjusted_estimators:
+                for e in self.all_estimators:
                     header.append(l + '_' + e)
             csv_writer = csv.writer(f)
             csv_writer.writerow(header)
@@ -81,7 +82,7 @@ class ClusteringEvaluationMonitoring(object):
 
     def plot_evolution(self, estimator=None):
         if estimator is None:
-            for e in self.homogeneity_estimators + self.adjusted_estimators:
+            for e in self.all_estimators:
                 self.plot_evolution(estimator=e)
         else:
             iterations = list(range(self.monitoring.iter_num))

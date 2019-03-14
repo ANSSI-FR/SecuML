@@ -43,13 +43,14 @@ class TrainConf(ExpConf):
         features_conf = FeaturesConf.from_json(conf_json['features_conf'],
                                                logger)
         annotations_conf = AnnotationsConf.from_json(
-                                                  conf_json['annotations_conf'],
-                                                  logger)
+                                                 conf_json['annotations_conf'],
+                                                 logger)
         factory = classifiers.get_factory()
         core_conf = factory.from_json(conf_json['core_conf'], logger)
         exp_conf = TrainConf(secuml_conf, dataset_conf, features_conf,
                              annotations_conf, core_conf,
-                             name=conf_json['name'], parent=conf_json['parent'],
+                             name=conf_json['name'],
+                             parent=conf_json['parent'],
                              fold_id=conf_json['fold_id'])
         exp_conf.exp_id = conf_json['exp_id']
         return exp_conf
@@ -79,8 +80,8 @@ class TestConf(ExpConf):
         features_conf = FeaturesConf.from_json(conf_json['features_conf'],
                                                logger)
         annotations_conf = AnnotationsConf.from_json(
-                                                  conf_json['annotations_conf'],
-                                                  logger)
+                                                 conf_json['annotations_conf'],
+                                                 logger)
         factory = classifiers.get_factory()
         classifier_conf = factory.from_json(conf_json['core_conf'], logger)
         exp_conf = TestConf(secuml_conf, dataset_conf, features_conf,

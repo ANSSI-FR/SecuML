@@ -56,7 +56,8 @@ class TestConf(Conf):
                             default='RandomSplit',
                             help='Default: RandomSplit. '
                                  'TemporalSplit, CutoffTime, TemporalCv, and '
-                                 'SlidingWindow require timestamped instances.')
+                                 'SlidingWindow require timestamped '
+                                 'instances.')
         for method in methods:
             method_group = parser.add_argument_group(method + ' arguments')
             get_factory().gen_parser(method, method_group)

@@ -29,7 +29,8 @@ class ExecutionTimesMonitoring(object):
         return
 
     def export(self, al_dir, iter_dir):
-        monitoring_dir, evolution_file = self._get_output_dirs(al_dir, iter_dir)
+        monitoring_dir, evolution_file = self._get_output_dirs(al_dir,
+                                                               iter_dir)
         self._display_csv_line(evolution_file)
         self._plot_evolution(evolution_file, monitoring_dir)
 

@@ -32,7 +32,6 @@ class Rcd(CoreRcd):
         self.iteration.exp.session.add(rcd_row)
         query = self.queries['rcd']
         query.run(predictions)
-        clustering_exp = -1
         if query.clustering_exp is not None:
             rcd_row.clustering_exp = query.clustering_exp.exp_id
         else:

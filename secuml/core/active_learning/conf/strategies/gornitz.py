@@ -20,7 +20,8 @@ from secuml.core.active_learning.strategies.gornitz import Gornitz
 from secuml.core.classif.conf import ClassificationConf
 from secuml.core.classif.conf.hyperparam import HyperparamConf
 from secuml.core.classif.conf.classifiers.sssvdd import SssvddConf
-from secuml.core.classif.conf.test.unlabeled_labeled import UnlabeledLabeledConf
+from secuml.core.classif.conf.test.unlabeled_labeled \
+        import UnlabeledLabeledConf
 from secuml.core.conf import exportFieldMethod
 
 

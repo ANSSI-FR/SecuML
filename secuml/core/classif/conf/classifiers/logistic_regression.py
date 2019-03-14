@@ -58,8 +58,8 @@ class LogisticRegressionConf(SupervisedClassifierConf):
         hyper = {}
         hyper['regularization'] = {}
         hyper['regularization']['values'] = {
-                                       'type': float,
-                                       'default': list(10. ** np.arange(-2, 2))}
+                                      'type': float,
+                                      'default': list(10. ** np.arange(-2, 2))}
         hyper['regularization']['sklearn_name'] = 'C'
         hyper['penalty'] = {}
         hyper['penalty']['values'] = {'choices': ['l1', 'l2'],
@@ -87,7 +87,7 @@ class LogisticRegressionConf(SupervisedClassifierConf):
     def from_args(args, hyperparam_conf, logger):
         try:
             optim_algo = args.optim_algo
-        except:
+        except Exception:
             optim_algo = 'liblinear'
         return LogisticRegressionConf(args.multiclass, optim_algo,
                                       hyperparam_conf, logger)

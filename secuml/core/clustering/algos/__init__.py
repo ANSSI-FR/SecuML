@@ -53,12 +53,12 @@ class ClusteringAlgorithm(object):
         self.pipeline.fit(self.instances.features.get_values())
 
     def generate(self, drop_annotated_instances=False):
-        self.clustering = Clusters(self.instances, self.get_assigned_clusters(),
+        self.clustering = Clusters(self.instances,
+                                   self.get_assigned_clusters(),
                                    clustering_algo=self)
         self.clustering.generate(
-                self.get_all_proba(),
-                self.get_centroids(),
-                drop_annotated_instances=drop_annotated_instances)
+                            self.get_centroids(),
+                            drop_annotated_instances=drop_annotated_instances)
 
     def export(self, output_dir, quick=False):
         self.clustering.export(output_dir)

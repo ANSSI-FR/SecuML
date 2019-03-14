@@ -36,8 +36,9 @@ class Lda(SemiSupervisedProjection):
         self.projection_matrix = self.projection.scalings_
 
     def gen_input_labels(self, instances):
-        labels, instances = SemiSupervisedProjection.gen_input_labels(self,
-                                                                      instances)
+        labels, instances = SemiSupervisedProjection.gen_input_labels(
+                                                                     self,
+                                                                     instances)
         num_classes = len(set(labels))
         if (self.conf.num_components is not None and
                 self.conf.num_components > num_classes - 1):

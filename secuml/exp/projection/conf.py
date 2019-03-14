@@ -60,8 +60,8 @@ class ProjectionConf(ExpConf):
         features_conf = FeaturesConf.from_json(conf_json['features_conf'],
                                                secuml_conf.logger)
         annotations_conf = AnnotationsConf.from_json(
-                                                  conf_json['annotations_conf'],
-                                                  secuml_conf.logger)
+                                                 conf_json['annotations_conf'],
+                                                 secuml_conf.logger)
         core_conf = projection_conf.get_factory().from_json(
                                                     conf_json['core_conf'],
                                                     secuml_conf.logger)

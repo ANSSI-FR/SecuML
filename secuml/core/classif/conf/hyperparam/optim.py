@@ -71,7 +71,8 @@ class OptimConf(Conf):
             return None
         factory = objective_func.get_factory()
         obj_func_conf = factory.from_json(obj['objective_func'], logger)
-        return OptimConf(obj['num_folds'], obj['n_jobs'], obj_func_conf, logger)
+        return OptimConf(obj['num_folds'], obj['n_jobs'], obj_func_conf,
+                         logger)
 
     @staticmethod
     def from_args(args, logger):
@@ -79,7 +80,8 @@ class OptimConf(Conf):
         if args.multiclass:
             obj_func_conf = factory.from_args('Accuracy', args, logger)
         else:
-            obj_func_conf = factory.from_args(args.objective_func, args, logger)
+            obj_func_conf = factory.from_args(args.objective_func, args,
+                                              logger)
         return OptimConf(args.num_folds, args.n_jobs, obj_func_conf, logger)
 
     @staticmethod

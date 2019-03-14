@@ -105,7 +105,8 @@ class Classifier(object):
             return Predictions([], [], [], [], instances.ids)
         features = instances.features.get_values()
         predictions = self._predict(features)
-        all_probas, probas = self._get_predicted_probas(features, num_instances)
+        all_probas, probas = self._get_predicted_probas(features,
+                                                        num_instances)
         scores = self._get_predicted_scores(features, num_instances)
         return Predictions(list(predictions), all_probas, probas, scores,
                            instances.ids)

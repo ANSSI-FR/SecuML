@@ -57,7 +57,8 @@ class Rca(SemiSupervisedProjection):
             labels = instances.annotations.get_families()
         else:
             labels = instances.annotations.get_labels()
-        # String labels are transformed into integer labels (0 -> num_labels-1).
+        # String labels are transformed into integer labels
+        # (0 -> num_labels-1).
         # This format is required by the metric-learn library.
         # None labels are transformed into -1.
         labels_values = list(set(labels).difference(set([None])))

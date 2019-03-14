@@ -42,8 +42,8 @@ class Clusters(object):
     def init_clusters_list(self, num_clusters):
         self.clusters = [Cluster() for x in range(num_clusters)]
 
-    def generate(self, assignment_proba, centroids,
-                 drop_annotated_instances=False, cluster_labels=None):
+    def generate(self, centroids, drop_annotated_instances=False,
+                 cluster_labels=None):
         self.init_clusters_list(self.num_clusters)
         if cluster_labels is not None:
             for x in range(self.num_clusters):
@@ -53,9 +53,6 @@ class Clusters(object):
             instance_id = ids[i]
             annotated = self.instances.annotations.is_annotated(instance_id)
             c = self.assigned_clusters[i]
-            proba = None
-            if assignment_proba is not None:
-                proba = assignment_proba[i, :]
             label = self.instances.annotations.get_label(instance_id)
             family = self.instances.annotations.get_family(instance_id)
             if centroids is not None:
@@ -72,7 +69,7 @@ class Clusters(object):
         unknown_cluster_id = 0
         for c in range(self.num_clusters):
             unknown_cluster_id = self.clusters[c].final_computation(
-                                                             unknown_cluster_id)
+                                                            unknown_cluster_id)
 
     def gen_eval(self, output_dir, quick=False):
         self.evaluation.gen_eval(output_dir, quick=quick)

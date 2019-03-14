@@ -16,6 +16,7 @@
 
 import os.path as path
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql.expression import null
 
 from secuml.exp import experiment
 from secuml.exp.conf.annotations import AnnotationsConf
@@ -152,9 +153,9 @@ class DiademExp(Experiment):
 
     def _get_trained_classifier(self, train_exp_id):
         trained_exp = experiment.get_factory().from_exp_id(
-                                                      train_exp_id,
-                                                      self.exp_conf.secuml_conf,
-                                                      self.session)
+                                                     train_exp_id,
+                                                     self.exp_conf.secuml_conf,
+                                                     self.session)
         trained_conf = trained_exp.exp_conf.core_conf
         trained_classifier = trained_conf.model_class(trained_conf)
         trained_classifier.load_model(path.join(trained_exp.output_dir(),
@@ -172,9 +173,10 @@ class DiademExp(Experiment):
             query = self.session.query(DiademExpAlchemy)
             query = query.join(DiademExpAlchemy.exp)
             query = query.join(ExpAlchemy.parents)
-            query = query.filter(ExpRelationshipsAlchemy.parent_id == already_trained_id)
+            query = query.filter(
+                       ExpRelationshipsAlchemy.parent_id == already_trained_id)
             query = query.filter(DiademExpAlchemy.type == 'train')
-            query = query.filter(DiademExpAlchemy.fold_id == None)
+            query = query.filter(DiademExpAlchemy.fold_id == null())
             res = query.one()
             return res.exp_id
         elif model_exp.kind == 'ActiveLearning':
@@ -193,7 +195,8 @@ class DiademExp(Experiment):
             dataset_conf = DatasetConf(self.exp_conf.dataset_conf.project,
                                        self.test_conf.test_dataset,
                                        self.exp_conf.secuml_conf.logger)
-            annotations_conf = AnnotationsConf('ground_truth.csv', None, logger)
+            annotations_conf = AnnotationsConf('ground_truth.csv', None,
+                                               logger)
         else:
             dataset_conf = self.exp_conf.dataset_conf
             annotations_conf = self.exp_conf.annotations_conf
@@ -270,8 +273,8 @@ class DiademExp(Experiment):
         add_diadem_exp_to_db(self.session, self.exp_conf.exp_id, None, 'cv',
                              classifier_conf=classifier_conf)
         global_cv_monitoring = CvMonitoring(
-                                        self, self.test_conf.num_folds,
-                                        self.exp_conf.core_conf.classifier_conf)
+                                       self, self.test_conf.num_folds,
+                                       self.exp_conf.core_conf.classifier_conf)
         global_cv_monitoring.init(cv_datasets.get_features_ids())
         for fold_id, datasets in enumerate(cv_datasets._datasets):
             classifier, test_predictions = self._run_one_fold(datasets,

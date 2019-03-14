@@ -23,19 +23,16 @@ import sys
 
 from secuml.core.tools.color import display_in_green
 from secuml.core.tools.color import display_in_red
-
+from secuml.core.tools.core_exceptions import SecuMLcoreException
 from secuml.exp import experiment
+from secuml.exp.active_learning import ActiveLearningExp  # NOQA
+from secuml.exp.active_learning import RcdExp  # NOQA
 from secuml.exp.conf.secuml import SecuMLConf
 from secuml.exp.data.project_dataset import rm_project_from_db
-
-from secuml.exp.active_learning.active_learning import ActiveLearningExperiment
-from secuml.exp.active_learning.rcd import RcdExperiment
-from secuml.exp.diadem import DiademExp
-from secuml.exp.clustering import ClusteringExperiment
-from secuml.exp.features_analysis import FeaturesAnalysisExperiment
-from secuml.exp.projection import ProjectionExperiment
-
-from secuml.core.tools.core_exceptions import SecuMLcoreException
+from secuml.exp.diadem import DiademExp  # NOQA
+from secuml.exp.clustering import ClusteringExperiment  # NOQA
+from secuml.exp.features_analysis import FeaturesAnalysisExperiment  # NOQA
+from secuml.exp.projection import ProjectionExperiment  # NOQA
 from secuml.exp.tools.exp_exceptions import SecuMLexpException
 
 

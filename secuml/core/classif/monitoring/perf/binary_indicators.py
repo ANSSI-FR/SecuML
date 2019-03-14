@@ -187,7 +187,8 @@ class BinaryIndicators(object):
 
     def get_perf_estimator(self, estimator, threshold=50):
         if self.probabilist:
-            return self.perf_threshold_summary[threshold].loc[estimator, 'mean']
+            return self.perf_threshold_summary[threshold].loc[estimator,
+                                                              'mean']
         else:
             return self.perf_threshold_summary.loc[estimator, 'mean']
 

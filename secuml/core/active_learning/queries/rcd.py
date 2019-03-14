@@ -47,12 +47,13 @@ class RcdQueries(Queries):
 
     def _check_input_data(self, input_checking):
         instances = self.iteration.datasets.instances
-        self.annotated_instances = instances.get_annotated_instances(label=self.label)
-        num_families = len(self.annotated_instances.annotations.get_families_values())
-        if num_families < 2:
+        self.annotated_instances = instances.get_annotated_instances(
+                                                              label=self.label)
+        annotations = self.annotated_instances.annotations
+        families_counts = annotations.get_families_count()
+        if len(families_counts) < 2:
             self.families_analysis = False
         else:
-            families_counts = self.annotated_instances.annotations.get_families_count()
             families_counts = [(k, x) for k, x in families_counts.items()]
             families_counts.sort(key=lambda tup: tup[1], reverse=True)
             self.families_analysis = families_counts[1][1] >= 2
@@ -169,7 +170,8 @@ class RcdQueries(Queries):
         instances = self.iteration.datasets.instances
         predicted_instances = instances.get_from_ids(predicted_ids)
         if self.multiclass_model is None:
-            self.multiclass_model = multiclass_conf.model_class(multiclass_conf)
+            self.multiclass_model = multiclass_conf.model_class(
+                                                               multiclass_conf)
             self.multiclass_model.training(self.annotated_instances)
             predictions, _ = self.multiclass_model.testing(predicted_instances)
         return self.annotated_instances, predicted_instances, predictions

@@ -100,6 +100,6 @@ class Iteration(CoreIteration):
                                                    self.iter_num)
         dataset_conf = self.exp.exp_conf.dataset_conf
         secuml_conf = self.exp.exp_conf.secuml_conf
-        filename = path.join(dataset_conf.input_dir(secuml_conf), 'annotations',
-                             filename)
+        filename = path.join(dataset_conf.input_dir(secuml_conf),
+                             'annotations', filename)
         self.datasets.save_annotations(filename, self.exp)

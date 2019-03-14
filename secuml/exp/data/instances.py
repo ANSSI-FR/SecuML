@@ -65,13 +65,13 @@ class Instances(CoreInstances):
         if annotations_type == AnnotationsTypes.partial:
             annotations = Annotations(None, None, ids)
             db_res = annotations_db_tools.get_annotated_instances(
-                                           self.session,
-                                           self.annotations_conf.annotations_id)
+                                          self.session,
+                                          self.annotations_conf.annotations_id)
             for instance_id, label, family in db_res:
                 annotations.set_label_family(
-                                          instance_id,
-                                          labels_tools.label_str_to_bool(label),
-                                          family)
+                                         instance_id,
+                                         labels_tools.label_str_to_bool(label),
+                                         family)
             return annotations
 
     def _get_ground_truth(self, ids):

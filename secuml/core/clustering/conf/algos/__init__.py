@@ -69,7 +69,8 @@ class ClusteringConf(Conf):
 
     @staticmethod
     def proj_conf_from_args(args, logger):
-        if not hasattr(args, 'projection_algo') or args.projection_algo is None:
+        if (not hasattr(args, 'projection_algo')
+                or args.projection_algo is None):
             return None
         proj_factory = projection_conf.get_factory()
         proj_conf = proj_factory.from_args(args.projection_algo, args, logger)
@@ -94,7 +95,8 @@ def get_factory():
 class ClusteringConfFactory(ConfFactory):
 
     def from_args(self, method, args, logger):
-        if not hasattr(args, 'projection_algo') or args.projection_algo is None:
+        if (not hasattr(args, 'projection_algo')
+                or args.projection_algo is None):
             proj_conf = None
         else:
             proj_factory = projection_conf.get_factory()

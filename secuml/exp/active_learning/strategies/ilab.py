@@ -27,9 +27,9 @@ class Ilab(CoreIlab):
 
     def _set_queries(self):
         self.queries['uncertain'] = UncertainQueries(
-                                              self.iteration,
-                                              self.iteration.conf.num_uncertain,
-                                              label='uncertain')
+                                             self.iteration,
+                                             self.iteration.conf.num_uncertain,
+                                             label='uncertain')
         self.queries['malicious'] = RcdQueries(self.iteration, MALICIOUS,
                                                0.5, 1, input_checking=False)
         self.queries['benign'] = RcdQueries(self.iteration, BENIGN, 0, 0.5,

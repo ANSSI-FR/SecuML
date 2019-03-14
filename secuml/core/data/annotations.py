@@ -132,8 +132,9 @@ class Annotations(object):
             indexes = range(self.ids.num_instances())
         else:
             label_b = labels_tools.label_str_to_bool(label)
-            indexes = [i for i in range(self.ids.num_instances()) if
-                       self.labels[i] is not None and self.labels[i] == label_b]
+            indexes = [i for i in range(self.ids.num_instances())
+                       if self.labels[i] is not None
+                       and self.labels[i] == label_b]
         families = set([self.families[i]
                         for i in indexes if self.families[i] is not None])
         return families

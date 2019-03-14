@@ -107,7 +107,8 @@ def load_partial_annotations(cursor, filename, annotations_id, dataset_id):
                    'AND i.dataset_id = %d '
                    'SET l.instance_id = i.id;' % dataset_id)
     cursor.execute('INSERT INTO annotations'
-                   '(instance_id,annotations_id,label,family,iteration,method) '
+                   '(instance_id,annotations_id,label,family,iteration,'
+                   'method) '
                    'SELECT instance_id,annotations_id,label,family,iteration,'
                    'method '
                    'FROM labels_import;')

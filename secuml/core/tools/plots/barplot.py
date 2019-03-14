@@ -83,47 +83,48 @@ class BarPlot(object):
 
     def to_pgf_plot(self, filename):
         with open(filename, 'w') as f:
-            f.write('\\begin{tikzpicture}' + '\n')
-            f.write('\t\\begin{axis} [' + '\n')
-            f.write('\t\tybar,' + '\n')
-            f.write('\t\tbar width = 7pt,' + '\n')
-            f.write('\t\tenlarge y limits = {0.25, upper},' + '\n')
-            f.write('\t\tenlarge x limits = 0.25,' + '\n')
-            f.write('\t\tsymbolic x coords={' +
-                    ','.join(self.labels) + '},' + '\n')
-
-            f.write('\t\tx tick label style={rotate=45, anchor=east},' + '\n')
+            f.write('\\begin{tikzpicture}\n'
+                    '\t\\begin{axis} [\n'
+                    '\t\tybar,\n'
+                    '\t\tbar width = 7pt,\n'
+                    '\t\tenlarge y limits = {0.25, upper},\n'
+                    '\t\tenlarge x limits = 0.25,\n'
+                    '\t\tsymbolic x coords={%s}\n'
+                    '\t\tx tick label style={rotate=45, anchor=east},\n'
+                    % (','.join(self.labels)))
             if self.xlabel is not None:
-                f.write('\t\txlabel=\\large ' + self.xlabel + ',' + '\n')
+                f.write('\t\txlabel=\\large %s,\n' % self.xlabel)
             if self.ylabel is not None:
-                f.write('\t\tylabel=\\large ' + self.ylabel + ',' + '\n')
+                f.write('\t\tylabel=\\large %s,\n' % self.ylabel)
             if self.title is not None:
-                f.write('\t\ttitle = ' + self.title + ',' + '\n')
-            f.write('\t\tymin = 0.0,' + '\n')
-            f.write('\t\txlabel near ticks,' + '\n')
-            f.write('\t\tylabel near ticks,' + '\n')
-            f.write('\t\tlegend pos = north west,' + '\n')
-            f.write('\t\tlegend cell align = left' + '\n')
-            f.write('\t]' + '\n')
-
+                f.write('\t\ttitle = %s,\n' % self.title)
+            f.write('\t\tymin = 0.0,\n'
+                    '\t\txlabel near ticks,\n'
+                    '\t\tylabel near ticks,\n'
+                    '\t\tlegend pos = north west,\n'
+                    '\t\tlegend cell align = left\n'
+                    '\t]\n')
             legend = []
             for i, dataset in enumerate(self.datasets):
                 if dataset.error_bars is None:
-                    f.write('\t\\addplot[fill=' + dataset.color +
-                            ', color=' + dataset.color + '] coordinates {' + '\n')
+                    f.write('\t\\addplot[fill=%s, color=%s] coordinates {\n' %
+                            (dataset.color, dataset.color))
                     for l, label in enumerate(self.labels):
-                        f.write('\t\t(' + label + ',' +
-                                str(dataset.values[l]) + ')' + '\n')
-                    f.write('\t};' + '\n')
+                        f.write('\t\t(%s,%s)\n' %
+                                (label, str(dataset.values[l])))
+                    f.write('\t};\n')
                 else:
-                    f.write('\t\\addplot[style={fill=' + dataset.color + ', color=' + dataset.color +
-                            '}, error bars/.cd, error bar style={black}, y dir=both, y explicit] coordinates {' + '\n')
+                    f.write('\t\\addplot[style={fill=%s, color=%s}, '
+                            'error bars/.cd, error bar style={black}, '
+                            'y dir=both, y explicit] coordinates {\n' %
+                            (dataset.color, dataset.color))
                     for l, label in enumerate(self.labels):
-                        f.write('\t\t(' + label + ',' + str(dataset.values[l]) + ') +- (' + str(
-                            dataset.error_bars[l]) + ',' + str(dataset.error_bars[l]) + ')' + '\n')
-                    f.write('\t};' + '\n')
-                legend.append(dataset.label)
 
-            f.write('\t\\legend{' + ','.join(legend) + '}' + '\n')
-            f.write('\t\\end{axis}' + '\n')
-            f.write('\\end{tikzpicture}' + '\n')
+                        f.write('\t\t(%s,%s) +- (%f,%f)\n' %
+                                (label, dataset.values[l],
+                                 dataset.error_bars[l], dataset.error_bars[l]))
+                    f.write('\t};\n')
+                legend.append(dataset.label)
+            f.write('\t\\legend{%s}\n'
+                    '\t\\end{axis}\n'
+                    '\\end{tikzpicture}\n' % ','.join(legend))

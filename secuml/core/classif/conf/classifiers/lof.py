@@ -59,9 +59,9 @@ class LofConf(UnsupervisedClassifierConf):
                                         'default': 30}
         hyper['metric'] = {}
         hyper['metric']['values'] = {'type': str,
-                                     'choices': ['minkowski', 'cityblock', 'l1',
-                                                 'l2', 'cosine', 'manhattan',
-                                                 'euclidean'],
+                                     'choices': ['minkowski', 'cityblock',
+                                                 'l1', 'l2', 'cosine',
+                                                 'manhattan', 'euclidean'],
                                      'default': 'minkowski'}
         hyper['contamination'] = {}
         hyper['contamination']['values'] = {'type': float,
@@ -70,7 +70,8 @@ class LofConf(UnsupervisedClassifierConf):
 
     @staticmethod
     def gen_parser(parser):
-        UnsupervisedClassifierConf.gen_parser(parser, LofConf._get_hyper_desc())
+        UnsupervisedClassifierConf.gen_parser(parser,
+                                              LofConf._get_hyper_desc())
         parser.add_argument('--n_jobs',
                             type=int,
                             default=-1,

@@ -77,7 +77,8 @@ class _ModelPerfEvolution(object):
             # self.plot_perf_evolution(['fscore', 'precision', 'recall'],
             #                          'fscore', data, monitoring_dir)
 
-    def plot_perf_evolution(self, estimators, output_filename, data, output_dir):
+    def plot_perf_evolution(self, estimators, output_filename, data,
+                            output_dir):
         iterations = list(range(1, self.iter_num + 1))
         plt.clf()
         for estimator in estimators:
@@ -115,7 +116,8 @@ class ModelPerfEvolution(object):
         multiclass = train_exp.exp_conf.core_conf.multiclass
         for k, diadem_monitoring in kinds.items():
             perf_indicators = diadem_monitoring.performance.perf_indicators
-            self.monitorings[k] = _ModelPerfEvolution(iter_num, perf_indicators,
+            self.monitorings[k] = _ModelPerfEvolution(iter_num,
+                                                      perf_indicators,
                                                       multiclass, k)
 
     def generate(self):

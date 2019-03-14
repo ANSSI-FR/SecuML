@@ -56,8 +56,8 @@ class RandomConf(ActiveLearningConf):
 
     @staticmethod
     def from_args(args, binary_model_conf, validation_conf, logger):
-        return RandomConf(args.auto, args.budget, args.batch, binary_model_conf,
-                          validation_conf, logger)
+        return RandomConf(args.auto, args.budget, args.batch,
+                          binary_model_conf, validation_conf, logger)
 
     @staticmethod
     def from_json(obj, binary_model_conf, validation_conf, logger):

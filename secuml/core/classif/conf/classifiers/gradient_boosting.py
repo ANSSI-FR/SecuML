@@ -81,8 +81,8 @@ class GradientBoostingConf(SupervisedClassifierConf):
     @staticmethod
     def gen_parser(parser):
         SupervisedClassifierConf.gen_parser(
-                                         parser,
-                                         GradientBoostingConf._get_hyper_desc())
+                                        parser,
+                                        GradientBoostingConf._get_hyper_desc())
 
     @staticmethod
     def from_args(args, hyperparam_conf, logger):

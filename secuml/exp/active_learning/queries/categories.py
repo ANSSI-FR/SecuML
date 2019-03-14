@@ -20,7 +20,8 @@ from secuml.core.classif.conf import ClassificationConf
 from secuml.core.classif.conf.classifiers.gaussian_naive_bayes \
         import GaussianNaiveBayesConf
 from secuml.core.classif.conf.hyperparam import HyperparamConf
-from secuml.core.classif.conf.test.unlabeled_labeled import UnlabeledLabeledConf
+from secuml.core.classif.conf.test.unlabeled_labeled \
+        import UnlabeledLabeledConf
 from secuml.exp.diadem.conf.diadem import DiademConf
 from secuml.exp.diadem import DiademExp
 
@@ -31,8 +32,9 @@ class Categories(CoreCategories):
 
     def __init__(self, parent_exp, iteration, instances, assigned_categories,
                  assignment_proba, label, category_labels):
-        CoreCategories.__init__(self, iteration, instances, assigned_categories,
-                                assignment_proba, label, category_labels)
+        CoreCategories.__init__(self, iteration, instances,
+                                assigned_categories, assignment_proba, label,
+                                category_labels)
         self.exp = parent_exp
 
     def init(self, label, families):

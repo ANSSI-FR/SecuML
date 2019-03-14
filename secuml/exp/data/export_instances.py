@@ -45,10 +45,12 @@ class ExportInstances(object):
                     self.exp.session,
                     self.exp.exp_conf.dataset_conf.dataset_id)
 
-    def export_to_secuml(self, secuml_conf, project, dataset, features_filename):
-        dataset_dir, features_dir, annotations_dir = create_dataset(secuml_conf,
-                                                                    project,
-                                                                    dataset)
+    def export_to_secuml(self, secuml_conf, project, dataset,
+                         features_filename):
+        dataset_dir, features_dir, annotations_dir = create_dataset(
+                                                                   secuml_conf,
+                                                                   project,
+                                                                   dataset)
         self.export_idents(path.join(dataset_dir, 'idents.csv'))
         self.export_features(path.join(features_dir, features_filename))
         description_filename = '_'.join([path.splitext(features_filename)[0],

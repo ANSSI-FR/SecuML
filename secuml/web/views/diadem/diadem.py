@@ -20,7 +20,9 @@ import os.path as path
 import pandas as pd
 import random
 from sklearn.externals import joblib
-import sqlalchemy
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql.expression import false
+from sqlalchemy.sql.expression import true
 
 from secuml.web import app, session
 from secuml.web.views.experiments import update_curr_exp
@@ -29,7 +31,7 @@ from secuml.core.tools.plots.barplot import BarPlot
 from secuml.core.tools.plots.dataset import PlotDataset
 from secuml.core.tools.color import red
 
-from secuml.exp.diadem import DiademExp
+from secuml.exp.diadem import DiademExp  # NOQA
 from secuml.exp.data.features import FeaturesFromExp
 from secuml.exp.tools.db_tables import DiademExpAlchemy
 from secuml.exp.tools.db_tables import ExpAlchemy
@@ -49,7 +51,8 @@ def getDiademChildExp(diadem_exp_id, child_type, fold_id):
     if child_type != 'cv':
         query = query.join(DiademExpAlchemy.exp)
         query = query.join(ExpAlchemy.parents)
-        query = query.filter(ExpRelationshipsAlchemy.parent_id == diadem_exp_id)
+        query = query.filter(
+                ExpRelationshipsAlchemy.parent_id == diadem_exp_id)
     else:
         query = query.filter(DiademExpAlchemy.exp_id == diadem_exp_id)
     query = query.filter(DiademExpAlchemy.type == child_type)
@@ -94,7 +97,7 @@ def getAlertsClusteringExpId(test_exp_id):
     query = query.filter(DiademExpAlchemy.type == 'alerts')
     try:
         return str(query.one().child_id)
-    except sqlalchemy.orm.exc.NoResultFound:
+    except NoResultFound:
         return 'None'
 
 
@@ -129,9 +132,9 @@ def getPredictions(exp_id, index, label):
         data = data.loc[selection, :]
         if label != 'all':
             if label == 'malicious':
-                selection = data.loc[:, 'ground_truth'] == True
+                selection = data.loc[:, 'ground_truth'] == true()
             elif label == 'benign':
-                selection = data.loc[:, 'ground_truth'] == False
+                selection = data.loc[:, 'ground_truth'] == false()
             data = data.loc[selection, :]
         selected_instances = [int(x) for x in list(data.index.values)]
     return jsonify({'instances': selected_instances,
@@ -165,7 +168,6 @@ def get_train_exp(exp_id):
     if row.type == 'train':
         return exp_id
     elif row.type == 'test':
-        fold_id = row.fold_id
         # get diadem_exp
         query = session.query(ExpRelationshipsAlchemy)
         query = query.filter(ExpRelationshipsAlchemy.child_id == exp_id)

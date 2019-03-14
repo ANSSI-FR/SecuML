@@ -55,8 +55,8 @@ class GroundTruth(object):
         filepath, curr_hash = self.get_filepath_hash()
         self.exists = filepath is not None
         if not self.exists:
-            self.secuml_conf.logger.warning('No ground-truth available for the '
-                                            'dataset %s/%s.'
+            self.secuml_conf.logger.warning('No ground-truth available for '
+                                            'the dataset %s/%s.'
                                             % (self.dataset_conf.project,
                                                self.dataset_conf.dataset))
             return

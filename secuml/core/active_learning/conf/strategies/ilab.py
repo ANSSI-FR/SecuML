@@ -19,7 +19,8 @@ from secuml.core.classif.conf import ClassificationConf
 from secuml.core.classif.conf.classifiers.logistic_regression \
         import LogisticRegressionConf
 from secuml.core.classif.conf.hyperparam import HyperparamConf
-from secuml.core.classif.conf.test.unlabeled_labeled import UnlabeledLabeledConf
+from secuml.core.classif.conf.test.unlabeled_labeled \
+        import UnlabeledLabeledConf
 from secuml.core.conf import exportFieldMethod
 
 from . import ActiveLearningConf
@@ -42,8 +43,8 @@ def _rcd_conf(args, logger):
 
 class IlabConf(ActiveLearningConf):
 
-    def __init__(self, auto, budget, rcd_conf, num_uncertain, binary_model_conf,
-                 validation_conf, logger):
+    def __init__(self, auto, budget, rcd_conf, num_uncertain,
+                 binary_model_conf, validation_conf, logger):
         ActiveLearningConf.__init__(self, auto, budget, binary_model_conf,
                                     validation_conf, logger)
         self.num_uncertain = num_uncertain

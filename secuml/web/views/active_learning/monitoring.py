@@ -48,10 +48,10 @@ def activeLearningSuggestionsMonitoring(exp_id, iteration):
     return send_file(filename)
 
 
-@app.route('/activeLearningModelsMonitoring/<exp_id>/<iteration>/<train_test>/')
-def activeLearningModelsMonitoring(exp_id, iteration, train_test):
+@app.route('/activeLearningModelsMonitoring/<exp_id>/<iter>/<train_test>/')
+def activeLearningModelsMonitoring(exp_id, iter, train_test):
     experiment = update_curr_exp(exp_id)
-    directory = path.join(experiment.output_dir(), str(iteration), 'model_perf')
+    directory = path.join(experiment.output_dir(), str(iter), 'model_perf')
     filename = '%s.png' % train_test
     return send_file(path.join(directory, filename), mimetype='image/png')
 

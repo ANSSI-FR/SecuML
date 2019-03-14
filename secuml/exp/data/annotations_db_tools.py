@@ -45,7 +45,8 @@ def get_instance_partial_annotation_row(session, annotations_id, instance_id):
 
 
 def get_instance_partial_annotation(session, annotations_id, instance_id):
-    row = get_instance_partial_annotation_row(session, annotations_id, instance_id)
+    row = get_instance_partial_annotation_row(session, annotations_id,
+                                              instance_id)
     if row is None:
         return None
     else:
@@ -194,7 +195,7 @@ def get_families_counts(session, annotations_id, iter_max=None, label=None):
 def add_annotation(session, annotations_id, instance_id, label, family,
                    iter_num, method):
     annotation = AnnotationsAlchemy(annotations_id=annotations_id,
-                                    # MySQL does not support numpy types (int64)
+                                    # MySQL does not support numpy type int64
                                     instance_id=int(instance_id),
                                     label=label,
                                     family=family,
@@ -206,7 +207,8 @@ def add_annotation(session, annotations_id, instance_id, label, family,
 
 def update_annotation(session, annotations_id, instance_id, label, family,
                       iter_num, method):
-    row = get_instance_partial_annotation_row(session, annotations_id, instance_id)
+    row = get_instance_partial_annotation_row(session, annotations_id,
+                                              instance_id)
     if row is None:
         add_annotation(session, annotations_id, instance_id, label, family,
                        iter_num, method)

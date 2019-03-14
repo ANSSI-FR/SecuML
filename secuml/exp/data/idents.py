@@ -51,8 +51,8 @@ class Idents(object):
                                             self.dataset_conf.dataset_id)
         else:
             assert(False)
-        self.secuml_conf.logger.info('Idents file for the dataset %s/%s loaded '
-                                     'into the database (%s).'
+        self.secuml_conf.logger.info('Idents file for the dataset %s/%s '
+                                     'loaded into the database (%s).'
                                      % (self.dataset_conf.project,
                                         self.dataset_conf.dataset,
                                         filepath))

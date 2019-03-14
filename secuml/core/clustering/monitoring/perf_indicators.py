@@ -16,7 +16,8 @@
 
 from sklearn import metrics
 
-# The performance indicators are computed only if the ground-truth is available.
+# The performance indicators are computed only if the ground-truth is
+# available.
 
 
 class PerformanceIndicators(object):
@@ -35,7 +36,8 @@ class PerformanceIndicators(object):
             metrics.homogeneity_completeness_v_measure(labels_families,
                                                        predicted_clusters)
 
-    def compute_adjusted_evaluations(self, labels_families, predicted_clusters):
+    def compute_adjusted_evaluations(self, labels_families,
+                                     predicted_clusters):
         if labels_families is None:
             self.adjusted_rand_score = 0
             self.adjusted_mutual_info_score = 0
@@ -46,10 +48,8 @@ class PerformanceIndicators(object):
             labels_families, predicted_clusters, average_method='arithmetic')
 
     def to_json(self):
-        obj = {}
-        obj['homogeneity'] = self.homogeneity
-        obj['completeness'] = self.completeness
-        obj['v_measure'] = self.v_measure
-        obj['adjusted_rand_score'] = self.adjusted_rand_score
-        obj['adjusted_mutual_info_score'] = self.adjusted_mutual_info_score
-        return obj
+        return {'homogeneity': self.homogeneity,
+                'completeness': self.completeness,
+                'v_measure': self.v_measure,
+                'adjusted_rand_score': self.adjusted_rand_score,
+                'adjusted_mutual_info_score': self.adjusted_mutual_info_score}

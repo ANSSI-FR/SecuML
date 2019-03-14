@@ -38,7 +38,8 @@ def getInstance(exp_id, view_id, instance_id):
         ident, user_id = idents_tools.get_ident(session, dataset_id,
                                                 instance_id)
         project = experiment.exp_conf.dataset_conf.project
-        module = importlib.import_module('secuml.web.views.projects.' + project)
+        module = importlib.import_module('secuml.web.views.projects.%s'
+                                         % project)
         return module.get_instance(experiment, view_id, user_id, ident)
     except ImportError as e:
         app.logger.error(str(e))

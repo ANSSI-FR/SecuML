@@ -82,8 +82,8 @@ class RcdStrategyConf(Conf):
 
     def get_exp_name(self):
         return '%s__num_annotations_%d' % (
-                                        self.classification_conf.get_exp_name(),
-                                        self.num_annotations)
+                                       self.classification_conf.get_exp_name(),
+                                       self.num_annotations)
 
     def fields_to_export(self):
         return [('classification_conf', exportFieldMethod.obj),

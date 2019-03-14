@@ -17,11 +17,13 @@
 import copy
 import numpy as np
 import pandas as pd
+from sqlalchemy.sql.expression import false
 import time
 
 from secuml.core.classif.classifiers.gaussian_naive_bayes \
         import GaussianNaiveBayes
-from secuml.core.clustering.monitoring.perf_indicators import PerformanceIndicators
+from secuml.core.clustering.monitoring.perf_indicators \
+        import PerformanceIndicators
 from secuml.core.tools.matrix import sort_data_frame
 from secuml.core.tools.core_exceptions import SecuMLcoreException
 
@@ -55,8 +57,8 @@ class AladinQueries(Queries):
         self._gen_queries_from_scores()
 
     def check_input_data(self):
-        num_families = len(set(self.train_instances.annotations.get_families()))
-        if num_families < 2:
+        families = set(self.train_instances.annotations.get_families())
+        if len(families) < 2:
             raise AladinAtLeastTwoFamilies()
 
     def _run_logistic_regression(self):
@@ -64,7 +66,8 @@ class AladinQueries(Queries):
 
     def _run_naive_bayes(self):
         naive_bayes_conf = self._create_naive_bayes_conf()
-        # Update training data - the naive Bayes classifier is trained on all the data
+        # Update training data
+        # the naive Bayes classifier is trained on all the data
         self.test_instances.annotations.set_families(
                 list(self.lr_predicted_labels))
         train_instances = copy.deepcopy(self.train_instances)
@@ -77,11 +80,6 @@ class AladinQueries(Queries):
         self.test_instances.annotations.set_families(
                                 [None for i in range(num_test_instances)])
         start_time = time.time()
-        if num_test_instances == 0:
-            self.nb_predicted_log_proba = []
-        else:
-            self.nb_predicted_log_proba = self.naive_bayes.pipeline.predict_log_proba(
-                self.test_instances.features.get_values())
         if num_test_instances == 0:
             self.nb_predicted_labels = []
         else:
@@ -109,10 +107,11 @@ class AladinQueries(Queries):
                                    columns=header)
         self.scores['queried'] = [False] * num_test_instances
 
-    # Uncertain instances have a low difference between the probability of belonging to
-    # the most likely family and the second most likely family.
-    # In Aladin, the authors consider this measure of uncertainty instead of the entropy
-    # used by Pelleg and Moore (Active Learning for Anomaly and Rare-Category Detection).
+    # Uncertain instances have a low difference between the probability of
+    # belonging to the most likely family and the second most likely family.
+    # In Aladin, the authors consider this measure of uncertainty instead of
+    # the entropy used by Pelleg and Moore (Active Learning for Anomaly and
+    # Rare-Category Detection).
     def _compute_uncertainty_scores(self):
         self.scores['lr_prediction'] = self.lr_predicted_labels
         lr_scores = []
@@ -126,15 +125,17 @@ class AladinQueries(Queries):
             lr_scores.append(score)
         self.scores['lr_score'] = lr_scores
 
-    # Anomalous instances have a low probability of belonging to the assigned family
+    # Anomalous instances have a low probability of belonging to the assigned
+    # family
     def _compute_anomalous_scores(self):
         self.scores['nb_prediction'] = self.nb_predicted_labels
         for c in set(self.nb_predicted_labels):
-            c_ids = self.scores.loc[self.scores['nb_prediction'] == c].index.values
+            selection = self.scores['nb_prediction'] == c
+            c_ids = self.scores.loc[selection].index.values
             c_instances = self.test_instances.get_from_ids(c_ids)
             c_features = c_instances.features.values
             c_likelihood = self.naive_bayes.log_likelihood(c_features, c)
-            self.scores.loc[self.scores['nb_prediction'] == c, 'nb_score'] = c_likelihood
+            self.scores.loc[selection, 'nb_score'] = c_likelihood
 
     def _gen_queries_from_scores(self):
         assert(np.array_equal(self.lr_class_labels, self.nb_class_labels))
@@ -172,19 +173,24 @@ class AladinQueries(Queries):
                     classifier = 'nb'
                     num_anomalous[i] += 1
                 scores = families_scores[classifier][i]
-                selected_rows = scores.loc[scores['queried'] == False]
+                selected_rows = scores.loc[scores['queried'] == false()]
                 if len(selected_rows) > 0:
                     query = selected_rows.index.tolist()[0]
                 else:
-                    # No anomalous or uncertain instances available for annotation
-                    # Select the most likely instance according to the logistic regression output
+                    # No anomalous or uncertain instances available for
+                    # annotation
+                    # Select the most likely instance according to the
+                    # logistic regression output
                     self.conf.logger.debug(
                         family + ': no anomalous, no uncertain instances')
-                    selected_rows = lr_predicted_proba_df.loc[lr_predicted_proba_df['queried'] == False]
+                    selected_rows = lr_predicted_proba_df.loc[
+                                            lr_predicted_proba_df['queried'] ==
+                                            false()]
                     selected_rows = sort_data_frame(selected_rows, family,
                                                     False, False)
                     selection = selected_rows.index.tolist()
-                    # Break condition - There is no instance left in the unlabelled pool
+                    # Break condition
+                    # There is no instance left in the unlabelled pool
                     if len(selection) == 0:
                         stop = True
                         break
@@ -201,7 +207,8 @@ class AladinQueries(Queries):
                         query, 'queried', True)
                 self.scores.set_value(query, 'queried', True)
                 lr_predicted_proba_df.set_value(query, 'queried', True)
-                # Break condition - self.num_annotations instances have been queried
+                # Break condition
+                # self.num_annotations instances have been queried
                 if num_annotations >= self.num_annotations:
                     stop = True
                     break
@@ -230,12 +237,13 @@ class AladinQueries(Queries):
         for i, family in enumerate(list(self.lr_class_labels)):
             selection = self.scores[classifier + '_prediction']
             if selection.shape[0] > 0:
-                family_scores = self.scores.loc[self.scores[classifier +
-                                                            '_prediction'] == family]
+                family_scores = self.scores.loc[
+                        self.scores[classifier + '_prediction'] == family]
                 family_scores = sort_data_frame(family_scores,
                                                 '%s_score' % classifier,
                                                 True, False)
             else:
-                family_scores = pd.DataFrame(columns=self.scores.columns.values)
+                col_values = self.scores.columns.values
+                family_scores = pd.DataFrame(columns=col_values)
             families_scores.append(family_scores)
         return families_scores

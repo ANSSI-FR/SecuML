@@ -75,7 +75,8 @@ class HexagonalBin(object):
                  [0, -1], [-0.5, -0.5]]
         for node in nodes:
             hexag.append(translate(scale(translate(c, node),
-                                         [math.sqrt(3) * self.size, self.size]),
+                                         [math.sqrt(3) * self.size,
+                                          self.size]),
                                    [self.xmin, self.ymin]))
         return hexag
 
@@ -83,7 +84,8 @@ class HexagonalBin(object):
         json = {}
         json['hexagon'] = self.hexagon()
         json['center'] = translate(scale(self.center(),
-                                         [math.sqrt(3) * self.size, self.size]),
+                                         [math.sqrt(3) * self.size,
+                                          self.size]),
                                    [self.xmin, self.ymin])
         json['num_malicious_instances'] = len(self.malicious_ids)
         json['num_ok_instances'] = len(self.ok_ids)

@@ -108,13 +108,13 @@ def getFamiliesInstances(annotations_type, annotations_id, dataset_id, label,
     instances = {}
     for f in families[label]:
         instances[f] = annotations_db_tools.get_label_family_ids(
-                                                              session,
-                                                              annotations_type,
-                                                              annotations_id,
-                                                              dataset_id,
-                                                              label,
-                                                              family=f,
-                                                              iter_max=iter_max)
+                                                             session,
+                                                             annotations_type,
+                                                             annotations_id,
+                                                             dataset_id,
+                                                             label,
+                                                             family=f,
+                                                             iter_max=iter_max)
     return jsonify(instances)
 
 
@@ -130,7 +130,8 @@ def changeFamilyName(exp_id, annotations_id, label, family, new_family):
         file_exists = path.isfile(filename)
         mode = 'a' if file_exists else 'w'
         to_print = ','.join(map(str, [datetime.datetime.now(),
-                                      'change_family_name', family, new_family]))
+                                      'change_family_name', family,
+                                      new_family]))
         with open(filename, mode) as f:
             f.write(to_print)
     return ''
@@ -165,7 +166,8 @@ def mergeFamilies(exp_id, annotations_id, label, families, new_family):
         filename = path.join(exp.output_dir(), 'user_actions.log')
         file_exists = path.isfile(filename)
         mode = 'a' if file_exists else 'w'
-        to_print = ','.join(map(str, [datetime.datetime.now(), 'merge_families',
+        to_print = ','.join(map(str, [datetime.datetime.now(),
+                                      'merge_families',
                                       new_family] + families))
         with open(filename, mode) as f:
             f.write(to_print)

@@ -43,8 +43,9 @@ class RandomSplitConf(OneFoldTestConf):
         self.test_size = test_size
 
     def get_exp_name(self):
-        return '__Test_RandomSplit_%s_%s' % (to_percentage(self.test_size),
-                                             OneFoldTestConf.get_exp_name(self))
+        return '__Test_RandomSplit_%s_%s' % (
+                                           to_percentage(self.test_size),
+                                           OneFoldTestConf.get_exp_name(self))
 
     def fields_to_export(self):
         fields = OneFoldTestConf.fields_to_export(self)

@@ -64,8 +64,8 @@ class Sssvdd(Classifier):
         else:
             labeled_features = labeled_instances.features.get_values()
         labels = np.array([-1. if x else 1.
-                           for x in labeled_instances.annotations.get_labels()])
-
+                           for x in
+                           labeled_instances.annotations.get_labels()])
         num_labeled_instances = labeled_instances.num_instances()
         num_unlabeled_instances = unlabeled_instances.num_instances()
 
@@ -118,21 +118,19 @@ def predict_score(x, center, r):
 def objective(x, unlabeled_features, labeled_features, labels, kappa, nu_U,
               nu_L):
     R, gamma, c = get_values(x)
-
     # Unlabeled sum
     num_unlabeled_instances = unlabeled_features.shape[0]
     sum_U = 0
     for i in range(num_unlabeled_instances):
-        sum_U += _l(R * R - square_distance_to_center(unlabeled_features[i, :], c))
-
+        sum_U += _l(R * R -
+                    square_distance_to_center(unlabeled_features[i, :], c))
     # Labeled sum
     sum_L = 0
     num_labeled_instances = labeled_features.shape[0]
     if num_labeled_instances > 0:
         for i in range(num_labeled_instances):
-            sum_L += _l(labels[i] * (R * R -
-                                     square_distance_to_center(labeled_features[i, :], c)) - gamma)
-
+            square_dist = square_distance_to_center(labeled_features[i, :], c)
+            sum_L += _l(labels[i] * (R * R - square_dist) - gamma)
     obj = R * R
     obj -= kappa * gamma
     obj += nu_U * sum_U
@@ -160,7 +158,8 @@ def partial_derivatives_c(x_i, x):
 
 def partial_derivatives_r_star(x_i, y_i, x):
     R, gamma, c = get_values(x)
-    return 2 * y_i * R * l_prime(y_i * (R * R - square_distance_to_center(x_i, c)) - gamma)
+    square_dist = square_distance_to_center(x_i, c)
+    return 2 * y_i * R * l_prime(y_i * (R * R - square_dist) - gamma)
 
 
 def partial_derivatives_gamma_star(x_i, y_i, x):
@@ -170,7 +169,8 @@ def partial_derivatives_gamma_star(x_i, y_i, x):
 
 def partial_derivatives_c_star(x_i, y_i, x):
     R, gamma, c = get_values(x)
-    return 2 * y_i * (x_i - c) * l_prime(y_i * (R * R - square_distance_to_center(x_i, c)) - gamma)
+    square_dist = square_distance_to_center(x_i, c)
+    return 2 * y_i * (x_i - c) * l_prime(y_i * (R * R - square_dist) - gamma)
 
 
 def gradient_r(x, unlabeled_features, labeled_features, labels, nu_U, nu_L):
@@ -224,20 +224,19 @@ def gradient_c(x, unlabeled_features, labeled_features, labels, nu_U, nu_L):
     return res
 
 
-def gradient(x, unlabeled_features, labeled_features, labels, kappa, nu_U, nu_L):
+def gradient(x, unlabeled_features, labeled_features, labels, kappa, nu_U,
+             nu_L):
     g_r = gradient_r(x, unlabeled_features,
                      labeled_features, labels, nu_U, nu_L)
     g_gamma = gradient_gamma(x, labeled_features, labels, kappa, nu_L)
-    g = np.concatenate((np.array([g_r, g_gamma]),
-                        gradient_c(x, unlabeled_features, labeled_features,
-                                   labels, nu_U, nu_L)))
-    return g
+    return np.concatenate((np.array([g_r, g_gamma]),
+                          gradient_c(x, unlabeled_features, labeled_features,
+                                     labels, nu_U, nu_L)))
+
 
 # the features have been scaled before
 # compute the center and the radius of the benign and unlabeled instances
 # gamma is set to 1
-
-
 def gen_x_init(unlabeled_features, labeled_features, labels):
     gamma_init = 1.
     c_init, r_init = benign_instances_center_radius(unlabeled_features,
@@ -245,7 +244,8 @@ def gen_x_init(unlabeled_features, labeled_features, labels):
     return np.array([r_init, gamma_init] + list(c_init))
 
 
-def benign_instances_center_radius(unlabeled_features, labeled_features, labels):
+def benign_instances_center_radius(unlabeled_features, labeled_features,
+                                   labels):
     benign_features = labeled_features[~np.array(labels)]
     if unlabeled_features.shape[0] > 0:
         benign_features = np.concatenate((benign_features, unlabeled_features))

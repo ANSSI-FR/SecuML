@@ -16,16 +16,17 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import matplotlib
-matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import sys
 
 from secuml.core.tools.color import display_in_red
-from secuml.exp.active_learning.active_learning import ActiveLearningExperiment
-from secuml.exp.active_learning.active_learning_conf import ActiveLearningConf
-
 from secuml.core.tools.core_exceptions import SecuMLcoreException
+from secuml.exp.active_learning import ActiveLearningExp
+from secuml.exp.active_learning.conf import ActiveLearningConf
 from secuml.exp.tools.exp_exceptions import SecuMLexpException
+
+
+plt.switch_backend('Agg')
 
 
 if __name__ == '__main__':
@@ -33,7 +34,7 @@ if __name__ == '__main__':
         parser = ActiveLearningConf.gen_parser()
         args = parser.parse_args()
         exp_conf = ActiveLearningConf.from_args(args)
-        exp = ActiveLearningExperiment(exp_conf)
+        exp = ActiveLearningExp(exp_conf)
         exp.run()
         exp.close()
     except (SecuMLcoreException, SecuMLexpException) as e:

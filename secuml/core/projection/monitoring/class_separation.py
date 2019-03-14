@@ -27,7 +27,9 @@ class ClassSeparation(object):
     def computer_perf(self, instances):
         X = instances.features.get_values()
         labels = instances.ground_truth.get_labels()
-        # For unsupervised projection methods, the performance is always computed with the labels (not the families).
+        # For unsupervised projection methods,
+        # the performance is always computed with the labels
+        # (not the families).
         if hasattr(self.projection.conf, 'multiclass'):
             if self.projection.conf.multiclass:
                 labels = instances.ground_truth.get_families()

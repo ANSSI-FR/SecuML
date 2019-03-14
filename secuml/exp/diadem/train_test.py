@@ -117,7 +117,7 @@ class TestExp(Experiment):
         if self.test_instances.has_ground_truth():
             diadem_set_perf_monitoring(self.session, self.exp_conf.exp_id)
         self.predictions, exec_time = self.classifier.testing(
-                                                            self.test_instances)
+                                                           self.test_instances)
         self.monitoring = TestMonitoring(self, self.classifier.conf, exec_time,
                                          alerts_conf=self.alerts_conf)
         self.monitoring.init(self.test_instances)

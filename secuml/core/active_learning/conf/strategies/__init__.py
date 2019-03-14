@@ -19,7 +19,8 @@ import abc
 from secuml.core.classif.conf import classifiers
 from secuml.core.classif.conf import ClassificationConf
 from secuml.core.classif.conf.hyperparam import HyperparamConf
-from secuml.core.classif.conf.test.unlabeled_labeled import UnlabeledLabeledConf
+from secuml.core.classif.conf.test.unlabeled_labeled \
+        import UnlabeledLabeledConf
 from secuml.core.classif.conf.test.test_dataset import TestDatasetConf
 from secuml.core.conf import Conf
 from secuml.core.conf import ConfFactory
@@ -138,8 +139,8 @@ class ActiveLearningConf(Conf):
               '--budget',
               type=int,
               default=2000,
-              help='Total number of annotations asked from the user during the '
-                   'labeling procedure.')
+              help='Total number of annotations asked from the user during '
+                   'the labeling procedure.')
         al_group.add_argument('--validation-dataset', default=None,
                               help='The validation dataset.')
         if main_model:

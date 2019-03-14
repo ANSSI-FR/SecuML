@@ -17,7 +17,7 @@
 from flask import send_file
 import os.path as path
 
-from secuml.exp.projection import ProjectionExperiment
+from secuml.exp.projection import ProjectionExperiment  # NOQA
 
 from secuml.web import app
 from secuml.web.views.experiments import update_curr_exp

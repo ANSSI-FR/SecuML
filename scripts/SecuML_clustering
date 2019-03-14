@@ -16,16 +16,17 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import matplotlib
-matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import sys
 
 from secuml.core.tools.color import display_in_red
 from secuml.core.tools.core_exceptions import SecuMLcoreException
-
 from secuml.exp.clustering import ClusteringExperiment
 from secuml.exp.clustering.conf import ClusteringConf
 from secuml.exp.tools.exp_exceptions import SecuMLexpException
+
+
+plt.switch_backend('Agg')
 
 
 if __name__ == '__main__':

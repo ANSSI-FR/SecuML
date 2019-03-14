@@ -50,7 +50,7 @@ class FeaturePlots(object):
             # contain all the informations.
             try:
                 self._gen_histogram()
-            except:
+            except Exception:
                 self.barplot = None
                 pass
             self._gen_density()
@@ -65,7 +65,8 @@ class FeaturePlots(object):
                                                   'binary_histogram.json'))
         elif self.feature_type == FeatureType.numeric:
             self.boxplot.display(path.join(output_dir, 'boxplot.png'))
-            self.barplot.export_to_json(path.join(output_dir, 'histogram.json'))
+            self.barplot.export_to_json(path.join(output_dir,
+                                                  'histogram.json'))
             self.density.display(path.join(output_dir, 'density.png'))
 
     def _gen_plot_datasets(self, instances):

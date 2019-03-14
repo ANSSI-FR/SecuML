@@ -102,7 +102,8 @@ class Category(Queries):
             drop_instances = already_queried[:]
             drop_instances.extend(self.annotated_instances)
             if q == (num_queries_types - 1):
-                num_queries = self.num_annotations - len(self.annotation_queries)
+                num_queries = (self.num_annotations -
+                               len(self.annotation_queries))
             else:
                 num_queries = self.num_annotations // num_queries_types
             if num_queries == 0:

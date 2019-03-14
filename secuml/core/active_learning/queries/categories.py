@@ -82,7 +82,8 @@ class Categories(object):
         weights = [1 / self.num_categories] * self.num_categories
         num_annotations = conf.num_annotations
         annotations = [None for c in range(self.num_categories)]
-        card = [self.categories[c].num_instances() - self.categories[c].num_annotated_instances
+        card = [self.categories[c].num_instances() -
+                self.categories[c].num_annotated_instances
                 for c in range(self.num_categories)]
         if num_annotations > sum(card):
             num_annotations = sum(card)

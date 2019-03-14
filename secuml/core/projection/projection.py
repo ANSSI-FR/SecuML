@@ -79,7 +79,8 @@ class Projection(object):
         return features
 
     def export_fit(self, output_dir, instances):
-        self.export_projection_matrix(output_dir, instances.features.get_names())
+        self.export_projection_matrix(output_dir,
+                                      instances.features.get_names())
 
     def export_transform(self, output_dir, instances, projected_instances):
         visu = Visualization(self, output_dir)
@@ -99,7 +100,8 @@ class Projection(object):
                                  columns=self.component_labels(features_names),
                                  index=features_names)
         projection_matrix.index.name = 'feature'
-        projection_matrix.to_csv(path.join(output_dir, 'projection_matrix.csv'),
+        projection_matrix.to_csv(path.join(output_dir,
+                                           'projection_matrix.csv'),
                                  sep=',',
                                  header=True,
                                  index=True)

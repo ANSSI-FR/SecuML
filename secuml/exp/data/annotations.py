@@ -67,10 +67,10 @@ class Annotations(object):
                                                   self.dataset_conf.dataset_id)
         elif self.secuml_conf.db_type == 'postgresql':
             postgresql_specific.load_partial_annotations(
-                                                   cursor,
-                                                   filename,
-                                                   annotations_id,
-                                                   self.dataset_conf.dataset_id)
+                                                  cursor,
+                                                  filename,
+                                                  annotations_id,
+                                                  self.dataset_conf.dataset_id)
         else:
             assert(False)
         self.session.flush()

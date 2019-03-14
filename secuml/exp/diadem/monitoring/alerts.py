@@ -67,11 +67,12 @@ class AlertsMonitoring(object):
 
     def _classify(self, alerts_instances, train_instances):
         model = self._train_multiclass(train_instances)
-        predict_families, all_families = self._predict_families(model,
-                                                                alerts_instances)
+        predict_families, all_families = self._predict_families(
+                                                              model,
+                                                              alerts_instances)
         clustering_exp = self._create_clustering_exp(None)
         clustering_exp.set_clusters(alerts_instances, predict_families,
-                                    None, None, False, all_families)
+                                    None, False, all_families)
 
     def _predict_families(self, model, alerts_instances):
         predicted_families, _ = model.testing(alerts_instances)

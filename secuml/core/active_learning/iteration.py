@@ -60,8 +60,8 @@ class Iteration(object):
         self.global_execution_time = time.time() - start
         self.conf.logger.info('End iteration n°%d' % self.iter_num)
         self.conf.logger.info('Iteration n°%d: %f sec' % (
-                                                    self.iter_num,
-                                                    self.global_execution_time))
+                                                   self.iter_num,
+                                                   self.global_execution_time))
         return self.budget
 
     def check_unlabeled_data(self):

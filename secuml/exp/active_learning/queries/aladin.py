@@ -20,7 +20,8 @@ from secuml.core.classif.conf import ClassificationConf
 from secuml.core.classif.conf.classifiers.gaussian_naive_bayes \
         import GaussianNaiveBayesConf
 from secuml.core.classif.conf.hyperparam import HyperparamConf
-from secuml.core.classif.conf.test.unlabeled_labeled import UnlabeledLabeledConf
+from secuml.core.classif.conf.test.unlabeled_labeled \
+        import UnlabeledLabeledConf
 
 from secuml.exp.diadem.conf.diadem import DiademConf
 from secuml.exp.diadem import DiademExp
@@ -43,7 +44,8 @@ class AladinQueries(CoreAladinQueries):
                          'Iter%d' % (self.iteration.iter_num),
                          'all',
                          'NaiveBayes'])
-        classifier_conf = self.exp.exp_conf.core_conf.multiclass_model.classifier_conf
+        multiclass_model = self.exp.exp_conf.core_conf.multiclass_model
+        classifier_conf = multiclass_model.classifier_conf
         optim_conf = classifier_conf.hyperparam_conf.optim_conf
         multiclass = True
         hyperparam_conf = HyperparamConf.get_default(
@@ -56,11 +58,11 @@ class AladinQueries(CoreAladinQueries):
         test_conf = UnlabeledLabeledConf(self.exp.logger, None)
         classif_conf = ClassificationConf(naive_bayes_conf, test_conf,
                                           self.exp.logger)
-        exp_conf = DiademConf(self.exp.exp_conf.secuml_conf,
-                              self.exp.exp_conf.dataset_conf,
-                              self.exp.exp_conf.features_conf,
-                              self.exp.exp_conf.annotations_conf,
-                              classif_conf, name=name, parent=self.exp.exp_id)
+        DiademConf(self.exp.exp_conf.secuml_conf,
+                   self.exp.exp_conf.dataset_conf,
+                   self.exp.exp_conf.features_conf,
+                   self.exp.exp_conf.annotations_conf,
+                   classif_conf, name=name, parent=self.exp.exp_id)
         return naive_bayes_conf
 
     def _run_logistic_regression(self):
@@ -82,4 +84,5 @@ class AladinQueries(CoreAladinQueries):
         self.lr_predicted_proba = test_exp.predictions.all_probas
         self.lr_predicted_labels = test_exp.predictions.values
         self.lr_class_labels = train_exp.classifier.class_labels
-        self.lr_time = train_exp.monitoring.exec_time + test_exp.monitoring.exec_time
+        self.lr_time = train_exp.monitoring.exec_time
+        self.lr_time += test_exp.monitoring.exec_time

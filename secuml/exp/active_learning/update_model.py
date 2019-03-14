@@ -45,10 +45,10 @@ class UpdateModel(CoreUpdateModel):
         self.classifier = self.model_exp.get_train_test_exp('train').classifier
 
     def _set_exec_time(self):
-        train_monitoring = self.model_exp.get_train_test_exp('train').monitoring
-        test_monitoring = self.model_exp.get_train_test_exp('test').monitoring
-        self.exec_time = sum([m.exec_time for m in [train_monitoring,
-                                                    test_monitoring]])
+        train_monitor = self.model_exp.get_train_test_exp('train').monitoring
+        test_monitor = self.model_exp.get_train_test_exp('test').monitoring
+        self.exec_time = sum([m.exec_time for m in [train_monitor,
+                                                    test_monitor]])
 
     def monitoring(self, al_dir, iteration_dir):
         with_validation = self.iteration.conf.validation_conf is not None

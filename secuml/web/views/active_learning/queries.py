@@ -22,8 +22,6 @@ from secuml.web import app, session
 from secuml.web.views.experiments import update_curr_exp
 from secuml.web.views.nocache import nocache
 
-from secuml.exp.active_learning.active_learning import ActiveLearningExperiment
-from secuml.exp.active_learning.rcd import RcdExperiment
 from secuml.exp.tools.db_tables import IlabExpAlchemy
 from secuml.exp.tools.db_tables import RcdClusteringExpAlchemy
 
@@ -44,16 +42,15 @@ def getRcdClusteringId(exp_id, iteration):
     query = session.query(RcdClusteringExpAlchemy)
     query = query.filter(RcdClusteringExpAlchemy.id == exp_id)
     query = query.filter(RcdClusteringExpAlchemy.iter == iteration)
-    res = query.one()
     return jsonify({'clustering_exp_id': query.one().clustering_exp})
 
 
-@app.route('/getFamiliesInstancesToAnnotate/<exp_id>/<iteration>/<predicted_label>/')
-def getFamiliesInstancesToAnnotate(exp_id, iteration, predicted_label):
+@app.route('/getFamiliesInstancesToAnnotate/<exp_id>/<iter>/<label>/')
+def getFamiliesInstancesToAnnotate(exp_id, iter, label):
     experiment = update_curr_exp(exp_id)
     filename = path.join(experiment.output_dir(),
-                         str(iteration),
-                         'toannotate_' + predicted_label + '.json')
+                         str(iter),
+                         'toannotate_%s.json' % label)
     return send_file(filename)
 
 

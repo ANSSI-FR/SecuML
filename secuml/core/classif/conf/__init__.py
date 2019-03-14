@@ -59,7 +59,8 @@ class ClassificationConf(Conf):
         classifier_conf = classifiers.get_factory().from_json(
                                             conf_json['classifier_conf'],
                                             logger)
-        test_conf = test.get_factory().from_json(conf_json['test_conf'], logger)
+        test_conf = test.get_factory().from_json(conf_json['test_conf'],
+                                                 logger)
         return ClassificationConf(classifier_conf, test_conf, logger)
 
 

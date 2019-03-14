@@ -49,7 +49,8 @@ class SemiSupervisedProjection(Projection):
             drop_ids = []
             for family, count in families_count.items():
                 if count < 3:
-                    drop_ids.extend(instances.annotations.get_family_ids(family))
+                    drop_ids.extend(
+                            instances.annotations.get_family_ids(family))
             selected_ids = [i for i in instances.ids.get_ids()
                             if i not in drop_ids]
             selected_instances = instances.get_from_ids(selected_ids)
@@ -57,8 +58,9 @@ class SemiSupervisedProjection(Projection):
         else:
             selected_instances = instances
             labels = selected_instances.annotations.get_labels()
-        # String labels are transformed into integer labels (0 -> num_labels-1).
-        # This format is required blabels the library metric-learn.
+        # String labels are transformed into integer labels
+        # (0 -> num_labels-1).
+        # This format is required by the metric-learn library.
         labels_values = list(set(labels))
         if len(labels_values) < 2:
             raise FewerThanTwoLabels()

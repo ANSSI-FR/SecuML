@@ -27,6 +27,6 @@ class LogisticRegression(SupervisedClassifier):
         # with the weighted features
         return [('scaler', StandardScaler()),
                 ('model', linear_model.LogisticRegression(
-                                                    multi_class='ovr',
-                                                    solver=self.conf.optim_algo,
-                                                    fit_intercept=False))]
+                                                   multi_class='ovr',
+                                                   solver=self.conf.optim_algo,
+                                                   fit_intercept=False))]

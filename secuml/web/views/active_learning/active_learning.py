@@ -27,7 +27,8 @@ from secuml.core.tools.plots.dataset import PlotDataset
 from secuml.core.tools.color import get_label_color
 from secuml.core.tools.matrix import sort_data_frame
 
-from secuml.exp.active_learning.active_learning import ActiveLearningExperiment
+from secuml.exp.active_learning import ActiveLearningExp  # NOQA
+from secuml.exp.active_learning import RcdExp  # NOQA
 from secuml.exp.active_learning.celery_tasks import run_next_iter
 from secuml.exp.data import annotations_db_tools
 from secuml.exp.tools.db_tables import ExpAlchemy

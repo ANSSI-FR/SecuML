@@ -33,10 +33,10 @@ class ClusterExp(Cluster):
         annotations_id = exp.exp_conf.annotations_conf.annotations_id
         dataset_id = exp.exp_conf.dataset_conf.dataset_id
         return annotations_db_tools.get_labels_families(
-                                                exp.session,
-                                                annotations_type,
-                                                annotations_id, dataset_id,
-                                                instance_ids=self.instances_ids)
+                                               exp.session,
+                                               annotations_type,
+                                               annotations_id, dataset_id,
+                                               instance_ids=self.instances_ids)
 
     def get_label_family_ids(self, exp, label, family):
         annotations_type = exp.exp_conf.annotations_conf.annotations_type

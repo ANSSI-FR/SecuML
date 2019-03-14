@@ -14,14 +14,15 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from .active_learning import active_learning
-from .active_learning import queries
-from .active_learning import monitoring
-from .diadem import diadem
-from .clustering import clusterings
-from .features_analysis import features_analysis
-from .projection import projections
 
-from . import annotations
-from . import experiments
-from . import instances
+from .active_learning import active_learning  # NOQA
+from .active_learning import queries  # NOQA
+from .active_learning import monitoring  # NOQA
+from .diadem import diadem  # NOQA
+from .clustering import clusterings  # NOQA
+from .features_analysis import features_analysis  # NOQA
+from .projection import projections  # NOQA
+
+from . import annotations  # NOQA
+from . import experiments  # NOQA
+from . import instances  # NOQA

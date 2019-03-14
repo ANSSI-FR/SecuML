@@ -39,8 +39,8 @@ class SvcConf(SupervisedClassifierConf):
         hyper = {}
         hyper['regularization'] = {}
         hyper['regularization']['values'] = {
-                                       'type': float,
-                                       'default': list(10. ** np.arange(-2, 2))}
+                                      'type': float,
+                                      'default': list(10. ** np.arange(-2, 2))}
         hyper['regularization']['sklearn_name'] = 'C'
         return hyper
 

@@ -20,6 +20,7 @@ from flask import jsonify, redirect, render_template, send_file
 import operator
 import os
 from sqlalchemy import desc
+from sqlalchemy.sql.expression import null
 
 from secuml.exp import experiment
 from secuml.exp.experiment import get_project_dataset
@@ -88,7 +89,7 @@ def hasGroundTruth(project, dataset):
     query = session.query(DatasetsAlchemy)
     query = query.filter(DatasetsAlchemy.project == project)
     query = query.filter(DatasetsAlchemy.dataset == dataset)
-    return query.one().ground_truth_hash is not None
+    return str(query.one().ground_truth_hash is not None)
 
 
 @app.route('/getAllExperiments/<project>/<dataset>/')
@@ -99,7 +100,7 @@ def getAllExperiments(project, dataset):
     query = query.outerjoin(ExpAlchemy.parents)
     query = query.filter(DatasetsAlchemy.project == project)
     query = query.filter(DatasetsAlchemy.dataset == dataset)
-    query = query.filter(ExpRelationshipsAlchemy.parent_id == None)
+    query = query.filter(ExpRelationshipsAlchemy.parent_id == null())
     experiments = {}
     for exp in query.all():
         if exp.kind not in experiments:
