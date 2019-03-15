@@ -1,0 +1,9 @@
+instance_id,label,sublabel
+0,malicious,m1
+1,malicious,m1
+2,malicious,m1
+3,malicious,m1
+60,benign,b1
+61,benign,b1
+62,benign,b1
+63,benign,b1
