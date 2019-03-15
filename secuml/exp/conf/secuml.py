@@ -59,7 +59,7 @@ class SecuMLConf(object):
 
     def _set_conf(self, conf_filename):
         with open(conf_filename, 'r') as ymlfile:
-            cfg = yaml.load(ymlfile)
+            cfg = yaml.safe_load(ymlfile)
             self.set_directories(cfg['input_data_dir'], cfg['output_data_dir'])
             self.set_db_uri(cfg['db_uri'])
             self._set_logger(cfg)
