@@ -8,6 +8,11 @@ cache: pip
 install:
     - pip install pip --upgrade
     - pip install -r doc_requirements.txt
+    - pip install flake8
+
+before_script:
+    - flake8 secuml
+    - flake8 scripts
 
 script:
     - sphinx-build -nWT docs/ docs/_build/html
