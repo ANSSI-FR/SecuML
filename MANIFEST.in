@@ -1,2 +1,0 @@
-recursive-include secuml/web/templates *.html
-recursive-include secuml/web/static *.js *.css
