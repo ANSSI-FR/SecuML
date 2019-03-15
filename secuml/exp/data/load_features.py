@@ -181,7 +181,7 @@ class LoadFeatures(object):
                                              'There are %i features, '
                                              'but %i descriptions'
                                              % (len(user_ids), len(names)))
-                if list(df.index.values) != user_ids:
+                if [str(v) for v in df.index.values] != user_ids:
                     raise InvalidDescription(file_path,
                                              'The ids do not correspond, '
                                              'or are not stored in the same '
