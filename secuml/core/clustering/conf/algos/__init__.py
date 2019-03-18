@@ -60,8 +60,8 @@ class ClusteringConf(Conf):
                 '--multiclass',
                 action='store_true',
                 default=False,
-                help='When set to True, the semi-supervision is based on the '
-                'families instead of the binary labels. '
+                help='When specified, the semi-supervision is based on '
+                'the families instead of the binary labels. '
                 'Useless if an unsupervised projection method is used.')
         projection_group.add_argument('--num-components',
                                       type=int,

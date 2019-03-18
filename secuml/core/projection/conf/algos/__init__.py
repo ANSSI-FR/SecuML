@@ -79,8 +79,8 @@ class SemiSupervisedProjectionConf(ProjectionConf):
                  '--multiclass',
                  action='store_true',
                  default=False,
-                 help='When set to True, the semi-supervision is based on the '
-                      'families instead of the binary labels. ')
+                 help='When specified, the semi-supervision is based on '
+                      'the families instead of the binary labels. ')
 
 
 projection_conf_factory = None

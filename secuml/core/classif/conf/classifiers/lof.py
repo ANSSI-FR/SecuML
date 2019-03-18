@@ -74,8 +74,8 @@ class LofConf(UnsupervisedClassifierConf):
         parser.add_argument('--n_jobs',
                             type=int,
                             default=-1,
-                            help='Number of CPU cores used to train '
-                                 'the isolation forest. '
+                            help='Number of CPU cores used to train the '
+                                 'model. '
                                  'If given a value of -1, all cores are used. '
                                  'Default: -1.')
 

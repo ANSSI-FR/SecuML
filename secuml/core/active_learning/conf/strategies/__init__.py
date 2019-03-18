@@ -132,7 +132,7 @@ class ActiveLearningConf(Conf):
               dest='auto',
               action='store_true',
               default=False,
-              help='When set to True, the annotation queries are answered '
+              help='When specified, the annotation queries are answered '
                    'automatically by an oracle with the ground-truth labels '
                    'stored in ground_truth.csv. '
                    '\nOtherwise, the user must answer some annotation queries '
