@@ -1,39 +1,65 @@
 dist: xenial  # required for python 3.7
 language: python
-python:
-    - '3.5'
-    - '3.6'
-    - '3.7'
 
 sudo: false
 cache: pip
 
-services:
-    - mysql
-    - postgresql
-
-install:
-    - pip install pip --upgrade
-    - pip install -e .
-    - pip install -r doc_requirements.txt
-    - pip install flake8
-
-before_script:
-    - flake8 secuml
-    - flake8 scripts
-    - mkdir output_data
-    - ./travis_tools/setup_db.sh
-
-script:
-    - ./travis_tools/test_scripts.sh
-    - sphinx-build -nWT docs/ docs/_build/html
-
-deploy:
-    provider: pages
-    target-branch: gh-pages
-    local-dir: docs/_build/html
-    skip-cleanup: true
-    github-token: $GITHUB_TOKEN
-    keep-history: true
-    on:
-        branch: master
+jobs:
+    include:
+    - stage: 'tests 3.5'
+      python: 3.5
+      services:
+         - mysql
+         - postgresql
+      install:
+         - pip install -e .
+         - pip install flake8
+      before_script:
+         - flake8 secuml
+         - flake8 scripts
+      script:
+         - ./travis_tools/setup_test_env.sh
+         - ./travis_tools/test_scripts.sh
+    - stage: 'tests 3.6'
+      python: 3.6
+      services:
+         - mysql
+         - postgresql
+      install:
+         - pip install -e .
+         - pip install flake8
+      before_script:
+         - flake8 secuml
+         - flake8 scripts
+      script:
+         - ./travis_tools/setup_test_env.sh
+         - ./travis_tools/test_scripts.sh
+    - stage: 'tests 3.7'
+      python: 3.7
+      services:
+         - mysql
+         - postgresql
+      install:
+         - pip install -e .
+         - pip install flake8
+      before_script:
+         - flake8 secuml
+         - flake8 scripts
+      script:
+         - ./travis_tools/setup_test_env.sh
+         - ./travis_tools/test_scripts.sh
+    - stage: 'documentation'
+      python: 3.7
+      before_script:
+         - pip install sphinx
+         - pip install sphinx_rtd_theme
+      script: sphinx-build -nWT docs/ docs/_build/html
+      deploy:
+          provider: pages
+          target-branch: gh-pages
+          local-dir: docs/_build/html
+          skip-cleanup: true
+          github-token: $GITHUB_TOKEN
+          keep-history: true
+          on:
+              branch: master
