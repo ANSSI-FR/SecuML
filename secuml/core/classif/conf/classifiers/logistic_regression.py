@@ -68,9 +68,7 @@ class LogisticRegressionConf(SupervisedClassifierConf):
 
     @staticmethod
     def gen_parser(parser):
-        SupervisedClassifierConf.gen_parser(
-                                  parser,
-                                  LogisticRegressionConf._get_hyper_desc())
+        SupervisedClassifierConf.gen_parser(parser, LogisticRegressionConf)
         parser.add_argument('--optim-algo',
                             choices=['sag', 'liblinear'],
                             default='liblinear',

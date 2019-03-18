@@ -62,9 +62,7 @@ class LabelPropagationConf(SemiSupervisedClassifierConf):
 
     @staticmethod
     def gen_parser(parser):
-        SemiSupervisedClassifierConf.gen_parser(
-                                        parser,
-                                        LabelPropagationConf._get_hyper_desc())
+        SemiSupervisedClassifierConf.gen_parser(parser, LabelPropagationConf)
         parser.add_argument('--n_jobs',
                             type=int,
                             default=-1,

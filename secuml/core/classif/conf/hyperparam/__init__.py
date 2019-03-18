@@ -21,6 +21,12 @@ from .optim import OptimConf
 from .values import Hyperparams
 
 
+def get_model_hyperparam_desc(model_class):
+    if model_class is None:
+        return None
+    return model_class._get_hyper_desc()
+
+
 class HyperparamConf(Conf):
 
     def __init__(self, values, optim_conf, logger):
@@ -38,25 +44,28 @@ class HyperparamConf(Conf):
                 ('values', exportFieldMethod.obj)]
 
     @staticmethod
-    def gen_parser(parser, hyperparam_desc, cv_optim, subgroup=True):
+    def gen_parser(parser, model_class, cv_optim, subgroup=True):
+        hyperparam_desc = get_model_hyperparam_desc(model_class)
         Hyperparams.gen_parser(parser, hyperparam_desc, cv_optim,
                                subgroup=subgroup)
         if cv_optim:
             OptimConf.gen_parser(parser, subgroup=subgroup)
 
     @staticmethod
-    def from_args(args, hyperparam_desc, cv_optim, logger):
+    def from_args(args, model_class, cv_optim, logger):
         optim_conf = None
         if cv_optim:
             optim_conf = OptimConf.from_args(args, logger)
+        hyperparam_desc = get_model_hyperparam_desc(model_class)
         values = Hyperparams.from_args(args, hyperparam_desc, cv_optim, logger)
         return HyperparamConf(values, optim_conf, logger)
 
     @staticmethod
-    def from_json(obj, hyperparam_desc, logger):
+    def from_json(obj, model_class, logger):
         if obj is None:
             return None
         optim_conf = OptimConf.from_json(obj['optim_conf'], logger)
+        hyperparam_desc = get_model_hyperparam_desc(model_class)
         values = Hyperparams.from_json(obj['values'], hyperparam_desc, logger)
         return HyperparamConf(values, optim_conf, logger)
 

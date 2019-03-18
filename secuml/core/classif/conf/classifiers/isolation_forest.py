@@ -62,9 +62,7 @@ class IsolationForestConf(UnsupervisedClassifierConf):
 
     @staticmethod
     def gen_parser(parser):
-        UnsupervisedClassifierConf.gen_parser(
-                                        parser,
-                                        IsolationForestConf._get_hyper_desc())
+        UnsupervisedClassifierConf.gen_parser(parser, IsolationForestConf)
         parser.add_argument('--n_jobs',
                             type=int,
                             default=-1,

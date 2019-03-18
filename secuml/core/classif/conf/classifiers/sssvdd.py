@@ -46,8 +46,7 @@ class SssvddConf(SemiSupervisedClassifierConf):
 
     @staticmethod
     def gen_parser(parser):
-        SemiSupervisedClassifierConf.gen_parser(parser,
-                                                SssvddConf._get_hyper_desc())
+        SemiSupervisedClassifierConf.gen_parser(parser, SssvddConf)
 
     @staticmethod
     def from_args(args, hyperparam_conf, logger):

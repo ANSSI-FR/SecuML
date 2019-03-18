@@ -66,8 +66,7 @@ class DecisionTreeConf(SupervisedClassifierConf):
 
     @staticmethod
     def gen_parser(parser):
-        SupervisedClassifierConf.gen_parser(parser,
-                                            DecisionTreeConf._get_hyper_desc())
+        SupervisedClassifierConf.gen_parser(parser, DecisionTreeConf)
 
     @staticmethod
     def from_args(args, hyperparam_conf, logger):

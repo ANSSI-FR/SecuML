@@ -38,16 +38,14 @@ class ClassifierConfFactory(ConfFactory):
         class_ = self.methods[method + 'Conf']
         hyper_conf = None
         if method != 'AlreadyTrained':
-            hyper_conf = HyperparamConf.from_args(args,
-                                                  class_._get_hyper_desc(),
+            hyper_conf = HyperparamConf.from_args(args, class_,
                                                   class_.is_supervised(),
                                                   logger)
         return class_.from_args(args, hyper_conf, logger)
 
     def from_json(self, obj, logger):
         class_ = self.methods[obj['__type__']]
-        hyper_conf = HyperparamConf.from_json(obj['hyperparam_conf'],
-                                              class_._get_hyper_desc(),
+        hyper_conf = HyperparamConf.from_json(obj['hyperparam_conf'], class_,
                                               logger)
         return class_.from_json(obj['multiclass'], hyper_conf, obj, logger)
 
@@ -137,9 +135,9 @@ class SupervisedClassifierConf(ClassifierConf):
         return True
 
     @staticmethod
-    def gen_parser(parser, hyperparam_desc):
+    def gen_parser(parser, model_class):
         parser.add_argument('--multiclass', default=False, action='store_true')
-        HyperparamConf.gen_parser(parser, hyperparam_desc, True)
+        HyperparamConf.gen_parser(parser, model_class, True)
 
 
 class UnsupervisedClassifierConf(ClassifierConf):
@@ -159,8 +157,8 @@ class UnsupervisedClassifierConf(ClassifierConf):
         return None
 
     @staticmethod
-    def gen_parser(parser, hyperparam_desc):
-        HyperparamConf.gen_parser(parser, hyperparam_desc, False)
+    def gen_parser(parser, model_class):
+        HyperparamConf.gen_parser(parser, model_class, False)
 
 
 class SemiSupervisedClassifierConf(ClassifierConf):
@@ -174,6 +172,6 @@ class SemiSupervisedClassifierConf(ClassifierConf):
         return False
 
     @staticmethod
-    def gen_parser(parser, hyperparam_desc):
+    def gen_parser(parser, model_class):
         parser.add_argument('--multiclass', default=False, action='store_true')
-        HyperparamConf.gen_parser(parser, hyperparam_desc, False)
+        HyperparamConf.gen_parser(parser, model_class, False)

@@ -43,9 +43,7 @@ class EllipticEnvelopeConf(UnsupervisedClassifierConf):
 
     @staticmethod
     def gen_parser(parser):
-        UnsupervisedClassifierConf.gen_parser(
-                                        parser,
-                                        EllipticEnvelopeConf._get_hyper_desc())
+        UnsupervisedClassifierConf.gen_parser(parser, EllipticEnvelopeConf)
 
     @staticmethod
     def from_args(args, hyperparam_conf, logger):

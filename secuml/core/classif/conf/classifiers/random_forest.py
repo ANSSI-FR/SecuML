@@ -73,8 +73,7 @@ class RandomForestConf(SupervisedClassifierConf):
 
     @staticmethod
     def gen_parser(parser):
-        SupervisedClassifierConf.gen_parser(parser,
-                                            RandomForestConf._get_hyper_desc())
+        SupervisedClassifierConf.gen_parser(parser, RandomForestConf)
 
     @staticmethod
     def from_args(args, hyperparam_conf, logger):

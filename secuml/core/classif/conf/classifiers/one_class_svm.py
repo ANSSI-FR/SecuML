@@ -51,9 +51,7 @@ class OneClassSvmConf(UnsupervisedClassifierConf):
 
     @staticmethod
     def gen_parser(parser):
-        UnsupervisedClassifierConf.gen_parser(
-                                             parser,
-                                             OneClassSvmConf._get_hyper_desc())
+        UnsupervisedClassifierConf.gen_parser(parser, OneClassSvmConf)
 
     @staticmethod
     def from_args(args, hyperparam_conf, logger):

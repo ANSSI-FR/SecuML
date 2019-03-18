@@ -43,9 +43,7 @@ class GaussianNaiveBayesConf(SupervisedClassifierConf):
 
     @staticmethod
     def gen_parser(parser):
-        SupervisedClassifierConf.gen_parser(
-                                      parser,
-                                      GaussianNaiveBayesConf._get_hyper_desc())
+        SupervisedClassifierConf.gen_parser(parser, GaussianNaiveBayesConf)
 
     @staticmethod
     def from_args(args, hyperparam_conf, logger):
