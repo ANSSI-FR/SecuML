@@ -15,6 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import abc
+from enum import Enum
 
 from secuml.core.classif.conf.hyperparam import HyperparamConf
 from secuml.core.conf import Conf
@@ -32,14 +33,33 @@ def get_factory():
     return classifier_conf_factory
 
 
+class ClassifierType(Enum):
+    unsupervised = 1
+    semisupervised = 2
+    supervised = 3
+
+
+def get_classifier_type(class_):
+    if issubclass(class_, UnsupervisedClassifierConf):
+        return ClassifierType.unsupervised
+    elif issubclass(class_, SemiSupervisedClassifierConf):
+        return ClassifierType.semisupervised
+    elif issubclass(class_, SupervisedClassifierConf):
+        return ClassifierType.supervised
+    elif issubclass(class_, ClassifierConf):
+        return None
+    raise ValueError('%s is not a classifier configuration.' % class_.__name__)
+
+
 class ClassifierConfFactory(ConfFactory):
 
     def from_args(self, method, args, logger):
         class_ = self.methods[method + 'Conf']
         hyper_conf = None
         if method != 'AlreadyTrained':
-            hyper_conf = HyperparamConf.from_args(args, class_,
-                                                  class_.is_supervised(),
+            is_supervised = get_classifier_type(class_) == \
+                                            ClassifierType.supervised
+            hyper_conf = HyperparamConf.from_args(args, class_, is_supervised,
                                                   logger)
         return class_.from_args(args, hyper_conf, logger)
 
@@ -49,16 +69,13 @@ class ClassifierConfFactory(ConfFactory):
                                               logger)
         return class_.from_json(obj['multiclass'], hyper_conf, obj, logger)
 
-    def get_methods(self, supervised=None):
+    def get_methods(self, classifier_type=None):
         all_classifiers = ConfFactory.get_methods(self)
-        if supervised is None:
+        if classifier_type is None:
             return all_classifiers
-        elif supervised:
-            return [c for c in all_classifiers
-                    if self.get_class(c).is_supervised()]
         else:
-            return [c for c in all_classifiers
-                    if not self.get_class(c).is_supervised()]
+            return [c for c in all_classifiers if
+                    get_classifier_type(self.get_class(c)) == classifier_type]
 
 
 class ClassifierConf(Conf):
@@ -128,11 +145,6 @@ class SupervisedClassifierConf(ClassifierConf):
 
     def __init__(self, multiclass, hyperparam_conf, logger):
         ClassifierConf.__init__(self, multiclass, hyperparam_conf, logger)
-        self.supervised = True
-
-    @staticmethod
-    def is_supervised():
-        return True
 
     @staticmethod
     def gen_parser(parser, model_class):
@@ -144,11 +156,6 @@ class UnsupervisedClassifierConf(ClassifierConf):
 
     def __init__(self, hyperparam_conf, logger):
         ClassifierConf.__init__(self, False, hyperparam_conf, logger)
-        self.supervised = False
-
-    @staticmethod
-    def is_supervised():
-        return False
 
     # TODO scikit-learn Pipeline does not support 'score_samples' yet.
     # scikit-learn issue #12542
@@ -165,11 +172,6 @@ class SemiSupervisedClassifierConf(ClassifierConf):
 
     def __init__(self, multiclass, hyperparam_conf, logger):
         ClassifierConf.__init__(self, multiclass, hyperparam_conf, logger)
-        self.supervised = False
-
-    @staticmethod
-    def is_supervised():
-        return False
 
     @staticmethod
     def gen_parser(parser, model_class):

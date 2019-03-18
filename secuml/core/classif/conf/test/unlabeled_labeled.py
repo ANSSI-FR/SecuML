@@ -14,6 +14,9 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+from secuml.core.classif.conf.classifiers import get_classifier_type
+from secuml.core.classif.conf.classifiers import ClassifierType
+
 from . import OneFoldTestConf
 
 
@@ -43,7 +46,8 @@ class UnlabeledLabeledConf(OneFoldTestConf):
         return UnlabeledLabeledConf(logger, alerts_conf)
 
     def _gen_train_test(self, classifier_conf, instances):
-        if classifier_conf.supervised:
+        classifier_type = get_classifier_type(classifier_conf.__class__)
+        if classifier_type == ClassifierType.supervised:
             train_instances = instances.get_annotated_instances()
         else:
             train_instances = instances

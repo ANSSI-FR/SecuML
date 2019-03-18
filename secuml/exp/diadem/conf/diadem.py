@@ -18,6 +18,8 @@ import argparse
 
 from secuml.core.classif.conf import classifiers
 from secuml.core.classif.conf import ClassificationConf
+from secuml.core.classif.conf.classifiers import get_classifier_type
+from secuml.core.classif.conf.classifiers import ClassifierType
 from secuml.core.conf import exportFieldMethod
 from secuml.exp.conf.annotations import AnnotationsConf
 from secuml.exp.conf.dataset import DatasetConf
@@ -55,10 +57,13 @@ class DiademConf(ExpConf):
         for model in models:
             model_parser = subparsers.add_parser(model)
             factory.gen_parser(model, model_parser)
-            AnnotationsConf.gen_parser(
-                        model_parser, required=False,
-                        message='CSV file containing the annotations of some '
-                                'or all the instances.')
+            classifier_type = get_classifier_type(factory.get_class(model))
+            if classifier_type in [ClassifierType.supervised,
+                                   ClassifierType.semisupervised]:
+                AnnotationsConf.gen_parser(
+                            model_parser, required=False,
+                            message='CSV file containing the annotations of '
+                                    'some or all the instances.')
         # Add subparser for already trained model
         already_trained = subparsers.add_parser('AlreadyTrained')
         factory.gen_parser('AlreadyTrained', already_trained)
@@ -67,18 +72,22 @@ class DiademConf(ExpConf):
     @staticmethod
     def from_args(args):
         secuml_conf = ExpConf.secuml_conf_from_args(args)
-        already_trained = None
-        core_conf = ClassificationConf.from_args(args, secuml_conf.logger)
-        if args.model_class != 'AlreadyTrained':
+        classif_conf = ClassificationConf.from_args(args, secuml_conf.logger)
+        model_class = classifiers.get_factory().get_class(args.model_class)
+        classifier_type = get_classifier_type(model_class)
+        if classifier_type in [ClassifierType.supervised,
+                               ClassifierType.semisupervised]:
             annotations_conf = AnnotationsConf(args.annotations_file, None,
                                                secuml_conf.logger)
         else:
-            already_trained = args.model_exp_id
             annotations_conf = AnnotationsConf(None, None, secuml_conf.logger)
+        already_trained = None
+        if args.model_class == 'AlreadyTrained':
+            already_trained = args.model_exp_id
         dataset_conf = DatasetConf.from_args(args, secuml_conf.logger)
         features_conf = FeaturesConf.from_args(args, secuml_conf.logger)
         return DiademConf(secuml_conf, dataset_conf, features_conf,
-                          annotations_conf, core_conf, name=args.exp_name,
+                          annotations_conf, classif_conf, name=args.exp_name,
                           already_trained=already_trained)
 
     @staticmethod

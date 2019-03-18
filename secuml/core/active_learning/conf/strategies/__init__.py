@@ -17,6 +17,7 @@
 import abc
 
 from secuml.core.classif.conf import classifiers
+from secuml.core.classif.conf.classifiers import ClassifierType
 from secuml.core.classif.conf import ClassificationConf
 from secuml.core.classif.conf.hyperparam import HyperparamConf
 from secuml.core.classif.conf.test.unlabeled_labeled \
@@ -114,7 +115,8 @@ class ActiveLearningConf(Conf):
     @staticmethod
     def gen_main_model_parser(parser):
         group = parser.add_argument_group('Classification model parameters')
-        models = classifiers.get_factory().get_methods(supervised=True)
+        factory = classifiers.get_factory()
+        models = factory.get_methods(ClassifierType.supervised)
         group.add_argument('--model-class',
                            choices=models,
                            default='LogisticRegression',

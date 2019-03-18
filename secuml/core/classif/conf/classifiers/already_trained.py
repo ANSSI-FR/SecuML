@@ -51,10 +51,6 @@ class AlreadyTrainedConf(ClassifierConf):
         return None
 
     @staticmethod
-    def is_supervised():
-        return None
-
-    @staticmethod
     def _get_hyper_desc():
         return None
 
