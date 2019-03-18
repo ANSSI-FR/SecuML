@@ -158,7 +158,7 @@ def predictionsInterpretation(exp_id):
     query = query.filter(DiademExpAlchemy.exp_id == exp_id)
     # first() and not one()
     # because a train experiment can be shared by several DIADEM experiments.
-    return str(query.first().predictions_interpretation)
+    return str(query.first().pred_interp)
 
 
 def get_train_exp(exp_id):

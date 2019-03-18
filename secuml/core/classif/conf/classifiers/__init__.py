@@ -75,7 +75,7 @@ class ClassifierConf(Conf):
     def get_exp_name(self):
         name = self.model_class_name
         if self.multiclass:
-            name += '__FamiliesSupervision'
+            name += '__Multiclass'
         return name
 
     def _set_characteristics(self):

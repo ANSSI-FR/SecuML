@@ -83,8 +83,8 @@ def add_diadem_exp_to_db(session, exp_id, fold_id, kind, alerts_conf=None,
             predictions_interp = classifier_conf.interpretable_predictions()
         exp = DiademExpAlchemy(exp_id=exp_id, fold_id=fold_id, type=kind,
                                perf_monitoring=perf_monitoring, alerts=alerts,
-                               model_interpretation=model_interp,
-                               predictions_interpretation=predictions_interp,
+                               model_interp=model_interp,
+                               pred_interp=predictions_interp,
                                multiclass=multiclass, proba=proba,
                                with_scoring=with_scoring)
     else:

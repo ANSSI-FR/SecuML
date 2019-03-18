@@ -90,9 +90,8 @@ class ExpConf(Conf):
                 ('exp_id', exportFieldMethod.primitive)]
 
     @staticmethod
-    def common_from_args(args):
-        secuml_conf = SecuMLConf(args.secuml_conf)
-        return secuml_conf
+    def secuml_conf_from_args(args):
+        return SecuMLConf(args.secuml_conf)
 
     @staticmethod
     def gen_parser(parser, filters=True):
@@ -108,7 +107,7 @@ class ExpConf(Conf):
                             required=False,
                             default=None,
                             help='YAML file containing the configuration. '
-                                 'If --secuml-conf is not set, the '
-                                 'configuration is read from the file stored '
-                                 'in the environment variable SECUMLCONF.')
+                                 'If not set, the configuration is read from '
+                                 'the file stored in the environment variable '
+                                 'SECUMLCONF.')
         FeaturesConf.gen_parser(parser, filters=filters)

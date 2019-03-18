@@ -66,7 +66,7 @@ class DiademConf(ExpConf):
 
     @staticmethod
     def from_args(args):
-        secuml_conf = ExpConf.common_from_args(args)
+        secuml_conf = ExpConf.secuml_conf_from_args(args)
         already_trained = None
         core_conf = ClassificationConf.from_args(args, secuml_conf.logger)
         if args.model_class != 'AlreadyTrained':

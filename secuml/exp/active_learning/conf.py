@@ -46,7 +46,7 @@ class ActiveLearningConf(ExpConf):
 
     @staticmethod
     def from_args(args):
-        secuml_conf = ExpConf.common_from_args(args)
+        secuml_conf = ExpConf.secuml_conf_from_args(args)
         dataset_conf = DatasetConf.from_args(args, secuml_conf.logger)
         features_conf = FeaturesConf.from_args(args, secuml_conf.logger)
         annotations_conf = AnnotationsConf(args.annotations_file, None,
@@ -96,7 +96,7 @@ class RcdConf(ExpConf):
 
     @staticmethod
     def from_args(args):
-        secuml_conf = ExpConf.common_from_args(args)
+        secuml_conf = ExpConf.secuml_conf_from_args(args)
         logger = secuml_conf.logger
         dataset_conf = DatasetConf.from_args(args, logger)
         features_conf = FeaturesConf.from_args(args, logger)

@@ -24,7 +24,7 @@ function createTrainTestMonitoring(child_exp_id, train_test) {
     createDivWithClass(train_test + '_monitoring', 'tabbable boxed parentTabs',
                        monitoring);
     if (train_test == 'train') {
-        if (children_exps[child_exp_id].model_interpretation) {
+        if (children_exps[child_exp_id].model_interp) {
             displayCoefficientsDiv(child_exp_id);
         }
     } else if (train_test == 'test') {

@@ -220,17 +220,11 @@ def update_annotation(session, annotations_id, instance_id, label, family,
         session.flush()
 
 
-# FIXME: tester avec query.delete()
 def remove_annotation(session, annotations_id, instance_id):
     query = session.query(AnnotationsAlchemy)
     query = query.filter(AnnotationsAlchemy.instance_id == instance_id)
     query = query.filter(AnnotationsAlchemy.annotations_id == annotations_id)
-    try:
-        label = query.one()
-        session.delete(label)
-        session.flush()
-    except NoResultFound:
-        return None
+    query.delete()
 
 
 def change_family_name(session, annotations_id, label, family, new_family):
