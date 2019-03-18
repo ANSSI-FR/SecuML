@@ -15,7 +15,6 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from secuml.core.classif.monitoring.perf import PerformanceMonitoring
-from secuml.core.classif.monitoring.prediction import PredictionsMonitoring
 from secuml.core.classif.monitoring.test import TestMonitoring \
         as TestMonitoringCore
 from secuml.core.classif.monitoring.train import TrainMonitoring \
@@ -23,6 +22,7 @@ from secuml.core.classif.monitoring.train import TrainMonitoring \
 
 from .alerts import AlertsMonitoring
 from .coeff import Coefficients
+from .prediction import PredictionsMonitoring
 
 
 class TrainMonitoring(TrainMonitoringCore):
@@ -33,7 +33,7 @@ class TrainMonitoring(TrainMonitoringCore):
 
     def init(self, features_ids):
         self.performance = PerformanceMonitoring(self.num_folds, self.conf)
-        self.predictions = PredictionsMonitoring(self.conf, True)
+        self.predictions = PredictionsMonitoring(self.exp, self.conf, True)
         self.coefficients = None
         if self.interpretation:
             self.coefficients = Coefficients(self.num_folds, features_ids,
@@ -49,10 +49,18 @@ class TestMonitoring(TestMonitoringCore):
         if alerts_conf is not None:
             self.alerts_monitoring = AlertsMonitoring(self.exp, alerts_conf)
 
+    def init(self, instances):
+        self.has_ground_truth = instances.has_ground_truth()
+        self.predictions = PredictionsMonitoring(self.exp, self.conf,
+                                                 self.has_ground_truth)
+        self.performance = None
+        if self.has_ground_truth:
+            self.performance = PerformanceMonitoring(1, self.conf)
+
     def final_computations(self):
         TestMonitoringCore.final_computations(self)
         if self.alerts_monitoring is not None:
-            self.alerts_monitoring.extract(self.predictions)
+            self.alerts_monitoring.extract(self.predictions.predictions)
             self.alerts_monitoring.group()
 
     def display(self, directory):

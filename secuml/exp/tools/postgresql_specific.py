@@ -16,6 +16,7 @@
 
 import csv
 import sqlalchemy
+from sqlalchemy.sql.expression import func
 
 
 def annotations_with_families(filename):
@@ -120,3 +121,7 @@ def load_partial_annotations(cursor, filename, annotations_id, dataset_id):
 
 def get_engine(db_uri):
     return sqlalchemy.create_engine(db_uri, echo=False)
+
+
+def random_order(query):
+    return query.order_by(func.random())

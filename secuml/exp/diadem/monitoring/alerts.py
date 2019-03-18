@@ -14,14 +14,10 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import os.path as path
-
 from secuml.core.classif.conf.classifiers.logistic_regression \
         import LogisticRegressionConf
 from secuml.core.classif.conf.hyperparam import HyperparamConf
 from secuml.core.data.labels_tools import MALICIOUS
-from secuml.core.tools.matrix import extract_rows_with_thresholds
-from secuml.core.tools.matrix import sort_data_frame
 
 from secuml.exp import experiment
 from secuml.exp.clustering.conf import ClusteringConf
@@ -35,17 +31,12 @@ class AlertsMonitoring(object):
         self.test_exp = test_exp
         self.alerts_conf = alerts_conf
 
-    def extract(self, predictions_monitoring):
-        predictions = predictions_monitoring.predictions
-        detection_threshold = self.alerts_conf.detection_threshold
-        self.alerts = extract_rows_with_thresholds(predictions,
-                                                   detection_threshold,
-                                                   None,
-                                                   'predicted_proba')
-        sort_data_frame(self.alerts, 'predicted_proba', False, True)
+    def extract(self, predictions):
+        threshold = self.alerts_conf.detection_threshold
+        self.alerts = predictions.get_alerts(threshold)
 
     def group(self):
-        alerts_ids = self.alerts.index
+        alerts_ids = [alert.instance_id for alert in self.alerts]
         if len(alerts_ids) == 0:
             return
         train_instances, alerts_instances = self._get_datasets(alerts_ids)
@@ -57,7 +48,7 @@ class AlertsMonitoring(object):
             self._cluster(alerts_instances)
 
     def display(self, output_dir):
-        self._export_raw_alerts(output_dir)
+        return
 
     def _cluster(self, alerts_instances):
         self._check_num_clusters(alerts_instances)
@@ -111,8 +102,7 @@ class AlertsMonitoring(object):
                                            self.alerts_conf.logger)
         model = core_conf.model_class(core_conf)
         # Training
-        instances = train_instances.get_annotated_instances(label=MALICIOUS)
-        model.training(instances)
+        model.training(train_instances)
         return model
 
     def _check_num_clusters(self, alerts_instances):
@@ -138,15 +128,11 @@ class AlertsMonitoring(object):
         query = query.filter(ExpRelationshipsAlchemy.parent_id == diadem_id)
         children = [r.child.diadem_exp for r in query.all()]
         train_exps = [c for c in children if c.type == 'train']
-        assert(len(train_exps) == 1)
         train_exp_id = train_exps[0].exp_id
         exp = experiment.get_factory().from_exp_id(
                                          train_exp_id,
                                          self.test_exp.exp_conf.secuml_conf,
                                          self.test_exp.session)
-        train_instances = exp.get_instances()
+        train_instances = exp.get_instances().get_annotated_instances(
+                                                            label=MALICIOUS)
         return train_instances, alerts_instances
-
-    def _export_raw_alerts(self, directory):
-        with open(path.join(directory, 'alerts.csv'), 'w') as f:
-            self.alerts.to_csv(f, index_label='instance_id')

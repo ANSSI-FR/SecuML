@@ -102,28 +102,29 @@ class Classifier(object):
     def apply_pipeline(self, instances):
         num_instances = instances.num_instances()
         if num_instances == 0:
-            return Predictions([], [], [], [], instances.ids)
+            return Predictions([], instances.ids, self.conf.multiclass)
         features = instances.features.get_values()
         predictions = self._predict(features)
         all_probas, probas = self._get_predicted_probas(features,
                                                         num_instances)
         scores = self._get_predicted_scores(features, num_instances)
-        return Predictions(list(predictions), all_probas, probas, scores,
-                           instances.ids)
+        return Predictions(predictions, instances.ids,
+                           self.conf.multiclass, all_probas=all_probas,
+                           probas=probas, scores=scores)
 
     def _predict(self, features):
-        return self.pipeline.predict(features)
+        return list(self.pipeline.predict(features))
 
     def _get_predicted_probas(self, features, num_instances):
         if self.conf.probabilist:
             all_predicted_proba = self.pipeline.predict_proba(features)
             if self.conf.multiclass:
-                predicted_proba = [None for i in range(num_instances)]
+                predicted_proba = None
             else:
                 predicted_proba = all_predicted_proba[:, 1]
         else:
-            all_predicted_proba = [None for i in range(num_instances)]
-            predicted_proba = [None for i in range(num_instances)]
+            all_predicted_proba = None
+            predicted_proba = None
         return all_predicted_proba, predicted_proba
 
     def _get_predicted_scores(self, features, num_instances):
@@ -131,7 +132,7 @@ class Classifier(object):
         if scoring_func is not None:
             return getattr(self.pipeline, scoring_func)(features)
         else:
-            return [None for i in range(num_instances)]
+            return None
 
     def testing(self, instances):
         start = time.time()

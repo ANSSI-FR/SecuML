@@ -94,17 +94,15 @@ class Sssvdd(Classifier):
     def apply_pipeline(self, instances):
         num_instances = instances.num_instances()
         if num_instances == 0:
-            return Predictions([], [], [], [], instances.ids)
+            return Predictions([], instances.ids, False)
         features = instances.features.get_values()
         preprocessed_features = self.scaler.transform(features)
         predicted_scores = np.apply_along_axis(predict_score, 1,
                                                preprocessed_features,
                                                self.c, self.r)
         predicted_labels = predicted_scores > 0
-        predicted_proba = [None for i in range(num_instances)]
-        all_predicted_proba = [None for i in range(num_instances)]
-        return Predictions(predicted_labels, all_predicted_proba,
-                           predicted_proba, predicted_scores, instances.ids)
+        return Predictions(predicted_labels, instances.ids, False,
+                           scores=predicted_scores)
 
 
 def predict_label(x, center, r):

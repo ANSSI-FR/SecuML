@@ -16,7 +16,7 @@
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, ForeignKey
-from sqlalchemy import Boolean, DateTime, Enum, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, Enum, Float, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from secuml.core.data.labels_tools import BENIGN, MALICIOUS
@@ -114,6 +114,22 @@ class DiademExpAlchemy(Base):
 
     exp = relationship('ExpAlchemy', back_populates='diadem_exp',
                        uselist=False)
+
+
+class PredictionsAlchemy(Base):
+
+    __tablename__ = 'predictions'
+
+    exp_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'),
+                    primary_key=True)
+    instance_id = Column(Integer,
+                         ForeignKey('instances.id', ondelete='CASCADE'),
+                         primary_key=True)
+    value = Column(String(200), nullable=False)
+    proba = Column(Float, nullable=True)
+
+    instance = relationship('InstancesAlchemy', back_populates='predictions',
+                            uselist=False)
 
 
 class ActiveLearningExpAlchemy(Base):
@@ -226,6 +242,8 @@ class InstancesAlchemy(Base):
                                 back_populates='instance',
                                 uselist=False,
                                 cascade='all, delete-orphan')
+    predictions = relationship('PredictionsAlchemy', back_populates='instance',
+                               uselist=False, cascade='all, delete-orphan')
 
 
 class GroundTruthAlchemy(Base):

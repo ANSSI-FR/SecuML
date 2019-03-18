@@ -17,6 +17,7 @@
 import numpy as np
 import random
 
+from secuml.core.data.labels_tools import label_bool_to_str
 from secuml.core.tools.core_exceptions import SecuMLcoreException
 
 
@@ -32,32 +33,63 @@ class InvalidPredictions(SecuMLcoreException):
 class Prediction(object):
 
     def __init__(self, value, all_probas, proba, score, instance_id,
-                 ground_truth=None):
+                 multiclass, ground_truth=None):
         self.value = value
         self.all_probas = all_probas
         self.proba = proba
         self.score = score
         self.instance_id = instance_id
+        self.multiclass = multiclass
         self.ground_truth = ground_truth
+
+    def value_to_str(self):
+        if self.multiclass:
+            return str(self.value)
+        else:
+            return label_bool_to_str(self.value)
 
 
 class Predictions(object):
 
-    def __init__(self, values, all_probas, probas, scores, ids,
-                 ground_truth=None):
+    def __init__(self, values, ids, multiclass, all_probas=None, probas=None,
+                 scores=None, ground_truth=None):
         self.values = values
-        self.all_probas = all_probas
-        self.probas = probas
-        self.scores = scores
         self.ids = ids
-        if ground_truth is not None:
-            self.ground_truth = ground_truth
-        else:
-            self.ground_truth = [None for _ in range(self.ids.num_instances())]
-        self.check_validity()
+        self.multiclass = multiclass
+        self.all_probas = self._get_ndarray(all_probas)
+        self.probas = self._get_nparray(probas)
+        self.scores = self._get_nparray(scores)
+        self.ground_truth = self._get_array(ground_truth)
+        self._check_validity()
+
+    def with_proba(self):
+        return all(l is not None for l in self.probas)
 
     def num_instances(self):
         return self.ids.num_instances()
+
+    def get_alerts(self, threshold):
+        if threshold is None or not self.with_proba():
+            return [self.get_prediction_from_index(i[0])
+                    for i, value in np.ndenumerate(self.values) if value]
+        else:
+            return [self.get_prediction_from_index(i[0])
+                    for i, proba in np.ndenumerate(self.probas)
+                    if proba > threshold]
+
+    def union(self, predictions):
+        if self.multiclass != predictions.multiclass:
+            raise InvalidPredictions('Predictions with multiclass and binary '
+                                     'values cannot be concatenated.')
+        self.values.extend(predictions.values)
+        self.ids.union(predictions.ids)
+        self.all_probas = np.vstack((self.all_probas, predictions.all_probas))
+        self.probas = np.hstack((self.probas, predictions.probas))
+        if self.info.multiclass:
+            self.scores = np.vstack((self.scores, predictions.scores))
+        else:
+            self.scores = np.hstack((self.scores, predictions.scores))
+        self.ground_truth.extend(predictions.ground_truth)
 
     def get_prediction(self, instance_id):
         return self.get_prediction_from_index(self.ids.get_index(instance_id))
@@ -68,7 +100,8 @@ class Predictions(object):
                           self.probas[index],
                           self.scores[index],
                           self.ids.ids[index],
-                          self.ground_truth[index])
+                          self.multiclass,
+                          ground_truth=self.ground_truth[index])
 
     def get_from_ids(self, instance_ids):
         return [self.get_prediction(i) for i in instance_ids]
@@ -99,7 +132,7 @@ class Predictions(object):
                     % (num_instances, len(self.ground_truth)))
         self.ground_truth = ground_truth
 
-    def check_validity(self):
+    def _check_validity(self):
         num_instances = self.num_instances()
         if len(self.values) != num_instances:
             raise InvalidPredictions('There are %d instances '
@@ -123,3 +156,22 @@ class Predictions(object):
                                      'but %d ground-truth annotations '
                                      'are provided.'
                                      % (num_instances, len(self.ground_truth)))
+
+    def _get_nparray(self, array):
+        if array is None:
+            return np.array(self._get_array(array))
+        else:
+            return array
+
+    def _get_ndarray(self, array):
+        if array is None:
+            return np.ndarray((self.ids.num_instances(), 1),
+                              buffer=np.array(self._get_array(array)))
+        else:
+            return array
+
+    def _get_array(self, array):
+        if array is None:
+            return [None for _ in range(self.ids.num_instances())]
+        else:
+            return array

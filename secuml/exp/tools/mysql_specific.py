@@ -16,6 +16,7 @@
 
 
 import sqlalchemy
+from sqlalchemy.sql.expression import func
 
 from .postgresql_specific import annotations_with_families
 
@@ -118,3 +119,7 @@ def load_partial_annotations(cursor, filename, annotations_id, dataset_id):
 
 def get_engine(db_uri):
     return sqlalchemy.create_engine(db_uri + '?charset=utf8', echo=False)
+
+
+def random_order(query):
+    return query.order_by(func.rand())

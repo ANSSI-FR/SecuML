@@ -17,14 +17,10 @@
 from flask import render_template, send_file, jsonify
 import numpy as np
 import os.path as path
-import pandas as pd
-import random
 from sklearn.externals import joblib
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import false
-from sqlalchemy.sql.expression import true
 
-from secuml.web import app, session
+from secuml.web import app, secuml_conf, session
 from secuml.web.views.experiments import update_curr_exp
 
 from secuml.core.tools.plots.barplot import BarPlot
@@ -33,9 +29,13 @@ from secuml.core.tools.color import red
 
 from secuml.exp.diadem import DiademExp  # NOQA
 from secuml.exp.data.features import FeaturesFromExp
+from secuml.exp.tools.db_tables import call_specific_db_func
 from secuml.exp.tools.db_tables import DiademExpAlchemy
 from secuml.exp.tools.db_tables import ExpAlchemy
 from secuml.exp.tools.db_tables import ExpRelationshipsAlchemy
+from secuml.exp.tools.db_tables import GroundTruthAlchemy
+from secuml.exp.tools.db_tables import InstancesAlchemy
+from secuml.exp.tools.db_tables import PredictionsAlchemy
 
 TOP_N_ALERTS = 100
 
@@ -104,41 +104,53 @@ def getAlertsClusteringExpId(test_exp_id):
 @app.route('/getAlerts/<exp_id>/<analysis_type>/')
 def getAlerts(exp_id, analysis_type):
     exp = update_curr_exp(exp_id)
-    filename = path.join(exp.output_dir(), 'alerts.csv')
-    with open(filename, 'r') as f:
-        data = pd.read_csv(f, header=0, index_col=0)
-        alerts = list(data[['predicted_proba']].itertuples())
-        if TOP_N_ALERTS < len(alerts):
-            if analysis_type == 'topN':
-                alerts = alerts[:TOP_N_ALERTS]
-            elif analysis_type == 'random':
-                alerts = random.sample(alerts, TOP_N_ALERTS)
-    return jsonify({'instances': [int(alert[0]) for alert in alerts],
-                    'proba': [alert[1] for alert in alerts]})
+    # With proba ?
+    query = session.query(DiademExpAlchemy)
+    query = query.filter(DiademExpAlchemy.exp_id == exp_id)
+    with_proba = query.one().proba
+    threshold = None
+    if with_proba:
+        threshold = exp.exp_conf.core_conf.detection_threshold
+    # Get alerts
+    query = session.query(PredictionsAlchemy)
+    query = query.filter(PredictionsAlchemy.exp_id == exp_id)
+    if with_proba:
+        query = query.filter(PredictionsAlchemy.proba >= threshold)
+    if analysis_type == 'topN' and with_proba:
+        query = query.order_by(PredictionsAlchemy.proba.desc())
+    elif analysis_type == 'random':
+        query = call_specific_db_func(secuml_conf.db_type, 'random_order',
+                                      (query,))
+    query = query.limit(TOP_N_ALERTS)
+    predictions = query.all()
+    if predictions:
+        ids, probas = zip(*[(r.instance_id, r.proba) for r in predictions])
+    else:
+        ids = []
+        probas = []
+    return jsonify({'instances': ids, 'proba': probas})
 
 
 @app.route('/getPredictions/<exp_id>/<index>/<label>/')
 def getPredictions(exp_id, index, label):
-    exp = update_curr_exp(exp_id)
-    filename = path.join(exp.output_dir(), 'predictions.csv')
     index = int(index)
-    min_value = index * 0.1
-    max_value = (index + 1) * 0.1
-    with open(filename, 'r') as f:
-        data = pd.read_csv(f, header=0, index_col=0)
-        selection = data.loc[:, 'predicted_proba'] >= min_value
-        data = data.loc[selection, :]
-        selection = data.loc[:, 'predicted_proba'] <= max_value
-        data = data.loc[selection, :]
-        if label != 'all':
-            if label == 'malicious':
-                selection = data.loc[:, 'ground_truth'] == true()
-            elif label == 'benign':
-                selection = data.loc[:, 'ground_truth'] == false()
-            data = data.loc[selection, :]
-        selected_instances = [int(x) for x in list(data.index.values)]
-    return jsonify({'instances': selected_instances,
-                    'proba': list(data['predicted_proba'])})
+    proba_min = index * 0.1
+    proba_max = (index + 1) * 0.1
+    query = session.query(PredictionsAlchemy)
+    query = query.filter(PredictionsAlchemy.exp_id == exp_id)
+    query = query.filter(PredictionsAlchemy.proba >= proba_min)
+    query = query.filter(PredictionsAlchemy.proba <= proba_max)
+    if label != 'all':
+        query = query.join(PredictionsAlchemy.instance)
+        query = query.join(InstancesAlchemy.ground_truth)
+        query = query.filter(GroundTruthAlchemy.label == label)
+    predictions = query.all()
+    if predictions:
+        ids, probas = zip(*[(r.instance_id, r.proba) for r in predictions])
+    else:
+        ids = []
+        probas = []
+    return jsonify({'instances': ids, 'proba': probas})
 
 
 @app.route('/supervisedLearningMonitoring/<exp_id>/<kind>/')
