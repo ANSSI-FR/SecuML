@@ -29,26 +29,23 @@ NUM_COEFF_EXPORT = 15
 
 class Coefficients(CoefficientsCore):
 
-    def __init__(self, num_folds, features, classifier_conf, session):
-        CoefficientsCore.__init__(self, num_folds, features)
+    def __init__(self, exp, classifier_conf, num_folds=1):
+        features_info = exp.exp_conf.features_conf.info
+        CoefficientsCore.__init__(self, features_info, num_folds=num_folds)
+        self.exp = exp
         self.classifier_conf = classifier_conf
-        self.session = session
-
-    def display(self, directory):
-        CoefficientsCore.display(self, directory)
-        self.to_barplot(directory)
 
     def to_barplot(self, directory):
         head_coeff = self.coef_summary.head(n=NUM_COEFF_EXPORT)
         coefficients = list(head_coeff['mean'])
-        features_ids = head_coeff.index
-        tooltip_data = []
+        features_ids = list(head_coeff.index)
+        features_names = []
         user_ids = []
         for feature_id in features_ids:
-            query = self.session.query(FeaturesAlchemy)
+            query = self.exp.session.query(FeaturesAlchemy)
             query = query.filter(FeaturesAlchemy.id == int(feature_id))
             row = query.one()
-            tooltip_data.append(row.name)
+            features_names.append(row.name)
             user_ids.append(row.user_id)
         barplot = BarPlot(user_ids)
         dataset = PlotDataset(coefficients, None)
@@ -57,4 +54,9 @@ class Coefficients(CoefficientsCore):
             dataset.set_color(red)
         barplot.add_dataset(dataset)
         out_filename = path.join(directory, 'coeff_barplot.json')
-        return barplot.export_to_json(out_filename, tooltip_data=tooltip_data)
+        return barplot.export_to_json(out_filename,
+                                      tooltip_data=features_names)
+
+    def display(self, directory):
+        CoefficientsCore.display(self, directory)
+        self.to_barplot(directory)

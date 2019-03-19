@@ -14,23 +14,6 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import copy
-
-
-def extract_rows_with_thresholds(df, t_min, t_max, column_label,
-                                 deepcopy=False):
-    selected_df = df
-    if t_min is not None:
-        selection = selected_df.loc[:, column_label] > t_min
-        selected_df = selected_df.loc[selection, :]
-    if t_max is not None:
-        selection = selected_df.loc[:, column_label] <= t_max
-        selected_df = selected_df.loc[selection, :]
-    if deepcopy:
-        return copy.deepcopy(selected_df)
-    else:
-        return selected_df
-
 
 def sort_data_frame(df, column, ascending, inplace):
     if inplace:

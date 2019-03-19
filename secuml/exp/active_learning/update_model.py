@@ -42,13 +42,14 @@ class UpdateModel(CoreUpdateModel):
         self.model_exp.run(instances=self.iteration.datasets.instances,
                            cv_monitoring=True)
         self._set_exec_time()
-        self.classifier = self.model_exp.get_train_test_exp('train').classifier
+        self.classifier = self.model_exp.get_train_exp().classifier
 
     def _set_exec_time(self):
-        train_monitor = self.model_exp.get_train_test_exp('train').monitoring
-        test_monitor = self.model_exp.get_train_test_exp('test').monitoring
-        self.exec_time = sum([m.exec_time for m in [train_monitor,
-                                                    test_monitor]])
+        training = self.model_exp.get_train_exp().monitoring
+        training_detect = self.model_exp.get_detection_exp('train').monitoring
+        detection = self.model_exp.get_detection_exp('test').monitoring
+        self.exec_time = sum([m.exec_time for m in [training, training_detect,
+                                                    detection]])
 
     def monitoring(self, al_dir, iteration_dir):
         with_validation = self.iteration.conf.validation_conf is not None

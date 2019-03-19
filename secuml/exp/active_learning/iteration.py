@@ -66,7 +66,7 @@ class Iteration(CoreIteration):
         exp_db = query.one()
         exp_db.current_iter = self.iter_num
         #  Compute the annotation queries and export the monitoring.
-        predictions = self.update_model.model_exp.get_predictions('test', None)
+        predictions = self.update_model.model_exp.get_predictions('test')
         CoreIteration.generate_queries(self, predictions)
         exp_db.annotations = True
         self._exec_times_monitoring()

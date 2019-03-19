@@ -22,9 +22,8 @@ from secuml.exp.tools.db_tables import PredictionsAlchemy
 
 class PredictionsMonitoring(PredictionsMonitoringCore):
 
-    def __init__(self, exp, classifier_conf, has_ground_truth):
-        PredictionsMonitoringCore.__init__(self, classifier_conf,
-                                           has_ground_truth)
+    def __init__(self, exp):
+        PredictionsMonitoringCore.__init__(self)
         self.exp = exp
 
     def add_fold(self, predictions):

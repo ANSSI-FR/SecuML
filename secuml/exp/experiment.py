@@ -56,6 +56,9 @@ class Experiment(object):
         self.exp_id = exp_conf.exp_id
         self.create = create
 
+    def has_ground_truth(self):
+        return self.exp_conf.dataset_conf.has_ground_truth
+
     def _set_session(self, session):
         if session is None:
             self.session = self.exp_conf.secuml_conf.Session()

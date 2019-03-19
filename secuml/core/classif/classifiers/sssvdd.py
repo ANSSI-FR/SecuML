@@ -36,6 +36,9 @@ class Sssvdd(Classifier):
         self.nu_U = 1.
         self.kappa = 1.
 
+    def get_coefs(self):
+        return None
+
     def _create_pipeline(self):
         self.pipeline = None
 

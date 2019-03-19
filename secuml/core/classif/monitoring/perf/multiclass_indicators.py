@@ -18,8 +18,6 @@ import json
 import numpy as np
 from sklearn.metrics import accuracy_score, f1_score
 
-from secuml.core.clustering.monitoring.perf_indicators \
-        import PerformanceIndicators
 from secuml.core.tools.float import to_percentage, trunc
 
 
@@ -30,14 +28,10 @@ class MulticlassIndicators(object):
         self.accuracy = [0] * num_folds
         self.f1_micro = [0] * num_folds
         self.f1_macro = [0] * num_folds
-        self.clustering_perf = PerformanceIndicators()
-        self.ground_truth = []
-        self.predictions = []
 
     def add_fold(self, fold_id, predictions):
         self._set_fscores(fold_id, predictions)
         self._set_accuracy(fold_id, predictions)
-        self._update_gt_predictions(predictions)
 
     def get_accuracy(self):
         return self.accuracy_mean
@@ -49,7 +43,6 @@ class MulticlassIndicators(object):
         self.f1_micro_std = np.std(self.f1_micro)
         self.f1_macro_mean = np.mean(self.f1_macro)
         self.f1_macro_std = np.std(self.f1_macro)
-        self.clustering_perf.gen_eval(self.ground_truth, self.predictions)
 
     def to_json(self, f):
         perf = {}
@@ -59,7 +52,6 @@ class MulticlassIndicators(object):
                             'std': trunc(self.f1_micro_std)}
         perf['f1_macro'] = {'mean': to_percentage(self.f1_macro_mean),
                             'std': trunc(self.f1_macro_std)}
-        perf['clustering_perf'] = self.clustering_perf.to_json()
         json.dump(perf, f, indent=2)
 
     def get_csv_header(self):
@@ -87,7 +79,3 @@ class MulticlassIndicators(object):
         else:
             self.accuracy[fold_id] = accuracy_score(predictions.ground_truth,
                                                     predictions.values)
-
-    def _update_gt_predictions(self, predictions):
-        self.ground_truth.extend(predictions.ground_truth)
-        self.predictions.extend(predictions.values)

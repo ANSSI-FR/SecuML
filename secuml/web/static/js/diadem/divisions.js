@@ -43,11 +43,13 @@ function displayMonitoringRow(conf, selected_fold) {
   if (!selected_fold) {
     selected_fold = 'None';
   }
-
   if (selected_fold == 'all') {
-    displayChildMonitoring(conf, 'cv', 'None');
+    displayDetectionMonitoring(conf, 'cv', 'None');
+    displayModelInterpretation(conf, 'None', 'cv');
+    cleanDiv('test');
   } else {
-    displayChildMonitoring(conf, 'train', selected_fold);
-    displayChildMonitoring(conf, 'test', selected_fold);
+    displayDetectionMonitoring(conf, 'train', selected_fold);
+    displayDetectionMonitoring(conf, 'test', selected_fold);
+    displayModelInterpretation(conf, selected_fold, 'train');
   }
 }

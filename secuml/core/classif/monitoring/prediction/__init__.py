@@ -23,14 +23,9 @@ from .proba_barplot import ProbaBarplot
 
 class PredictionsMonitoring(object):
 
-    def __init__(self, conf, has_ground_truth):
-        self.conf = conf
-        self.has_ground_truth = has_ground_truth
+    def __init__(self):
         self.predictions = None
-        # PredictionsBarplots only for probabilist binary models
         self.proba_barplot = None
-        if not self.conf.multiclass and self.conf.is_probabilist():
-            self.proba_barplot = ProbaBarplot(self.has_ground_truth)
 
     def add_fold(self, predictions):
         if self.predictions is None:
@@ -38,18 +33,20 @@ class PredictionsMonitoring(object):
                       deepcopy(predictions.ids.idents),
                       deepcopy(predictions.ids.timestamps))
             self.predictions = Predictions(deepcopy(predictions.values), ids,
-                                           predictions.multiclass,
+                                           predictions.info.multiclass,
                                            deepcopy(predictions.all_probas),
                                            deepcopy(predictions.probas),
                                            deepcopy(predictions.scores),
                                            deepcopy(predictions.ground_truth))
         else:
             self.predictions.union(predictions)
-        if self.proba_barplot is not None:
-            self.proba_barplot.add_fold(predictions)
 
     def final_computations(self):
-        return
+        # PredictionsBarplots only for probabilist binary models
+        pred_info = self.predictions.info
+        if not pred_info.multiclass and pred_info.with_probas:
+            self.proba_barplot = ProbaBarplot(pred_info.with_ground_truth)
+            self.proba_barplot.add_fold(self.predictions)
 
     def display(self, directory):
         if self.proba_barplot is not None:

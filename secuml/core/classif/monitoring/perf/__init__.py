@@ -16,6 +16,8 @@
 
 import os.path as path
 
+from secuml.core.tools.core_exceptions import SecuMLcoreException
+
 from .binary_indicators import BinaryIndicators
 from .confusion_matrix import ConfusionMatrix
 from .fdr_tpr_curve import FdrTprCurve
@@ -23,34 +25,50 @@ from .multiclass_indicators import MulticlassIndicators
 from .roc_curve import RocCurve
 
 
+class InconsistentPredictions(SecuMLcoreException):
+
+    def __str__(self):
+        return 'Inconsistent predictions.'
+
+
 class PerformanceMonitoring(object):
 
-    def __init__(self, num_folds, conf):
-        self.conf = conf
-        if self.conf.multiclass:
-            self.perf_indicators = MulticlassIndicators(num_folds)
-        else:
-            self.perf_indicators = BinaryIndicators(
-                                           num_folds,
-                                           conf.is_probabilist(),
-                                           conf.scoring_function() is not None)
-            self.confusion_matrix = ConfusionMatrix()
-            if conf.is_probabilist() or conf.scoring_function() is not None:
-                self.roc = RocCurve(num_folds, conf.is_probabilist())
-                self.fdr_tpr_curve = FdrTprCurve(num_folds,
-                                                 conf.is_probabilist())
-            else:
-                self.roc = None
-                self.fdr_tpr_curve = None
+    def __init__(self, num_folds=1):
+        self.num_folds = num_folds
+        self.pred_info = None
+        # Monitoring
+        self.perf_indicators = None
+        self.confusion_matrix = None
+        self.roc = None
+        self.fdr_tpr_curve = None
 
-    def add_fold(self, fold, predictions):
-        self.perf_indicators.add_fold(fold, predictions)
-        if not self.conf.multiclass:
+    def init(self, predictions):
+        self.pred_info = predictions.info
+        if self.pred_info.multiclass:
+            self.perf_indicators = MulticlassIndicators(self.num_folds)
+        else:
+            self.perf_indicators = BinaryIndicators(self.num_folds,
+                                                    self.pred_info.with_probas,
+                                                    self.pred_info.with_scores)
+            self.confusion_matrix = ConfusionMatrix()
+            if self.pred_info.with_probas or self.pred_info.with_scores:
+                self.roc = RocCurve(self.num_folds, self.pred_info.with_probas)
+                self.fdr_tpr_curve = FdrTprCurve(self.num_folds,
+                                                 self.pred_info.with_probas)
+
+    def add_fold(self, predictions, fold_id=0):
+        if self.pred_info is None:
+            self.init(predictions)
+        else:
+            if not self.pred_info.equal(predictions.info):
+                raise InconsistentPredictions()
+        self.perf_indicators.add_fold(fold_id, predictions)
+        if not self.pred_info.multiclass:
             self.confusion_matrix.add_fold(predictions)
             if self.roc is not None:
-                self.roc.add_fold(fold, predictions)
+                self.roc.add_fold(fold_id, predictions)
             if self.fdr_tpr_curve is not None:
-                self.fdr_tpr_curve.add_fold(fold, predictions)
+                self.fdr_tpr_curve.add_fold(fold_id, predictions)
 
     def final_computations(self):
         self.perf_indicators.final_computations()
@@ -58,7 +76,7 @@ class PerformanceMonitoring(object):
     def display(self, directory):
         with open(path.join(directory, 'perf_indicators.json'), 'w') as f:
             self.perf_indicators.to_json(f)
-        if not self.conf.multiclass:
+        if not self.pred_info.multiclass:
             self.confusion_matrix.display(directory)
             if self.roc is not None:
                 self.roc.display(directory)

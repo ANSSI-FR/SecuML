@@ -44,15 +44,34 @@ def db_row_to_json(row):
     return {c.name: getattr(row, c.name) for c in row.__table__.columns}
 
 
-@app.route('/getDiademChildExp/<diadem_exp_id>/<child_type>/<fold_id>/')
-def getDiademChildExp(diadem_exp_id, child_type, fold_id):
+@app.route('/getDiademDetectionChildExp/<diadem_exp_id>/<child_type>/'
+           '<fold_id>/')
+def getDiademDetectionChildExp(diadem_exp_id, child_type, fold_id):
     fold_id = None if fold_id == 'None' else int(fold_id)
     query = session.query(DiademExpAlchemy)
     if child_type != 'cv':
         query = query.join(DiademExpAlchemy.exp)
         query = query.join(ExpAlchemy.parents)
+        query = query.filter(ExpAlchemy.kind == 'Detection')
         query = query.filter(
-                ExpRelationshipsAlchemy.parent_id == diadem_exp_id)
+                            ExpRelationshipsAlchemy.parent_id == diadem_exp_id)
+    else:
+        query = query.filter(DiademExpAlchemy.exp_id == diadem_exp_id)
+    query = query.filter(DiademExpAlchemy.type == child_type)
+    query = query.filter(DiademExpAlchemy.fold_id == fold_id)
+    return jsonify(db_row_to_json(query.one()))
+
+
+@app.route('/getDiademTrainChildExp/<diadem_exp_id>/<fold_id>/<child_type>/')
+def getDiademTrainChildExp(diadem_exp_id, fold_id, child_type):
+    fold_id = None if fold_id == 'None' else int(fold_id)
+    query = session.query(DiademExpAlchemy)
+    if child_type != 'cv':
+        query = query.join(DiademExpAlchemy.exp)
+        query = query.join(ExpAlchemy.parents)
+        query = query.filter(ExpAlchemy.kind == 'Train')
+        query = query.filter(
+                            ExpRelationshipsAlchemy.parent_id == diadem_exp_id)
     else:
         query = query.filter(DiademExpAlchemy.exp_id == diadem_exp_id)
     query = query.filter(DiademExpAlchemy.type == child_type)

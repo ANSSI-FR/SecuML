@@ -30,6 +30,21 @@ class InvalidPredictions(SecuMLcoreException):
         return self.message
 
 
+class PredictionsInfo(object):
+
+    def __init__(self, multiclass, predictions):
+        self.multiclass = multiclass
+        self.with_probas = predictions._with_probas()
+        self.with_scores = predictions._with_scores()
+        self.with_ground_truth = predictions._with_ground_truth()
+
+    def equal(self, predictions_info):
+        return (self.multiclass == predictions_info.multiclass and
+                self.with_probas == predictions_info.with_probas and
+                self.with_scores == predictions_info.with_scores and
+                self.with_ground_truth == predictions_info.with_ground_truth)
+
+
 class Prediction(object):
 
     def __init__(self, value, all_probas, proba, score, instance_id,
@@ -55,21 +70,18 @@ class Predictions(object):
                  scores=None, ground_truth=None):
         self.values = values
         self.ids = ids
-        self.multiclass = multiclass
         self.all_probas = self._get_ndarray(all_probas)
         self.probas = self._get_nparray(probas)
         self.scores = self._get_nparray(scores)
         self.ground_truth = self._get_array(ground_truth)
         self._check_validity()
-
-    def with_proba(self):
-        return all(l is not None for l in self.probas)
+        self.info = PredictionsInfo(multiclass, self)
 
     def num_instances(self):
         return self.ids.num_instances()
 
     def get_alerts(self, threshold):
-        if threshold is None or not self.with_proba():
+        if threshold is None or not self.info.with_probas:
             return [self.get_prediction_from_index(i[0])
                     for i, value in np.ndenumerate(self.values) if value]
         else:
@@ -78,7 +90,7 @@ class Predictions(object):
                     if proba > threshold]
 
     def union(self, predictions):
-        if self.multiclass != predictions.multiclass:
+        if self.info.multiclass != predictions.info.multiclass:
             raise InvalidPredictions('Predictions with multiclass and binary '
                                      'values cannot be concatenated.')
         self.values.extend(predictions.values)
@@ -100,18 +112,16 @@ class Predictions(object):
                           self.probas[index],
                           self.scores[index],
                           self.ids.ids[index],
-                          self.multiclass,
+                          self.info.multiclass,
                           ground_truth=self.ground_truth[index])
 
     def get_from_ids(self, instance_ids):
         return [self.get_prediction(i) for i in instance_ids]
 
     def get_within_range(self, proba_min, proba_max):
-        selection = []
-        for i, proba in np.ndenumerate(self.probas):
-            if proba > proba_min and proba <= proba_max:
-                selection.append(self.get_prediction_from_index(i[0]))
-        return selection
+        return [self.get_prediction_from_index(i[0])
+                for i, proba in np.ndenumerate(self.probas)
+                if proba > proba_min and proba >= proba_max]
 
     def to_list(self):
         return [self.get_prediction_from_index(i)
@@ -175,3 +185,12 @@ class Predictions(object):
             return [None for _ in range(self.ids.num_instances())]
         else:
             return array
+
+    def _with_probas(self):
+        return all(l is not None for l in self.probas)
+
+    def _with_scores(self):
+        return all(l is not None for l in self.scores)
+
+    def _with_ground_truth(self):
+        return all(l is not None for l in self.ground_truth)

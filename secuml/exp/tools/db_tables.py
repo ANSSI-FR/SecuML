@@ -54,7 +54,7 @@ class ExpAlchemy(Base):
     annotations_id = Column(Integer, ForeignKey('exp_annotations.id',
                                                 ondelete='CASCADE'))
     kind = Column(Enum('FeaturesAnalysis', 'ActiveLearning', 'Rcd', 'Diadem',
-                       'Train', 'Test', 'Clustering', 'Projection',
+                       'Train', 'Detection', 'Clustering', 'Projection',
                        name='exp_kind'),
                   nullable=False)
     name = Column(String(1000))

@@ -100,16 +100,17 @@ class ModelPerfEvolution(object):
 
     def __init__(self, iter_num, diadem_exp, with_validation):
         self.iter_num = iter_num
-        train_exp = diadem_exp.get_train_test_exp('train')
-        test_exp = diadem_exp.get_train_test_exp('test')
+        train_exp = diadem_exp.get_train_exp()
+        train_detect_exp = diadem_exp.get_detection_exp('train')
+        detect_exp = diadem_exp.get_detection_exp('test')
         kinds = {}
-        kinds['train'] = train_exp.monitoring
-        if train_exp.cv_monitoring is not None:
-            kinds['cv'] = train_exp.cv_monitoring
-        if test_exp.monitoring.has_ground_truth:
-            kinds['test'] = test_exp.monitoring
+        kinds['train'] = train_detect_exp.monitoring
+        if train_exp.monitoring.cv_monitoring is not None:
+            kinds['cv'] = train_exp.monitoring.cv_monitoring.detect_monitoring
+        if detect_exp.monitoring.has_ground_truth:
+            kinds['test'] = detect_exp.monitoring
         if with_validation:
-            validation_exp = diadem_exp.get_train_test_exp('validation')
+            validation_exp = diadem_exp.get_detection_exp('validation')
             if validation_exp.monitoring.has_ground_truth:
                 kinds['validation'] = validation_exp.monitoring
         self.monitorings = {}

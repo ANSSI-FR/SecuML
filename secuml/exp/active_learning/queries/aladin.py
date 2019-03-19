@@ -79,8 +79,8 @@ class AladinQueries(CoreAladinQueries):
         model_exp = DiademExp(exp_conf, session=self.exp.session)
         model_exp.run(instances=self.iteration.datasets.instances,
                       cv_monitoring=False)
-        train_exp = model_exp.get_train_test_exp('train')
-        test_exp = model_exp.get_train_test_exp('test')
+        train_exp = model_exp.get_train_exp()
+        test_exp = model_exp.get_detection_exp('test')
         self.lr_predicted_proba = test_exp.predictions.all_probas
         self.lr_predicted_labels = test_exp.predictions.values
         self.lr_class_labels = train_exp.classifier.class_labels

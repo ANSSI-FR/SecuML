@@ -49,6 +49,9 @@ class Classifier(object):
         self.conf = conf
         self._create_pipeline()
 
+    def get_coefs(self):
+        return self.conf.get_coefs(self.pipeline.named_steps['model'])
+
     def _create_pipeline(self):
         self.pipeline = Pipeline(self._get_pipeline())
 
@@ -92,12 +95,14 @@ class Classifier(object):
         num_folds = cv_monitoring.num_folds
         cv_test_conf = CvConf(self.conf.logger, None, num_folds)
         cv_datasets = cv_test_conf.gen_datasets(self.conf, train_instances)
-        cv_monitoring.init(cv_datasets.get_features_ids())
         for fold_id, datasets in enumerate(cv_datasets._datasets):
+            start = time.time()
             self.pipeline.fit(datasets.train_instances.features.get_values(),
                               self.get_supervision(datasets.train_instances))
-            cv_predictions = self._get_predictions(datasets.test_instances)
-            cv_monitoring.add_fold(fold_id, cv_predictions, self.pipeline)
+            train_time = time.time() - start
+            cv_predictions, test_time = self.testing(datasets.test_instances)
+            cv_monitoring.add_fold(self, train_time, cv_predictions,
+                                   test_time, fold_id)
 
     def apply_pipeline(self, instances):
         num_instances = instances.num_instances()

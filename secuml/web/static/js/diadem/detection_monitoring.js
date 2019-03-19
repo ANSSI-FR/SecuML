@@ -1,15 +1,3 @@
-function displayCoefficientsDiv(child_exp_id) {
-  if (classifier_conf.feature_importance == 'weight') {
-      var title = 'Model Coefficients';
-  } else if (classifier_conf.feature_importance == 'score') {
-      var title = 'Features Importance';
-  }
-  var div = cleanDiv('coeff');
-  var model_coefficients = createPanel('panel-primary', null, title, div);
-  model_coefficients.setAttribute('id', 'model_coefficients');
-  displayCoefficients(child_exp_id);
-}
-
 function createTrainTestMonitoring(child_exp_id, train_test) {
     var panel_title = '';
     var div = null;
@@ -23,11 +11,7 @@ function createTrainTestMonitoring(child_exp_id, train_test) {
     var monitoring = createPanel('panel-primary', null, panel_title, div);
     createDivWithClass(train_test + '_monitoring', 'tabbable boxed parentTabs',
                        monitoring);
-    if (train_test == 'train') {
-        if (children_exps[child_exp_id].model_interp) {
-            displayCoefficientsDiv(child_exp_id);
-        }
-    } else if (train_test == 'test') {
+    if (train_test == 'test') {
         createDivWithClass('alerts_buttons', 'col-md-12', monitoring);
         if (children_exps[child_exp_id].alerts) {
             displayAlertsButtons(child_exp_id);
@@ -77,22 +61,18 @@ function displayAlertsButtons(child_exp_id) {
     }
 }
 
-function displayChildMonitoring(conf, train_test, fold_id) {
-    d3.json(buildQuery('getDiademChildExp',
+function displayDetectionMonitoring(conf, train_test, fold_id) {
+    d3.json(buildQuery('getDiademDetectionChildExp',
                        [conf.exp_id, train_test, fold_id]),
-            function(data) {
-                var child_exp_id = data.exp_id;
-                children_exps[child_exp_id] = data;
-                displayMonitoring(train_test, child_exp_id, data);
+            function(exp_info) {
+                var child_exp_id = exp_info.exp_id;
+                children_exps[child_exp_id] = exp_info;
+                createTrainTestMonitoring(child_exp_id, train_test);
+                displayMonitoringTabs(train_test, child_exp_id, exp_info);
+                updateMonitoringDisplay(train_test, child_exp_id, exp_info.proba,
+                                        exp_info.with_scoring, exp_info.multiclass,
+                                        exp_info.perf_monitoring);
             });
-}
-
-function displayMonitoring(train_test, exp_id, exp_info) {
-    createTrainTestMonitoring(exp_id, train_test);
-    displayMonitoringTabs(train_test, exp_id, exp_info);
-    updateMonitoringDisplay(train_test, exp_id, exp_info.proba,
-                            exp_info.with_scoring, exp_info.multiclass,
-                            exp_info.perf_monitoring);
 }
 
 function updateMonitoringDisplay(train_test, child_exp_id, proba, with_scoring,
@@ -123,23 +103,4 @@ function displayMonitoringTabs(train_test, child_exp_id, exp_info) {
     if (exp_info.perf_monitoring) {
         displayPerformanceTabs(train_test, exp_info);
     }
-}
-
-function displayCoefficients(train_exp) {
-  var model_coefficients_div = cleanDiv('model_coefficients');
-  var query = buildQuery('supervisedLearningMonitoring', [train_exp,
-                                                          'coeff_barplot']);
-  $.getJSON(query, function (data) {
-      var options = barPlotOptions(data);
-      barPlotAddTooltips(options, data.tooltip_data);
-      barPlotAddBands(options, true);
-      options.legend.display = false;
-      var barPlot = drawBarPlot('model_coefficients',
-              options,
-              data,
-              type = 'horizontalBar',
-              width = null,
-              height = '400px',
-              callback = getCoefficientsCallback(train_exp));
-  });
 }

@@ -25,13 +25,14 @@ class Coefficients(object):
 
     # One line for each fold
     # And mean, std, Zscore
-    def __init__(self, num_folds, features):
+    def __init__(self, features_info, num_folds=1):
         self.fold_coef = pd.DataFrame(
-                                  np.zeros((num_folds, len(features))),
+                                  np.zeros((num_folds,
+                                            features_info.num_features())),
                                   index=['f_%d' % x for x in range(num_folds)],
-                                  columns=features)
+                                  columns=features_info.ids)
 
-    def add_fold(self, fold_id, coef):
+    def add_fold(self, coef, fold_id=0):
         self.fold_coef.iloc[fold_id, :] = coef
 
     def final_computations(self):
@@ -48,5 +49,6 @@ class Coefficients(object):
         sort_data_frame(self.coef_summary, 'abs_mean', False, True)
 
     def display(self, directory):
+        self.final_computations()
         with open(path.join(directory, 'model_coefficients.csv'), 'w') as f:
             self.coef_summary.to_csv(f, index_label='feature')

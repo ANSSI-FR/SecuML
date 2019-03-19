@@ -21,6 +21,8 @@ from secuml.core.data.labels_tools import MALICIOUS
 
 from secuml.exp import experiment
 from secuml.exp.clustering.conf import ClusteringConf
+from secuml.exp.tools.db_tables import DiademExpAlchemy
+from secuml.exp.tools.db_tables import ExpAlchemy
 from secuml.exp.tools.db_tables import ExpRelationshipsAlchemy
 from secuml.exp.diadem.alerts_clustering import AlertsClusteringExp
 
@@ -122,13 +124,15 @@ class AlertsMonitoring(object):
         # alerts_instances
         test_instances = self.test_exp.test_instances
         alerts_instances = test_instances.get_from_ids(alerts_ids)
-        # train_instances loaded from the Train experient.
+        # train_instances loaded from the Train experiment.
         diadem_id = self.test_exp.exp_conf.parent
-        query = self.test_exp.session.query(ExpRelationshipsAlchemy)
+        query = self.test_exp.session.query(DiademExpAlchemy)
+        query = query.join(DiademExpAlchemy.exp)
+        query = query.join(ExpAlchemy.parents)
+        query = query.filter(DiademExpAlchemy.type == 'train')
+        query = query.filter(ExpAlchemy.kind == 'Detection')
         query = query.filter(ExpRelationshipsAlchemy.parent_id == diadem_id)
-        children = [r.child.diadem_exp for r in query.all()]
-        train_exps = [c for c in children if c.type == 'train']
-        train_exp_id = train_exps[0].exp_id
+        train_exp_id = query.one().exp_id
         exp = experiment.get_factory().from_exp_id(
                                          train_exp_id,
                                          self.test_exp.exp_conf.secuml_conf,
