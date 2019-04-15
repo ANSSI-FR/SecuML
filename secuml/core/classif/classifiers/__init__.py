@@ -26,10 +26,10 @@ from secuml.core.data.predictions import Predictions
 from secuml.core.tools.core_exceptions import SecuMLcoreException
 
 
-class SupervisedLearningAtLeastTwoClasses(SecuMLcoreException):
+class AtLeastTwoClasses(SecuMLcoreException):
 
     def __str__(self):
-        return('Supervised learning models requires that the training dataset '
+        return('Supervised learning models require that the training dataset '
                'contains at least two classes.')
 
 
@@ -100,7 +100,7 @@ class Classifier(object):
     def cv_monitoring(self, train_instances, cv_monitoring):
         from secuml.core.classif.conf.test.cv import CvConf
         num_folds = cv_monitoring.num_folds
-        cv_test_conf = CvConf(self.conf.logger, None, num_folds)
+        cv_test_conf = CvConf(self.conf.logger, num_folds)
         cv_datasets = cv_test_conf.gen_datasets(self.conf, train_instances)
         for fold_id, datasets in enumerate(cv_datasets._datasets):
             start = time.time()
@@ -166,7 +166,7 @@ class SupervisedClassifier(Classifier):
             raise MissingAnnotations()
         if check:
             if len(set(supervision)) < 2:
-                raise SupervisedLearningAtLeastTwoClasses
+                raise AtLeastTwoClasses()
         return supervision
 
     def _set_best_hyperparam(self, train_instances):

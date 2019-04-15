@@ -19,8 +19,8 @@ from . import SeveralFoldsTestConf
 
 class TemporalCvConf(SeveralFoldsTestConf):
 
-    def __init__(self, logger, alerts_conf, num_folds):
-        SeveralFoldsTestConf.__init__(self, logger, alerts_conf, num_folds)
+    def __init__(self, logger, num_folds):
+        SeveralFoldsTestConf.__init__(self, logger, num_folds)
         self.method = 'temporal_cv'
 
     def get_exp_name(self):
@@ -30,8 +30,7 @@ class TemporalCvConf(SeveralFoldsTestConf):
 
     @staticmethod
     def from_json(obj, logger):
-        alerts_conf = SeveralFoldsTestConf.alert_conf_from_json(obj, logger)
-        return TemporalCvConf(logger, alerts_conf, obj['num_folds'])
+        return TemporalCvConf(logger, obj['num_folds'])
 
     @staticmethod
     def gen_parser(parser):
@@ -43,8 +42,7 @@ class TemporalCvConf(SeveralFoldsTestConf):
 
     @staticmethod
     def from_args(args, logger):
-        alerts_conf = SeveralFoldsTestConf.alert_conf_from_args(args, logger)
-        return TemporalCvConf(logger, alerts_conf, args.num_folds_val_temp)
+        return TemporalCvConf(logger, args.num_folds_val_temp)
 
     def _gen_cv_split(self, classifier_conf, instances):
         t_indexes, t_start, t_end = instances.get_sorted_timestamps()

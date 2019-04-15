@@ -36,11 +36,11 @@ def _gen_sliding_windows(t_start, num_train_buckets, num_test_buckets, delta):
 
 class SlidingWindowConf(SeveralFoldsTestConf):
 
-    def __init__(self, logger, alerts_conf, num_buckets, num_train_buckets,
+    def __init__(self, logger, num_buckets, num_train_buckets,
                  num_test_buckets):
         num_folds = _compute_num_folds(num_buckets, num_train_buckets,
                                        num_test_buckets)
-        SeveralFoldsTestConf.__init__(self, logger, alerts_conf, num_folds)
+        SeveralFoldsTestConf.__init__(self, logger, num_folds)
         self.method = 'sliding_window'
         self.num_buckets = num_buckets
         self.num_train_buckets = num_train_buckets
@@ -82,15 +82,12 @@ class SlidingWindowConf(SeveralFoldsTestConf):
 
     @staticmethod
     def from_args(args, logger):
-        alerts_conf = SeveralFoldsTestConf.alert_conf_from_args(args, logger)
-        return SlidingWindowConf(logger, alerts_conf, args.num_buckets,
+        return SlidingWindowConf(logger, args.num_buckets,
                                  args.num_train_buckets, args.num_test_buckets)
 
     @staticmethod
     def from_json(obj, logger):
-        alerts_conf = SeveralFoldsTestConf.alert_conf_from_json(obj, logger)
         return SlidingWindowConf(logger,
-                                 alerts_conf,
                                  obj['num_buckets'],
                                  obj['num_train_buckets'],
                                  obj['num_test_buckets'])

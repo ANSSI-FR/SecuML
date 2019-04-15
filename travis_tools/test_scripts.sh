@@ -7,6 +7,8 @@ function experiments {
     SecuML_projection Gaussians test -a ground_truth.csv Lda
     SecuML_clustering Gaussians test Kmeans
     SecuML_DIADEM Gaussians test LogisticRegression -a ground_truth.csv
+    SecuML_DIADEM Gaussians test --alerts-classif GaussianNaiveBayes GradientBoosting -a ground_truth.csv
+    SecuML_DIADEM Gaussians test --alerts-clustering Kmeans --num-alerts-clusters 3 GradientBoosting -a ground_truth.csv
     SecuML_ILAB Gaussians test Random --auto
     SecuML_rm_project_exp --exp-id 1
     SecuML_rm_project_exp --project Gaussians

@@ -14,10 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from secuml.core.classif.conf.classifiers.logistic_regression \
-        import LogisticRegressionConf
-from secuml.core.classif.conf.hyperparam import HyperparamConf
 from secuml.core.data.labels_tools import MALICIOUS
+from secuml.core.classif.classifiers import AtLeastTwoClasses
 
 from secuml.exp import experiment
 from secuml.exp.clustering.conf import ClusteringConf
@@ -33,20 +31,19 @@ class AlertsMonitoring(object):
         self.test_exp = test_exp
         self.alerts_conf = alerts_conf
 
-    def extract(self, predictions):
+    def group(self, predictions):
+        if (self.alerts_conf.classifier_conf is None and
+           self.alerts_conf.clustering_conf is None):
+            return
         threshold = self.alerts_conf.detection_threshold
-        self.alerts = predictions.get_alerts(threshold)
-
-    def group(self):
-        alerts_ids = [alert.instance_id for alert in self.alerts]
+        alerts = predictions.get_alerts(threshold)
+        alerts_ids = [alert.instance_id for alert in alerts]
         if len(alerts_ids) == 0:
             return
         train_instances, alerts_instances = self._get_datasets(alerts_ids)
-        families = train_instances.annotations.get_families()
-        num_families = len(set(families))
-        if num_families > 1:
+        if self.alerts_conf.classifier_conf is not None:
             self._classify(alerts_instances, train_instances)
-        else:
+        elif self.alerts_conf.clustering_conf is not None:
             self._cluster(alerts_instances)
 
     def display(self, output_dir):
@@ -59,20 +56,25 @@ class AlertsMonitoring(object):
         clustering_exp.run(instances=alerts_instances, quick=True)
 
     def _classify(self, alerts_instances, train_instances):
-        model = self._train_multiclass(train_instances)
-        predict_families, all_families = self._predict_families(
-                                                              model,
-                                                              alerts_instances)
-        clustering_exp = self._create_clustering_exp(None)
-        clustering_exp.set_clusters(alerts_instances, predict_families,
-                                    None, False, all_families)
-
-    def _predict_families(self, model, alerts_instances):
+        # Training
+        classifier_conf = self.alerts_conf.classifier_conf
+        model = classifier_conf.model_class(classifier_conf)
+        try:
+            model.training(train_instances)
+        except AtLeastTwoClasses:
+            self.alerts_conf.logger.warning('Two few families in the training '
+                                            'to train a classifier. '
+                                            'The alerts are not clustered. ')
+            return
+        # Predict families
         predicted_families, _ = model.testing(alerts_instances)
         all_families = list(model.class_labels)
         predicted_families = [all_families.index(x)
                               for x in predicted_families.values]
-        return predicted_families, all_families
+        # Clustering exp
+        clustering_exp = self._create_clustering_exp(None)
+        clustering_exp.set_clusters(alerts_instances, predicted_families,
+                                    None, False, all_families)
 
     def _create_clustering_exp(self, core_clustering_conf):
         exp_conf = self.test_exp.exp_conf
@@ -86,27 +88,6 @@ class AlertsMonitoring(object):
         return AlertsClusteringExp(conf, self.test_exp.exp_conf.parent,
                                    create=True, session=self.test_exp.session)
 
-    def _train_multiclass(self, train_instances):
-        # Multi-class model
-        num_folds = None
-        n_jobs = None
-        hyperparam_conf = self.test_exp.classifier.conf.hyperparam_conf
-        if hyperparam_conf is not None:
-            optim_conf = hyperparam_conf.optim_conf
-            if optim_conf is not None:
-                num_folds = optim_conf.num_folds
-                n_jobs = optim_conf.n_jobs
-        hyperparam_conf = HyperparamConf.get_default(
-                                   num_folds, n_jobs, True,
-                                   LogisticRegressionConf,
-                                   self.alerts_conf.logger)
-        core_conf = LogisticRegressionConf(True, hyperparam_conf,
-                                           self.alerts_conf.logger)
-        model = core_conf.model_class(core_conf)
-        # Training
-        model.training(train_instances)
-        return model
-
     def _check_num_clusters(self, alerts_instances):
         num_clusters = self.alerts_conf.clustering_conf.num_clusters
         num_alerts = alerts_instances.num_instances()
@@ -117,8 +98,9 @@ class AlertsMonitoring(object):
                     % (num_clusters, num_alerts))
             num_clusters = min(num_alerts, 4)
             self.alerts_conf.clustering_conf.num_clusters = num_clusters
-            self.alerts_conf.logger.warn('The number of clusters is set to %s'
-                                         % (num_clusters))
+            self.alerts_conf.logger.warning(
+                                        'The number of clusters is set to %s'
+                                        % (num_clusters))
 
     def _get_datasets(self, alerts_ids):
         # alerts_instances

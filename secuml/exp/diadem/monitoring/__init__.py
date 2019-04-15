@@ -65,8 +65,7 @@ class DetectionMonitoring(object):
         if self.performance is not None:
             self.performance.final_computations()
         if self.alerts_monitoring is not None:
-            self.alerts_monitoring.extract(self.predictions.predictions)
-            self.alerts_monitoring.group()
+            self.alerts_monitoring.group(self.predictions.predictions)
 
     def display(self, directory):
         self.final_computations()

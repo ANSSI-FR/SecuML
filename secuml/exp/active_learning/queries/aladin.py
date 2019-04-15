@@ -51,14 +51,14 @@ class AladinQueries(CoreAladinQueries):
                                                optim_conf.num_folds,
                                                optim_conf.n_jobs, multiclass,
                                                self.exp.logger)
-        test_conf = UnlabeledLabeledConf(self.exp.logger, None)
+        test_conf = UnlabeledLabeledConf(self.exp.logger)
         classif_conf = ClassificationConf(naive_bayes_conf, test_conf,
                                           self.exp.logger)
         DiademConf(self.exp.exp_conf.secuml_conf,
                    self.exp.exp_conf.dataset_conf,
                    self.exp.exp_conf.features_conf,
                    self.exp.exp_conf.annotations_conf,
-                   classif_conf, name=name, parent=self.exp.exp_id)
+                   classif_conf, None, name=name, parent=self.exp.exp_id)
         return naive_bayes_conf
 
     def _run_logistic_regression(self):
@@ -71,7 +71,7 @@ class AladinQueries(CoreAladinQueries):
                               self.exp.exp_conf.features_conf,
                               self.exp.exp_conf.annotations_conf,
                               self.exp.exp_conf.core_conf.multiclass_model,
-                              name=name, parent=self.exp.exp_id)
+                              None, name=name, parent=self.exp.exp_id)
         model_exp = DiademExp(exp_conf, session=self.exp.session)
         model_exp.run(instances=self.iteration.datasets.instances,
                       cv_monitoring=False)

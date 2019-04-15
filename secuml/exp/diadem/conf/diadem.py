@@ -21,32 +21,37 @@ from secuml.core.classif.conf import ClassificationConf
 from secuml.core.classif.conf.classifiers import get_classifier_type
 from secuml.core.classif.conf.classifiers import ClassifierType
 from secuml.core.conf import exportFieldMethod
+from secuml.core.tools.core_exceptions import InvalidInputArguments
 from secuml.exp.conf.annotations import AnnotationsConf
 from secuml.exp.conf.dataset import DatasetConf
 from secuml.exp.conf.exp import ExpConf
 from secuml.exp.conf.features import FeaturesConf
 
+from .alerts import AlertsConf
+
 
 class DiademConf(ExpConf):
 
     def __init__(self, secuml_conf, dataset_conf, features_conf,
-                 annotations_conf, core_conf, name=None, parent=None,
-                 already_trained=None):
+                 annotations_conf, core_conf, alerts_conf, name=None,
+                 parent=None, already_trained=None):
         self.already_trained = already_trained
         ExpConf.__init__(self, secuml_conf, dataset_conf, features_conf,
                          annotations_conf, core_conf, name=name, parent=parent)
+        self.alerts_conf = alerts_conf
 
     def fields_to_export(self):
         fields = ExpConf.fields_to_export(self)
         fields.extend([('already_trained', exportFieldMethod.primitive)])
+        fields.extend([('alerts_conf', exportFieldMethod.obj)])
         return fields
 
     @staticmethod
     def gen_parser():
         parser = argparse.ArgumentParser(
-            description='Learn a detection model. '
-                        'The ground-truth must be stored in '
-                        'annotations/ground_truth.csv.')
+                              description='Learn a detection model. '
+                                          'The ground-truth must be stored in '
+                                          'annotations/ground_truth.csv.')
         ExpConf.gen_parser(parser)
         ClassificationConf.gen_parser(parser)
         factory = classifiers.get_factory()
@@ -67,6 +72,7 @@ class DiademConf(ExpConf):
         # Add subparser for already trained model
         already_trained = subparsers.add_parser('AlreadyTrained')
         factory.gen_parser('AlreadyTrained', already_trained)
+        AlertsConf.gen_parser(parser)
         return parser
 
     @staticmethod
@@ -84,11 +90,24 @@ class DiademConf(ExpConf):
         already_trained = None
         if args.model_class == 'AlreadyTrained':
             already_trained = args.model_exp_id
+        alerts_conf = AlertsConf.from_args(args, secuml_conf.logger)
+        if (classifier_type == ClassifierType.unsupervised and
+                alerts_conf.classifier_conf is not None):
+            raise InvalidInputArguments('Supervised classification of the '
+                                        'alerts is not supported for '
+                                        'unsupervised model classes.')
+        if classif_conf.classifier_conf.multiclass:
+            if (alerts_conf.classifier_conf is not None or
+                    alerts_conf.clustering_conf is not None):
+                raise InvalidInputArguments('Alerts analysis is not supported '
+                                            'for multiclass models.')
+            else:
+                alerts_conf = None
         dataset_conf = DatasetConf.from_args(args, secuml_conf.logger)
         features_conf = FeaturesConf.from_args(args, secuml_conf.logger)
         return DiademConf(secuml_conf, dataset_conf, features_conf,
-                          annotations_conf, classif_conf, name=args.exp_name,
-                          already_trained=already_trained)
+                          annotations_conf, classif_conf, alerts_conf,
+                          name=args.exp_name, already_trained=already_trained)
 
     @staticmethod
     def from_json(conf_json, secuml_conf):
@@ -101,8 +120,10 @@ class DiademConf(ExpConf):
                                                  secuml_conf.logger)
         core_conf = ClassificationConf.from_json(conf_json['core_conf'],
                                                  secuml_conf.logger)
+        alerts_conf = AlertsConf.from_json(conf_json['alerts_conf'],
+                                           secuml_conf.logger)
         exp_conf = DiademConf(secuml_conf, dataset_conf, features_conf,
-                              annotations_conf, core_conf,
+                              annotations_conf, core_conf, alerts_conf,
                               name=conf_json['name'],
                               parent=conf_json['parent'],
                               already_trained=conf_json['already_trained'])

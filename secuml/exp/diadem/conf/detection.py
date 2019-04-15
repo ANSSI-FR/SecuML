@@ -14,12 +14,13 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from secuml.core.classif.conf.alerts import AlertsConf
 from secuml.core.conf import exportFieldMethod
 from secuml.exp.conf.annotations import AnnotationsConf
 from secuml.exp.conf.dataset import DatasetConf
 from secuml.exp.conf.exp import ExpConf
 from secuml.exp.conf.features import FeaturesConf
+
+from .alerts import AlertsConf
 
 
 class DetectionConf(ExpConf):

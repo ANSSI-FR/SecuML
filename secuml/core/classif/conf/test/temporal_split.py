@@ -22,8 +22,8 @@ from . import OneFoldTestConf
 
 class TemporalSplitConf(OneFoldTestConf):
 
-    def __init__(self, logger, alerts_conf, test_size):
-        OneFoldTestConf.__init__(self, logger, alerts_conf)
+    def __init__(self, logger, test_size):
+        OneFoldTestConf.__init__(self, logger)
         self.method = 'temporal_split'
         self.test_size = test_size
 
@@ -48,13 +48,11 @@ class TemporalSplitConf(OneFoldTestConf):
 
     @staticmethod
     def from_args(args, logger):
-        alerts_conf = OneFoldTestConf.alert_conf_from_args(args, logger)
-        return TemporalSplitConf(logger, alerts_conf, args.test_size_temp)
+        return TemporalSplitConf(logger, args.test_size_temp)
 
     @staticmethod
     def from_json(obj, logger):
-        alerts_conf = OneFoldTestConf.alert_conf_from_json(obj, logger)
-        return TemporalSplitConf(logger, alerts_conf, obj['test_size'])
+        return TemporalSplitConf(logger, obj['test_size'])
 
     def _gen_train_test(self, classifier_conf, instances):
         timestamps = instances.ids.timestamps

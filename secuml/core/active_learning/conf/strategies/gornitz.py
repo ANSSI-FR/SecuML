@@ -45,7 +45,7 @@ class GornitzConf(ActiveLearningConf):
                                                      logger)
         classifier_conf = SssvddConf(hyperparam_conf, logger)
         return ClassificationConf(classifier_conf,
-                                  UnlabeledLabeledConf(logger, None), logger,
+                                  UnlabeledLabeledConf(logger), logger,
                                   validation_conf=validation_conf)
 
     def get_exp_name(self):

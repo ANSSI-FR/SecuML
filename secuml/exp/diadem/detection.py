@@ -79,7 +79,8 @@ class DetectionExp(Experiment):
         diadem_exp.multiclass = classif_conf.multiclass
         diadem_exp.proba = classif_conf.is_probabilist()
         diadem_exp.with_scoring = classif_conf.scoring_function() is not None
-        diadem_exp.alerts = self.exp_conf.core_conf is not None
+        diadem_exp.alerts = (self.exp_conf.core_conf is not None and
+                             not classif_conf.multiclass)
         diadem_exp.model_interp = classif_conf.is_interpretable()
         diadem_exp.pred_interp = classif_conf.interpretable_predictions()
         self.session.flush()

@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from secuml.core.classif.conf.alerts import AlertsConf
 from secuml.core.classif.datasets import CvDatasets
 from secuml.core.classif.datasets import Datasets
 from secuml.core.conf import ConfFactory
@@ -38,10 +37,9 @@ class TestConfFactory(ConfFactory):
 
 class TestConf(Conf):
 
-    def __init__(self, logger, alerts_conf):
+    def __init__(self, logger):
         Conf.__init__(self, logger)
         self.method = None
-        self.alerts_conf = alerts_conf
 
     def get_exp_name(self):
         return ''
@@ -61,27 +59,12 @@ class TestConf(Conf):
         for method in methods:
             method_group = parser.add_argument_group(method + ' arguments')
             get_factory().gen_parser(method, method_group)
-        AlertsConf.gen_parser(parser)
-
-    @staticmethod
-    def alert_conf_from_json(obj, logger):
-        if obj['alerts_conf'] is None:
-            return None
-        return AlertsConf.from_json(obj['alerts_conf'], logger)
-
-    @staticmethod
-    def alert_conf_from_args(args, logger):
-        return AlertsConf.from_args(args, logger)
 
     def fields_to_export(self):
-        return [('method', exportFieldMethod.primitive),
-                ('alerts_conf', exportFieldMethod.obj)]
+        return [('method', exportFieldMethod.primitive)]
 
 
 class OneFoldTestConf(TestConf):
-
-    def __init__(self, logger, alerts_conf):
-        TestConf.__init__(self, logger, alerts_conf)
 
     def gen_datasets(self, classifier_conf, instances):
         train, test = self._gen_train_test(classifier_conf, instances)
@@ -90,8 +73,8 @@ class OneFoldTestConf(TestConf):
 
 class SeveralFoldsTestConf(TestConf):
 
-    def __init__(self, logger, alerts_conf, num_folds):
-        TestConf.__init__(self, logger, alerts_conf)
+    def __init__(self, logger, num_folds):
+        TestConf.__init__(self, logger)
         self.num_folds = num_folds
 
     def fields_to_export(self):

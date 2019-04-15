@@ -22,8 +22,8 @@ from . import SeveralFoldsTestConf
 
 class CvConf(SeveralFoldsTestConf):
 
-    def __init__(self, logger, alerts_conf, num_folds):
-        SeveralFoldsTestConf.__init__(self, logger, alerts_conf, num_folds)
+    def __init__(self, logger, num_folds):
+        SeveralFoldsTestConf.__init__(self, logger, num_folds)
         self.method = 'cv'
 
     def get_exp_name(self):
@@ -41,13 +41,11 @@ class CvConf(SeveralFoldsTestConf):
 
     @staticmethod
     def from_args(args, logger):
-        alerts_conf = SeveralFoldsTestConf.alert_conf_from_args(args, logger)
-        return CvConf(logger, alerts_conf, args.num_folds_val)
+        return CvConf(logger, args.num_folds_val)
 
     @staticmethod
     def from_json(obj, logger):
-        alerts_conf = SeveralFoldsTestConf.alert_conf_from_json(obj, logger)
-        return CvConf(logger, alerts_conf, obj['num_folds'])
+        return CvConf(logger, obj['num_folds'])
 
     def _gen_cv_split(self, classifier_conf, instances):
         annotations = instances.get_annotations(False)

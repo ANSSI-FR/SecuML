@@ -20,7 +20,7 @@ function createTrainTestMonitoring(child_exp_id, train_test) {
 }
 
 function displayAlertsButton(buttons_group, button_label, buttons_title,
-                             child_exp_id) {
+                             child_exp_id, clustering_exp_id) {
     var label_group = createDivWithClass(null, 'btn-group',
                                          parent_div=buttons_group);
     var label_button = document.createElement('button');
@@ -34,15 +34,8 @@ function displayAlertsButton(buttons_group, button_label, buttons_title,
             var query = buildQuery('alerts', [child_exp_id, button_label]);
             window.open(query);
         } else {
-            clustering_exp_id = getAlertsClusteringExpId(child_exp_id);
-            if (! clustering_exp_id) {
-                message = ['There is no clustering of the alerts.'];
-                displayAlert('no_alert_clustering', 'Warning', message);
-            } else {
-                var query = buildQuery('SecuML',
-                                       [clustering_exp_id]);
-                window.open(query);
-            }
+            var query = buildQuery('SecuML', [clustering_exp_id]);
+            window.open(query);
         }
     });
     label_group.appendChild(label_button);
@@ -54,10 +47,16 @@ function displayAlertsButtons(child_exp_id) {
     var buttons_group = createDivWithClass(null,
                                            'btn-group btn-group-justified',
                                            parent_div=alerts_div);
-    var labels = ['topN', 'random', 'clustering'];
-    var titles = ['Top N', 'Random', 'Clustering'];
+    var labels = ['topN', 'random'];
+    var titles = ['Top N', 'Random'];
+    var clustering_exp_id = getAlertsClusteringExpId(child_exp_id);
+    if (clustering_exp_id) {
+        labels.push('clustering');
+        titles.push('Clustering');
+    }
     for (var i = 0; i < labels.length; i++) {
-        displayAlertsButton(buttons_group, labels[i], titles[i], child_exp_id);
+        displayAlertsButton(buttons_group, labels[i], titles[i], child_exp_id,
+                            clustering_exp_id);
     }
 }
 

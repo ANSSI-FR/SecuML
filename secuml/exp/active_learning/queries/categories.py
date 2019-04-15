@@ -52,14 +52,14 @@ class Categories(CoreCategories):
                                                optim_conf.num_folds,
                                                optim_conf.n_jobs, multiclass,
                                                self.exp.logger)
-        test_conf = UnlabeledLabeledConf(self.exp.logger, None)
+        test_conf = UnlabeledLabeledConf(self.exp.logger)
         classification_conf = ClassificationConf(naive_bayes_conf, test_conf,
                                                  self.exp.logger)
         exp_conf = DiademConf(self.exp.exp_conf.secuml_conf,
                               self.exp.exp_conf.dataset_conf,
                               self.exp.exp_conf.features_conf,
                               self.exp.exp_conf.annotations_conf,
-                              classification_conf, name=name,
+                              classification_conf, None, name=name,
                               parent=self.exp.exp_id)
         naive_bayes_exp = DiademExp(exp_conf, session=self.exp.session)
         naive_bayes_exp.create_exp()

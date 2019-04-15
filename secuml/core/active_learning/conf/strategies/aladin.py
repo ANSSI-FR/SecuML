@@ -39,7 +39,7 @@ class AladinConf(ActiveLearningConf):
         classifier_conf = factory.get_default('LogisticRegression',
                                               None, None, multiclass, logger)
         return ClassificationConf(classifier_conf,
-                                  UnlabeledLabeledConf(logger, None), logger,
+                                  UnlabeledLabeledConf(logger), logger,
                                   validation_conf=validation_conf)
 
     @staticmethod

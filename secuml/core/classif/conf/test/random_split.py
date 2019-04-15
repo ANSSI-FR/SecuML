@@ -37,8 +37,8 @@ def _get_train_test_ids(ids, test_size):
 
 class RandomSplitConf(OneFoldTestConf):
 
-    def __init__(self, logger, alerts_conf, test_size):
-        OneFoldTestConf.__init__(self, logger, alerts_conf)
+    def __init__(self, logger, test_size):
+        OneFoldTestConf.__init__(self, logger)
         self.method = 'random_split'
         self.test_size = test_size
 
@@ -63,13 +63,11 @@ class RandomSplitConf(OneFoldTestConf):
 
     @staticmethod
     def from_args(args, logger):
-        alerts_conf = OneFoldTestConf.alert_conf_from_args(args, logger)
-        return RandomSplitConf(logger, alerts_conf, args.test_size)
+        return RandomSplitConf(logger, args.test_size)
 
     @staticmethod
     def from_json(obj, logger):
-        alerts_conf = OneFoldTestConf.alert_conf_from_json(obj, logger)
-        return RandomSplitConf(logger, alerts_conf, obj['test_size'])
+        return RandomSplitConf(logger, obj['test_size'])
 
     def _gen_train_test(self, classifier_conf, instances):
         train, test = _get_train_test_ids(instances.ids.get_ids(),

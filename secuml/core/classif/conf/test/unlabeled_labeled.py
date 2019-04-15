@@ -22,8 +22,8 @@ from . import OneFoldTestConf
 
 class UnlabeledLabeledConf(OneFoldTestConf):
 
-    def __init__(self, logger, alerts_conf):
-        OneFoldTestConf.__init__(self, logger, alerts_conf)
+    def __init__(self, logger):
+        OneFoldTestConf.__init__(self, logger)
         self.method = 'unlabeled'
 
     def get_exp_name(self):
@@ -37,13 +37,11 @@ class UnlabeledLabeledConf(OneFoldTestConf):
 
     @staticmethod
     def from_args(args, logger):
-        alerts_conf = OneFoldTestConf.alert_conf_from_args(args, logger)
-        return UnlabeledLabeledConf(logger, alerts_conf)
+        return UnlabeledLabeledConf(logger)
 
     @staticmethod
     def from_json(obj, logger):
-        alerts_conf = OneFoldTestConf.alert_conf_from_json(obj, logger)
-        return UnlabeledLabeledConf(logger, alerts_conf)
+        return UnlabeledLabeledConf(logger)
 
     def _gen_train_test(self, classifier_conf, instances):
         classifier_type = get_classifier_type(classifier_conf.__class__)

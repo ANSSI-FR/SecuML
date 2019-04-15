@@ -43,8 +43,7 @@ class ActiveLearningConfFactory(ConfFactory):
     def from_args(self, method, args, logger):
         validation_conf = None
         if args.validation_dataset is not None:
-            validation_conf = TestDatasetConf(logger, None,
-                                              args.validation_dataset)
+            validation_conf = TestDatasetConf(logger, args.validation_dataset)
         class_ = self.get_class(method)
         main_model_type = class_.main_model_type()
         main_model_conf = None
@@ -52,7 +51,7 @@ class ActiveLearningConfFactory(ConfFactory):
             factory = classifiers.get_factory()
             args.multiclass = main_model_type == 'multiclass'
             classifier_conf = factory.from_args(args.model_class, args, logger)
-            test_conf = UnlabeledLabeledConf(logger, None)
+            test_conf = UnlabeledLabeledConf(logger)
             main_model_conf = ClassificationConf(
                                             classifier_conf, test_conf,
                                             logger,
@@ -66,7 +65,7 @@ class ActiveLearningConfFactory(ConfFactory):
         validation_conf = None
         if obj['validation_conf'] is None:
             return None
-        validation_conf = TestDatasetConf(logger, None, obj['validation_conf'])
+        validation_conf = TestDatasetConf(logger, obj['validation_conf'])
         return self.methods[class_name].from_json(obj, main_model,
                                                   validation_conf, logger)
 

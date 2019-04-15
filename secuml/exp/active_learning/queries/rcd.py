@@ -52,7 +52,7 @@ class RcdQueries(CoreRcdQueries):
                               self.exp.exp_conf.dataset_conf,
                               self.exp.exp_conf.features_conf,
                               self.exp.exp_conf.annotations_conf,
-                              conf, name=name, parent=self.exp.exp_id)
+                              conf, None, name=name, parent=self.exp.exp_id)
         self.multiclass_exp = DiademExp(exp_conf, session=self.exp.session)
         self.multiclass_exp.create_exp()
         return conf

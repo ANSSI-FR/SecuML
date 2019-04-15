@@ -21,8 +21,8 @@ from . import OneFoldTestConf
 
 class TestDatasetConf(OneFoldTestConf):
 
-    def __init__(self, logger, alerts_conf, test_dataset):
-        OneFoldTestConf.__init__(self, logger, alerts_conf)
+    def __init__(self, logger, test_dataset):
+        OneFoldTestConf.__init__(self, logger)
         self.method = 'dataset'
         self.test_dataset = test_dataset
 
@@ -43,13 +43,11 @@ class TestDatasetConf(OneFoldTestConf):
 
     @staticmethod
     def from_args(args, logger):
-        alerts_conf = OneFoldTestConf.alert_conf_from_args(args, logger)
-        return TestDatasetConf(logger, alerts_conf, args.test_dataset)
+        return TestDatasetConf(logger, args.test_dataset)
 
     @staticmethod
     def from_json(obj, logger):
-        alerts_conf = OneFoldTestConf.alert_conf_from_json(obj, logger)
-        return TestDatasetConf(logger, alerts_conf, obj['test_dataset'])
+        return TestDatasetConf(logger, obj['test_dataset'])
 
     def _gen_train_test(self, classifier_conf, instances):
         return instances, None

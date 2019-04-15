@@ -30,8 +30,7 @@ def _rcd_conf(args, logger):
     classifier_conf = factory.get_default('LogisticRegression', None, None,
                                           True, logger)
     classif_conf = ClassificationConf(classifier_conf,
-                                      UnlabeledLabeledConf(logger, None),
-                                      logger)
+                                      UnlabeledLabeledConf(logger), logger)
     return RcdStrategyConf(classif_conf, args.cluster_strategy,
                            args.num_annotations, 'uniform', logger)
 

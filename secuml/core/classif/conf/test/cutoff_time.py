@@ -22,8 +22,8 @@ from . import OneFoldTestConf
 
 class CutoffTimeConf(OneFoldTestConf):
 
-    def __init__(self, logger, alerts_conf, cutoff_time):
-        OneFoldTestConf.__init__(self, logger, alerts_conf)
+    def __init__(self, logger, cutoff_time):
+        OneFoldTestConf.__init__(self, logger)
         self.method = 'cutoff_time'
         self.cutoff_time = cutoff_time
 
@@ -44,13 +44,11 @@ class CutoffTimeConf(OneFoldTestConf):
 
     @staticmethod
     def from_args(args, logger):
-        alerts_conf = OneFoldTestConf.alert_conf_from_args(args, logger)
-        return CutoffTimeConf(logger, alerts_conf, args.cutoff_time)
+        return CutoffTimeConf(logger, args.cutoff_time)
 
     @staticmethod
     def from_json(obj, logger):
-        alerts_conf = OneFoldTestConf.alert_conf_from_json(obj, logger)
-        return CutoffTimeConf(logger, alerts_conf, obj['cutoff_time'])
+        return CutoffTimeConf(logger, obj['cutoff_time'])
 
     def _gen_train_test(self, classifier_conf, instances):
         train = instances.ids.get_ids_before(self.cutoff_time)

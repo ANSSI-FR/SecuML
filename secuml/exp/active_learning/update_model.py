@@ -36,7 +36,7 @@ class UpdateModel(CoreUpdateModel):
                               self.exp.exp_conf.dataset_conf,
                               self.exp.exp_conf.features_conf,
                               self.exp.exp_conf.annotations_conf,
-                              self.model_conf, name=name,
+                              self.model_conf, None, name=name,
                               parent=self.exp.exp_id)
         self.model_exp = DiademExp(exp_conf, session=self.exp.session)
         self.model_exp.run(instances=self.iteration.datasets.instances,

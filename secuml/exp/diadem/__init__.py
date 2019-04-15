@@ -208,17 +208,14 @@ class DiademExp(Experiment):
             dataset_conf = self.exp_conf.dataset_conf
             annotations_conf = self.exp_conf.annotations_conf
         features_conf = self.exp_conf.features_conf
+        alerts_conf = None
+        if fold_id is None and kind != 'train':
+            alerts_conf = self.exp_conf.alerts_conf
         test_exp_conf = DetectionConf(
                             secuml_conf, dataset_conf, features_conf,
-                            annotations_conf, self._get_alerts_conf(fold_id),
-                            name=exp_name, parent=diadem_id, fold_id=fold_id,
-                            kind=kind)
+                            annotations_conf, alerts_conf, name=exp_name,
+                            parent=diadem_id, fold_id=fold_id, kind=kind)
         return DetectionExp(test_exp_conf, session=self.session)
-
-    def _get_alerts_conf(self, fold_id):
-        if fold_id is not None:
-            return None
-        return self.exp_conf.core_conf.test_conf.alerts_conf
 
     def _run_one_fold(self, datasets, cv_monitoring, fold_id=None):
         classifier, train_time = self._train(datasets, cv_monitoring, fold_id)
