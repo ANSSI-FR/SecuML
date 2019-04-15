@@ -53,14 +53,13 @@ Automatic Installation
 
 .. code-block:: bash
 
-    virtualenv venv_SecuML --no-site-packages --python python3.5
+    virtualenv venv_SecuML --no-site-packages --python python3
     source venv_SecuML/bin/activate
     pip install -e <path_to_SecuML_project>
 
-.. warning::
+.. note::
 
-    SecuML does not work currrently with python3.6 because of
-    dependency installation issues.
+    SecuML works with python 3.5, 3.6 and 3.7.
 
 
 .. _configuration:
