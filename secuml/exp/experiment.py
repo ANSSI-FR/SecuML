@@ -54,7 +54,8 @@ class Experiment(object):
         self.logger = self.exp_conf.secuml_conf.logger
         self._set_session(session)
         self.exp_id = exp_conf.exp_id
-        self.create = create
+        if create:
+            self.create_exp()
 
     def has_ground_truth(self):
         return self.exp_conf.dataset_conf.has_ground_truth
@@ -74,8 +75,6 @@ class Experiment(object):
         return instances
 
     def run(self):
-        if self.create:
-            self.create_exp()
         if self.exp_conf.parent is None:
             self.logger.info('Experiment n°%d', self.exp_conf.exp_id)
 
