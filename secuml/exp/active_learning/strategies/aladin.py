@@ -25,7 +25,9 @@ class Aladin(CoreAladin):
         self.queries['aladin'] = AladinQueries(self.iteration, self.conf)
 
     def get_url(self):
-        return 'http://localhost:5000/individualAnnotations/%d/%d/' % (
+        secuml_conf = self.iteration.exp.exp_conf.secuml_conf
+        return 'http://%s:%d/ilabAnnotations/%d/%d/' % (
+                    secuml_conf.host, secuml_conf.port,
                     self.iteration.exp.exp_id, self.iteration.iter_num)
 
     def get_exec_times_header(self):

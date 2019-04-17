@@ -76,6 +76,8 @@ SecuML requires a configuration file that follows the following format:
     db_uri: <URI of the database>
     logger_level: <[optional] DEBUG,INFO,WARNING,ERROR or CRITICAL - default INFO>
     logger_output: <[optional] name of the logging output file - default sys.stderr>
+    host: <[optional] host of the web server>
+    port: <[optional] port number of the web server>
 
 See `SecuML_conf_template.yml <https://github.com/ANSSI-FR/SecuML/blob/master/conf/SecuML_conf_template.yml>`_.
 
@@ -120,6 +122,12 @@ Logging Parameters
 Logging parameters (``logger_level`` and ``logger_output``) are optional.
 By default, logging is displayed in the standard error with ``INFO`` level.
 
+Web Server Parameters
+"""""""""""""""""""""
+
+The web server parameters (``host`` and ``port``) are optional.
+By default, the web serveur binds to ``localhost`` on port ``8080``.
+
 
 .. _GUI:
 
@@ -134,11 +142,11 @@ You can launch the web server with the following command line.
 
     SecuML_server --secuml-conf <path_to_conf_file>
 
-``http://localhost:5000/SecuML/`` gives access to SecuML menu.
+``http://<host>:<port>/SecuML/`` gives access to SecuML menu.
 It displays the list of projects and datasets available.
 Besides, for each dataset, it displays the list of experiments gathered by type.
 
-``http://localhost:5000/SecuML/<experiment_id>/`` displays directly
+``http://<host>:<port>/SecuML/<experiment_id>/`` displays directly
 the results of an experiment identified by ``experiment_id``.
 
 .. note::

@@ -94,9 +94,10 @@ class Experiment(object):
         self.close_session()
         print(display_in_green(
                 '\nExperiment %d has been successfully completed. \n'
-                'See http://localhost:5000/SecuML/%d/ '
+                'See http://%s:%d/SecuML/%d/ '
                 'to display the results. \n' %
-                (self.exp_id, self.exp_id)))
+                (self.exp_id, self.exp_conf.secuml_conf.host,
+                 self.exp_conf.secuml_conf.port, self.exp_id)))
 
     def close_session(self):
         self.session.commit()

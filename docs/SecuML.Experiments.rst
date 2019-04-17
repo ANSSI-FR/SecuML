@@ -50,7 +50,7 @@ displayed:
 .. code-block:: bash
 
   Experiment <experiment_id> has been successfully completed.
-  See http://localhost:5000/SecuML/<experiment_id>/ to display the results.
+  See http://<host>:<port>/SecuML/<experiment_id>/ to display the results.
 
 
 The results can then be displayed in the :ref:`web user interface <GUI>` with

@@ -51,7 +51,7 @@ if __name__ == '__main__':
         setSession(SQLAlchemy(app).session)
 
         import secuml.web.views
-        app.run(host='localhost', port=5000, debug=True)
+        app.run(host=secuml_conf.host, port=secuml_conf.port, debug=True)
 
     except (SecuMLcoreException, SecuMLexpException) as e:
         sys.stderr.write(display_in_red(e) + '\n')

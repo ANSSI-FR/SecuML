@@ -63,6 +63,7 @@ class SecuMLConf(object):
             self.set_directories(cfg['input_data_dir'], cfg['output_data_dir'])
             self.set_db_uri(cfg['db_uri'])
             self._set_logger(cfg)
+            self._set_host_port(cfg)
 
     def _set_session(self):
         self.engine = self.get_engine()
@@ -78,6 +79,14 @@ class SecuMLConf(object):
             logger_output = cfg['logger_output']
         self.logger, self.log_handler = get_logger('SecuML', logger_level,
                                                    logger_output)
+
+    def _set_host_port(self, cfg):
+        self.host = 'localhost'
+        if 'host' in cfg:
+            self.host = cfg['host']
+        self.port = 8080
+        if 'port' in cfg:
+            self.port = int(cfg['port'])
 
     def close_log_handler(self):
         close_logger(self.logger, self.log_handler)
