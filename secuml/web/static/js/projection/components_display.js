@@ -1,3 +1,13 @@
+var current_tile = null;
+var current_color = null;
+
+var color_hex = d3.scale.linear().domain([0, 100])
+                                 .range(['GreenYellow', 'black']);
+
+function tile_color(d) {
+    return color_hex(d.num_malicious_instances + d.num_ok_instances);
+}
+
 function drawComponentsInterpretation(experiment, c_x, c_y) {
 
   var C_x = 'C_' + c_x;
@@ -129,10 +139,6 @@ function drawProjectionOnComponents(experiment, c_x, c_y) {
     var y = d3.scale.linear().domain([ymin, ymax]).range([height, 0]);
     var yAxis = d3.svg.axis().scale(y).orient('left');
 
-    var color_hex = d3.scale.linear()
-    .domain([0, 100])
-    .range(['GreenYellow', 'black']);
-
     var color_malicious = d3.scale.linear()
     .domain([0, 1])
     .range(['yellow', 'red']);
@@ -162,9 +168,8 @@ function drawProjectionOnComponents(experiment, c_x, c_y) {
     .data(data)
     .enter()
     .append('polygon')
-    .attr('points', function (d) { return scalePoints(d.hexagon); })
-    .style('fill', function (d) {
-        return color_hex(d.num_malicious_instances + d.num_ok_instances); })
+    .attr('points', function(d) { return scalePoints(d.hexagon); })
+    .style('fill', function(d) { return tile_color(d); })
     .on('mouseover', function(d) {
       tooltip.transition()
         .duration(200)
@@ -181,13 +186,23 @@ function drawProjectionOnComponents(experiment, c_x, c_y) {
     d3.select(this).style('cursor', 'default');
   })
   .on('click', function(d) {
-    cleanInstanceData();
-    if (d.num_malicious_instances + d.num_ok_instances > 1000) {
-      return;
-    } else {
-      displayInstancesList('malicious', d.malicious_instances);
-      displayInstancesList('ok', d.ok_instances);
+    if (current_tile) {
+        d3.select(current_tile).style('stroke', current_color);
     }
+    d3.select(this).style('stroke', 'red');
+    current_tile = this;
+    current_color = tile_color(d);
+    cleanInstanceData();
+    displayInstancesList('malicious', d.malicious_instances,
+                                      d.malicious_user_ids);
+    displayInstancesList('ok', d.ok_instances, d.ok_user_ids);
+    var selector = $('#instances_selector_ok')[0];
+    if (d.num_malicious_instances > 0) {
+      selector = $('#instances_selector_malicious')[0];
+    }
+    selector.selectedIndex = 0;
+    printInstanceInformation(getSelectedOption(selector));
+    last_instance_selector = selector;
   });
 
   var circle = svg.selectAll('circle')

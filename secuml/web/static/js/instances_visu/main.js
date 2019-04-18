@@ -479,16 +479,10 @@ function printWeightedFeatures(selected_id) {
 
 
 // Instances Lists
-function displayInstancesList(malicious_ok, instances) {
+function displayInstancesList(malicious_ok, instances, user_ids=null) {
     clearInstancesList(malicious_ok);
-    if (instances.length == 0)
-        return;
-    var instance_selector = $('#instances_selector_' + malicious_ok)[0];
-    for (var i in instances) {
-        var opt = document.createElement('option');
-        opt.text = instances[i];
-        instance_selector.add(opt);
-    }
+    addElementsToSelectList('instances_selector_' + malicious_ok, instances,
+                            user_ids);
 }
 
 function createInstancesSelector(malicious_ok) {
@@ -506,7 +500,7 @@ function createInstancesSelectors() {
 }
 
 function clearInstancesList(malicious_ok) {
-    cleanDiv('instances_selector_' + malicious_ok);
+    return cleanDiv('instances_selector_' + malicious_ok);
 }
 
 function clearInstancesLists() {

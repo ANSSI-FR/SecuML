@@ -279,6 +279,9 @@ function createSelectList(id, size, callback, parent_div, label=null,
 // text: the text of the elements
 function addElementsToSelectList(selector_id, list, text=null) {
   var selector = cleanDiv(selector_id);
+  if (list.length == 0) {
+    return;
+  }
   for (var i = 0; i < list.length; i++) {
     var t = null;
     if (text != null) {

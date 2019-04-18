@@ -14,13 +14,25 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from flask import send_file
+from flask import jsonify, send_file
+import json
 import os.path as path
+import random
 
 from secuml.exp.projection import ProjectionExperiment  # NOQA
+from secuml.exp.tools.db_tables import InstancesAlchemy
 
-from secuml.web import app
+from secuml.web import app, session
 from secuml.web.views.experiments import update_curr_exp
+
+NUM_MAX_INSTANCES = 100
+
+
+def get_user_instance_ids(instance_ids):
+    query = session.query(InstancesAlchemy)
+    query = query.filter(InstancesAlchemy.id.in_(instance_ids))
+    query = query.order_by(InstancesAlchemy.id)
+    return [r.user_instance_id for r in query.all()]
 
 
 @app.route('/getNumComponents/<exp_id>/')
@@ -39,7 +51,23 @@ def getHexBin(exp_id, x, y):
     experiment = update_curr_exp(exp_id)
     directory = experiment.output_dir()
     filename = '_'.join(['c', x, y, 'hexbin.json'])
-    return send_file(path.join(directory, filename))
+    with open(path.join(directory, filename), 'r') as f:
+        hex_bins = json.load(f)
+        for hex_bin in hex_bins[1:]:
+            if hex_bin['num_malicious_instances'] > NUM_MAX_INSTANCES:
+                hex_bin['malicious_instances'] = random.sample(
+                                                hex_bin['malicious_instances'],
+                                                NUM_MAX_INSTANCES)
+            if hex_bin['num_ok_instances'] > NUM_MAX_INSTANCES:
+                hex_bin['ok_instances'] = random.sample(
+                                                       hex_bin['ok_instances'],
+                                                       NUM_MAX_INSTANCES)
+            for kind in ['malicious', 'ok']:
+                ids = hex_bin['%s_instances' % kind]
+                ids.sort()
+                hex_bin['%s_user_ids' % kind] = get_user_instance_ids(ids)
+                hex_bin['%s_instances' % kind] = ids
+    return jsonify(hex_bins)
 
 
 @app.route('/getProjectionMatrix/<exp_id>/')
