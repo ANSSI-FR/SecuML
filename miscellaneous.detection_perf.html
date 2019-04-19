@@ -197,7 +197,7 @@ the two possible types of errors:
 <em>false positives</em>, i.e. benign instances which have triggered a false alarm.</p>
 <div class="figure align-center" id="id1">
 <a class="reference internal image-reference" href="_images/confusion_matrix.svg"><img alt="_images/confusion_matrix.svg" src="_images/confusion_matrix.svg" width="70%" /></a>
-<p class="caption"><span class="caption-text">Explanation of the Confusion Matrix.</span></p>
+<p class="caption"><span class="caption-text">Explanation of the Confusion Matrix.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="detection-rate">
@@ -207,7 +207,7 @@ the two possible types of errors:
 There is a consensus on the definition of the <em>detection rate</em>,also called
 <em>True Positive Rate (TPR)</em>:</p>
 <ul class="simple">
-<li><span class="math notranslate nohighlight">\(TPR = \frac{TP}{TP + FN}\)</span>.</li>
+<li><p><span class="math notranslate nohighlight">\(TPR = \frac{TP}{TP + FN}\)</span>.</p></li>
 </ul>
 <p>On the contrary, the <em>false alarm rate</em> is not clearly defined.</p>
 </div>
@@ -217,8 +217,8 @@ There is a consensus on the definition of the <em>detection rate</em>,also calle
 the <em>False Positive Rate (FPR)</em>, the most commonly used, and the
 <em>False Discovery Rate (FDR)</em>:</p>
 <ul class="simple">
-<li><span class="math notranslate nohighlight">\(FPR = \frac{FP}{FP + TN}\)</span></li>
-<li><span class="math notranslate nohighlight">\(FDR = \frac{FP}{FP + TP}\)</span>.</li>
+<li><p><span class="math notranslate nohighlight">\(FPR = \frac{FP}{FP + TN}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(FDR = \frac{FP}{FP + TP}\)</span>.</p></li>
 </ul>
 <p>The FPR is the proportion of benign instances that have triggered a false
 alarm, while the FDR measures the proportion of the alerts that are irrelevant.</p>
@@ -240,8 +240,8 @@ meaningless alerts (<span class="math notranslate nohighlight">\(FDR = 55\%\)</s
 over the False Positive Rate (FPR) even if it is still less prevalent in
 practice.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">In SecuML the False Alarm Rate (FAR) corresponds to the
+<p class="admonition-title">Note</p>
+<p>In SecuML the False Alarm Rate (FAR) corresponds to the
 False Discovery Rate (FDR).</p>
 </div>
 </div>
@@ -255,7 +255,7 @@ This curve represents the detection rate according to the false positive rate
 for various values of the detection threshold.</p>
 <div class="figure align-center" id="id2">
 <a class="reference internal image-reference" href="_images/roc_explanation.svg"><img alt="_images/roc_explanation.svg" src="_images/roc_explanation.svg" width="70%" /></a>
-<p class="caption"><span class="caption-text">Explanation of the ROC Curve.</span></p>
+<p class="caption"><span class="caption-text">Explanation of the ROC Curve.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 <p>For a threshold of <span class="math notranslate nohighlight">\(100\%\)</span>, the detection and false alarm rates are null,
 and for a threshold of <span class="math notranslate nohighlight">\(0\%\)</span> they are both equal to <span class="math notranslate nohighlight">\(100\%\)</span>.
@@ -271,8 +271,8 @@ A ROC curve is always above this straight line and the AUC is at least
 Thanks to the ROC curve, we can set the value of the  detection threshold
 according to the detection rate desired or the false alarm rate tolerated.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The ROC curve is interesting to check whether machine learning has learned
+<p class="admonition-title">Note</p>
+<p>The ROC curve is interesting to check whether machine learning has learned
 something from the data, i.e. the ROC curve is away from those of a random
 generator.
 However, the False Alarm Rate - Detection Rate (FAR-DR) curve must be

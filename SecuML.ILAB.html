@@ -220,9 +220,9 @@ gather the corresponding answers.
 The graphical user interface offers other features to assist experts along the annotation process.</p>
 <p class="rubric">References</p>
 <ul class="simple">
-<li>Beaugnon, Anaël. <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2018/06/beaugnon-a_these_manuscrit.pdf">“Expert-in-the-Loop Supervised Learning for Computer Security Detection Systems.”]</a>, Ph.D. thesis, École Normale Superieure (2018).</li>
-<li>Beaugnon et al., <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2018/02/end-to-end-active-learning-for-computer-security-experts_abeaugnon_pchifflier_fbach_anssi_inria.pdf">“End-to-End Active Learning for Computer Security Experts”</a>, AICS 2018.</li>
-<li>Beaugnon et al., <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2017/09/ilab_beaugnonchifflierbach_raid2017.pdf">“ILAB: An Interactive Labelling Strategy for Intrusion Detection”</a>, RAID 2017.</li>
+<li><p>Beaugnon, Anaël. <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2018/06/beaugnon-a_these_manuscrit.pdf">“Expert-in-the-Loop Supervised Learning for Computer Security Detection Systems.”]</a>, Ph.D. thesis, École Normale Superieure (2018).</p></li>
+<li><p>Beaugnon et al., <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2018/02/end-to-end-active-learning-for-computer-security-experts_abeaugnon_pchifflier_fbach_anssi_inria.pdf">“End-to-End Active Learning for Computer Security Experts”</a>, AICS 2018.</p></li>
+<li><p>Beaugnon et al., <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2017/09/ilab_beaugnonchifflierbach_raid2017.pdf">“ILAB: An Interactive Labelling Strategy for Intrusion Detection”</a>, RAID 2017.</p></li>
 </ul>
 <div class="section" id="active-learning">
 <h2>Active Learning<a class="headerlink" href="#active-learning" title="Permalink to this headline">¶</a></h2>
@@ -248,50 +248,37 @@ or they may be email messages coming from the same spam campaign.</p>
 <span id="al-strategies"></span><h3>Strategies Available<a class="headerlink" href="#strategies-available" title="Permalink to this headline">¶</a></h3>
 <p>ILAB offers many active learning strategies:</p>
 <ul class="simple">
-<li>Ilab <a class="footnote-reference" href="#f1" id="id1">[1]</a></li>
-<li>Aladin <a class="footnote-reference" href="#f2" id="id2">[2]</a></li>
-<li>Gornitz <a class="footnote-reference" href="#f3" id="id3">[3]</a></li>
-<li>CesaBianchi <a class="footnote-reference" href="#f4" id="id4">[4]</a></li>
-<li>UncertaintySampling <a class="footnote-reference" href="#f5" id="id5">[5]</a></li>
-<li>RandomSampling</li>
+<li><p>Ilab <a class="footnote-reference brackets" href="#f1" id="id1">1</a></p></li>
+<li><p>Aladin <a class="footnote-reference brackets" href="#f2" id="id2">2</a></p></li>
+<li><p>Gornitz <a class="footnote-reference brackets" href="#f3" id="id3">3</a></p></li>
+<li><p>CesaBianchi <a class="footnote-reference brackets" href="#f4" id="id4">4</a></p></li>
+<li><p>UncertaintySampling <a class="footnote-reference brackets" href="#f5" id="id5">5</a></p></li>
+<li><p>RandomSampling</p></li>
 </ul>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">We recommend using Ilab. This active learning strategies has been extensively compared <a class="footnote-reference" href="#f1" id="id6">[1]</a> to Aladin, Gornitz, and UncertaintySampling.
+<p class="admonition-title">Note</p>
+<p>We recommend using Ilab. This active learning strategies has been extensively compared <a class="footnote-reference brackets" href="#f1" id="id6">1</a> to Aladin, Gornitz, and UncertaintySampling.
 ILAB maximizes the detection performance while minimizing both the number of manual annotations and the execution time.
 Its low execution time enables to update the detection model frequently without inducing long waiting-periods.</p>
 </div>
 <p class="rubric">References</p>
-<table class="docutils footnote" frame="void" id="f1" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id6">2</a>)</em> Beaugnon et al., <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2017/09/ilab_beaugnonchifflierbach_raid2017.pdf">“ILAB: An Interactive Labelling Strategy for Intrusion Detection”</a>, RAID 2017.</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="f2" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>Stokes et al., Aladin: “Active learning of anomalies to detect intrusions”, technical report 2008.</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="f3" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td>Görnitz et al, “Active learning for network intrusion detection”, AISEC 2009.</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="f4" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[4]</a></td><td>Cesa-Bianchi et al., “Worst-case analysis of selective sampling for linear classification”, JMLR 2006.</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="f5" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id5">[5]</a></td><td>Lewis et al., “A sequential algorithm for training text classifiers”, 1994.</td></tr>
-</tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="f1"><span class="brackets">1</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id6">2</a>)</span></dt>
+<dd><p>Beaugnon et al., <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2017/09/ilab_beaugnonchifflierbach_raid2017.pdf">“ILAB: An Interactive Labelling Strategy for Intrusion Detection”</a>, RAID 2017.</p>
+</dd>
+<dt class="label" id="f2"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>Stokes et al., Aladin: “Active learning of anomalies to detect intrusions”, technical report 2008.</p>
+</dd>
+<dt class="label" id="f3"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
+<dd><p>Görnitz et al, “Active learning for network intrusion detection”, AISEC 2009.</p>
+</dd>
+<dt class="label" id="f4"><span class="brackets"><a class="fn-backref" href="#id4">4</a></span></dt>
+<dd><p>Cesa-Bianchi et al., “Worst-case analysis of selective sampling for linear classification”, JMLR 2006.</p>
+</dd>
+<dt class="label" id="f5"><span class="brackets"><a class="fn-backref" href="#id5">5</a></span></dt>
+<dd><p>Lewis et al., “A sequential algorithm for training text classifiers”, 1994.</p>
+</dd>
+</dl>
 </div>
 </div>
 <div class="section" id="parameters">
@@ -305,8 +292,8 @@ active learning strategies have the following optional parameters.</p>
 <p>Active learning strategies require some initial annotations
 for both classes (benign and malicious).</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The annotations files are stored in <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;/&lt;project&gt;/&lt;dataset&gt;/annotations/</span></code> where
+<p class="admonition-title">Note</p>
+<p>The annotations files are stored in <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;/&lt;project&gt;/&lt;dataset&gt;/annotations/</span></code> where
 input data directory <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;</span></code> is specified in the <a class="reference internal" href="getting_started.setting_up.html#configuration"><span class="std std-ref">configuration file</span></a>.</p>
 </div>
 </div>
@@ -322,8 +309,8 @@ The annotation queries are answered automatically by an oracle with the ground-t
 labels an families. This mode is usefull to design new active learning strategies
 and to make comparisons automatically.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The oracle mode requires that the ground truth is known and stored in
+<p class="admonition-title">Note</p>
+<p>The oracle mode requires that the ground truth is known and stored in
 <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;/&lt;project&gt;/&lt;dataset&gt;/annotations/ground_truth.csv</span></code> where
 input data directory <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;</span></code> is specified in the <a class="reference internal" href="getting_started.setting_up.html#configuration"><span class="std std-ref">configuration file</span></a>.</p>
 </div>
@@ -371,12 +358,12 @@ Nevertheless, this approach is not applicable in a real-world setting:
 when security expert deploy an annotation system to build a training dataset they do not have access to an annotated validation dataset.</p>
 <p>ILAB <em>Evolution Monitoring</em> panel displays two kinds of feedback that do not require an annotated validation dataset:</p>
 <ol class="arabic simple">
-<li>the number of malicious and benign families discovered so far, and,</li>
-<li>the accuracy of the suggested labels and families.</li>
+<li><p>the number of malicious and benign families discovered so far, and,</p></li>
+<li><p>the accuracy of the suggested labels and families.</p></li>
 </ol>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The accuracy of the suggested labels and families is available only with ILAB active learning strategy.
+<p class="admonition-title">Note</p>
+<p>The accuracy of the suggested labels and families is available only with ILAB active learning strategy.
 At each iteration, ILAB suggests a family for the high likelihood queries.
 At the next iteration, ILAB computes the accuracy of these suggestions according to the last annotations performed by the expert.</p>
 </div>
@@ -415,7 +402,7 @@ On the contrary, ILAB makes no suggestion for uncertain and low likelihood queri
 The model is indeed unsure about the family of these instances and unreliable suggestions
 may mislead experts.</p>
 <p>The next query is displayed automatically after each annotation validation.
-Experts can click on the&nbsp;<code class="docutils literal notranslate"><span class="pre">Next</span> <span class="pre">Iteration</span></code> button to generate the next queries
+Experts can click on the <code class="docutils literal notranslate"><span class="pre">Next</span> <span class="pre">Iteration</span></code> button to generate the next queries
 after answering all the queries of the current iteration.
 If some queries have not been answered, a pop-up window asks the annotator to answer them.</p>
 </div>
@@ -424,9 +411,9 @@ If some queries have not been answered, a pop-up window asks the annotator to an
 <span id="ilab-family-editor"></span><h3>Family Editor<a class="headerlink" href="#family-editor" title="Permalink to this headline">¶</a></h3>
 <p>The family editor allows to perform three actions over the families:</p>
 <ol class="arabic simple">
-<li><em>Change Name</em> to clarify the name of a family ;</li>
-<li><em>Merge Families</em> to regroup similar families ;</li>
-<li><em>Swap Malicious / Benign</em> to change the label corresponding to a given family.</li>
+<li><p><em>Change Name</em> to clarify the name of a family ;</p></li>
+<li><p><em>Merge Families</em> to regroup similar families ;</p></li>
+<li><p><em>Swap Malicious / Benign</em> to change the label corresponding to a given family.</p></li>
 </ol>
 <img alt="_images/family_editor.png" src="_images/family_editor.png" />
 </div>

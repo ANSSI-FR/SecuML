@@ -5,7 +5,7 @@ Use Case: Spam Detection
 We provide a dataset intended for spam detection for quick testing.
 See `lingspam <https://github.com/ANSSI-FR/SecuML/tree/master/input_data/SpamHam/lingspam>`_ for more information.
 
-* ``SecuML_server`` must be executed to launch the :ref:`web server <GUI>`. ``http://localhost:5000/SecuML/`` gives access to SecuML menu.
+* ``SecuML_server`` must be executed to launch the :ref:`web server <GUI>`. ``http://<host>:<port>/SecuML/`` gives access to SecuML menu.
 
   .. code-block:: bash
 

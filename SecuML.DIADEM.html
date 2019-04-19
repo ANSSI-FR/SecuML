@@ -216,9 +216,9 @@ Besides, it comes with a <a class="reference internal" href="#diadem-gui"><span 
 evaluate and diagnose detection models.</p>
 <p class="rubric">References</p>
 <ul class="simple">
-<li>Beaugnon, Anaël, and Pierre Chifflier. <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2018/11/machine-learning-for-computer-security-abeaugnon-pchifflier-anssi-.pdf">“Machine Learning for Computer Security Detection Systems: Practical Feedback and Solutions”</a>, C&amp;ESAR 2018.</li>
-<li>Beaugnon, Anaël. <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2018/06/beaugnon-a_these_manuscrit.pdf">“Expert-in-the-Loop Supervised Learning for Computer Security Detection Systems.”</a>, Ph.D. thesis, École Normale Superieure (2018).</li>
-<li>[FRENCH] Bonneton, Anaël, and Antoine Husson, <a class="reference external" href="https://www.sstic.org/media/SSTIC2017/SSTIC-actes/le_machine_learning_confront_aux_contraintes_oprat/SSTIC2017-Article-le_machine_learning_confront_aux_contraintes_oprationnelles_des_systmes_de_dtection-bonneton_husson.pdf">“Le Machine Learning confronté aux contraintes opérationnelles des systèmes de détection”</a>, SSTIC 2017.</li>
+<li><p>Beaugnon, Anaël, and Pierre Chifflier. <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2018/11/machine-learning-for-computer-security-abeaugnon-pchifflier-anssi-.pdf">“Machine Learning for Computer Security Detection Systems: Practical Feedback and Solutions”</a>, C&amp;ESAR 2018.</p></li>
+<li><p>Beaugnon, Anaël. <a class="reference external" href="https://www.ssi.gouv.fr/uploads/2018/06/beaugnon-a_these_manuscrit.pdf">“Expert-in-the-Loop Supervised Learning for Computer Security Detection Systems.”</a>, Ph.D. thesis, École Normale Superieure (2018).</p></li>
+<li><p>[FRENCH] Bonneton, Anaël, and Antoine Husson, <a class="reference external" href="https://www.sstic.org/media/SSTIC2017/SSTIC-actes/le_machine_learning_confront_aux_contraintes_oprat/SSTIC2017-Article-le_machine_learning_confront_aux_contraintes_oprationnelles_des_systmes_de_dtection-bonneton_husson.pdf">“Le Machine Learning confronté aux contraintes opérationnelles des systèmes de détection”</a>, SSTIC 2017.</p></li>
 </ul>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
@@ -231,8 +231,8 @@ evaluate and diagnose detection models.</p>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">SecuML_DIADEM</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;model_class&gt;</span></code>.</div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">These arguments are enough to launch DIADEM on a given dataset.
+<p class="admonition-title">Note</p>
+<p>These arguments are enough to launch DIADEM on a given dataset.
 The parameters presented below are completely optional.</p>
 </div>
 <p>The following sections present the <a class="reference internal" href="#diadem-model-classes"><span class="std std-ref">model classes available</span></a>, and some <strong>optional parameters</strong> for
@@ -246,28 +246,28 @@ dataset into a training (90%) and a validation dataset (10%).</p>
 <div class="section" id="supervised-model-classes">
 <span id="diadem-supervised"></span><h4>Supervised Model Classes<a class="headerlink" href="#supervised-model-classes" title="Permalink to this headline">¶</a></h4>
 <ul class="simple">
-<li>LogisticRegression (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html">scikit-learn documentation</a>)</li>
-<li>Svc (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html">scikit-learn documentation</a>)</li>
-<li>GaussianNaiveBayes (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html">scikit-learn documentation</a>)</li>
-<li>DecisionTree (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier">scikit-learn documentation</a>)</li>
-<li>RandomForest (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html">scikit-learn documentation</a>)</li>
-<li>GradientBoosting (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html">scikit-learn documentation</a>)</li>
+<li><p>LogisticRegression (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html">scikit-learn documentation</a>)</p></li>
+<li><p>Svc (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html">scikit-learn documentation</a>)</p></li>
+<li><p>GaussianNaiveBayes (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html">scikit-learn documentation</a>)</p></li>
+<li><p>DecisionTree (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier">scikit-learn documentation</a>)</p></li>
+<li><p>RandomForest (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html">scikit-learn documentation</a>)</p></li>
+<li><p>GradientBoosting (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html">scikit-learn documentation</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="unsupervised-model-classes">
 <span id="diadem-unsupervised"></span><h4>Unsupervised Model Classes<a class="headerlink" href="#unsupervised-model-classes" title="Permalink to this headline">¶</a></h4>
 <ul class="simple">
-<li>Lof (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.LocalOutlierFactor.html">scikit-learn documentation</a>)</li>
-<li>IsolationForest (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html">scikit-learn documentation</a>)</li>
-<li>OneClassSvm (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.svm.OneClassSVM.html">scikit-learn documentation</a>)</li>
-<li>EllipticEnvelope (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.covariance.EllipticEnvelope.html">scikit-learn documentation</a>)</li>
+<li><p>Lof (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.LocalOutlierFactor.html">scikit-learn documentation</a>)</p></li>
+<li><p>IsolationForest (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html">scikit-learn documentation</a>)</p></li>
+<li><p>OneClassSvm (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.svm.OneClassSVM.html">scikit-learn documentation</a>)</p></li>
+<li><p>EllipticEnvelope (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.covariance.EllipticEnvelope.html">scikit-learn documentation</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="semi-supervised-model-classes">
 <span id="diadem-semisupervised"></span><h4>Semi-supervised Model Classes<a class="headerlink" href="#semi-supervised-model-classes" title="Permalink to this headline">¶</a></h4>
 <ul class="simple">
-<li>LabelPropagation (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.semi_supervised.LabelPropagation.html">scikit-learn documentation</a>)</li>
-<li>Sssvdd (new implementation)</li>
+<li><p>LabelPropagation (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.semi_supervised.LabelPropagation.html">scikit-learn documentation</a>)</p></li>
+<li><p>Sssvdd (new implementation)</p></li>
 </ul>
 <div class="line-block">
 <div class="line">For more information about the available options for a given model class:</div>
@@ -306,10 +306,10 @@ of the detection model trained with each combination, then it selects the one
 that results in the best-performing detection model.</p>
 <p>DIADEM allows to parametrize the grid search:</p>
 <ul class="simple">
-<li>[optional] <code class="docutils literal notranslate"><span class="pre">--num-folds</span></code>: number of folds built in the cross-validation (default: 4);</li>
-<li>[optional] <code class="docutils literal notranslate"><span class="pre">--n-jobs</span></code>:  number of CPU cores used when parallelizing the cross-validation, -1 means using all cores (default: -1);</li>
-<li>[optional] <code class="docutils literal notranslate"><span class="pre">--objective-func</span></code>: the performance indicator (<code class="docutils literal notranslate"><span class="pre">Ndcg</span></code>, <code class="docutils literal notranslate"><span class="pre">RocAuc</span></code>, <code class="docutils literal notranslate"><span class="pre">Accuracy</span></code>, or <code class="docutils literal notranslate"><span class="pre">DrAtFdr</span></code>) to optimize during the grid-search (default: <code class="docutils literal notranslate"><span class="pre">RocAuc</span></code>). ;</li>
-<li>[optional] <code class="docutils literal notranslate"><span class="pre">--far</span></code>: the false alarm rate (far) to consider if <code class="docutils literal notranslate"><span class="pre">--objective-func</span></code> is set to <code class="docutils literal notranslate"><span class="pre">DrAtFdr</span></code>.</li>
+<li><p>[optional] <code class="docutils literal notranslate"><span class="pre">--num-folds</span></code>: number of folds built in the cross-validation (default: 4);</p></li>
+<li><p>[optional] <code class="docutils literal notranslate"><span class="pre">--n-jobs</span></code>:  number of CPU cores used when parallelizing the cross-validation, -1 means using all cores (default: -1);</p></li>
+<li><p>[optional] <code class="docutils literal notranslate"><span class="pre">--objective-func</span></code>: the performance indicator (<code class="docutils literal notranslate"><span class="pre">Ndcg</span></code>, <code class="docutils literal notranslate"><span class="pre">RocAuc</span></code>, <code class="docutils literal notranslate"><span class="pre">Accuracy</span></code>, or <code class="docutils literal notranslate"><span class="pre">DrAtFdr</span></code>) to optimize during the grid-search (default: <code class="docutils literal notranslate"><span class="pre">RocAuc</span></code>). ;</p></li>
+<li><p>[optional] <code class="docutils literal notranslate"><span class="pre">--far</span></code>: the false alarm rate (far) to consider if <code class="docutils literal notranslate"><span class="pre">--objective-func</span></code> is set to <code class="docutils literal notranslate"><span class="pre">DrAtFdr</span></code>.</p></li>
 </ul>
 <p>These options are listed in the <em>Hyperparameters Optimization</em> group of the help
 message displayed by
@@ -369,8 +369,8 @@ occurring between <span class="math notranslate nohighlight">\(t_i^{max} = T^{mi
 and <span class="math notranslate nohighlight">\(t_i^{max} = T^{min} + (i+1) \cdot \Delta\)</span>
 where</p>
 <ul class="simple">
-<li><span class="math notranslate nohighlight">\(T^{min}\)</span> and <span class="math notranslate nohighlight">\(T^{max}\)</span> correspond to the timestamps of the oldest and latest instances ;</li>
-<li><span class="math notranslate nohighlight">\(\Delta = \frac{T^{max} - T^{min}}{\text{num_folds} + 1}\)</span>.</li>
+<li><p><span class="math notranslate nohighlight">\(T^{min}\)</span> and <span class="math notranslate nohighlight">\(T^{max}\)</span> correspond to the timestamps of the oldest and latest instances ;</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Delta = \frac{T^{max} - T^{min}}{\text{num_folds} + 1}\)</span>.</p></li>
 </ul>
 <p>For each fold <span class="math notranslate nohighlight">\(f\in[0,\text{num_folds}-1]\)</span>, the buckets from <span class="math notranslate nohighlight">\(b_0\)</span>
 to <span class="math notranslate nohighlight">\(b_f\)</span> constitute the training dataset, and the remaining buckets form
@@ -389,8 +389,8 @@ occurring between <span class="math notranslate nohighlight">\(t_i^{max} = T^{mi
 and <span class="math notranslate nohighlight">\(t_i^{max} = T^{min} + (i+1) \cdot \Delta\)</span>
 where</p>
 <ul class="simple">
-<li><span class="math notranslate nohighlight">\(T^{min}\)</span> and <span class="math notranslate nohighlight">\(T^{max}\)</span> correspond to the timestamps of the oldest and latest instances ;</li>
-<li><span class="math notranslate nohighlight">\(\Delta = \frac{T^{max} - T^{min}}{n}\)</span>.</li>
+<li><p><span class="math notranslate nohighlight">\(T^{min}\)</span> and <span class="math notranslate nohighlight">\(T^{max}\)</span> correspond to the timestamps of the oldest and latest instances ;</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Delta = \frac{T^{max} - T^{min}}{n}\)</span>.</p></li>
 </ul>
 <p>For each fold <span class="math notranslate nohighlight">\(f\in[0,n-(n_{train}+n_{test})+1]\)</span>,
 the buckets from <span class="math notranslate nohighlight">\(b_{f}\)</span>
@@ -419,9 +419,9 @@ command line:</p>
 </div>
 <p>In this case, there are two restrictions:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">--model-exp-id</span></code> must correspond to a
-<a class="reference internal" href="#diadem"><span class="std std-ref">DIADEM</span></a> or an <a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB</span></a> experiment ;</li>
-<li><code class="docutils literal notranslate"><span class="pre">ValidationDataset</span></code> is the only validation mode available.</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--model-exp-id</span></code> must correspond to a
+<a class="reference internal" href="#diadem"><span class="std std-ref">DIADEM</span></a> or an <a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB</span></a> experiment ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ValidationDataset</span></code> is the only validation mode available.</p></li>
 </ul>
 </div>
 </div>
@@ -443,7 +443,7 @@ The confusion matrix and the ROC curve are also displayed.
 See <a class="reference internal" href="miscellaneous.detection_perf.html#misc-detection-perf-metrics"><span class="std std-ref">Detection Performance Metrics</span></a> for more information.</p>
 <div class="figure align-center" id="id6">
 <span id="performance-tab"></span><img alt="_images/performance.png" src="_images/performance.png" />
-<p class="caption"><span class="caption-text">Performance Tab</span></p>
+<p class="caption"><span class="caption-text">Performance Tab</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
 </div>
 <p><strong>Predictions.</strong>
 The <em>Predictions</em> tab displays the histograms of the predicted probabilities of
@@ -451,7 +451,7 @@ maliciousness.
 When annotations are available, the instances are grouped by label.</p>
 <div class="figure align-center" id="id7">
 <span id="predictions-tab"></span><img alt="_images/histograms.png" src="_images/histograms.png" />
-<p class="caption"><span class="caption-text">Predictions Tab</span></p>
+<p class="caption"><span class="caption-text">Predictions Tab</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="model-behavior">
@@ -470,11 +470,11 @@ These statistics allow to understand why a feature has a significant impact on
 decision-making, and may point out biases in the training dataset.</p>
 <div class="figure align-center" id="id8">
 <span id="linear-model-coeff"></span><a class="reference internal image-reference" href="_images/logistic_regression_coefficients.png"><img alt="_images/logistic_regression_coefficients.png" src="_images/logistic_regression_coefficients.png" style="width: 49%;" /></a>
-<p class="caption"><span class="caption-text">Features Coefficients of a Linear Model</span></p>
+<p class="caption"><span class="caption-text">Features Coefficients of a Linear Model</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
 </div>
 <div class="figure align-center" id="id9">
 <span id="tree-model-importance"></span><a class="reference internal image-reference" href="_images/random_forest_importance.png"><img alt="_images/random_forest_importance.png" src="_images/random_forest_importance.png" style="width: 49%;" /></a>
-<p class="caption"><span class="caption-text">Features Importance of a Tree-based Model</span></p>
+<p class="caption"><span class="caption-text">Features Importance of a Tree-based Model</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="individual-predictions">
@@ -504,7 +504,7 @@ since the features are sorted according to their impact in the decision-making
 process.</p>
 <div class="figure align-center" id="id10">
 <span id="important-features"></span><a class="reference internal image-reference" href="_images/feature_weights.png"><img alt="_images/feature_weights.png" src="_images/feature_weights.png" style="width: 80%;" /></a>
-<p class="caption"><span class="caption-text">Most Important Features</span></p>
+<p class="caption"><span class="caption-text">Most Important Features</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 </div>

@@ -183,13 +183,13 @@ Each type of experiment has its own executable
 (e.g. <code class="docutils literal notranslate"><span class="pre">SecuML_DIADEM</span></code>, <code class="docutils literal notranslate"><span class="pre">SecuML_ILAB</span></code>).</p>
 <p>All the experiments share the following arguments:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">project</span></code>: the name of the project;</li>
-<li><code class="docutils literal notranslate"><span class="pre">dataset</span></code>: the name of the dataset belonging to <code class="docutils literal notranslate"><span class="pre">project</span></code>;</li>
-<li>[optional] <code class="docutils literal notranslate"><span class="pre">--features</span></code>: csv file or directory containing the features;</li>
-<li>[optional] <code class="docutils literal notranslate"><span class="pre">--filter-in</span></code>: csv file containing the features to use;</li>
-<li>[optional] <code class="docutils literal notranslate"><span class="pre">--filter-out</span></code>: csv file containing the features to filter out;</li>
-<li>[optional] <code class="docutils literal notranslate"><span class="pre">--exp-name</span></code>: the name of the experiment;</li>
-<li>[optional] <code class="docutils literal notranslate"><span class="pre">--secuml-conf</span></code>: the name of the experiment.</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">project</span></code>: the name of the project;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dataset</span></code>: the name of the dataset belonging to <code class="docutils literal notranslate"><span class="pre">project</span></code>;</p></li>
+<li><p>[optional] <code class="docutils literal notranslate"><span class="pre">--features</span></code>: csv file or directory containing the features;</p></li>
+<li><p>[optional] <code class="docutils literal notranslate"><span class="pre">--filter-in</span></code>: csv file containing the features to use;</p></li>
+<li><p>[optional] <code class="docutils literal notranslate"><span class="pre">--filter-out</span></code>: csv file containing the features to filter out;</p></li>
+<li><p>[optional] <code class="docutils literal notranslate"><span class="pre">--exp-name</span></code>: the name of the experiment;</p></li>
+<li><p>[optional] <code class="docutils literal notranslate"><span class="pre">--secuml-conf</span></code>: the name of the experiment.</p></li>
 </ul>
 <p>If <code class="docutils literal notranslate"><span class="pre">--features</span></code> is not specified, the features are read from the file
 <code class="docutils literal notranslate"><span class="pre">features.csv</span></code>.
@@ -202,8 +202,8 @@ input parameters of the experiment.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">--secuml-conf</span></code> is not specified, the path of the configuration file is
 read in the environment variable <code class="docutils literal notranslate"><span class="pre">SECUMLCONF</span></code>.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The features files are stored in the directory
+<p class="admonition-title">Note</p>
+<p>The features files are stored in the directory
 <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;/&lt;project&gt;/&lt;dataset&gt;/features/</span></code> where
 input data directory <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;</span></code> is specified in the
 <a class="reference internal" href="getting_started.setting_up.html#configuration"><span class="std std-ref">configuration file</span></a>.</p>
@@ -214,25 +214,25 @@ input data directory <code class="docutils literal notranslate"><span class="pre
 <p>Once an experiment has been successfully completed, the following message is
 displayed:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Experiment &lt;experiment_id&gt; has been successfully completed.
-See http://localhost:5000/SecuML/&lt;experiment_id&gt;/ to display the results.
+See http://&lt;host&gt;:&lt;port&gt;/SecuML/&lt;experiment_id&gt;/ to display the results.
 </pre></div>
 </div>
 <p>The results can then be displayed in the <a class="reference internal" href="getting_started.setting_up.html#gui"><span class="std std-ref">web user interface</span></a> with
 the URL provided.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last"><code class="docutils literal notranslate"><span class="pre">SecuML_server</span></code> must be executed to launch the web server.</p>
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">SecuML_server</span></code> must be executed to launch the web server.</p>
 </div>
 </div>
 <div class="section" id="types-of-experiments-available">
 <h2>Types of Experiments Available<a class="headerlink" href="#types-of-experiments-available" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><a class="reference internal" href="SecuML.DIADEM.html#diadem"><span class="std std-ref">DIADEM: Training and Diagnosing Detection Model</span></a></li>
-<li><a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB: Annotating a Dataset with a Reduced Workload</span></a></li>
-<li><a class="reference internal" href="SecuML.RCD.html#rcd"><span class="std std-ref">Exploring a Dataset Interactively with Rare Category Detection</span></a></li>
-<li><a class="reference internal" href="SecuML.clustering.html#clustering"><span class="std std-ref">Clustering</span></a></li>
-<li><a class="reference internal" href="SecuML.projection.html#projection"><span class="std std-ref">Projection</span></a></li>
-<li><a class="reference internal" href="SecuML.stats.html#stats"><span class="std std-ref">Features Analysis</span></a></li>
+<li><p><a class="reference internal" href="SecuML.DIADEM.html#diadem"><span class="std std-ref">DIADEM: Training and Diagnosing Detection Model</span></a></p></li>
+<li><p><a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB: Annotating a Dataset with a Reduced Workload</span></a></p></li>
+<li><p><a class="reference internal" href="SecuML.RCD.html#rcd"><span class="std std-ref">Exploring a Dataset Interactively with Rare Category Detection</span></a></p></li>
+<li><p><a class="reference internal" href="SecuML.clustering.html#clustering"><span class="std std-ref">Clustering</span></a></p></li>
+<li><p><a class="reference internal" href="SecuML.projection.html#projection"><span class="std std-ref">Projection</span></a></p></li>
+<li><p><a class="reference internal" href="SecuML.stats.html#stats"><span class="std std-ref">Features Analysis</span></a></p></li>
 </ul>
 </div>
 <div class="section" id="removing-experiments">

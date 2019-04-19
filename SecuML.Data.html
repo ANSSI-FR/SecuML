@@ -185,8 +185,8 @@ directories.
 See <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/tree/master/input_data/SpamHam/lingspam">input_data/SpamHam/lingspam/</a>
 for an example of input dataset.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The input data directory <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;</span></code> is specified in the
+<p class="admonition-title">Note</p>
+<p>The input data directory <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;</span></code> is specified in the
 <a class="reference internal" href="getting_started.setting_up.html#configuration"><span class="std std-ref">configuration file</span></a>.</p>
 </div>
 <div class="section" id="idents-csv">
@@ -194,9 +194,9 @@ for an example of input dataset.</p>
 <p>A csv file containing the identifiers of the instances.
 It has the following columns:</p>
 <ul class="simple">
-<li><strong>instance_id</strong>: integer ;</li>
-<li><strong>ident</strong>: string describing the instance ;</li>
-<li><strong>[optional] timestamp</strong>: date (<code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span> <span class="pre">HH:MM:SS</span></code> format) of the instance.</li>
+<li><p><strong>instance_id</strong>: integer ;</p></li>
+<li><p><strong>ident</strong>: string describing the instance ;</p></li>
+<li><p><strong>[optional] timestamp</strong>: date (<code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span> <span class="pre">HH:MM:SS</span></code> format) of the instance.</p></li>
 </ul>
 <p>The timestamps are required for
 <a class="reference internal" href="SecuML.DIADEM.html#diadem-validation-modes"><span class="std std-ref">DIADEM’s temporal validation modes</span></a>.</p>
@@ -206,12 +206,12 @@ It has the following columns:</p>
 <p>It contains csv files with the features of the instances.
 It has the following columns:</p>
 <ul class="simple">
-<li><strong>instance_id</strong>: integer ;</li>
-<li><strong>a column for each feature</strong>: numeric (float or integer).</li>
+<li><p><strong>instance_id</strong>: integer ;</p></li>
+<li><p><strong>a column for each feature</strong>: numeric (float or integer).</p></li>
 </ul>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">The instances in the features files must be stored in the same order as in
+<p class="admonition-title">Warning</p>
+<p>The instances in the features files must be stored in the same order as in
 <code class="docutils literal notranslate"><span class="pre">idents.csv</span></code>.</p>
 </div>
 <p>The header of a features csv file <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;.csv</span></code> may be human-readable
@@ -224,8 +224,8 @@ on several files. In this case, the features of the different
 files are concatenated to build a dataset.
 See <a class="reference internal" href="SecuML.Experiments.html#exp-params"><span class="std std-ref">Running Experiments</span></a> for more information.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">SecuML supports only boolean and numerical features.
+<p class="admonition-title">Note</p>
+<p>SecuML supports only boolean and numerical features.
 Categorical features are not supported yet.</p>
 </div>
 </div>
@@ -234,9 +234,9 @@ Categorical features are not supported yet.</p>
 <p>It contains csv files with the annotations associated to the instances.
 It has the following columns:</p>
 <ul class="simple">
-<li><strong>instance_id</strong>: integer ;</li>
-<li><strong>label</strong>: binary label, <code class="docutils literal notranslate"><span class="pre">malicious</span></code> or <code class="docutils literal notranslate"><span class="pre">benign</span></code> ;</li>
-<li><strong>[optional] family</strong>: string.</li>
+<li><p><strong>instance_id</strong>: integer ;</p></li>
+<li><p><strong>label</strong>: binary label, <code class="docutils literal notranslate"><span class="pre">malicious</span></code> or <code class="docutils literal notranslate"><span class="pre">benign</span></code> ;</p></li>
+<li><p><strong>[optional] family</strong>: string.</p></li>
 </ul>
 <p><strong>Families</strong></p>
 <p>Families detail the binary label.
@@ -252,8 +252,8 @@ alerts according to user-defined malicious families.</p>
 <p>If the ground truth is known, it must be stored in the file
 <code class="docutils literal notranslate"><span class="pre">annotations/ground_truth.csv</span></code>.</p>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">The instances in <code class="docutils literal notranslate"><span class="pre">annotations/ground_truth.csv</span></code> must be stored in the same
+<p class="admonition-title">Warning</p>
+<p>The instances in <code class="docutils literal notranslate"><span class="pre">annotations/ground_truth.csv</span></code> must be stored in the same
 order as in <code class="docutils literal notranslate"><span class="pre">idents.csv</span></code>.</p>
 </div>
 <p>If only some instances are annotated, their annotations can be stored, in any
