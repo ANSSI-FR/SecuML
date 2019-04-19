@@ -21,6 +21,12 @@ from secuml.core.data.labels_tools import label_bool_to_str
 from secuml.core.tools.core_exceptions import SecuMLcoreException
 
 
+class InconsistentPredictions(SecuMLcoreException):
+
+    def __str__(self):
+        return 'Inconsistent predictions.'
+
+
 class InvalidPredictions(SecuMLcoreException):
 
     def __init__(self, message):

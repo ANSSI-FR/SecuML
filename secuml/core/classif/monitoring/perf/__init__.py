@@ -16,19 +16,13 @@
 
 import os.path as path
 
-from secuml.core.tools.core_exceptions import SecuMLcoreException
+from secuml.core.data.predictions import InconsistentPredictions
 
 from .binary_indicators import BinaryIndicators
 from .confusion_matrix import ConfusionMatrix
 from .fdr_tpr_curve import FdrTprCurve
 from .multiclass_indicators import MulticlassIndicators
 from .roc_curve import RocCurve
-
-
-class InconsistentPredictions(SecuMLcoreException):
-
-    def __str__(self):
-        return 'Inconsistent predictions.'
 
 
 class PerformanceMonitoring(object):

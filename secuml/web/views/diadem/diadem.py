@@ -44,6 +44,13 @@ def db_row_to_json(row):
     return {c.name: getattr(row, c.name) for c in row.__table__.columns}
 
 
+@app.route('/getDiademChildInfo/<exp_id>/')
+def getDiademChildInfo(exp_id):
+    query = session.query(DiademExpAlchemy)
+    query = query.filter(DiademExpAlchemy.exp_id == exp_id)
+    return jsonify(db_row_to_json(query.one()))
+
+
 @app.route('/getDiademDetectionChildExp/<diadem_exp_id>/<child_type>/'
            '<fold_id>/')
 def getDiademDetectionChildExp(diadem_exp_id, child_type, fold_id):
@@ -150,8 +157,8 @@ def getAlerts(exp_id, analysis_type):
     return jsonify({'instances': ids, 'proba': probas})
 
 
-@app.route('/getPredictions/<exp_id>/<index>/<label>/')
-def getPredictions(exp_id, index, label):
+@app.route('/getPredictionsProbas/<exp_id>/<index>/<label>/')
+def getPredictionsProbas(exp_id, index, label):
     index = int(index)
     proba_min = index * 0.1
     proba_max = (index + 1) * 0.1
@@ -163,6 +170,33 @@ def getPredictions(exp_id, index, label):
         query = query.join(PredictionsAlchemy.instance)
         query = query.join(InstancesAlchemy.ground_truth)
         query = query.filter(GroundTruthAlchemy.label == label)
+    predictions = query.all()
+    if predictions:
+        ids, probas = zip(*[(r.instance_id, r.proba) for r in predictions])
+    else:
+        ids = []
+        probas = []
+    return jsonify({'instances': ids, 'proba': probas})
+
+
+@app.route('/getPredictions/<exp_id>/<predicted_value>/<right_wrong>/'
+           '<multiclass>/')
+def getPredictions(exp_id, predicted_value, right_wrong, multiclass):
+    query = session.query(PredictionsAlchemy)
+    query = query.filter(PredictionsAlchemy.exp_id == exp_id)
+    query = query.filter(PredictionsAlchemy.value == predicted_value)
+    if right_wrong != 'all':
+        query = query.join(PredictionsAlchemy.instance)
+        query = query.join(InstancesAlchemy.ground_truth)
+        field = 'family' if multiclass else 'label'
+        if right_wrong == 'right':
+            query = query.filter(getattr(GroundTruthAlchemy, field) ==
+                                 predicted_value)
+        elif right_wrong == 'wrong':
+            query = query.filter(getattr(GroundTruthAlchemy, field) !=
+                                 predicted_value)
+        else:
+            assert(False)
     predictions = query.all()
     if predictions:
         ids, probas = zip(*[(r.instance_id, r.proba) for r in predictions])

@@ -60,4 +60,4 @@ class ProbaBarplot(object):
         else:
             self.display_label(barplot, MALICIOUS)
             self.display_label(barplot, BENIGN)
-        barplot.export_to_json(path.join(directory, 'proba_barplot.json'))
+        barplot.export_to_json(path.join(directory, 'pred_barplot.json'))

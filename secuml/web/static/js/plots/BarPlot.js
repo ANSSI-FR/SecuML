@@ -75,12 +75,16 @@ function drawBarPlot(div_name, options, data, type='bar', width=null,
                                      data: data,
                                      options: options});
     if (callback) {
-        canvas.onclick = function(evt){
-            var active_bars = myBarChart.getElementsAtEvent(evt)
-                if (active_bars.length > 0) {
-                    callback(active_bars);
-                }
-        };
+        addCallbackToBarplot(canvas, myBarChart, callback);
     }
     return [canvas, myBarChart];
+}
+
+function addCallbackToBarplot(canvas, myBarChart, callback) {
+    canvas.onclick = function(evt){
+        var active_bars = myBarChart.getElementsAtEvent(evt)
+            if (active_bars.length > 0) {
+                callback(active_bars);
+            }
+    };
 }

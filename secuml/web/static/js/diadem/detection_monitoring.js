@@ -77,9 +77,7 @@ function displayDetectionMonitoring(conf, train_test, fold_id) {
 
 function updateMonitoringDisplay(train_test, child_exp_id, proba, with_scoring,
                                  multiclass, perf_monitoring) {
-    if (!multiclass && proba) {
-        updatePredictionsDisplay(train_test, child_exp_id);
-    }
+    updatePredictionsDisplay(train_test, child_exp_id);
     if (perf_monitoring) {
         updatePerformanceDisplay(train_test, child_exp_id, proba, with_scoring,
                                  multiclass);
@@ -94,10 +92,8 @@ function displayMonitoringTabs(train_test, child_exp_id, exp_info) {
         menu_titles.push('Performance');
         menu_labels.push(train_test + '_perf');
     }
-    if (!exp_info.multiclass && exp_info.proba) {
-        menu_titles.push('Predictions');
-        menu_labels.push(train_test + '_pred');
-    }
+    menu_titles.push('Predictions');
+    menu_labels.push(train_test + '_pred');
     var menu = createTabsMenu(menu_labels, menu_titles, tabs_div,
                               train_test + '_monitoring_tabs');
     if (exp_info.perf_monitoring) {

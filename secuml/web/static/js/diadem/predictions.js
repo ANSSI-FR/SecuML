@@ -3,6 +3,7 @@ var exp_id  = path[2];
 var selected_index = path[3];
 
 var exp_type               = 'Predictions';
+var exp_info               = null;
 var instances_list         = null;
 var proba_list             = null;
 var num_instances          = null;
@@ -18,40 +19,69 @@ var conf = null;
 
 function callback(conf) {
     conf.has_ground_truth = conf.dataset_conf.has_ground_truth;
-    displayDivisions(selected_index);
-    displayPredictionsBarplot('barplot_div', exp_id, barPlotCallback(exp_id));
-    updateInstancesDisplay(exp_id, selected_index, 'all');
-    addPrevNextShortcuts();
+    $.getJSON(buildQuery('getDiademChildInfo', [exp_id]),
+              function(data){
+                 exp_info = data;
+                 displayBarplot();
+              });
+}
 
+function displayBarplot() {
+    var main = $('#main')[0];
+    var row = createDivWithClass(null, 'row', main);
+    var predictions_panel_body = createCollapsingPanel('panel-primary',
+                                                       'col-md-4',
+                                                       'Predictions',
+                                                       row, null);
+    var barplot_div = createDiv('barplot_div',
+                                parent_div=predictions_panel_body);
+    displayPredictionsBarplot('barplot_div', exp_id,
+                              barPlotCallback,
+                              end_callback=function(xlabels){
+                                         displayDivisions(selected_index,
+                                                          xlabels);
+                                         updateInstancesDisplay(exp_id,
+                                                                selected_index,
+                                                                null,
+                                                                xlabels);
+                                         addPrevNextShortcuts();
+                                       });
 }
 
 loadConfigurationFile(exp_id, callback);
 
-function updateInstancesDisplay(exp_id, selected_index, label) {
+function updateInstancesDisplay(exp_id, selected_index, label, xlabels) {
     if (!label) {
         label = 'all';
     }
-    var query = buildQuery('getPredictions', [exp_id, selected_index, label]);
+    var query = null;
+    if (!exp_info.multiclass && exp_info.proba) {
+        query = buildQuery('getPredictionsProbas',
+                           [exp_id, selected_index, label]);
+    } else {
+        query = buildQuery('getPredictions', [exp_id, xlabels[selected_index],
+                                              label, exp_info.multiclass])
+    }
     $.getJSON(query,
-            function(data) {
-                instances_list = data['instances'];
-                proba_list = data['proba'];
-                current_instance_index = 0;
-                num_instances = instances_list.length;
-                var num_instances_label = document.getElementById('num_instances_label');
-                num_instances_label.textContent = num_instances;
-                var curr_instance_label = document.getElementById('curr_instance_label');
-                if (num_instances > 0) {
-                    curr_instance_label.value = current_instance_index + 1;
-                    printInstanceInformation(instances_list[current_instance_index],
-                            proba_list[current_instance_index]);
-                } else {
-                    curr_instance_label.value = '0';
-                    cleanInstanceData();
-                    undisplayAnnotation();
-                }
+        function(data) {
+            instances_list = data['instances'];
+            proba_list = data['proba'];
+            current_instance_index = 0;
+            num_instances = instances_list.length;
+            var num_instances_label = document.getElementById('num_instances_label');
+            num_instances_label.textContent = num_instances;
+            var curr_instance_label = document.getElementById('curr_instance_label');
+            if (num_instances > 0) {
+                curr_instance_label.value = current_instance_index + 1;
+                printInstanceInformation(instances_list[current_instance_index],
+                        proba_list[current_instance_index]);
+            } else {
+                curr_instance_label.value = '0';
+                cleanInstanceData();
+                undisplayAnnotation();
             }
-            );
+        }
+        );
 }
 
 function displayCurrentInstance() {
@@ -91,21 +121,33 @@ function displayPrevInstance() {
     }
 }
 
-function displayNavigationPanel(selected_index) {
+function displayNavigationPanel(selected_index, xlabels) {
     var parent_div = cleanDiv('navigation_row');
-    var min_value = +selected_index * 10;
-    var max_value = (+selected_index + +1) * 10;
-    var panel_body = createPanel('panel-primary', 'col-md-12',
-            'Predictions between ' + min_value + '% and ' + max_value + '%',
-            parent_div);
+    var title = null;
+    if (!exp_info.multiclass && exp_info.proba) {
+        var min_value = +selected_index * 10;
+        var max_value = (+selected_index + +1) * 10;
+        title = 'Predictions between ' + min_value + '% and ' + max_value + '%';
+    } else {
+        title = 'Instances predicted as ' + xlabels[selected_index];
+    }
+    var panel_body = createPanel('panel-primary', 'col-md-12', title,
+                                 parent_div);
     // Select kind of instances (all, benign, or malicious)
     var select_col = createDivWithClass(null, 'col-md-3',
                                         parent_div=panel_body);
-    labels = ['all', 'malicious', 'benign'];
-    labels_ids = ['label_all', 'label_malicious', 'label_benign'];
+    var labels = null;
+    var labels_ids = null;
+    if (!exp_info.multiclass && exp_info.proba) {
+        labels = ['all', 'malicious', 'benign'];
+        labels_ids = ['label_all', 'label_malicious', 'label_benign'];
+    } else {
+        labels = ['all', 'wrong', 'right'];
+        labels_ids = ['label_all', 'label_wrong', 'label_right'];
+    }
     function radio_callback() {
         updateInstancesDisplay(exp_id, selected_index,
-                getSelectedRadioButton(labels_ids));
+                               getSelectedRadioButton(labels_ids), xlabels);
     }
     createRadioList('label_radio', labels, labels_ids,
             radio_callback,
@@ -172,22 +214,13 @@ function displayNavigationPanel(selected_index) {
     button_div.appendChild(button);
 }
 
-function displayDivisions(selected_index) {
+function displayDivisions(selected_index, xlabels) {
     var main = $('#main')[0];
-
-    // Predictions histogram
-    var row = createDivWithClass(null, 'row', main);
-    var predictions_panel_body = createCollapsingPanel('panel-primary',
-                                                       'col-md-4',
-                                                       'Predictions',
-                                                       row, null);
-    var barplot_div = createDiv('barplot_div',
-            parent_div=predictions_panel_body);
 
     // Navigation bar
     var row = createDivWithClass(null,  'row', parent_div=main);
     row.setAttribute('id', 'navigation_row');
-    displayNavigationPanel(selected_index);
+    displayNavigationPanel(selected_index, xlabels);
 
     // Selected instance - data and annotation
     var row = createDivWithClass(null, 'row', parent_div=main);

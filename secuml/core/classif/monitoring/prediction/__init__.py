@@ -19,13 +19,14 @@ from copy import deepcopy
 from secuml.core.data.ids import Ids
 from secuml.core.data.predictions import Predictions
 from .proba_barplot import ProbaBarplot
+from .pred_barplot import PredictionBarplot
 
 
 class PredictionsMonitoring(object):
 
     def __init__(self):
         self.predictions = None
-        self.proba_barplot = None
+        self.barplot = None
 
     def add_fold(self, predictions):
         if self.predictions is None:
@@ -45,9 +46,10 @@ class PredictionsMonitoring(object):
         # PredictionsBarplots only for probabilist binary models
         pred_info = self.predictions.info
         if not pred_info.multiclass and pred_info.with_probas:
-            self.proba_barplot = ProbaBarplot(pred_info.with_ground_truth)
-            self.proba_barplot.add_fold(self.predictions)
+            self.barplot = ProbaBarplot(pred_info.with_ground_truth)
+        else:
+            self.barplot = PredictionBarplot(pred_info.with_ground_truth)
+        self.barplot.add_fold(self.predictions)
 
     def display(self, directory):
-        if self.proba_barplot is not None:
-            self.proba_barplot.display(directory)
+        self.barplot.display(directory)

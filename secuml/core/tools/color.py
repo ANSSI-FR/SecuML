@@ -25,6 +25,15 @@ red = '#d9534f'
 blue = '#428bca'
 
 
+def get_error_color(error):
+    if error is None:
+        return blue
+    elif error:
+        return red
+    else:
+        return green
+
+
 def get_label_color(label):
     global green
     global red
