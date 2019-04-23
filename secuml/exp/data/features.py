@@ -25,30 +25,56 @@ from secuml.exp.tools.db_tables import InstancesAlchemy
 
 class FeaturesFromExp(Features):
 
-    def __init__(self, exp, instance_ids=None):
+    def __init__(self, exp, instance_ids=None, streaming=False,
+                 stream_batch=None):
         if instance_ids is None:
             dataset_id = exp.exp_conf.dataset_conf.dataset_id
             instance_ids = Ids(get_dataset_ids(exp.session, dataset_id))
-        values = FeaturesFromExp.get_matrix(exp.exp_conf.features_conf.files)
+        num_instances = instance_ids.num_instances()
+        features_files = exp.exp_conf.features_conf.files
+        if streaming:
+            values = FeaturesFromExp.get_matrix_iterator(features_files,
+                                                         num_instances)
+        else:
+            values = FeaturesFromExp.get_matrix(features_files, num_instances)
         Features.__init__(self, values, exp.exp_conf.features_conf.info,
-                          instance_ids)
+                          instance_ids, streaming=streaming,
+                          stream_batch=stream_batch)
 
     @staticmethod
-    def get_matrix(features_files):
+    def get_matrix(features_files, num_instances):
         features = None
-        for _, f_path, f_mask in features_files:
-            with open(f_path, 'r') as f:
-                f.readline()  # skip header
-                reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-                matrix = list(list(rec) for rec in reader)
-                matrix = np.array([l[1:] for l in matrix])
-                if f_mask is not None:
-                    matrix = matrix[:, f_mask]
-                if features is None:
-                    features = matrix
-                else:
-                    features = np.hstack((features, matrix))
+        iterator = FeaturesFromExp.get_matrix_iterator(features_files,
+                                                       num_instances)
+        for row in iterator:
+            if features is None:
+                features = row
+            else:
+                features = np.vstack((features, row))
         return features
+
+    @staticmethod
+    def get_matrix_iterator(features_files, num_instances):
+        # Init csv readers.
+        readers_masks = []
+        for _, f_path, f_mask in features_files:
+            f = open(f_path, 'r')
+            f.readline()  # skip header
+            f_reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+            readers_masks.append((f, f_reader, f_mask))
+        # Read csv files.
+        for _ in range(num_instances):
+            row = None
+            for _, f_reader, f_mask in readers_masks:
+                f_row = np.array(next(f_reader)[1:])[f_mask]
+                if row is None:
+                    row = f_row
+                else:
+                    row = np.hstack((row, f_row))
+            yield row
+        # Close the csv files.
+        for f, _, _ in readers_masks:
+            f.close()
 
     @staticmethod
     def get_instance(exp, instance_id):

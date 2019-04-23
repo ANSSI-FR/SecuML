@@ -40,6 +40,10 @@ class AlertsConf(Conf):
             name += self.classifier_conf.get_exp_name()
         return name
 
+    def with_analysis(self):
+        return (self.classifier_conf is not None or
+                self.clustering_conf is not None)
+
     @staticmethod
     def from_json(obj, logger):
         if obj is None:

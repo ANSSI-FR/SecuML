@@ -32,8 +32,7 @@ class AlertsMonitoring(object):
         self.alerts_conf = alerts_conf
 
     def group(self, predictions):
-        if (self.alerts_conf.classifier_conf is None and
-           self.alerts_conf.clustering_conf is None):
+        if not self.alerts_conf.with_analysis():
             return
         threshold = self.alerts_conf.detection_threshold
         alerts = predictions.get_alerts(threshold)

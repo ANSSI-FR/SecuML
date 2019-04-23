@@ -61,14 +61,14 @@ class LoadFeatures(object):
         self.features_conf = exp_conf.features_conf
         self.session = session
 
-    def load(self):
+    def load(self, num_instances):
         dataset_dir = self.dataset_conf.input_dir(self.secuml_conf)
         self.input_path = os.path.join(dataset_dir, 'features',
                                        self.features_conf.input_features)
         set_id, input_type = self._check()
         if set_id is None:
             set_id = self._load_features_set(input_type)
-            self._load_features_files(set_id, input_type)
+            self._load_features_files(set_id, input_type, num_instances)
         self.session.flush()
         self._set_features_conf(set_id, input_type)
 
@@ -134,7 +134,7 @@ class LoadFeatures(object):
         self.session.flush()
         return features_set.id
 
-    def _load_features_files(self, set_id, input_type):
+    def _load_features_files(self, set_id, input_type, num_instances):
         if input_type == InputFeaturesTypes.file:
             files = [(self.input_path, self.features_conf.input_features)]
         elif input_type == InputFeaturesTypes.dir:
@@ -142,20 +142,21 @@ class LoadFeatures(object):
                      for f in os.listdir(self.input_path)
                      if '_description' not in f]
         for file_path, filename in files:
-            self._load_features_file(set_id, file_path, filename)
+            self._load_features_file(set_id, file_path, filename,
+                                     num_instances)
 
-    def _load_features_file(self, set_id, file_path, filename):
+    def _load_features_file(self, set_id, file_path, filename, num_instances):
         file_hash = compute_hash(file_path)
         features_file = FeaturesFilesAlchemy(set_id=set_id, filename=filename,
                                              path=file_path, hash=file_hash)
         self.session.add(features_file)
         self.session.flush()
-        self._load_features(set_id, features_file.id, file_path)
+        self._load_features(set_id, features_file.id, file_path, num_instances)
 
-    def _load_features(self, set_id, file_id, file_path):
+    def _load_features(self, set_id, file_id, file_path, num_instances):
         user_ids = self._get_user_ids(file_path)
         names, descrips = self._get_names_descr(file_path, user_ids)
-        types = self._get_types(file_path)
+        types = self._get_types(file_path, num_instances)
         for u_id, name, desc, type_ in zip(user_ids, names, descrips, types):
             feature = FeaturesAlchemy(user_id=u_id, file_id=file_id,
                                       set_id=set_id, name=name,
@@ -191,8 +192,9 @@ class LoadFeatures(object):
             descriptions = user_ids
         return names, descriptions
 
-    def _get_types(self, file_path):
-        features = FeaturesFromExp.get_matrix([(None, file_path, None)])
+    def _get_types(self, file_path, num_instances):
+        features = FeaturesFromExp.get_matrix([(None, file_path, None)],
+                                              num_instances)
         num_features = features.shape[1]
         types = [None for _ in range(num_features)]
         for i in range(num_features):

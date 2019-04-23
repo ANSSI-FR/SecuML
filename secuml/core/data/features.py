@@ -34,6 +34,15 @@ class InvalidFeatures(SecuMLcoreException):
         return self.message
 
 
+class StreamingUnsupported(SecuMLcoreException):
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+
 class FeaturesInfo(object):
 
     def __init__(self, ids, names, descriptions, types):
@@ -88,13 +97,22 @@ class FeaturesInfo(object):
 
 class Features(object):
 
-    def __init__(self, values, info, instance_ids):
-        self.values = np.array(values)
+    # When streaming=True, values is an iterator where each element corresponds
+    # the features of an instance.
+    # Otherwise, values is a matrix containing the features of all the
+    # instances (num rows = num instances, nu columns = num features).
+    def __init__(self, values, info, instance_ids, streaming=False,
+                 stream_batch=None):
+        self.values = values
         self.info = info
         self.instance_ids = instance_ids
+        self.streaming = streaming
+        self.stream_batch = stream_batch
         self._check_validity()
 
     def _check_validity(self):
+        if self.streaming:
+            return
         num_instances = self.instance_ids.num_instances()
         if num_instances != 0:
             if self.values.shape[0] != num_instances:
@@ -112,6 +130,9 @@ class Features(object):
                                       'are provided.')
 
     def union(self, features):
+        if self.streaming or features.streaming:
+            raise StreamingUnsupported('Union is not supported for streaming '
+                                       'features.')
         if features.get_values().shape[0] == 0:
             return
         if self.get_values().shape[0] == 0:
@@ -121,10 +142,17 @@ class Features(object):
         self._check_validity()
 
     def all_positives(self):
+        if self.streaming:
+            raise StreamingUnsupported('all_positives is not supported for '
+                                       'streaming features.')
         return np.all(self.values >= 0)
 
     def get_from_ids(self, instance_ids):
-        values = [self.get_instance_features(i) for i in instance_ids.ids]
+        if self.streaming:
+            raise StreamingUnsupported('get_from_ids is not supported for '
+                                       'streaming features.')
+        values = np.array([self.get_instance_features(i)
+                           for i in instance_ids.ids])
         return Features(values, self.info, instance_ids)
 
     def get_names(self):
@@ -143,14 +171,23 @@ class Features(object):
         return self.info.num_features()
 
     def set_instance_features(self, instance_id, features):
+        if self.streaming:
+            raise StreamingUnsupported('set_instance_features is not '
+                                       'supported for streaming features.')
         index = self.instance_ids.get_index(instance_id)
         self.values[index] = features
 
     def get_instance_features(self, instance_id):
+        if self.streaming:
+            raise StreamingUnsupported('get_instance_features is not '
+                                       'supported for streaming features.')
         index = self.instance_ids.get_index(instance_id)
         return self.values[index]
 
     def get_values_from_index(self, feature_index):
+        if self.streaming:
+            raise StreamingUnsupported('get_values_from_index is not '
+                                       'supported for streaming features.')
         if self.instance_ids.num_instances() == 0:
             return []
         else:

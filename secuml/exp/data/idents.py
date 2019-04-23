@@ -18,6 +18,7 @@ import os.path as path
 
 from . import compute_hash
 from secuml.exp.tools.db_tables import DatasetsAlchemy
+from secuml.exp.tools.db_tables import InstancesAlchemy
 from secuml.exp.tools.db_tables import call_specific_db_func
 from secuml.exp.tools.exp_exceptions import SecuMLexpException
 from secuml.exp.tools.exp_exceptions import UpdatedFile
@@ -66,3 +67,9 @@ class Idents(object):
         if not path.isfile(filepath):
             raise IdentsFileNotFound(filepath)
         return filepath, compute_hash(filepath)
+
+    def num_instances(self):
+        query = self.session.query(InstancesAlchemy)
+        query = query.filter(InstancesAlchemy.dataset_id ==
+                             self.dataset_conf.dataset_id)
+        return query.count()

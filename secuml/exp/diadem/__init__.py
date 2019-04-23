@@ -192,22 +192,22 @@ class DiademExp(Experiment):
             exp_name = '%s_fold_%i' % (exp_name, fold_id)
         secuml_conf = self.exp_conf.secuml_conf
         logger = secuml_conf.logger
-        if kind == 'validation':
+        if (kind == 'validation' or
+                (kind == 'test' and self.test_conf.method == 'dataset')):
+            validation_conf = getattr(self, '%s_conf' % kind)
             dataset_conf = DatasetConf(self.exp_conf.dataset_conf.project,
-                                       self.validation_conf.test_dataset,
+                                       validation_conf.test_dataset,
                                        self.exp_conf.secuml_conf.logger)
             annotations_conf = AnnotationsConf('ground_truth.csv', None,
                                                logger)
-        elif kind == 'test' and self.test_conf.method == 'dataset':
-            dataset_conf = DatasetConf(self.exp_conf.dataset_conf.project,
-                                       self.test_conf.test_dataset,
-                                       self.exp_conf.secuml_conf.logger)
-            annotations_conf = AnnotationsConf('ground_truth.csv', None,
-                                               logger)
+            features_conf = self.exp_conf.features_conf
+            if validation_conf.streaming:
+                stream_batch = validation_conf.stream_batch
+                features_conf = features_conf.copy_streaming(stream_batch)
         else:
             dataset_conf = self.exp_conf.dataset_conf
             annotations_conf = self.exp_conf.annotations_conf
-        features_conf = self.exp_conf.features_conf
+            features_conf = self.exp_conf.features_conf
         alerts_conf = None
         if fold_id is None and kind != 'train':
             alerts_conf = self.exp_conf.alerts_conf

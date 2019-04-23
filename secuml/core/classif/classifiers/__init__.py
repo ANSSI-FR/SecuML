@@ -15,6 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import abc
+import numpy as np
 import time
 
 from sklearn.externals import joblib
@@ -115,19 +116,62 @@ class Classifier(object):
         num_instances = instances.num_instances()
         if num_instances == 0:
             return Predictions([], instances.ids, self.conf.multiclass)
-        features = instances.features.get_values()
-        predictions = self._predict(features)
-        all_probas, probas = self._get_predicted_probas(features,
-                                                        num_instances)
-        scores = self._get_predicted_scores(features, num_instances)
-        return Predictions(predictions, instances.ids,
-                           self.conf.multiclass, all_probas=all_probas,
-                           probas=probas, scores=scores)
+        return self._predict(instances.features, instances.ids)
 
-    def _predict(self, features):
+    def _predict(self, features, instances_ids):
+        if features.streaming:
+            return self._predict_streaming(features.get_values(),
+                                           instances_ids,
+                                           features.stream_batch)
+        else:
+            return self._predict_matrix(features.get_values(), instances_ids)
+
+    def _predict_matrix(self, matrix, instances_ids):
+        values = self._predict_values(matrix)
+        all_probas, probas = self._predict_probas(matrix)
+        scores = self._predict_scores(matrix)
+        return Predictions(values, instances_ids, self.conf.multiclass,
+                           all_probas=all_probas, probas=probas, scores=scores)
+
+    def _predict_streaming(self, features_iter, instances_ids, stream_batch):
+        predictions = None
+        num_rows = 0
+        matrix = None
+        ids = []
+        for instance_id in instances_ids.ids:
+            ids.append(instance_id)
+            row = next(features_iter)
+            num_rows += 1
+            if matrix is None:
+                matrix = [row]
+            else:
+                matrix = np.vstack((matrix, row))
+            if num_rows >= stream_batch:
+                ids = instances_ids.get_from_ids(ids)
+                predictions = self._update_streaming_predictions(predictions,
+                                                                 matrix, ids)
+                ids = []
+                matrix = None
+                num_rows = 0
+        if num_rows > 0:
+            ids = instances_ids.get_from_ids(ids)
+            predictions = self._update_streaming_predictions(predictions,
+                                                             matrix, ids)
+        return predictions
+
+    def _update_streaming_predictions(self, predictions, matrix,
+                                      instances_ids):
+        new_predictions = self._predict_matrix(matrix, instances_ids)
+        if predictions is None:
+            return new_predictions
+        else:
+            predictions.union(new_predictions)
+            return predictions
+
+    def _predict_values(self, features):
         return list(self.pipeline.predict(features))
 
-    def _get_predicted_probas(self, features, num_instances):
+    def _predict_probas(self, features):
         if self.conf.probabilist:
             all_predicted_proba = self.pipeline.predict_proba(features)
             if self.conf.multiclass:
@@ -139,7 +183,7 @@ class Classifier(object):
             predicted_proba = None
         return all_predicted_proba, predicted_proba
 
-    def _get_predicted_scores(self, features, num_instances):
+    def _predict_scores(self, features):
         scoring_func = self.conf.scoring_function()
         if scoring_func is not None:
             return getattr(self.pipeline, scoring_func)(features)
@@ -214,9 +258,10 @@ class UnsupervisedClassifier(Classifier):
     # sklearn unsupervised learning algorithms return
     #   -1 for outliers
     #   1 for inliers
-    def _predict(self, features):
-        predictions = self.pipeline.predict(features)
-        return [p == -1 for p in predictions]
+    def _predict(self, features, instances_ids):
+        predictions = Classifier._predict(self, features, instances_ids)
+        predictions.values = [p == -1 for p in predictions.values]
+        return predictions
 
     def _fit(self, train_instances):
         self.pipeline.fit(train_instances.features.get_values())

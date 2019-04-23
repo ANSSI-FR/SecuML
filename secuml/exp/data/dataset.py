@@ -31,6 +31,6 @@ class Dataset(object):
         self.features = LoadFeatures(exp_conf, exp_conf.secuml_conf, session)
 
     def load(self):
-        self.project_dataset.load()
+        num_instances = self.project_dataset.load()
         self.annotations.load()
-        self.features.load()
+        self.features.load(num_instances)

@@ -29,11 +29,13 @@ class InputFeaturesTypes(Enum):
 class FeaturesConf(Conf):
 
     def __init__(self, input_features, logger, filter_in_f=None,
-                 filter_out_f=None):
+                 filter_out_f=None, streaming=False, stream_batch=None):
         Conf.__init__(self, logger)
         self.input_features = input_features
         self.filter_in_f = filter_in_f
         self.filter_out_f = filter_out_f
+        self.streaming = streaming
+        self.stream_batch = stream_batch
         self.input_type = None
         self.set_id = None
         self.files = None
@@ -50,6 +52,18 @@ class FeaturesConf(Conf):
 
     def set_files(self, files):
         self.files = files
+
+    def copy_streaming(self, stream_batch):
+        features_conf = FeaturesConf(self.input_features, self.logger,
+                                     filter_in_f=self.filter_in_f,
+                                     filter_out_f=self.filter_out_f,
+                                     streaming=True,
+                                     stream_batch=stream_batch)
+        features_conf.set_input_type(self.input_type)
+        features_conf.set_set_id(self.set_id)
+        features_conf.set_info(self.info)
+        features_conf.set_files(self.files)
+        return features_conf
 
     def fields_to_export(self):
         return [('input_features', exportFieldMethod.primitive),

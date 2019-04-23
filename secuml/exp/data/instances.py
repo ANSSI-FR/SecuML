@@ -35,10 +35,11 @@ def get_dataset_timestamps(session, dataset_id):
 
 class Instances(CoreInstances):
 
-    def __init__(self, experiment):
+    def __init__(self, experiment, streaming=False, stream_batch=None):
         self._set_exp_conf(experiment)
         ids = self.get_ids()
-        features = FeaturesFromExp(experiment, ids)
+        features = FeaturesFromExp(experiment, ids, streaming=streaming,
+                                   stream_batch=stream_batch)
         annotations = self._get_annotations(ids)
         ground_truth = self._get_ground_truth(ids)
         CoreInstances.__init__(self, ids, features, annotations, ground_truth)

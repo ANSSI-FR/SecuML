@@ -117,6 +117,7 @@ class ProjectDataset(object):
     def load(self):
         self._check_input_dataset_dir()
         self._set_dataset_id()
+        return self.idents.num_instances()
 
     def _check_input_dataset_dir(self):
         # Check project directory

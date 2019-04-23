@@ -71,7 +71,9 @@ class Experiment(object):
 
     def get_instances(self, instances=None):
         if instances is None:
-            instances = Instances(self)
+            features_conf = self.exp_conf.features_conf
+            instances = Instances(self, streaming=features_conf.streaming,
+                                  stream_batch=features_conf.stream_batch)
         return instances
 
     def run(self):

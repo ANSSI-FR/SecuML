@@ -42,8 +42,8 @@ class ActiveLearningConfFactory(ConfFactory):
 
     def from_args(self, method, args, logger):
         validation_conf = None
-        if args.validation_dataset is not None:
-            validation_conf = TestDatasetConf(logger, args.validation_dataset)
+        if args.test_dataset is not None:
+            validation_conf = TestDatasetConf.from_args(args, logger)
         class_ = self.get_class(method)
         main_model_type = class_.main_model_type()
         main_model_conf = None
@@ -65,7 +65,8 @@ class ActiveLearningConfFactory(ConfFactory):
         validation_conf = None
         if obj['validation_conf'] is None:
             return None
-        validation_conf = TestDatasetConf(logger, obj['validation_conf'])
+        validation_conf = TestDatasetConf.from_json(obj['validation_conf'],
+                                                    logger)
         return self.methods[class_name].from_json(obj, main_model,
                                                   validation_conf, logger)
 
@@ -132,8 +133,8 @@ class ActiveLearningConf(Conf):
               default=2000,
               help='Total number of annotations asked from the user during '
                    'the labeling procedure.')
-        al_group.add_argument('--validation-dataset', default=None,
-                              help='The validation dataset.')
         if main_model:
             ActiveLearningConf.gen_main_model_parser(parser)
+        validation_group = parser.add_argument_group('Validation parameters')
+        TestDatasetConf.gen_parser(validation_group)
         return al_group

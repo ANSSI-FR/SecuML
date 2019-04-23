@@ -95,14 +95,18 @@ class DiademConf(ExpConf):
                 alerts_conf.classifier_conf is not None):
             raise InvalidInputArguments('Supervised classification of the '
                                         'alerts is not supported for '
-                                        'unsupervised model classes.')
+                                        'unsupervised model classes. ')
         if classif_conf.classifier_conf.multiclass:
-            if (alerts_conf.classifier_conf is not None or
-                    alerts_conf.clustering_conf is not None):
+            if alerts_conf.with_analysis():
                 raise InvalidInputArguments('Alerts analysis is not supported '
-                                            'for multiclass models.')
+                                            'for multiclass models. ')
             else:
                 alerts_conf = None
+        if (classif_conf.test_conf.method == 'dataset' and
+                classif_conf.test_conf.streaming and
+                alerts_conf.with_analysis()):
+            raise InvalidInputArguments('Alerts analysis is not supported '
+                                        'in streaming mode. ')
         dataset_conf = DatasetConf.from_args(args, secuml_conf.logger)
         features_conf = FeaturesConf.from_args(args, secuml_conf.logger)
         return DiademConf(secuml_conf, dataset_conf, features_conf,
