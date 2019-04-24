@@ -114,7 +114,7 @@ class LoadFeatures(object):
         if selection:
             info = FeaturesInfo(*zip(*selection))
         else:
-            info = FeaturesInfo([], [], [])
+            info = FeaturesInfo([], [], [], [])
         return mask, info
 
     def _get_filter(self, filter_file):
