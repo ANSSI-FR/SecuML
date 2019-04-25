@@ -24,7 +24,7 @@ from . import SupervisedClassifierConf
 
 class LogisticRegressionConf(SupervisedClassifierConf):
 
-    def __init__(self, multiclass, optim_algo, hyper_conf, logger):
+    def __init__(self, multiclass, hyper_conf, logger, optim_algo='liblinear'):
         SupervisedClassifierConf.__init__(self, multiclass, hyper_conf, logger)
         self.optim_algo = optim_algo
 
@@ -77,15 +77,13 @@ class LogisticRegressionConf(SupervisedClassifierConf):
 
     @staticmethod
     def from_json(multiclass, hyperparam_conf, obj, logger):
-        return LogisticRegressionConf(multiclass, obj['optim_algo'],
-                                      hyperparam_conf,
-                                      logger)
+        return LogisticRegressionConf(multiclass, hyperparam_conf,
+                                      logger, optim_algo=obj['optim_algo'])
 
     @staticmethod
     def from_args(args, hyperparam_conf, logger):
-        try:
+        optim_algo = 'liblinear'
+        if hasattr(args, 'optim_algo'):
             optim_algo = args.optim_algo
-        except Exception:
-            optim_algo = 'liblinear'
-        return LogisticRegressionConf(args.multiclass, optim_algo,
-                                      hyperparam_conf, logger)
+        return LogisticRegressionConf(args.multiclass, hyperparam_conf, logger,
+                                      optim_algo=optim_algo)

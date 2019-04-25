@@ -21,7 +21,7 @@ from . import SemiSupervisedClassifierConf
 
 class LabelPropagationConf(SemiSupervisedClassifierConf):
 
-    def __init__(self, multiclass, n_jobs, hyper_conf, logger):
+    def __init__(self, multiclass, hyper_conf, logger, n_jobs=-1):
         SemiSupervisedClassifierConf.__init__(self, multiclass, hyper_conf,
                                               logger)
         self.n_jobs = n_jobs
@@ -36,8 +36,8 @@ class LabelPropagationConf(SemiSupervisedClassifierConf):
 
     @staticmethod
     def from_json(multiclass, hyperparam_conf, obj, logger):
-        return LabelPropagationConf(multiclass, obj['n_jobs'], hyperparam_conf,
-                                    logger)
+        return LabelPropagationConf(multiclass, hyperparam_conf, logger,
+                                    n_jobs=obj['n_jobs'])
 
     def is_probabilist(self):
         return True
@@ -73,5 +73,5 @@ class LabelPropagationConf(SemiSupervisedClassifierConf):
 
     @staticmethod
     def from_args(args, hyperparam_conf, logger):
-        return LabelPropagationConf(args.multiclass, args.n_jobs,
-                                    hyperparam_conf, logger)
+        return LabelPropagationConf(args.multiclass, hyperparam_conf, logger,
+                                    n_jobs=args.n_jobs)

@@ -21,7 +21,7 @@ from . import UnsupervisedClassifierConf
 
 class LofConf(UnsupervisedClassifierConf):
 
-    def __init__(self, n_jobs, hyper_conf, logger):
+    def __init__(self, hyper_conf, logger, n_jobs=-1):
         UnsupervisedClassifierConf.__init__(self, hyper_conf, logger)
         self.n_jobs = n_jobs
 
@@ -35,7 +35,7 @@ class LofConf(UnsupervisedClassifierConf):
 
     @staticmethod
     def from_json(multiclass, hyperparam_conf, obj, logger):
-        return LofConf(obj['n_jobs'], hyperparam_conf, logger)
+        return LofConf(hyperparam_conf, logger, n_jobs=obj['n_jobs'])
 
     def is_probabilist(self):
         return False
@@ -81,4 +81,4 @@ class LofConf(UnsupervisedClassifierConf):
 
     @staticmethod
     def from_args(args, hyperparam_conf, logger):
-        return LofConf(args.n_jobs, hyperparam_conf, logger)
+        return LofConf(hyperparam_conf, logger, n_jobs=args.n_jobs)

@@ -70,8 +70,9 @@ class HyperparamConf(Conf):
         return HyperparamConf(values, optim_conf, logger)
 
     @staticmethod
-    def get_default(num_folds, n_jobs, multiclass, hyperparam_desc, logger):
+    def get_default(num_folds, n_jobs, multiclass, model_class, logger):
         optim_conf = OptimConf.get_default(num_folds, n_jobs, multiclass,
                                            logger)
+        hyperparam_desc = get_model_hyperparam_desc(model_class)
         values = Hyperparams.get_default(hyperparam_desc, logger)
         return HyperparamConf(values, optim_conf, logger)

@@ -15,10 +15,8 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from secuml.core.active_learning.strategies.ilab import Ilab
+from secuml.core.classif.conf import classifiers
 from secuml.core.classif.conf import ClassificationConf
-from secuml.core.classif.conf.classifiers.logistic_regression \
-        import LogisticRegressionConf
-from secuml.core.classif.conf.hyperparam import HyperparamConf
 from secuml.core.classif.conf.test.unlabeled_labeled \
         import UnlabeledLabeledConf
 from secuml.core.conf import exportFieldMethod
@@ -28,13 +26,10 @@ from .rcd import RcdStrategyConf
 
 
 def _rcd_conf(args, logger):
-    hyperparam_conf = HyperparamConf.get_default(
-                                None, None, True,
-                                LogisticRegressionConf._get_hyper_desc(),
-                                logger)
-    core_conf = LogisticRegressionConf(True, 'liblinear', hyperparam_conf,
-                                       logger)
-    classif_conf = ClassificationConf(core_conf,
+    factory = classifiers.get_factory()
+    classifier_conf = factory.get_default('LogisticRegression', None, None,
+                                          True, logger)
+    classif_conf = ClassificationConf(classifier_conf,
                                       UnlabeledLabeledConf(logger, None),
                                       logger)
     return RcdStrategyConf(classif_conf, args.cluster_strategy,

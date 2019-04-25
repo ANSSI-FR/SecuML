@@ -77,6 +77,13 @@ class ClassifierConfFactory(ConfFactory):
             return [c for c in all_classifiers if
                     get_classifier_type(self.get_class(c)) == classifier_type]
 
+    @staticmethod
+    def get_default(model_class, num_folds, n_jobs, multiclass, logger):
+        class_ = get_factory().get_class(model_class)
+        hyper_conf = HyperparamConf.get_default(num_folds, n_jobs, multiclass,
+                                                class_, logger)
+        return class_(multiclass, hyper_conf, logger)
+
 
 class ClassifierConf(Conf):
 

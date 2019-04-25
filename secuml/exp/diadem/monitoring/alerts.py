@@ -98,9 +98,9 @@ class AlertsMonitoring(object):
                 n_jobs = optim_conf.n_jobs
         hyperparam_conf = HyperparamConf.get_default(
                                    num_folds, n_jobs, True,
-                                   LogisticRegressionConf._get_hyper_desc(),
+                                   LogisticRegressionConf,
                                    self.alerts_conf.logger)
-        core_conf = LogisticRegressionConf(True, 'liblinear', hyperparam_conf,
+        core_conf = LogisticRegressionConf(True, hyperparam_conf,
                                            self.alerts_conf.logger)
         model = core_conf.model_class(core_conf)
         # Training

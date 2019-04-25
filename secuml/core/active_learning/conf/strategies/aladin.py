@@ -17,10 +17,8 @@
 from . import ActiveLearningConf
 
 from secuml.core.active_learning.strategies.aladin import Aladin
+from secuml.core.classif.conf import classifiers
 from secuml.core.classif.conf import ClassificationConf
-from secuml.core.classif.conf.classifiers.logistic_regression \
-        import LogisticRegressionConf
-from secuml.core.classif.conf.hyperparam import HyperparamConf
 from secuml.core.classif.conf.test.unlabeled_labeled \
         import UnlabeledLabeledConf
 from secuml.core.conf import exportFieldMethod
@@ -37,15 +35,12 @@ class AladinConf(ActiveLearningConf):
         self.num_annotations = num_annotations
 
     def _get_lr_conf(self, validation_conf, logger, multiclass=False):
-        hyperparam_conf = HyperparamConf.get_default(
-                                    None, None, multiclass,
-                                    LogisticRegressionConf._get_hyper_desc(),
-                                    logger)
-        core_conf = LogisticRegressionConf(multiclass, 'liblinear',
-                                           hyperparam_conf, logger)
-        return ClassificationConf(core_conf,
-                                  UnlabeledLabeledConf(logger, None),
-                                  logger, validation_conf=validation_conf)
+        factory = classifiers.get_factory()
+        classifier_conf = factory.get_default('LogisticRegression',
+                                              None, None, multiclass, logger)
+        return ClassificationConf(classifier_conf,
+                                  UnlabeledLabeledConf(logger, None), logger,
+                                  validation_conf=validation_conf)
 
     @staticmethod
     def main_model_type():

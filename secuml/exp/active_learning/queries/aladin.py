@@ -16,10 +16,8 @@
 
 from secuml.core.active_learning.queries.aladin \
         import AladinQueries as CoreAladinQueries
+from secuml.core.classif.conf import classifiers
 from secuml.core.classif.conf import ClassificationConf
-from secuml.core.classif.conf.classifiers.gaussian_naive_bayes \
-        import GaussianNaiveBayesConf
-from secuml.core.classif.conf.hyperparam import HyperparamConf
 from secuml.core.classif.conf.test.unlabeled_labeled \
         import UnlabeledLabeledConf
 
@@ -48,13 +46,11 @@ class AladinQueries(CoreAladinQueries):
         classifier_conf = multiclass_model.classifier_conf
         optim_conf = classifier_conf.hyperparam_conf.optim_conf
         multiclass = True
-        hyperparam_conf = HyperparamConf.get_default(
-                                      optim_conf.num_folds,
-                                      optim_conf.n_jobs, multiclass,
-                                      GaussianNaiveBayesConf._get_hyper_desc(),
-                                      self.exp.logger)
-        naive_bayes_conf = GaussianNaiveBayesConf(multiclass, hyperparam_conf,
-                                                  self.exp.logger)
+        factory = classifiers.get_factory()
+        naive_bayes_conf = factory.get_default('GaussianNaiveBayes',
+                                               optim_conf.num_folds,
+                                               optim_conf.n_jobs, multiclass,
+                                               self.exp.logger)
         test_conf = UnlabeledLabeledConf(self.exp.logger, None)
         classif_conf = ClassificationConf(naive_bayes_conf, test_conf,
                                           self.exp.logger)
