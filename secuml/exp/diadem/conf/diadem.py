@@ -61,7 +61,7 @@ class DiademConf(ExpConf):
             if classifier_type in [ClassifierType.supervised,
                                    ClassifierType.semisupervised]:
                 AnnotationsConf.gen_parser(
-                            model_parser, required=False,
+                            model_parser, required=True,
                             message='CSV file containing the annotations of '
                                     'some or all the instances.')
         # Add subparser for already trained model

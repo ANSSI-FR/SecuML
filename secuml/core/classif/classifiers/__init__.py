@@ -33,6 +33,13 @@ class SupervisedLearningAtLeastTwoClasses(SecuMLcoreException):
                'contains at least two classes.')
 
 
+class MissingAnnotations(SecuMLcoreException):
+
+    def __str__(self):
+        return('Supervised learning models require that all the training '
+               'instances are annotated. ')
+
+
 class NoCvMonitoring(SecuMLcoreException):
 
     def __init__(self, model_class):
@@ -155,6 +162,8 @@ class SupervisedClassifier(Classifier):
         supervision = Classifier.get_supervision(self, instances,
                                                  ground_truth=ground_truth,
                                                  check=check)
+        if not (all(l is not None for l in supervision)):
+            raise MissingAnnotations()
         if check:
             if len(set(supervision)) < 2:
                 raise SupervisedLearningAtLeastTwoClasses
