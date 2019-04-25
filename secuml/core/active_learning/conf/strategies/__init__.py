@@ -26,7 +26,6 @@ from secuml.core.classif.conf.test.test_dataset import TestDatasetConf
 from secuml.core.conf import Conf
 from secuml.core.conf import ConfFactory
 from secuml.core.conf import exportFieldMethod
-from secuml.core.tools.core_exceptions import SecuMLcoreException
 
 
 active_learning_conf_factory = None
@@ -70,15 +69,6 @@ class ActiveLearningConfFactory(ConfFactory):
         validation_conf = TestDatasetConf(logger, None, obj['validation_conf'])
         return self.methods[class_name].from_json(obj, main_model,
                                                   validation_conf, logger)
-
-
-class InvalidInputArguments(SecuMLcoreException):
-
-    def __init__(self, message):
-        self.message = message
-
-    def __str__(self):
-        return self.message
 
 
 class ActiveLearningConf(Conf):
