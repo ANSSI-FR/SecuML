@@ -30,6 +30,7 @@ plt.switch_backend('Agg')
 
 
 if __name__ == '__main__':
+    exp = None
     try:
         parser = ClusteringConf.gen_parser()
         args = parser.parse_args()
@@ -39,8 +40,10 @@ if __name__ == '__main__':
         exp.close()
     except (SecuMLcoreException, SecuMLexpException) as e:
         sys.stderr.write(display_in_red(e) + '\n')
-        exp.rollback_session()
+        if exp is not None:
+            exp.rollback_session()
         sys.exit(-1)
     except Exception as e:
-        exp.rollback_session()
+        if exp is not None:
+            exp.rollback_session()
         raise(e)

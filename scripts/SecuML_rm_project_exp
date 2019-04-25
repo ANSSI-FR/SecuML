@@ -65,6 +65,7 @@ if __name__ == '__main__':
                              'file stored in the environment variable '
                              'SECUMLCONF.')
     args = parser.parse_args()
+    session = None
     try:
         secuml_conf = SecuMLConf(args.secuml_conf)
         session = secuml_conf.Session()
@@ -76,10 +77,12 @@ if __name__ == '__main__':
         session.close()
     except (SecuMLcoreException, SecuMLexpException) as e:
         sys.stderr.write(display_in_red(e) + '\n')
-        session.rollback()
-        session.close()
+        if session is not None:
+            session.rollback()
+            session.close()
         sys.exit(-1)
     except Exception as e:
-        session.rollback()
-        session.close()
+        if session is not None:
+            session.rollback()
+            session.close()
         raise(e)
