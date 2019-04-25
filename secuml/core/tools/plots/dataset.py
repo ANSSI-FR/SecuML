@@ -14,19 +14,19 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import math
 import numpy as np
 from secuml.core.tools.color import get_label_color
 
 
 class PlotDataset(object):
 
-    def __init__(self, values, label):
+    def __init__(self, values, label, xvalues=None, error_bars=None):
         self.values = np.asanyarray(values)
         self.label = label
+        self.xvalues = xvalues
+        self.error_bars = error_bars
         self._set_default_values()
-
-    def add_error_bars(self, errors):
-        self.error_bars = errors
 
     def set_color(self, color):
         self.color = color
@@ -45,4 +45,21 @@ class PlotDataset(object):
         self.linewidth = 3
         self.linestyle = 'solid'
         self.marker = 'o'
-        self.error_bars = None
+
+
+class ErrorPlotDataset(PlotDataset):
+
+    def __init__(self, values_lists, label, xvalues=None):
+        values_matrix = np.array(values_lists)
+        values = self._compute_values(values_matrix)
+        error_bars = self._compute_error_bars(values_matrix)
+        PlotDataset.__init__(self, values, label, xvalues=xvalues,
+                             error_bars=error_bars)
+
+    def _compute_values(self, values_matrix):
+        return np.mean(values_matrix, axis=0)
+
+    # 95% confidence interval.
+    def _compute_error_bars(self, values_matrix):
+        std = np.std(values_matrix, axis=0)
+        return 1.96 * std / math.sqrt(values_matrix.shape[0])
