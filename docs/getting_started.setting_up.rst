@@ -76,8 +76,8 @@ SecuML requires a configuration file that follows the following format:
     db_uri: <URI of the database>
     logger_level: <[optional] DEBUG,INFO,WARNING,ERROR or CRITICAL - default INFO>
     logger_output: <[optional] name of the logging output file - default sys.stderr>
-    host: <[optional] host of the web server>
-    port: <[optional] port number of the web server>
+    host: <[optional] host of the web server - default localhost>
+    port: <[optional] port number of the web server - default 8080>
 
 See `SecuML_conf_template.yml <https://github.com/ANSSI-FR/SecuML/blob/master/conf/SecuML_conf_template.yml>`_.
 

@@ -73,7 +73,7 @@ ILAB offers many active learning strategies:
 
 .. note::
 
-    We recommend using Ilab. This active learning strategies has been extensively compared [#f1]_ to Aladin, Gornitz, and UncertaintySampling.
+    We recommend using Ilab. This active learning strategy has been extensively compared [#f1]_ to Aladin, Gornitz, and UncertaintySampling.
     ILAB maximizes the detection performance while minimizing both the number of manual annotations and the execution time.
     Its low execution time enables to update the detection model frequently without inducing long waiting-periods.
 
