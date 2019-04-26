@@ -83,6 +83,24 @@ Semi-supervised Model Classes
 | For more information about the available options for a given model class:
 | ``SecuML_DIADEM <project> <dataset> <model_class> -h``.
 
+Applying a Previous Detection Model
+-----------------------------------
+
+DIADEM can apply a previously trained detection model with the following
+command line:
+
+.. code-block:: bash
+
+    SecuML_DIADEM <project> <dataset> AlreadyTrained --model-exp-id <exp_id> \
+        --validation-mode ValidationDataset --validation-dataset <validation_dataset>
+
+In this case, there are two restrictions:
+
+* ``--model-exp-id`` must correspond to a
+  :ref:`DIADEM <DIADEM>` or an :ref:`ILAB <ILAB>` experiment ;
+* ``ValidationDataset`` is the only :ref:`validation mode<DIADEM-validation-modes>`
+  available.
+
 
 .. _DIADEM_hyperparameters:
 
@@ -148,7 +166,7 @@ the training instances predate the validation instances.
 
 Random Split
 ------------
-``--test-mode RandomSplit --test-size <prop>``
+``--validation-mode RandomSplit --test-size <prop>``
 
 ``<prop>`` instances of ``<dataset>`` are selected uniformly for the validation
 dataset. The remaining instances constitute the training dataset.
@@ -157,7 +175,7 @@ dataset. The remaining instances constitute the training dataset.
 
 Temporal Split
 --------------
-``--test-mode TemporalSplit --test-size <prop>``
+``--validation-mode TemporalSplit --test-size <prop>``
 
 The ``<prop>`` most recent instances of ``<dataset>`` are selected for the
 validation dataset. The remaining instances constitute the training dataset.
@@ -166,7 +184,7 @@ validation dataset. The remaining instances constitute the training dataset.
 
 Cutoff Time
 -----------
-``--test-mode CutoffTime --cutoff-time <cutoff_time>``
+``--validation-mode CutoffTime --cutoff-time <cutoff_time>``
 
 The instances of ``<dataset>`` with a timestamp before ``<cutoff_time>``
 constitutes the training dataset, and the instances after constitute the
@@ -179,7 +197,7 @@ validation dataset.
 Cross Validation
 ----------------
 
-``--test-mode Cv --validation-folds <num_folds>``
+``--validation-mode Cv --validation-folds <num_folds>``
 
 The dataset ``<dataset>`` is divided uniformly into ``<num_folds>`` buckets.
 Each bucket has approximately the same number
@@ -198,7 +216,7 @@ the validation dataset and the other buckets form the training dataset.
 
 Temporal Cross Validation
 -------------------------
-``--test-mode TemporalCv --validation-folds <num_folds>``
+``--validation-mode TemporalCv --validation-folds <num_folds>``
 
 The dataset ``<dataset>`` is divided into ``<num_folds> + 1`` buckets.
 Each bucket :math:`b_{i \in [0,~\text{num_folds}]}` contains instances
@@ -225,7 +243,7 @@ the validation dataset.
 Sliding Window
 --------------
 
-``--test-mode SlidingWindow --buckets <n> --train-buckets <n_train> --test-buckets <n_test>``
+``--validation-mode SlidingWindow --buckets <n> --train-buckets <n_train> --test-buckets <n_test>``
 
 The dataset ``<dataset>`` is divided into ``<n>`` buckets
 just as in the case of :ref:`temporal-cv`.
@@ -256,28 +274,16 @@ form the validation dataset.
 Validation Dataset
 ------------------
 
-``--test-mode ValidationDataset --validation-dataset <validation_dataset>``
+``--validation-mode ValidationDataset --validation-dataset <validation_dataset>``
 
 The whole dataset ``<dataset>`` constitutes the training data, and
 ``<validation_dataset>`` constitutes the validation data.
 
-
-Applying a Previous Detection Model
-===================================
-
-DIADEM can apply a previously trained detection model with the following
-command line:
-
-.. code-block:: bash
-
-    SecuML_DIADEM <project> <dataset> AlreadyTrained --model-exp-id <exp_id> \
-        --test-mode ValidationDataset --validation-dataset <validation_dataset>
-
-In this case, there are two restrictions:
-
-* ``--model-exp-id`` must correspond to a
-  :ref:`DIADEM <DIADEM>` or an :ref:`ILAB <ILAB>` experiment ;
-* ``ValidationDataset`` is the only validation mode available.
+In this validation mode, the validation dataset can be processed as a stream
+by specifying ``--streaming``. In this case, the validation instances are not
+loaded into memory at once which allows to process bigger datasets.
+The batch size of the streaming process can be specified with the optional
+argument ``--stream-batch <size>`` (default value: 1000).
 
 
 .. _diadem-gui:
