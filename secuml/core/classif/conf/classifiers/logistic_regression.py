@@ -70,9 +70,10 @@ class LogisticRegressionConf(SupervisedClassifierConf):
     def gen_parser(parser):
         SupervisedClassifierConf.gen_parser(parser, LogisticRegressionConf)
         parser.add_argument('--optim-algo',
-                            choices=['sag', 'liblinear'],
+                            choices=['liblinear', 'lbfgs', 'sag', 'saga'],
                             default='liblinear',
-                            help='sag is recommended for large datasets.'
+                            help='sag and saga are recommended for large '
+                                 'datasets. '
                                  'Default: liblinear.')
 
     @staticmethod
