@@ -15,7 +15,6 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler
 
 from . import SupervisedClassifier
 
@@ -23,5 +22,4 @@ from . import SupervisedClassifier
 class RandomForest(SupervisedClassifier):
 
     def _get_pipeline(self):
-        return [('scaler', StandardScaler()),
-                ('model', RandomForestClassifier())]
+        return [('model', RandomForestClassifier())]

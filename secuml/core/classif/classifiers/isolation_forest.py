@@ -15,7 +15,6 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from sklearn.ensemble import IsolationForest as IsolationForestClassifier
-from sklearn.preprocessing import StandardScaler
 
 from . import UnsupervisedClassifier
 
@@ -23,5 +22,4 @@ from . import UnsupervisedClassifier
 class IsolationForest(UnsupervisedClassifier):
 
     def _get_pipeline(self):
-        return [('scaler', StandardScaler()),
-                ('model', IsolationForestClassifier(n_jobs=self.conf.n_jobs))]
+        return [('model', IsolationForestClassifier(n_jobs=self.conf.n_jobs))]

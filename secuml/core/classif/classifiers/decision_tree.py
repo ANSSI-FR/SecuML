@@ -15,7 +15,6 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from sklearn import tree
-from sklearn.preprocessing import StandardScaler
 
 from . import SupervisedClassifier
 
@@ -23,5 +22,4 @@ from . import SupervisedClassifier
 class DecisionTree(SupervisedClassifier):
 
     def _get_pipeline(self):
-        return [('scaler', StandardScaler()),
-                ('model', tree.DecisionTreeClassifier())]
+        return [('model', tree.DecisionTreeClassifier())]
