@@ -15,6 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import abc
+import numpy as np
 
 from secuml.core.tools.plots.dataset import PlotDataset
 
@@ -54,6 +55,6 @@ class Strategy(object):
         return [self.exec_time]
 
     def get_exec_times_display(self):
-        generate_queries = PlotDataset(None, 'Queries generation')
+        generate_queries = PlotDataset(np.array([]), 'Queries generation')
         generate_queries.set_color('purple')
         return [generate_queries]

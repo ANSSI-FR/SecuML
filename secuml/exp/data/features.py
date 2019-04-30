@@ -16,6 +16,8 @@
 
 import csv
 import numpy as np
+from scipy.sparse import hstack
+from scipy.sparse import load_npz
 
 from secuml.core.data.features import Features
 from secuml.core.data.ids import Ids
@@ -30,27 +32,39 @@ class FeaturesFromExp(Features):
         if instance_ids is None:
             dataset_id = exp.exp_conf.dataset_conf.dataset_id
             instance_ids = Ids(get_dataset_ids(exp.session, dataset_id))
+        features_conf = exp.exp_conf.features_conf
         num_instances = instance_ids.num_instances()
-        features_files = exp.exp_conf.features_conf.files
         if streaming:
-            values = FeaturesFromExp.get_matrix_iterator(features_files,
+            values = FeaturesFromExp.get_matrix_iterator(features_conf.files,
                                                          num_instances)
         else:
-            values = FeaturesFromExp.get_matrix(features_files, num_instances)
+            values = FeaturesFromExp.get_matrix(features_conf.files,
+                                                num_instances,
+                                                sparse=features_conf.sparse)
         Features.__init__(self, values, exp.exp_conf.features_conf.info,
                           instance_ids, streaming=streaming,
-                          stream_batch=stream_batch)
+                          stream_batch=stream_batch,
+                          sparse=features_conf.sparse)
 
     @staticmethod
-    def get_matrix(features_files, num_instances):
+    def get_matrix(features_files, num_instances, sparse=False):
         features = None
-        iterator = FeaturesFromExp.get_matrix_iterator(features_files,
-                                                       num_instances)
-        for row in iterator:
-            if features is None:
-                features = row
-            else:
-                features = np.vstack((features, row))
+        if not sparse:
+            iterator = FeaturesFromExp.get_matrix_iterator(features_files,
+                                                           num_instances)
+            for row in iterator:
+                if features is None:
+                    features = row
+                else:
+                    features = np.vstack((features, row))
+        else:
+            for _, f_path, f_mask in features_files:
+                indices = np.where(f_mask)[0]
+                matrix = load_npz(f_path)[:, indices]
+                if features is None:
+                    features = matrix
+                else:
+                    features = hstack([features, matrix])
         return features
 
     @staticmethod

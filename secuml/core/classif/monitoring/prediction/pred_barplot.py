@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
 import os.path as path
 
 from secuml.core.data.labels_tools import label_bool_to_str
@@ -55,7 +56,7 @@ class PredictionBarplot(object):
         else:
             values = [len(self.predictions[l]) for l in labels]
             label = 'all'
-        dataset = PlotDataset(values, label)
+        dataset = PlotDataset(np.array(values), label)
         dataset.set_color(get_error_color(error))
         barplot.add_dataset(dataset)
 

@@ -38,8 +38,8 @@ class FeaturesAnalysisExperiment(Experiment):
     def run(self):
         Experiment.run(self)
         stats = FeaturesAnalysis(self.get_instances())
-        stats.compute()
-        stats.export(self.output_dir())
+        stats.gen_plots(self.output_dir())
+        stats.gen_scoring(self.output_dir())
 
     def web_template(self):
         return 'features_analysis/main.html'

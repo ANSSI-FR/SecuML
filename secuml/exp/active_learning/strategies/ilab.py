@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
+
 from secuml.core.active_learning.strategies.ilab import Ilab as CoreIlab
 from secuml.core.data.labels_tools import BENIGN, MALICIOUS
 from secuml.core.tools.plots.dataset import PlotDataset
@@ -76,11 +78,11 @@ class Ilab(CoreIlab):
         return [malicious_time, uncertain_time, benign_time]
 
     def get_exec_times_display(self):
-        uncertain = PlotDataset(None, 'Uncertain Queries')
-        malicious = PlotDataset(None, 'Malicious Queries')
+        uncertain = PlotDataset(np.array([]), 'Uncertain Queries')
+        malicious = PlotDataset(np.array([]), 'Malicious Queries')
         malicious.set_linestyle('dotted')
         malicious.set_color(get_label_color(MALICIOUS))
-        benign = PlotDataset(None, 'Benign Queries')
+        benign = PlotDataset(np.array([]), 'Benign Queries')
         benign.set_linestyle('dashed')
         benign.set_color(get_label_color(BENIGN))
         return [malicious, uncertain, benign]

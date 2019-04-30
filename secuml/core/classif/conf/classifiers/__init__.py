@@ -92,6 +92,7 @@ class ClassifierConf(Conf):
         self.multiclass = multiclass
         self.model_class = None
         self.hyperparam_conf = hyperparam_conf
+        self.accept_sparse = False
         self._set_characteristics()
 
     def get_exp_name(self):

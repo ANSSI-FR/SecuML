@@ -277,7 +277,7 @@ def getTopWeightedFeatures(exp_id, instance_id, size):
     tooltips = ['%s (%.2f)' % (name, f_values[i])
                 for i, name in enumerate(f_names)]
     barplot = BarPlot(labels)
-    dataset = PlotDataset(f_weighted, None)
+    dataset = PlotDataset(np.array(f_weighted), None)
     dataset.set_color(red)
     barplot.add_dataset(dataset)
     return jsonify(barplot.to_json(tooltip_data=tooltips))

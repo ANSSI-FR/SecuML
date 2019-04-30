@@ -17,7 +17,9 @@
 import math
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.sparse.base import spmatrix
 from sklearn.neighbors import KernelDensity
+from sklearn.utils.sparsefuncs import mean_variance_axis
 
 
 class Density(object):
@@ -72,13 +74,17 @@ class Density(object):
                           density_delta / self.num_points)
         else:
             x = np.array([self.min_value - 2*eps, self.max_value + 2*eps])
-        if np.var(dataset.values) < eps:
+        if isinstance(dataset.values, spmatrix):
+            variance = mean_variance_axis(dataset.values, axis=0)[1]
+        else:
+            variance = np.var(dataset.values)
+        if variance < eps:
             linewidth += 2
             mean = np.mean(dataset.values)
             x = np.sort(np.append(x, [mean, mean - eps, mean + eps]))
             density = [1 if v == mean else 0 for v in x]
         else:
-            self.kde.fit(np.asarray([[x] for x in dataset.values]))
+            self.kde.fit(dataset.values)
             x_density = [[y] for y in x]
             # kde.score_samples returns the 'log' of the density
             log_density = self.kde.score_samples(x_density).tolist()

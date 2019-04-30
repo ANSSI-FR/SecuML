@@ -28,10 +28,11 @@ class InputFeaturesTypes(Enum):
 
 class FeaturesConf(Conf):
 
-    def __init__(self, input_features, logger, filter_in_f=None,
+    def __init__(self, input_features, sparse, logger, filter_in_f=None,
                  filter_out_f=None, streaming=False, stream_batch=None):
         Conf.__init__(self, logger)
         self.input_features = input_features
+        self.sparse = sparse
         self.filter_in_f = filter_in_f
         self.filter_out_f = filter_out_f
         self.streaming = streaming
@@ -54,7 +55,8 @@ class FeaturesConf(Conf):
         self.files = files
 
     def copy_streaming(self, stream_batch):
-        features_conf = FeaturesConf(self.input_features, self.logger,
+        features_conf = FeaturesConf(self.input_features, self.sparse,
+                                     self.logger,
                                      filter_in_f=self.filter_in_f,
                                      filter_out_f=self.filter_out_f,
                                      streaming=True,
@@ -67,6 +69,7 @@ class FeaturesConf(Conf):
 
     def fields_to_export(self):
         return [('input_features', exportFieldMethod.primitive),
+                ('sparse', exportFieldMethod.primitive),
                 ('input_type', exportFieldMethod.enum_value),
                 ('set_id', exportFieldMethod.primitive),
                 ('files', exportFieldMethod.primitive),
@@ -75,10 +78,15 @@ class FeaturesConf(Conf):
                 ('filter_out_f', exportFieldMethod.primitive)]
 
     @staticmethod
-    def gen_parser(parser, filters=True):
+    def gen_parser(parser, filters=True, sparse=False):
         group = parser
-        if filters:
+        if filters or sparse:
             group = parser.add_argument_group('Features')
+        if sparse:
+            group.add_argument('--sparse', required=False, default=False,
+                               action='store_true',
+                               help='CSR, CSC and LIL scipy sparse matrices '
+                                    'are accepted.')
         group.add_argument(
                  '--features', '-f', dest='input_features', required=False,
                  default='features.csv',
@@ -99,19 +107,21 @@ class FeaturesConf(Conf):
 
     @staticmethod
     def from_args(args, logger):
+        filter_in_f = None
+        filter_out_f = None
+        sparse = False
         if hasattr(args, 'filter_in'):
             filter_in_f = args.filter_in
             filter_out_f = args.filter_out
-        else:
-            filter_in_f = None
-            filter_out_f = None
-        return FeaturesConf(args.input_features, logger,
+        if hasattr(args, 'sparse'):
+            sparse = args.sparse
+        return FeaturesConf(args.input_features, sparse, logger,
                             filter_in_f=filter_in_f, filter_out_f=filter_out_f)
 
     @staticmethod
     def from_json(conf_json, logger):
-        conf = FeaturesConf(conf_json['input_features'], logger,
-                            filter_in_f=conf_json['filter_in_f'],
+        conf = FeaturesConf(conf_json['input_features'], conf_json['sparse'],
+                            logger, filter_in_f=conf_json['filter_in_f'],
                             filter_out_f=conf_json['filter_out_f'])
         conf.set_input_type(conf_json['input_type'])
         conf.set_set_id(conf_json['set_id'])

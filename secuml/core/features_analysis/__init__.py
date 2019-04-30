@@ -23,23 +23,17 @@ class FeaturesAnalysis(object):
     def __init__(self, instances):
         self.instances = instances
         self.num_features = self.instances.num_features()
-
-    def compute(self):
-        self._gen_features_plots()
-        self._gen_features_scoring()
-
-    def export(self, output_dir):
-        for feature_index in range(self.num_features):
-            self.plots[feature_index].export(output_dir)
-        self.scoring.export(output_dir)
-
-    def _gen_features_plots(self):
-        self.plots = [None for _ in range(self.num_features)]
-        for feature_index in range(self.num_features):
-            self.plots[feature_index] = FeaturePlots(self.instances,
-                                                     feature_index)
-            self.plots[feature_index].compute()
-
-    def _gen_features_scoring(self):
+        self.plots = []
         self.scoring = FeaturesScoring(self.instances)
+
+    def gen_plots(self, output_dir, save=False):
+        for feature_index in range(self.num_features):
+            plot = FeaturePlots(self.instances, feature_index)
+            plot.compute()
+            plot.export(output_dir)
+            if save:
+                self.plots.append(plot)
+
+    def gen_scoring(self, output_dir):
         self.scoring.compute()
+        self.scoring.export(output_dir)

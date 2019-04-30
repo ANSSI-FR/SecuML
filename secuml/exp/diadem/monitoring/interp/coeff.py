@@ -37,7 +37,7 @@ class Coefficients(CoefficientsCore):
 
     def to_barplot(self, directory):
         head_coeff = self.coef_summary.head(n=NUM_COEFF_EXPORT)
-        coefficients = list(head_coeff['mean'])
+        coefficients = head_coeff['mean'].values
         features_ids = list(head_coeff.index)
         features_names = []
         user_ids = []

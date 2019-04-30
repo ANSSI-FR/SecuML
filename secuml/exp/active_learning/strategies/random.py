@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
+
 from secuml.core.active_learning.strategies.random import Random as CoreRandom
 from secuml.core.tools.plots.dataset import PlotDataset
 from secuml.exp.active_learning.queries.random import RandomQueries
@@ -42,7 +44,7 @@ class Random(CoreRandom):
         return line
 
     def exec_time_display(self):
-        binary_model = PlotDataset(None, 'Binary model')
+        binary_model = PlotDataset(np.array([]), 'Binary model')
         v = [binary_model]
         v.extend(CoreRandom.get_exec_times_display(self))
         return v

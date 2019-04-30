@@ -17,6 +17,7 @@
 import numpy as np
 import os
 import os.path as path
+from scipy.sparse.base import spmatrix
 
 from secuml.core.data.labels_tools import BENIGN, MALICIOUS
 from secuml.core.data.features import FeatureType
@@ -35,8 +36,6 @@ class FeaturePlots(object):
         self.feature_type = features_info.types[self.feature_index]
         self.feature_name = features_info.names[self.feature_index]
         self.feature_id = features_info.ids[self.feature_index]
-        self.all_values = instances.features.get_values_from_index(
-                                                            self.feature_index)
         self._gen_plot_datasets(instances)
 
     def compute(self):
@@ -50,7 +49,7 @@ class FeaturePlots(object):
             # contain all the informations.
             try:
                 self._gen_histogram()
-            except Exception:
+            except IndexError:
                 self.barplot = None
                 pass
             self._gen_density()
@@ -81,6 +80,8 @@ class FeaturePlots(object):
         else:
             instances = instances.get_unlabeled_instances()
         values = instances.features.get_values_from_index(self.feature_index)
+        if isinstance(values, spmatrix):
+            values = values.toarray()
         dataset = PlotDataset(values, label)
         dataset.set_color(get_label_color(label))
         self.plot_datasets[label] = dataset
@@ -88,17 +89,21 @@ class FeaturePlots(object):
     def _gen_bloxplot(self):
         self.boxplot = BoxPlot(title='Feature %s' % self.feature_name)
         for label, dataset in self.plot_datasets.items():
-            if len(dataset.values) > 0:
+            if dataset.values.shape[0] > 0:
                 self.boxplot.add_dataset(dataset)
 
     def _gen_histogram(self):
         # 10 equal-width bins computed on all the data
-        _, bin_edges = np.histogram(self.all_values, bins=10, density=False)
+        all_values = self.plot_datasets['unlabeled'].values
+        for label in [MALICIOUS, BENIGN]:
+            all_values = np.vstack((all_values,
+                                    self.plot_datasets[label].values))
+        _, bin_edges = np.histogram(all_values, bins=10, density=False)
         x_labels = ['%.2f - %.2f' % (bin_edges[e], bin_edges[e+1])
                     for e in range(len(bin_edges) - 1)]
         self.barplot = BarPlot(x_labels)
         for label, dataset in self.plot_datasets.items():
-            if len(dataset.values) > 0:
+            if dataset.values.shape[0] > 0:
                 hist, _ = np.histogram(dataset.values, bins=bin_edges,
                                        density=False)
                 hist_dataset = PlotDataset(hist, label)
@@ -108,15 +113,15 @@ class FeaturePlots(object):
     def _gen_binary_histogram(self):
         self.barplot = BarPlot(['0', '1'])
         for label, dataset in self.plot_datasets.items():
-            if len(dataset.values) > 0:
+            if dataset.values.shape[0] > 0:
                 num_0 = sum(dataset.values == 0)
                 num_1 = sum(dataset.values == 1)
-                hist_dataset = PlotDataset([num_0, num_1], label)
+                hist_dataset = PlotDataset(np.array([num_0, num_1]), label)
                 hist_dataset.set_color(dataset.color)
                 self.barplot.add_dataset(hist_dataset)
 
     def _gen_density(self):
         self.density = Density(title='Feature %s' % self.feature_name)
         for _, dataset in self.plot_datasets.items():
-            if len(dataset.values) > 0:
+            if dataset.values.shape[0] > 0:
                 self.density.add_dataset(dataset)

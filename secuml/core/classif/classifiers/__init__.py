@@ -57,12 +57,6 @@ class Classifier(object):
         self.conf = conf
         self._create_pipeline()
 
-    def get_coefs(self):
-        return self.conf.get_coefs(self.pipeline.named_steps['model'])
-
-    def _create_pipeline(self):
-        self.pipeline = Pipeline(self._get_pipeline())
-
     @abc.abstractmethod
     def _get_pipeline(self):
         return
@@ -70,10 +64,6 @@ class Classifier(object):
     @abc.abstractmethod
     def _set_best_hyperparam(self, train_instances):
         return
-
-    def get_supervision(self, instances, ground_truth=False, check=True):
-        annotations = instances.get_annotations(ground_truth)
-        return annotations.get_supervision(self.conf.multiclass)
 
     def training(self, instances):
         execution_time = 0
@@ -86,11 +76,30 @@ class Classifier(object):
         predictions = self._get_predictions(instances)
         return predictions, execution_time
 
+    def testing(self, instances):
+        start = time.time()
+        predictions = self._get_predictions(instances)
+        exec_time = time.time() - start
+        return predictions, exec_time
+
+    def load_model(self, model_filename):
+        self.pipeline = joblib.load(model_filename)
+
+    def get_coefs(self):
+        return self.conf.get_coefs(self.pipeline.named_steps['model'])
+
+    def _get_supervision(self, instances, ground_truth=False, check=True):
+        annotations = instances.get_annotations(ground_truth)
+        return annotations.get_supervision(self.conf.multiclass)
+
+    def _create_pipeline(self):
+        self.pipeline = Pipeline(self._get_pipeline())
+
     def _get_predictions(self, instances):
         predictions = self.apply_pipeline(instances)
         if instances.has_ground_truth():
-            ground_truth = self.get_supervision(instances, ground_truth=True,
-                                                check=False)
+            ground_truth = self._get_supervision(instances, ground_truth=True,
+                                                 check=False)
             predictions.set_ground_truth(ground_truth)
         return predictions
 
@@ -106,7 +115,7 @@ class Classifier(object):
         for fold_id, datasets in enumerate(cv_datasets._datasets):
             start = time.time()
             self.pipeline.fit(datasets.train_instances.features.get_values(),
-                              self.get_supervision(datasets.train_instances))
+                              self._get_supervision(datasets.train_instances))
             train_time = time.time() - start
             cv_predictions, test_time = self.testing(datasets.test_instances)
             cv_monitoring.add_fold(self, train_time, cv_predictions,
@@ -190,22 +199,13 @@ class Classifier(object):
         else:
             return None
 
-    def testing(self, instances):
-        start = time.time()
-        predictions = self._get_predictions(instances)
-        exec_time = time.time() - start
-        return predictions, exec_time
-
-    def load_model(self, model_filename):
-        self.pipeline = joblib.load(model_filename)
-
 
 class SupervisedClassifier(Classifier):
 
-    def get_supervision(self, instances, ground_truth=False, check=True):
-        supervision = Classifier.get_supervision(self, instances,
-                                                 ground_truth=ground_truth,
-                                                 check=check)
+    def _get_supervision(self, instances, ground_truth=False, check=True):
+        supervision = Classifier._get_supervision(self, instances,
+                                                  ground_truth=ground_truth,
+                                                  check=check)
         if not (all(l is not None for l in supervision)):
             raise MissingAnnotations()
         if check:
@@ -224,7 +224,7 @@ class SupervisedClassifier(Classifier):
                                    scoring=optim_conf.get_scoring_method(),
                                    cv=cv, iid=False, n_jobs=optim_conf.n_jobs)
         grid_search.fit(train_instances.features.get_values(),
-                        self.get_supervision(train_instances))
+                        self._get_supervision(train_instances))
         hyperparam_conf.values.set_best_values(grid_search)
         best_values = hyperparam_conf.values.get_best_values()
         best_values = {p: value for p, value in best_values.items()}
@@ -232,7 +232,7 @@ class SupervisedClassifier(Classifier):
 
     def _fit(self, train_instances):
         self.pipeline.fit(train_instances.features.get_values(),
-                          self.get_supervision(train_instances))
+                          self._get_supervision(train_instances))
 
     def training(self, train_instances):
         predictions, exec_time = Classifier.training(self, train_instances)
@@ -248,12 +248,12 @@ class UnsupervisedClassifier(Classifier):
         best_values = hyperparam_conf.values.get_best_values()
         self.pipeline.set_params(**best_values)
 
-    def get_supervision(self, instances, ground_truth=False, check=True):
+    def _get_supervision(self, instances, ground_truth=False, check=True):
         if not ground_truth:
             return None
-        return Classifier.get_supervision(self, instances,
-                                          ground_truth=ground_truth,
-                                          check=check)
+        return Classifier._get_supervision(self, instances,
+                                           ground_truth=ground_truth,
+                                           check=check)
 
     # sklearn unsupervised learning algorithms return
     #   -1 for outliers
@@ -275,12 +275,12 @@ class SemiSupervisedClassifier(Classifier):
         self.pipeline.set_params(**best_values)
 
     # -1 for unlabeled instances.
-    def get_supervision(self, instances, ground_truth=False, check=True):
-        supervision = Classifier.get_supervision(self, instances,
-                                                 ground_truth=ground_truth,
-                                                 check=check)
+    def _get_supervision(self, instances, ground_truth=False, check=True):
+        supervision = Classifier._get_supervision(self, instances,
+                                                  ground_truth=ground_truth,
+                                                  check=check)
         return [s if s is not None else -1 for s in supervision]
 
     def _fit(self, train_instances):
         self.pipeline.fit(train_instances.features.get_values(),
-                          self.get_supervision(train_instances))
+                          self._get_supervision(train_instances))

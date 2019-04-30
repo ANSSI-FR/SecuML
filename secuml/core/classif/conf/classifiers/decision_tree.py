@@ -20,6 +20,11 @@ from . import SupervisedClassifierConf
 
 class DecisionTreeConf(SupervisedClassifierConf):
 
+    def __init__(self, multiclass, hyperparam_conf, logger):
+        SupervisedClassifierConf.__init__(self, multiclass, hyperparam_conf,
+                                          logger)
+        self.accept_sparse = True
+
     def _get_model_class(self):
         return DecisionTree
 

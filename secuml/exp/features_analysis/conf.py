@@ -27,7 +27,7 @@ class FeaturesAnalysisConf(ExpConf):
     @staticmethod
     def gen_parser():
         parser = argparse.ArgumentParser(description='Features Analysis')
-        ExpConf.gen_parser(parser, filters=False)
+        ExpConf.gen_parser(parser, filters=False, sparse=True)
         AnnotationsConf.gen_parser(
                     parser, required=False,
                     message='CSV file containing the annotations of some or '

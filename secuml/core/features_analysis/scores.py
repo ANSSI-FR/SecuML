@@ -18,9 +18,11 @@ from decimal import Decimal
 import json
 import os.path as path
 import pandas as pd
+from scipy.sparse.base import spmatrix
 from sklearn.feature_selection import chi2
 from sklearn.feature_selection import f_classif
 from sklearn.feature_selection import mutual_info_classif
+from sklearn.utils.sparsefuncs import mean_variance_axis
 
 from secuml.core.data.features import FeatureType
 from secuml.core.tools.matrix import sort_data_frame
@@ -124,17 +126,25 @@ class FeaturesScoring(object):
         if func == 'variance':
             features = self.instances.features.get_values()
             annotations = self.instances.annotations.get_labels()
-            return features.var(axis=0), None
+            if isinstance(features, spmatrix):
+                variance = mean_variance_axis(features, axis=0)[1]
+            else:
+                variance = features.var(axis=0)
+            return variance, None
+
         features = self.annotated_instances.features.get_values()
         annotations = self.annotated_instances.annotations.get_labels()
         if func == 'f_classif':
             return f_classif(features, annotations)
         elif func == 'mutual_info_classif':
-            features_types = self.instances.features.info.types
-            discrete_indexes = [i for i, t in enumerate(features_types)
-                                if t == FeatureType.binary]
-            if not discrete_indexes:
-                discrete_indexes = False
+            if isinstance(features, spmatrix):
+                discrete_indexes = True
+            else:
+                features_types = self.instances.features.info.types
+                discrete_indexes = [i for i, t in enumerate(features_types)
+                                    if t == FeatureType.binary]
+                if not discrete_indexes:
+                    discrete_indexes = False
             return (mutual_info_classif(features, annotations,
                                         discrete_features=discrete_indexes),
                     None)

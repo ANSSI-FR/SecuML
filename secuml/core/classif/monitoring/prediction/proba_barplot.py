@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
 import os.path as path
 
 from secuml.core.data.labels_tools import BENIGN, MALICIOUS
@@ -49,7 +50,7 @@ class ProbaBarplot(object):
                       for l in self.ranges]
         else:
             ranges = self.ranges
-        dataset = PlotDataset(list(map(len, ranges)), label)
+        dataset = PlotDataset(np.array([len(r) for r in ranges]), label)
         dataset.set_color(get_label_color(label))
         barplot.add_dataset(dataset)
 

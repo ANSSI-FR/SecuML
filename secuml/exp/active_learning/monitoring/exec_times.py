@@ -64,10 +64,9 @@ class ExecutionTimesMonitoring(object):
         header = self.iteration.strategy.get_exec_times_header()
         for i, m in enumerate(monitoring):
             label = header[i]
-            plt.plot(iterations, data[label],
-                     label=m.label,
-                     linestyle=m.linestyle,
-                     color=m.color, linewidth=m.linewidth, marker=m.marker)
+            plt.plot(iterations, data[label], label=m.label,
+                     linestyle=m.linestyle, color=m.color,
+                     linewidth=m.linewidth, marker=m.marker)
         plt.ylim(0, max_value)
         plt.xlabel('Iteration')
         plt.ylabel('Execution Time (seconds)')

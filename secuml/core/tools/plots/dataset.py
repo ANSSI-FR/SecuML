@@ -16,17 +16,28 @@
 
 import math
 import numpy as np
+from scipy.sparse.base import spmatrix
+
 from secuml.core.tools.color import get_label_color
 
 
 class PlotDataset(object):
 
     def __init__(self, values, label, xvalues=None, error_bars=None):
-        self.values = np.asanyarray(values)
+        self._set_values(values)
         self.label = label
         self.xvalues = xvalues
         self.error_bars = error_bars
         self._set_default_values()
+
+    def _set_values(self, values):
+        self.values = values
+        if len(self.values.shape) == 1:
+            new_shape = (self.values.shape[0], 1)
+            if isinstance(self.values, spmatrix):
+                self.values = self.values.reshape(new_shape)
+            else:
+                self.values = np.reshape(self.values, new_shape)
 
     def set_color(self, color):
         self.color = color
@@ -50,7 +61,7 @@ class PlotDataset(object):
 class ErrorPlotDataset(PlotDataset):
 
     def __init__(self, values_lists, label, xvalues=None):
-        values_matrix = np.array(values_lists)
+        values_matrix = values_lists
         values = self._compute_values(values_matrix)
         error_bars = self._compute_error_bars(values_matrix)
         PlotDataset.__init__(self, values, label, xvalues=xvalues,

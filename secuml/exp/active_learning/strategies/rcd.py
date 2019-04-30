@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
+
 from secuml.core.active_learning.strategies.rcd import Rcd as CoreRcd
 from secuml.core.tools.plots.dataset import PlotDataset
 from secuml.exp.active_learning.queries.rcd import RcdQueries
@@ -56,6 +58,6 @@ class Rcd(CoreRcd):
         return line
 
     def get_exec_times_display(self):
-        v = [PlotDataset(None, 'Analysis')]
+        v = [PlotDataset(np.array([]), 'Analysis')]
         v.extend(CoreRcd.get_exec_times_display(self))
         return v

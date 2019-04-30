@@ -23,6 +23,7 @@ class IsolationForestConf(UnsupervisedClassifierConf):
 
     def __init__(self, hyper_conf, logger, n_jobs=-1):
         UnsupervisedClassifierConf.__init__(self, hyper_conf, logger)
+        self.accept_sparse = True
         self.n_jobs = n_jobs
 
     def _get_model_class(self):

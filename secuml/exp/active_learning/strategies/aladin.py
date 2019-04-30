@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
+
 from secuml.core.active_learning.strategies.aladin import Aladin as CoreAladin
 from secuml.core.tools.plots.dataset import PlotDataset
 from secuml.exp.active_learning.queries.aladin import AladinQueries
@@ -42,9 +44,9 @@ class Aladin(CoreAladin):
         return line
 
     def get_exec_times_display(self):
-        lr = PlotDataset(None, 'Logistic Regression')
+        lr = PlotDataset(np.array([]), 'Logistic Regression')
         lr.set_linestyle('dotted')
-        nb = PlotDataset(None, 'Naive Bayes')
+        nb = PlotDataset(np.array([]), 'Naive Bayes')
         nb.set_linestyle('dashed')
         v = [lr, nb]
         v.extend(CoreAladin.get_exec_times_display(self))

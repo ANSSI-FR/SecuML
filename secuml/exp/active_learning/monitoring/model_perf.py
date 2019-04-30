@@ -82,7 +82,7 @@ class _ModelPerfEvolution(object):
         iterations = list(range(1, self.iter_num + 1))
         plt.clf()
         for estimator in estimators:
-            plot = PlotDataset(data[estimator], estimator)
+            plot = PlotDataset(data[estimator].values, estimator)
             plt.plot(iterations, plot.values, label=plot.label,
                      color=plot.color, linewidth=plot.linewidth,
                      marker=plot.marker)

@@ -87,8 +87,8 @@ class SuggestionsAccuracyCounts(object):
             title = 'Labels Suggestions Accuracy'
         elif self.labels_families == 'families':
             title = 'Families Suggestions Accuracy'
-        plot = PlotDataset(data['true_suggestions'] /
-                           data['num_suggestions'], title)
+        values = data['true_suggestions'] / data['num_suggestions']
+        plot = PlotDataset(values.values, title)
         iterations = list(range(self.monitoring.iter_num))
         plt.clf()
         max_value = 1
@@ -182,7 +182,7 @@ class SuggestionsAccuracy(object):
         # Labels
         data = self.labels_accuracy.high_confidence_counts.data
         values = data['true_suggestions'] / data['num_suggestions']
-        plot = PlotDataset(values, 'Labels Suggestions')
+        plot = PlotDataset(values.values, 'Labels Suggestions')
         max_value = 1
         plt.plot(iterations, plot.values,
                  label=plot.label,
@@ -192,7 +192,7 @@ class SuggestionsAccuracy(object):
         # Families
         data = self.families_accuracy.high_confidence_counts.data
         values = data['true_suggestions'] / data['num_suggestions']
-        plot = PlotDataset(values, 'Families Suggestions')
+        plot = PlotDataset(values.values, 'Families Suggestions')
         max_value = 1
         plt.plot(iterations, plot.values,
                  label=plot.label,

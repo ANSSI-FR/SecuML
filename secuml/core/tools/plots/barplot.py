@@ -39,7 +39,7 @@ class BarPlot(object):
             json_barplot['tooltip_data'] = tooltip_data
         for i, dataset in enumerate(self.datasets):
             json_dataset = {}
-            json_dataset['data'] = list(map(str, dataset.values))
+            json_dataset['data'] = [float(x) for x in dataset.values[:, 0]]
             json_dataset['backgroundColor'] = dataset.color
             json_dataset['label'] = dataset.label
             json_barplot['datasets'].append(json_dataset)

@@ -15,6 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from flask import jsonify
+import numpy as np
 import random
 
 from secuml.core.tools.color import colors
@@ -109,12 +110,12 @@ def getClusterStats(exp_id):
     experiment = update_curr_exp(exp_id)
     clustering = ClustersExp.from_json(experiment.output_dir())
     num_clusters = clustering.num_clusters
-    num_instances_v = []
+    num_instances_v = np.array([None for _ in range(num_clusters)])
     labels = []
     for c in range(num_clusters):
         instances_in_cluster = clustering.clusters[c].instances_ids
         num_instances = len(instances_in_cluster)
-        num_instances_v.append(num_instances)
+        num_instances_v[c] = num_instances
         labels.append(clustering.clusters[c].label)
     barplot = BarPlot(labels)
     dataset = PlotDataset(num_instances_v, 'Num. Instances')

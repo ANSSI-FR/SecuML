@@ -94,7 +94,7 @@ class ExpConf(Conf):
         return SecuMLConf(args.secuml_conf)
 
     @staticmethod
-    def gen_parser(parser, filters=True):
+    def gen_parser(parser, filters=True, sparse=False):
         DatasetConf.gen_parser(parser)
         parser.add_argument('--exp-name', type=str,
                             required=False,
@@ -110,4 +110,4 @@ class ExpConf(Conf):
                                  'If not set, the configuration is read from '
                                  'the file stored in the environment variable '
                                  'SECUMLCONF.')
-        FeaturesConf.gen_parser(parser, filters=filters)
+        FeaturesConf.gen_parser(parser, filters=filters, sparse=sparse)

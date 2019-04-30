@@ -70,8 +70,8 @@ def getFamiliesBarplot(annotations_id, iteration, label):
         'counts': [family_counts[k] for k in list(family_counts.keys())]
         })
     sort_data_frame(df, 'families', ascending=True, inplace=True)
-    barplot = BarPlot(list(df['families']))
-    dataset = PlotDataset(list(df['counts']), 'Num. Instances')
+    barplot = BarPlot(df['families'].values)
+    dataset = PlotDataset(df['counts'].values, 'Num. Instances')
     dataset.set_color(get_label_color(label))
     barplot.add_dataset(dataset)
     return jsonify(barplot.to_json())

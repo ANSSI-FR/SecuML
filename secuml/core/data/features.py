@@ -16,6 +16,7 @@
 
 from enum import Enum
 import numpy as np
+from sklearn.utils import safe_indexing
 
 from secuml.core.tools.core_exceptions import SecuMLcoreException
 
@@ -102,17 +103,22 @@ class Features(object):
     # Otherwise, values is a matrix containing the features of all the
     # instances (num rows = num instances, nu columns = num features).
     def __init__(self, values, info, instance_ids, streaming=False,
-                 stream_batch=None):
+                 stream_batch=None, sparse=False):
         self.values = values
         self.info = info
         self.instance_ids = instance_ids
         self.streaming = streaming
         self.stream_batch = stream_batch
+        self.sparse = sparse
         self._check_validity()
 
     def _check_validity(self):
         if self.streaming:
-            return
+            if self.sparse:
+                raise StreamingUnsupported('Sparse matrices cannot be '
+                                           'processed as a stream.')
+            else:
+                return
         num_instances = self.instance_ids.num_instances()
         if num_instances != 0:
             if self.values.shape[0] != num_instances:
@@ -122,7 +128,7 @@ class Features(object):
             num_features = self.info.num_features()
             if self.values.shape[1] != num_features:
                 raise InvalidFeatures('There are %d features ids '
-                                      'but the features of %d are provided.'
+                                      'but %d features are provided.'
                                       % (num_features, self.values.shape[1]))
         else:
             if self.values.size != 0:
@@ -145,14 +151,15 @@ class Features(object):
         if self.streaming:
             raise StreamingUnsupported('all_positives is not supported for '
                                        'streaming features.')
-        return np.all(self.values >= 0)
+        return self.values.min() >= 0
 
     def get_from_ids(self, instance_ids):
         if self.streaming:
             raise StreamingUnsupported('get_from_ids is not supported for '
                                        'streaming features.')
-        values = np.array([self.get_instance_features(i)
-                           for i in instance_ids.ids])
+        indices = [self.instance_ids.get_index(id_)
+                   for id_ in instance_ids.ids]
+        values = safe_indexing(self.values, indices)
         return Features(values, self.info, instance_ids)
 
     def get_names(self):
@@ -182,13 +189,10 @@ class Features(object):
             raise StreamingUnsupported('get_instance_features is not '
                                        'supported for streaming features.')
         index = self.instance_ids.get_index(instance_id)
-        return self.values[index]
+        return self.values[index, :]
 
     def get_values_from_index(self, feature_index):
         if self.streaming:
             raise StreamingUnsupported('get_values_from_index is not '
                                        'supported for streaming features.')
-        if self.instance_ids.num_instances() == 0:
-            return []
-        else:
-            return self.values[:, feature_index]
+        return self.values[:, feature_index]

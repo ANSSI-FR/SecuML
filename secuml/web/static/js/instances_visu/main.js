@@ -427,6 +427,11 @@ function printFeatures(selected_id) {
     div_object.style.overflow = 'auto';
     var div_height = Math.round(window.screen.availHeight * 0.4) + 'px';
     div_object.style.height = div_height;
+    if (conf.features_conf.sparse) {
+        div_object.appendChild(
+                document.createTextNode('Unavailable for sparse features'))
+        return;
+    }
     var query = buildQuery('getFeatures', [exp_id, selected_id]);
     jQuery.getJSON(query, function(data) {
         var ul = document.createElement('ul');

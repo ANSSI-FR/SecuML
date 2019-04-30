@@ -154,8 +154,7 @@ class LoadFeatures(object):
         self._load_features(set_id, features_file.id, file_path, num_instances)
 
     def _load_features(self, set_id, file_id, file_path, num_instances):
-        user_ids = self._get_user_ids(file_path)
-        names, descrips = self._get_names_descr(file_path, user_ids)
+        user_ids, names, descrips = self._get_ids_names_descr(file_path)
         types = self._get_types(file_path, num_instances)
         for u_id, name, desc, type_ in zip(user_ids, names, descrips, types):
             feature = FeaturesAlchemy(user_id=u_id, file_id=file_id,
@@ -163,38 +162,50 @@ class LoadFeatures(object):
                                       description=desc, type=type_.name)
             self.session.add(feature)
 
-    def _get_user_ids(self, file_path):
-        with open(file_path, 'r') as f_file:
-            features_reader = csv.reader(f_file)
-            user_ids = next(features_reader)[1:]
-        return user_ids
-
-    def _get_names_descr(self, file_path, user_ids):
+    def _get_ids_names_descr(self, file_path):
+        user_ids = None
+        names = None
+        descriptions = None
         basename, _ = os.path.splitext(file_path)
         description_file = '%s_description.csv' % basename
         if os.path.isfile(description_file):
             with open(description_file, 'r') as f:
                 df = pd.read_csv(f, header=0, index_col=0)
+                user_ids = [str(i) for i in df.index.values]
                 names = df['name']
                 descriptions = df['description']
-                if len(names) != len(user_ids):
-                    raise InvalidDescription(file_path,
-                                             'There are %i features, '
-                                             'but %i descriptions'
-                                             % (len(user_ids), len(names)))
-                if [str(v) for v in df.index.values] != user_ids:
-                    raise InvalidDescription(file_path,
-                                             'The ids do not correspond, '
-                                             'or are not stored in the same '
-                                             'order.')
         else:
+            if self.features_conf.sparse:
+                raise InvalidDescription(file_path,
+                                         'A description file is required for '
+                                         'sparse features. ')
+        if not self.features_conf.sparse:
+            with open(file_path, 'r') as f_file:
+                features_reader = csv.reader(f_file)
+                f_user_ids = next(features_reader)[1:]
+                if user_ids is None:
+                    user_ids = f_user_ids
+                else:
+                    if len(names) != len(f_user_ids):
+                        raise InvalidDescription(file_path,
+                                                 'There are %i features, '
+                                                 'but %i descriptions. '
+                                                 % (len(user_ids), len(names)))
+                    if f_user_ids != user_ids:
+                        raise InvalidDescription(file_path,
+                                                 'The ids do not correspond, '
+                                                 'or are not stored in the '
+                                                 'same order. ')
+        if names is None:
             names = user_ids
+        if descriptions is None:
             descriptions = user_ids
-        return names, descriptions
+        return user_ids, names, descriptions
 
     def _get_types(self, file_path, num_instances):
         features = FeaturesFromExp.get_matrix([(None, file_path, None)],
-                                              num_instances)
+                                              num_instances,
+                                              sparse=self.features_conf.sparse)
         num_features = features.shape[1]
         types = [None for _ in range(num_features)]
         for i in range(num_features):

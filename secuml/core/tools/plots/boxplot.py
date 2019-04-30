@@ -30,10 +30,10 @@ class BoxPlot(object):
 
     def display(self, output_filename):
         fig, (ax) = plt.subplots(1, 1)
-        data = [d.values for d in self.datasets]
+        data = [d.values[:, 0] for d in self.datasets]
         labels = [d.label for d in self.datasets]
-        bp = ax.boxplot(data, labels=labels, notch=0,
-                        sym='+', vert='1', whis=1.5)
+        bp = ax.boxplot(data, labels=labels, notch=0, sym='+', vert='1',
+                        whis=1.5)
         plt.setp(bp['boxes'], color='black')
         plt.setp(bp['whiskers'], color='black')
         plt.setp(bp['fliers'], color='black', marker='+')

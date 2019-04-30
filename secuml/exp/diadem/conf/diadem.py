@@ -52,7 +52,7 @@ class DiademConf(ExpConf):
                               description='Learn a detection model. '
                                           'The ground-truth must be stored in '
                                           'annotations/ground_truth.csv.')
-        ExpConf.gen_parser(parser)
+        ExpConf.gen_parser(parser, sparse=True)
         ClassificationConf.gen_parser(parser)
         factory = classifiers.get_factory()
         models = factory.get_methods()
@@ -109,6 +109,10 @@ class DiademConf(ExpConf):
                                         'in streaming mode. ')
         dataset_conf = DatasetConf.from_args(args, secuml_conf.logger)
         features_conf = FeaturesConf.from_args(args, secuml_conf.logger)
+        if (features_conf.sparse and
+                not classif_conf.classifier_conf.accept_sparse):
+            raise InvalidInputArguments('%s does not support sparse '
+                                        'features. ' % args.model_class)
         return DiademConf(secuml_conf, dataset_conf, features_conf,
                           annotations_conf, classif_conf, alerts_conf,
                           name=args.exp_name, already_trained=already_trained)

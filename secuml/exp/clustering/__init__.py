@@ -36,6 +36,7 @@ class ClusteringExperiment(Experiment):
         if projection_core_conf is not None:
             features_conf = FeaturesConf(
                     self.exp_conf.features_conf.input_features,
+                    self.exp_conf.features_conf.sparse,
                     self.exp_conf.secuml_conf.logger)
             projection_conf = ProjectionConf(
                                 self.exp_conf.secuml_conf,
