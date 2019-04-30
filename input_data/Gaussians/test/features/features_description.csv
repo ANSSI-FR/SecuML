@@ -1,3 +1,3 @@
-feature_id,name,description
-0,f_0_name,f_0_description
-1,f_1_name,f_1_description
+feature_id,name,description,type
+0,f_0_name,f_0_description,numeric
+1,f_1_name,f_1_description,numeric

@@ -154,26 +154,41 @@ class LoadFeatures(object):
         self._load_features(set_id, features_file.id, file_path, num_instances)
 
     def _load_features(self, set_id, file_id, file_path, num_instances):
-        user_ids, names, descrips = self._get_ids_names_descr(file_path)
-        types = self._get_types(file_path, num_instances)
+        user_ids, names, descrips, types = self._get_ids_types(file_path,
+                                                               num_instances)
         for u_id, name, desc, type_ in zip(user_ids, names, descrips, types):
             feature = FeaturesAlchemy(user_id=u_id, file_id=file_id,
                                       set_id=set_id, name=name,
                                       description=desc, type=type_.name)
             self.session.add(feature)
 
-    def _get_ids_names_descr(self, file_path):
+    def _get_ids_types(self, file_path, num_instances):
         user_ids = None
         names = None
         descriptions = None
+        types = None
         basename, _ = os.path.splitext(file_path)
         description_file = '%s_description.csv' % basename
         if os.path.isfile(description_file):
             with open(description_file, 'r') as f:
                 df = pd.read_csv(f, header=0, index_col=0)
                 user_ids = [str(i) for i in df.index.values]
-                names = df['name']
-                descriptions = df['description']
+                try:
+                    names = df['name']
+                except KeyError:
+                    raise InvalidDescription(file_path,
+                                             'The description file must '
+                                             'contain a name column. ')
+                try:
+                    # The description column is not mandatory.
+                    descriptions = df['description']
+                except KeyError:
+                    pass
+                try:
+                    # The type column is not mandatory.
+                    types = [FeatureType[t] for t in df['type']]
+                except KeyError:
+                    pass
         else:
             if self.features_conf.sparse:
                 raise InvalidDescription(file_path,
@@ -200,7 +215,9 @@ class LoadFeatures(object):
             names = user_ids
         if descriptions is None:
             descriptions = user_ids
-        return user_ids, names, descriptions
+        if types is None:
+            types = self._get_types(file_path, num_instances)
+        return user_ids, names, descriptions, types
 
     def _get_types(self, file_path, num_instances):
         features = FeaturesFromExp.get_matrix([(None, file_path, None)],
