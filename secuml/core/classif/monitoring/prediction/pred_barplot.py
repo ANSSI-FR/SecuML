@@ -50,7 +50,7 @@ class PredictionBarplot(object):
     def _display(self, barplot, labels, error=None):
         if error is not None:
             values = [len([p for p in self.predictions[l]
-                           if (p['ground_truth_label'] == l) == error])
+                           if (p['ground_truth_label'] == l) != error])
                       for l in labels]
             label = 'wrong predictions' if error else 'right predictions'
         else:

@@ -82,7 +82,7 @@ function display_feature() {
 }
 
 function display_feature_analysis(selected_feature) {
-    var feature_title = selected_feature;
+    var feature_title = features_info[selected_feature].name;
     if (values != null) {
         var feature_index = $('#features_selector')[0].selectedIndex;
         var title_elem = [feature_title, ' - ', selected_criterion, ': ',
@@ -175,7 +175,7 @@ function display_scores(feature) {
 
 function display_feature_description(feature) {
     var col_description = cleanDiv('col_description');
-    var info = features_info[feature]
+    var info = features_info[feature];
     if (info.description == null) {
         return;
     }

@@ -182,6 +182,7 @@ def getPredictionsProbas(exp_id, index, label):
 @app.route('/getPredictions/<exp_id>/<predicted_value>/<right_wrong>/'
            '<multiclass>/')
 def getPredictions(exp_id, predicted_value, right_wrong, multiclass):
+    multiclass = multiclass == 'true'
     query = session.query(PredictionsAlchemy)
     query = query.filter(PredictionsAlchemy.exp_id == exp_id)
     query = query.filter(PredictionsAlchemy.value == predicted_value)
