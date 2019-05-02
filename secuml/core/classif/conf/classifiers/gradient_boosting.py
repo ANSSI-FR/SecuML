@@ -46,21 +46,20 @@ class GradientBoostingConf(SupervisedClassifierConf):
         hyper = {}
         hyper['loss'] = {}
         hyper['loss']['values'] = {'choices': ['deviance', 'exponential'],
-                                   'default': ['deviance', 'exponential']}
+                                   'default': ['deviance']}
         hyper['learning_rate'] = {}
         hyper['learning_rate']['values'] = {'type': float,
                                             'default': [0.1]}
         hyper['n_estimators'] = {}
         hyper['n_estimators']['values'] = {'type': int,
-                                           'default': [10, 100, 1000]}
+                                           'default': [100]}
         hyper['criterion'] = {}
         hyper['criterion']['values'] = {'choices': ['mse', 'mae',
                                                     'friedman_mse'],
-                                        'default': ['mse', 'mae',
-                                                    'friedman_mse']}
+                                        'default': ['friedman_mse']}
         hyper['max_depth'] = {}
         hyper['max_depth']['values'] = {'type': int,
-                                        'default': [5, 10, 15, 20, None]}
+                                        'default': [3, 5]}
         hyper['min_samples_split'] = {}
         hyper['min_samples_split']['values'] = {'type': int,
                                                 'default': [2]}
@@ -68,7 +67,8 @@ class GradientBoostingConf(SupervisedClassifierConf):
         hyper['min_samples_leaf']['values'] = {'type': int,
                                                'default': [1]}
         hyper['max_features'] = {}
-        hyper['max_features']['values'] = {'default': ['sqrt', 'log2', None]}
+        hyper['max_features']['values'] = {'choices': ['sqrt', 'log2', 'auto'],
+                                           'default': ['auto']}
         hyper['max_leaf_nodes'] = {}
         hyper['max_leaf_nodes']['values'] = {'type': int,
                                              'default': [None]}
@@ -79,8 +79,8 @@ class GradientBoostingConf(SupervisedClassifierConf):
         hyper['subsample']['values'] = {'type': float,
                                         'default': [0.1]}
         hyper['presort'] = {}
-        hyper['presort']['values'] = {'type': bool,
-                                      'default': [True]}
+        hyper['presort']['values'] = {'choices': ['auto'],
+                                      'default': ['auto']}
         return hyper
 
     @staticmethod
