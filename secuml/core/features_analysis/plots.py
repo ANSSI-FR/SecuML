@@ -30,8 +30,9 @@ from secuml.core.tools.plots.density import Density
 
 class FeaturePlots(object):
 
-    def __init__(self, instances, feature_index):
+    def __init__(self, instances, feature_index, with_density=True):
         self.feature_index = feature_index
+        self.with_density = with_density
         features_info = instances.features.info
         self.feature_type = features_info.types[self.feature_index]
         self.feature_name = features_info.names[self.feature_index]
@@ -52,7 +53,8 @@ class FeaturePlots(object):
             except IndexError:
                 self.barplot = None
                 pass
-            self._gen_density()
+            if self.with_density:
+                self._gen_density()
 
     def export(self, output_dir):
         output_dir = path.join(output_dir, str(self.feature_id))
@@ -66,7 +68,8 @@ class FeaturePlots(object):
             self.boxplot.display(path.join(output_dir, 'boxplot.png'))
             self.barplot.export_to_json(path.join(output_dir,
                                                   'histogram.json'))
-            self.density.display(path.join(output_dir, 'density.png'))
+            if self.with_density:
+                self.density.display(path.join(output_dir, 'density.png'))
 
     def _gen_plot_datasets(self, instances):
         self.plot_datasets = {}

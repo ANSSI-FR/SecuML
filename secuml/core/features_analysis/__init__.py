@@ -20,15 +20,17 @@ from .scores import FeaturesScoring
 
 class FeaturesAnalysis(object):
 
-    def __init__(self, instances):
+    def __init__(self, instances, with_density=True):
         self.instances = instances
+        self.with_density = with_density
         self.num_features = self.instances.num_features()
         self.plots = []
         self.scoring = FeaturesScoring(self.instances)
 
     def gen_plots(self, output_dir, save=False):
         for feature_index in range(self.num_features):
-            plot = FeaturePlots(self.instances, feature_index)
+            plot = FeaturePlots(self.instances, feature_index,
+                                with_density=self.with_density)
             plot.compute()
             plot.export(output_dir)
             if save:
