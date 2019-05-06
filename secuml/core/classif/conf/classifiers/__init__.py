@@ -166,7 +166,7 @@ class UnsupervisedClassifierConf(ClassifierConf):
         ClassifierConf.__init__(self, False, hyperparam_conf, logger)
 
     # TODO scikit-learn Pipeline does not support 'score_samples' yet.
-    # scikit-learn issue #12542
+    # scikit-learn issue #12542. Pull request under review #13806.
     def scoring_function(self):
         # return 'score_samples'
         return None

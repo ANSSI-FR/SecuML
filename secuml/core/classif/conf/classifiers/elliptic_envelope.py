@@ -33,6 +33,9 @@ class EllipticEnvelopeConf(UnsupervisedClassifierConf):
     def get_feature_importance(self):
         return None
 
+    def scoring_function(self):
+        return 'decision_function'
+
     @staticmethod
     def _get_hyper_desc():
         hyper = {}

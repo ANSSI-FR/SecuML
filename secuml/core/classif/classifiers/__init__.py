@@ -266,6 +266,14 @@ class UnsupervisedClassifier(Classifier):
     def _fit(self, train_instances):
         self.pipeline.fit(train_instances.features.get_values())
 
+    def _predict_scores(self, features):
+        all_scores, scores = Classifier._predict_scores(self, features)
+        if all_scores is not None:
+            all_scores = -all_scores
+        if scores is not None:
+            scores = -scores
+        return all_scores, scores
+
 
 class SemiSupervisedClassifier(Classifier):
 
