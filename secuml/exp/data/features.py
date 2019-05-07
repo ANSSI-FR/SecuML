@@ -48,16 +48,12 @@ class FeaturesFromExp(Features):
 
     @staticmethod
     def get_matrix(features_files, num_instances, sparse=False):
-        features = None
         if not sparse:
             iterator = FeaturesFromExp.get_matrix_iterator(features_files,
                                                            num_instances)
-            for row in iterator:
-                if features is None:
-                    features = row
-                else:
-                    features = np.vstack((features, row))
+            features = np.vstack(tuple(r for r in iterator))
         else:
+            features = None
             for _, f_path, f_mask in features_files:
                 indices = np.where(f_mask)[0]
                 matrix = load_npz(f_path)[:, indices]

@@ -145,25 +145,19 @@ class Classifier(object):
 
     def _predict_streaming(self, features_iter, instances_ids, stream_batch):
         predictions = None
-        num_rows = 0
-        matrix = None
-        ids = []
-        for instance_id in instances_ids.ids:
-            ids.append(instance_id)
-            row = next(features_iter)
-            num_rows += 1
-            if matrix is None:
-                matrix = [row]
-            else:
-                matrix = np.vstack((matrix, row))
-            if num_rows >= stream_batch:
-                ids = instances_ids.get_from_ids(ids)
-                predictions = self._update_streaming_predictions(predictions,
-                                                                 matrix, ids)
-                ids = []
-                matrix = None
-                num_rows = 0
-        if num_rows > 0:
+        num_batches = instances_ids.num_instances() // stream_batch
+        num_remaining = instances_ids.num_instances() % stream_batch
+        for i, batch in enumerate(range(num_batches)):
+            matrix = np.vstack(tuple(next(features_iter)
+                                     for _ in range(stream_batch)))
+            ids = instances_ids.ids[i*stream_batch:(i+1)*stream_batch]
+            ids = instances_ids.get_from_ids(ids)
+            predictions = self._update_streaming_predictions(predictions,
+                                                             matrix, ids)
+        if num_remaining > 0:
+            matrix = np.vstack(tuple(next(features_iter)
+                                     for _ in range(num_remaining)))
+            ids = instances_ids.ids[-num_remaining:]
             ids = instances_ids.get_from_ids(ids)
             predictions = self._update_streaming_predictions(predictions,
                                                              matrix, ids)
