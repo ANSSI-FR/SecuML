@@ -32,7 +32,7 @@ class ProbaBarplot(object):
                        '50-60%', '60-70%', '70-80%', '80-90%', '90-100%']
         self.has_ground_truth = has_ground_truth
 
-    def add_fold(self, predictions):
+    def set_predictions(self, predictions):
         for instance_id, proba, label in zip(predictions.ids.ids,
                                              predictions.probas,
                                              predictions.ground_truth):

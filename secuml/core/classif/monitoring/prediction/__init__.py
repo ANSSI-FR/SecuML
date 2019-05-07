@@ -20,6 +20,7 @@ from secuml.core.data.ids import Ids
 from secuml.core.data.predictions import Predictions
 from .proba_barplot import ProbaBarplot
 from .pred_barplot import PredictionBarplot
+from .score_barplot import ScoreBarplot
 
 
 class PredictionsMonitoring(object):
@@ -49,9 +50,11 @@ class PredictionsMonitoring(object):
         pred_info = self.predictions.info
         if not pred_info.multiclass and pred_info.with_probas:
             self.barplot = ProbaBarplot(pred_info.with_ground_truth)
+        elif not pred_info.multiclass and pred_info.with_scores:
+            self.barplot = ScoreBarplot(pred_info.with_ground_truth)
         else:
             self.barplot = PredictionBarplot(pred_info.with_ground_truth)
-        self.barplot.add_fold(self.predictions)
+        self.barplot.set_predictions(self.predictions)
 
     def display(self, directory):
         self.barplot.display(directory)

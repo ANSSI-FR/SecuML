@@ -36,7 +36,8 @@ class ConfusionMatrix(object):
         self.confusion_matrix = np.zeros((2, 2))
         self.errors = None
         if with_errors:
-            self.errors = {k: {'ids': [], 'probas': []} for k in ['FP', 'FN']}
+            self.errors = {k: {'ids': [], 'probas': [], 'scores': []}
+                           for k in ['FP', 'FN']}
 
     def add_fold(self, predictions):
         if predictions.num_instances() > 0:
@@ -50,14 +51,16 @@ class ConfusionMatrix(object):
         self.confusion_matrix += conf_matrix
 
     def _update_errors(self, predictions):
-        for instance_id, prediction, gt, proba in zip(predictions.ids.ids,
-                                                      predictions.values,
-                                                      predictions.ground_truth,
-                                                      predictions.probas):
+        for id_, prediction, gt, proba, score in zip(predictions.ids.ids,
+                                                     predictions.values,
+                                                     predictions.ground_truth,
+                                                     predictions.probas,
+                                                     predictions.scores):
             if prediction != gt:
                 kind = 'FN' if gt else 'FP'
-                self.errors[kind]['ids'].append(instance_id)
+                self.errors[kind]['ids'].append(id_)
                 self.errors[kind]['probas'].append(proba)
+                self.errors[kind]['scores'].append(score)
 
     def get_true_positives(self):
         return self.confusion_matrix[0][0]

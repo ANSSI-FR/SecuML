@@ -23,6 +23,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from secuml.web import app, secuml_conf, session
 from secuml.web.views.experiments import update_curr_exp
 
+from secuml.core.data.labels_tools import MALICIOUS
 from secuml.core.tools.plots.barplot import BarPlot
 from secuml.core.tools.plots.dataset import PlotDataset
 from secuml.core.tools.color import red
@@ -130,31 +131,37 @@ def getAlertsClusteringExpId(test_exp_id):
 @app.route('/getAlerts/<exp_id>/<analysis_type>/')
 def getAlerts(exp_id, analysis_type):
     exp = update_curr_exp(exp_id)
-    # With proba ?
+    # With proba ? With scores ?
     query = session.query(DiademExpAlchemy)
     query = query.filter(DiademExpAlchemy.exp_id == exp_id)
-    with_proba = query.one().proba
-    threshold = None
-    if with_proba:
-        threshold = exp.exp_conf.core_conf.detection_threshold
+    diadem_exp = query.one()
+    with_proba, with_scores = diadem_exp.proba, diadem_exp.with_scoring
     # Get alerts
     query = session.query(PredictionsAlchemy)
     query = query.filter(PredictionsAlchemy.exp_id == exp_id)
     if with_proba:
+        threshold = exp.exp_conf.core_conf.detection_threshold
         query = query.filter(PredictionsAlchemy.proba >= threshold)
-    if analysis_type == 'topN' and with_proba:
-        query = query.order_by(PredictionsAlchemy.proba.desc())
+    else:
+        query = query.filter(PredictionsAlchemy.value == MALICIOUS)
+    if analysis_type == 'topN' and (with_proba or with_scores):
+        if with_proba:
+            query = query.order_by(PredictionsAlchemy.proba.desc())
+        else:
+            query = query.order_by(PredictionsAlchemy.score.desc())
     elif analysis_type == 'random':
         query = call_specific_db_func(secuml_conf.db_type, 'random_order',
                                       (query,))
     query = query.limit(TOP_N_ALERTS)
     predictions = query.all()
     if predictions:
-        ids, probas = zip(*[(r.instance_id, r.proba) for r in predictions])
+        ids, probas, scores = zip(*[(r.instance_id, r.proba, r.score)
+                                    for r in predictions])
     else:
         ids = []
         probas = []
-    return jsonify({'instances': ids, 'proba': probas})
+        scores = []
+    return jsonify({'instances': ids, 'proba': probas, 'scores': scores})
 
 
 @app.route('/getPredictionsProbas/<exp_id>/<index>/<label>/')
@@ -166,17 +173,43 @@ def getPredictionsProbas(exp_id, index, label):
     query = query.filter(PredictionsAlchemy.exp_id == exp_id)
     query = query.filter(PredictionsAlchemy.proba >= proba_min)
     query = query.filter(PredictionsAlchemy.proba <= proba_max)
+    query = query.order_by(PredictionsAlchemy.proba.asc())
     if label != 'all':
         query = query.join(PredictionsAlchemy.instance)
         query = query.join(InstancesAlchemy.ground_truth)
         query = query.filter(GroundTruthAlchemy.label == label)
     predictions = query.all()
     if predictions:
-        ids, probas = zip(*[(r.instance_id, r.proba) for r in predictions])
+        ids, probas, scores = zip(*[(r.instance_id, r.proba, r.score)
+                                    for r in predictions])
     else:
         ids = []
         probas = []
-    return jsonify({'instances': ids, 'proba': probas})
+        scores = []
+    return jsonify({'instances': ids, 'proba': probas, 'scores': scores})
+
+
+@app.route('/getPredictionsScores/<exp_id>/<range_>/<label>/')
+def getPredictionsScores(exp_id, range_, label):
+    score_min, score_max = [float(x) for x in range_.split(' - ')]
+    query = session.query(PredictionsAlchemy)
+    query = query.filter(PredictionsAlchemy.exp_id == exp_id)
+    query = query.filter(PredictionsAlchemy.score >= score_min)
+    query = query.filter(PredictionsAlchemy.score <= score_max)
+    query = query.order_by(PredictionsAlchemy.score.asc())
+    if label != 'all':
+        query = query.join(PredictionsAlchemy.instance)
+        query = query.join(InstancesAlchemy.ground_truth)
+        query = query.filter(GroundTruthAlchemy.label == label)
+    predictions = query.all()
+    if predictions:
+        ids, probas, scores = zip(*[(r.instance_id, r.proba, r.score)
+                                    for r in predictions])
+    else:
+        ids = []
+        probas = []
+        scores = []
+    return jsonify({'instances': ids, 'proba': probas, 'scores': scores})
 
 
 @app.route('/getPredictions/<exp_id>/<predicted_value>/<right_wrong>/'
@@ -200,11 +233,13 @@ def getPredictions(exp_id, predicted_value, right_wrong, multiclass):
             assert(False)
     predictions = query.all()
     if predictions:
-        ids, probas = zip(*[(r.instance_id, r.proba) for r in predictions])
+        ids, probas, scores = zip(*[(r.instance_id, r.proba, r.score)
+                                    for r in predictions])
     else:
         ids = []
         probas = []
-    return jsonify({'instances': ids, 'proba': probas})
+        scores = []
+    return jsonify({'instances': ids, 'proba': probas, 'scores': scores})
 
 
 @app.route('/supervisedLearningMonitoring/<exp_id>/<kind>/')

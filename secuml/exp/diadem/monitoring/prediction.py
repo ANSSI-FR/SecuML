@@ -35,6 +35,7 @@ class PredictionsMonitoring(PredictionsMonitoringCore):
         predictions_db = [PredictionsAlchemy(exp_id=self.exp.exp_id,
                                              instance_id=p.instance_id,
                                              value=p.value_to_str(),
-                                             proba=to_float(p.proba))
+                                             proba=to_float(p.proba),
+                                             score=to_float(p.score))
                           for p in predictions.to_list()]
         self.exp.session.bulk_save_objects(predictions_db)

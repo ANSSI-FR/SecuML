@@ -31,7 +31,7 @@ class PredictionBarplot(object):
         self.multiclass = None
         self.has_ground_truth = has_ground_truth
 
-    def add_fold(self, predictions):
+    def set_predictions(self, predictions):
         if self.multiclass is None:
             self.multiclass = predictions.info.multiclass
         elif self.multiclass != predictions.info.multiclass:

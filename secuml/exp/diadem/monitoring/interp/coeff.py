@@ -18,7 +18,7 @@ import os.path as path
 
 from secuml.core.classif.monitoring.interp.coeff import Coefficients \
         as CoefficientsCore
-from secuml.core.tools.color import red
+from secuml.core.tools.color import blue, red
 from secuml.core.tools.plots.barplot import BarPlot
 from secuml.core.tools.plots.dataset import PlotDataset
 from secuml.exp.tools.db_tables import FeaturesAlchemy
@@ -52,6 +52,8 @@ class Coefficients(CoefficientsCore):
         score = self.classifier_conf.get_feature_importance()
         if score == 'weight':
             dataset.set_color(red)
+        else:
+            dataset.set_color(blue)
         barplot.add_dataset(dataset)
         out_filename = path.join(directory, 'coeff_barplot.json')
         return barplot.export_to_json(out_filename,

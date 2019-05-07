@@ -52,7 +52,7 @@ class PlotDataset(object):
         self.marker = marker
 
     def _set_default_values(self):
-        self.color = get_label_color('all')
+        self.color = get_label_color(self.label)
         self.linewidth = 3
         self.linestyle = 'solid'
         self.marker = 'o'
