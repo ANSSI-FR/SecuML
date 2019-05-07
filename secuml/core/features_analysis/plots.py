@@ -26,6 +26,7 @@ from secuml.core.tools.plots.dataset import PlotDataset
 from secuml.core.tools.plots.boxplot import BoxPlot
 from secuml.core.tools.plots.barplot import BarPlot
 from secuml.core.tools.plots.density import Density
+from secuml.core.tools.plots.histogram import Histogram
 
 
 class FeaturePlots(object):
@@ -96,22 +97,7 @@ class FeaturePlots(object):
                 self.boxplot.add_dataset(dataset)
 
     def _gen_histogram(self):
-        # 10 equal-width bins computed on all the data
-        all_values = self.plot_datasets['unlabeled'].values
-        for label in [MALICIOUS, BENIGN]:
-            all_values = np.vstack((all_values,
-                                    self.plot_datasets[label].values))
-        _, bin_edges = np.histogram(all_values, bins=10, density=False)
-        x_labels = ['%.2f - %.2f' % (bin_edges[e], bin_edges[e+1])
-                    for e in range(len(bin_edges) - 1)]
-        self.barplot = BarPlot(x_labels)
-        for label, dataset in self.plot_datasets.items():
-            if dataset.values.shape[0] > 0:
-                hist, _ = np.histogram(dataset.values, bins=bin_edges,
-                                       density=False)
-                hist_dataset = PlotDataset(hist, label)
-                hist_dataset.set_color(dataset.color)
-                self.barplot.add_dataset(hist_dataset)
+        self.barplot = Histogram(self.plot_datasets)
 
     def _gen_binary_histogram(self):
         self.barplot = BarPlot(['0', '1'])
