@@ -13,7 +13,7 @@ function createTrainTestMonitoring(child_exp_id, train_test) {
                        monitoring);
     if (train_test == 'test') {
         createDivWithClass('alerts_buttons', 'col-md-12', monitoring);
-        if (children_exps[child_exp_id].alerts) {
+        if (! children_exps[child_exp_id].multiclass) {
             displayAlertsButtons(child_exp_id);
         }
     }

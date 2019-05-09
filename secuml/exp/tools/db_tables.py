@@ -104,7 +104,6 @@ class DiademExpAlchemy(Base):
     type = Column(Enum('train', 'cv', 'test', 'validation', 'alerts',
                        name='diadem_exp_type'),
                   nullable=False)
-    alerts = Column(Boolean, nullable=True)
     perf_monitoring = Column(Boolean, nullable=True)
     model_interp = Column(Boolean, nullable=True)
     pred_interp = Column(Boolean, nullable=True)

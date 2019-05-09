@@ -64,7 +64,7 @@ class InvalidModelExperimentKind(SecuMLexpException):
                % (self.exp_kind))
 
 
-def add_diadem_exp_to_db(session, exp_id, fold_id, kind, alerts_conf=None,
+def add_diadem_exp_to_db(session, exp_id, dataset_id, fold_id, kind,
                          classifier_conf=None):
     if classifier_conf is not None:
         multiclass = classifier_conf.multiclass
@@ -72,17 +72,15 @@ def add_diadem_exp_to_db(session, exp_id, fold_id, kind, alerts_conf=None,
         with_scoring = classifier_conf.scoring_function() is not None
         if kind in ['train', 'cv']:
             perf_monitoring = True
-            alerts = False
         elif kind in ['test', 'validation', 'alerts']:
             perf_monitoring = False
-            alerts = alerts_conf is not None
         model_interp = classifier_conf.is_interpretable()
         if kind == 'cv':
             predictions_interp = False
         else:
             predictions_interp = classifier_conf.interpretable_predictions()
         exp = DiademExpAlchemy(exp_id=exp_id, fold_id=fold_id, type=kind,
-                               perf_monitoring=perf_monitoring, alerts=alerts,
+                               perf_monitoring=perf_monitoring,
                                model_interp=model_interp,
                                pred_interp=predictions_interp,
                                multiclass=multiclass, proba=proba,

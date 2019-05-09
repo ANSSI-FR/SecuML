@@ -22,14 +22,6 @@ from .conf.detection import DetectionConf
 from .monitoring import DetectionMonitoring
 
 
-def diadem_set_perf_monitoring(session, exp_id):
-    query = session.query(DiademExpAlchemy)
-    query = query.filter(DiademExpAlchemy.exp_id == exp_id)
-    row = query.one()
-    row.perf_monitoring = True
-    session.flush()
-
-
 class DetectionExp(Experiment):
 
     def __init__(self, exp_conf, create=True, session=None):
@@ -39,9 +31,8 @@ class DetectionExp(Experiment):
         self.predictions = None
         self.prediction_time = None
         self.classifier = None
-        self.monitoring = DetectionMonitoring(
-                                           self,
-                                           alerts_conf=self.exp_conf.core_conf)
+        alerts_conf = self.exp_conf.core_conf
+        self.monitoring = DetectionMonitoring(self, alerts_conf=alerts_conf)
 
     def run(self, test_instances, classifier):
         Experiment.run(self)
@@ -55,14 +46,14 @@ class DetectionExp(Experiment):
 
     def add_to_db(self):
         Experiment.add_to_db(self)
+        has_ground_truth = self.exp_conf.dataset_conf.has_ground_truth
         self.session.add(DiademExpAlchemy(exp_id=self.exp_conf.exp_id,
                                           fold_id=self.exp_conf.fold_id,
-                                          type=self.kind))
+                                          type=self.kind,
+                                          perf_monitoring=has_ground_truth))
         self.session.flush()
 
     def _test(self, classifier):
-        if self.test_instances.has_ground_truth():
-            diadem_set_perf_monitoring(self.session, self.exp_conf.exp_id)
         self.predictions, self.prediction_time = classifier.testing(
                                                            self.test_instances)
         self.monitoring.add_predictions(self.predictions, self.prediction_time)
@@ -72,17 +63,18 @@ class DetectionExp(Experiment):
         self._set_diadem_conf()
 
     def _set_diadem_conf(self):
-        classif_conf = self.classifier.conf
+        info = self.predictions.info
         query = self.session.query(DiademExpAlchemy)
         query = query.filter(DiademExpAlchemy.exp_id == self.exp_conf.exp_id)
         diadem_exp = query.one()
-        diadem_exp.multiclass = classif_conf.multiclass
-        diadem_exp.proba = classif_conf.is_probabilist()
-        diadem_exp.with_scoring = classif_conf.scoring_function() is not None
-        diadem_exp.alerts = (self.exp_conf.core_conf is not None and
-                             not classif_conf.multiclass)
-        diadem_exp.model_interp = classif_conf.is_interpretable()
-        diadem_exp.pred_interp = classif_conf.interpretable_predictions()
+        diadem_exp.multiclass = info.multiclass
+        diadem_exp.proba = info.with_probas
+        diadem_exp.with_scoring = info.with_scores
+        if self.classifier is not None:
+            classif_conf = self.classifier.conf
+            diadem_exp.model_interp = classif_conf.is_interpretable()
+            diadem_exp.pred_interp = classif_conf.interpretable_predictions()
+
         self.session.flush()
 
 
