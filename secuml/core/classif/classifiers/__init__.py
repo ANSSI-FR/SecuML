@@ -138,9 +138,10 @@ class Classifier(object):
     def _predict_matrix(self, matrix, instances_ids):
         values = self._predict_values(matrix)
         all_probas, probas = self._predict_probas(matrix)
-        scores = self._predict_scores(matrix)
+        all_scores, scores = self._predict_scores(matrix)
         return Predictions(values, instances_ids, self.conf.multiclass,
-                           all_probas=all_probas, probas=probas, scores=scores)
+                           all_probas=all_probas, probas=probas,
+                           all_scores=all_scores, scores=scores)
 
     def _predict_streaming(self, features_iter, instances_ids, stream_batch):
         predictions = None
@@ -194,10 +195,15 @@ class Classifier(object):
 
     def _predict_scores(self, features):
         scoring_func = self.conf.scoring_function()
+        all_scores = None
+        scores = None
         if scoring_func is not None:
-            return getattr(self.pipeline, scoring_func)(features)
-        else:
-            return None
+            predicted_scores = getattr(self.pipeline, scoring_func)(features)
+            if self.conf.multiclass:
+                all_scores = predicted_scores
+            else:
+                scores = predicted_scores
+        return all_scores, scores
 
 
 class SupervisedClassifier(Classifier):

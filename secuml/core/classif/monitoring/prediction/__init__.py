@@ -33,12 +33,14 @@ class PredictionsMonitoring(object):
             ids = Ids(deepcopy(predictions.ids.ids),
                       deepcopy(predictions.ids.idents),
                       deepcopy(predictions.ids.timestamps))
-            self.predictions = Predictions(deepcopy(predictions.values), ids,
-                                           predictions.info.multiclass,
-                                           deepcopy(predictions.all_probas),
-                                           deepcopy(predictions.probas),
-                                           deepcopy(predictions.scores),
-                                           deepcopy(predictions.ground_truth))
+            self.predictions = Predictions(
+                        deepcopy(predictions.values), ids,
+                        predictions.info.multiclass,
+                        all_probas=deepcopy(predictions.all_probas),
+                        probas=deepcopy(predictions.probas),
+                        all_scores=deepcopy(predictions.all_scores),
+                        scores=deepcopy(predictions.scores),
+                        ground_truth=deepcopy(predictions.ground_truth))
         else:
             self.predictions.union(predictions)
 

@@ -73,11 +73,12 @@ class Prediction(object):
 class Predictions(object):
 
     def __init__(self, values, ids, multiclass, all_probas=None, probas=None,
-                 scores=None, ground_truth=None):
+                 all_scores=None, scores=None, ground_truth=None):
         self.values = values
         self.ids = ids
         self.all_probas = self._get_ndarray(all_probas)
         self.probas = self._get_nparray(probas)
+        self.all_scores = self._get_ndarray(all_scores)
         self.scores = self._get_nparray(scores)
         self.ground_truth = self._get_array(ground_truth)
         self._check_validity()
@@ -103,10 +104,8 @@ class Predictions(object):
         self.ids.union(predictions.ids)
         self.all_probas = np.vstack((self.all_probas, predictions.all_probas))
         self.probas = np.hstack((self.probas, predictions.probas))
-        if self.info.multiclass:
-            self.scores = np.vstack((self.scores, predictions.scores))
-        else:
-            self.scores = np.hstack((self.scores, predictions.scores))
+        self.all_scores = np.vstack((self.all_scores, predictions.all_scores))
+        self.scores = np.hstack((self.scores, predictions.scores))
         self.ground_truth.extend(predictions.ground_truth)
 
     def get_prediction(self, instance_id):
@@ -154,19 +153,24 @@ class Predictions(object):
             raise InvalidPredictions('There are %d instances '
                                      'but %d values are provided.'
                                      % (num_instances, len(self.values)))
-        elif len(self.all_probas) != num_instances:
+        elif self.all_probas.shape[0] != num_instances:
             raise InvalidPredictions('There are %d instances '
                                      'but %d arrays of probabilities '
                                      'are provided.'
-                                     % (num_instances, len(self.all_probas)))
-        elif len(self.probas) != num_instances:
+                                     % (num_instances,
+                                        self.all_probas.shape[0]))
+        elif self.probas.shape[0] != num_instances:
             raise InvalidPredictions('There are %d instances '
                                      'but %d probabilities are provided.'
-                                     % (num_instances, len(self.probas)))
-        elif len(self.scores) != num_instances:
+                                     % (num_instances, self.probas.shape[0]))
+        elif self.all_scores.shape[0] != num_instances:
+            raise InvalidPredictions('There are %d instances '
+                                     'but %d arrays of scores are provided.'
+                                     % (num_instances, self.scores.shape[0]))
+        elif self.scores.shape[0] != num_instances:
             raise InvalidPredictions('There are %d instances '
                                      'but %d scores are provided.'
-                                     % (num_instances, len(self.scores)))
+                                     % (num_instances, self.scores.shape[0]))
         elif len(self.ground_truth) != num_instances:
             raise InvalidPredictions('There are %d instances '
                                      'but %d ground-truth annotations '
