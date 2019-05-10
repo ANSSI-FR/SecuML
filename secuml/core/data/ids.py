@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+from copy import deepcopy
+
 
 class Ids(object):
 
@@ -64,6 +66,11 @@ class Ids(object):
     def get_ids_between(self, start, end):
         return [self.ids[i] for i, t in enumerate(self.timestamps)
                 if t < end and t >= start]
+
+    @staticmethod
+    def deepcopy(ids):
+        return Ids(deepcopy(ids.ids), deepcopy(ids.idents),
+                   deepcopy(ids.timestamps))
 
     def _set_idents_timetamps(self, idents, timestamps):
         self.idents = idents

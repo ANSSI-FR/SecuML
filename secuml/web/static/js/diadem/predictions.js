@@ -37,7 +37,7 @@ function displayBarplot() {
     var barplot_div = createDiv('barplot_div',
                                 parent_div=predictions_panel_body);
     displayPredictionsBarplot('barplot_div', exp_id,
-                              barPlotCallback,
+                              barPlotCallback, true,
                               end_callback=function(xlabels){
                                          displayDivisions(selected_index,
                                                           xlabels);

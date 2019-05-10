@@ -38,23 +38,9 @@ function generateFirstRowDivisions(conf) {
                      evolution_monitoring);
 }
 
-function checkDisplayValidation(conf) {
-    if (conf.core_conf.validation_conf) {
-        if (conf.validation_has_ground_truth) {
-            return true;
-        }
-        var multilabel = classifier_conf.multiclass;
-        var probabilist = classifier_conf.probabilist;
-        if (probabilist && !multilabel) {
-            return true;
-        }
-    }
-    return false;
-}
-
 function getClassifMonitoringTab(conf) {
   var monitorings = ['train', 'test'];
-  if (checkDisplayValidation(conf)) {
+  if (conf.core_conf.validation_conf) {
       monitorings.push('validation');
   }
   var row = $('#diadem_monitoring')[0];

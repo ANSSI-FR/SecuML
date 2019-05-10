@@ -22,7 +22,8 @@ from secuml.core.classif.conf import ClassificationConf
 from secuml.core.classif.conf.hyperparam import HyperparamConf
 from secuml.core.classif.conf.test.unlabeled_labeled \
         import UnlabeledLabeledConf
-from secuml.core.classif.conf.test.test_dataset import TestDatasetConf
+from secuml.core.classif.conf.test.validation_datasets \
+        import ValidationDatasetsConf
 from secuml.core.conf import Conf
 from secuml.core.conf import ConfFactory
 from secuml.core.conf import exportFieldMethod
@@ -42,8 +43,8 @@ class ActiveLearningConfFactory(ConfFactory):
 
     def from_args(self, method, args, logger):
         validation_conf = None
-        if args.test_dataset is not None:
-            validation_conf = TestDatasetConf.from_args(args, logger)
+        if args.validation_datasets is not None:
+            validation_conf = ValidationDatasetsConf.from_args(args, logger)
         class_ = self.get_class(method)
         main_model_type = class_.main_model_type()
         main_model_conf = None
@@ -65,8 +66,9 @@ class ActiveLearningConfFactory(ConfFactory):
         validation_conf = None
         if obj['validation_conf'] is None:
             return None
-        validation_conf = TestDatasetConf.from_json(obj['validation_conf'],
-                                                    logger)
+        validation_conf = ValidationDatasetsConf.from_json(
+                                                        obj['validation_conf'],
+                                                        logger)
         return self.methods[class_name].from_json(obj, main_model,
                                                   validation_conf, logger)
 
@@ -136,5 +138,5 @@ class ActiveLearningConf(Conf):
         if main_model:
             ActiveLearningConf.gen_main_model_parser(parser)
         validation_group = parser.add_argument_group('Validation parameters')
-        TestDatasetConf.gen_parser(validation_group)
+        ValidationDatasetsConf.gen_parser(validation_group)
         return al_group

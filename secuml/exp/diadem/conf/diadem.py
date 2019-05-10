@@ -53,7 +53,6 @@ class DiademConf(ExpConf):
                                           'The ground-truth must be stored in '
                                           'annotations/ground_truth.csv.')
         ExpConf.gen_parser(parser, sparse=True)
-        ClassificationConf.gen_parser(parser)
         factory = classifiers.get_factory()
         models = factory.get_methods()
         models.remove('AlreadyTrained')
@@ -69,10 +68,13 @@ class DiademConf(ExpConf):
                             model_parser, required=True,
                             message='CSV file containing the annotations of '
                                     'some or all the instances.')
+            ClassificationConf.gen_parser(model_parser)
+            AlertsConf.gen_parser(model_parser)
         # Add subparser for already trained model
         already_trained = subparsers.add_parser('AlreadyTrained')
         factory.gen_parser('AlreadyTrained', already_trained)
-        AlertsConf.gen_parser(parser)
+        ClassificationConf.gen_parser(already_trained)
+        AlertsConf.gen_parser(already_trained)
         return parser
 
     @staticmethod

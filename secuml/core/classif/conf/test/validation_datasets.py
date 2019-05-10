@@ -15,21 +15,31 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from secuml.core.conf import exportFieldMethod
+from secuml.core.tools.core_exceptions import SecuMLcoreException
 
 from . import OneFoldTestConf
 
 
-class TestDatasetConf(OneFoldTestConf):
+class InvalidValidationDatasets(SecuMLcoreException):
 
-    def __init__(self, logger, test_dataset, streaming, stream_batch):
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+
+class ValidationDatasetsConf(OneFoldTestConf):
+
+    def __init__(self, logger, validation_datasets, streaming, stream_batch):
         OneFoldTestConf.__init__(self, logger)
-        self.method = 'dataset'
-        self.test_dataset = test_dataset
+        self.method = 'datasets'
+        self.validation_datasets = validation_datasets
         self.streaming = streaming
         self.stream_batch = stream_batch
 
     def get_exp_name(self):
-        name = '__Test_Dataset_' + self.test_dataset
+        name = '__Test_Datasets_%s' % ('_'.join(self.validation_datasets))
         if self.streaming:
             name += '__streaming_Batch_%i' % self.stream_batch
         name += OneFoldTestConf.get_exp_name(self)
@@ -37,17 +47,17 @@ class TestDatasetConf(OneFoldTestConf):
 
     def fields_to_export(self):
         fields = OneFoldTestConf.fields_to_export(self)
-        fields.extend([('test_dataset', exportFieldMethod.primitive)])
+        fields.extend([('validation_datasets', exportFieldMethod.primitive)])
         fields.extend([('streaming', exportFieldMethod.primitive)])
         fields.extend([('stream_batch', exportFieldMethod.primitive)])
         return fields
 
     @staticmethod
     def gen_parser(parser):
-        parser.add_argument('--test-dataset', default=None,
-                            help='Name of the test dataset.')
+        parser.add_argument('--validation-datasets', default=None, nargs='+',
+                            help='Name(s) of the validation dataset(s).')
         parser.add_argument('--streaming', default=False, action='store_true',
-                            help='When specify, the validation dataset is '
+                            help='When specify, the validation datasets are '
                                  'processed as a stream. '
                                  'In this case, alerts analyses are not '
                                  'available. ')
@@ -57,13 +67,16 @@ class TestDatasetConf(OneFoldTestConf):
 
     @staticmethod
     def from_args(args, logger):
-        return TestDatasetConf(logger, args.test_dataset, args.streaming,
-                               args.stream_batch)
+        if len(set(args.validation_datasets)) < len(args.validation_datasets):
+            raise InvalidValidationDatasets(
+                                '--validation-datasets contains duplicates.')
+        return ValidationDatasetsConf(logger, args.validation_datasets,
+                                      args.streaming, args.stream_batch)
 
     @staticmethod
     def from_json(obj, logger):
-        return TestDatasetConf(logger, obj['test_dataset'], obj['streaming'],
-                               obj['stream_batch'])
+        return ValidationDatasetsConf(logger, obj['validation_datasets'],
+                                      obj['streaming'], obj['stream_batch'])
 
     def _gen_train_test(self, classifier_conf, instances):
         return instances, None

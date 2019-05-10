@@ -41,13 +41,21 @@ class DetectionExp(Experiment):
         self._test(classifier)
         self._export()
 
+    def set_predictions(self, predictions, prediction_time):
+        self.predictions = predictions
+        self.prediction_time = prediction_time
+        self.monitoring.add_predictions(predictions, prediction_time)
+        self._export()
+
     def web_template(self):
         return 'diadem/detection.html'
 
     def add_to_db(self):
         Experiment.add_to_db(self)
         has_ground_truth = self.exp_conf.dataset_conf.has_ground_truth
+        dataset_id = self.exp_conf.dataset_conf.dataset_id
         self.session.add(DiademExpAlchemy(exp_id=self.exp_conf.exp_id,
+                                          dataset_id=dataset_id,
                                           fold_id=self.exp_conf.fold_id,
                                           type=self.kind,
                                           perf_monitoring=has_ground_truth))

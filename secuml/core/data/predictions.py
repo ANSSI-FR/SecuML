@@ -14,9 +14,11 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+from copy import deepcopy
 import numpy as np
 import random
 
+from secuml.core.data.ids import Ids
 from secuml.core.data.labels_tools import label_bool_to_str
 from secuml.core.tools.core_exceptions import SecuMLcoreException
 
@@ -146,6 +148,17 @@ class Predictions(object):
                     'but %d ground-truth annotations are provided'
                     % (num_instances, len(self.ground_truth)))
         self.ground_truth = ground_truth
+
+    @staticmethod
+    def deepcopy(predictions):
+        return Predictions(deepcopy(predictions.values),
+                           Ids.deepcopy(predictions.ids),
+                           predictions.info.multiclass,
+                           all_probas=deepcopy(predictions.all_probas),
+                           probas=deepcopy(predictions.probas),
+                           all_scores=deepcopy(predictions.all_scores),
+                           scores=deepcopy(predictions.scores),
+                           ground_truth=deepcopy(predictions.ground_truth))
 
     def _check_validity(self):
         num_instances = self.num_instances()

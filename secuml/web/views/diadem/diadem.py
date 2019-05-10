@@ -31,6 +31,7 @@ from secuml.core.tools.color import red
 from secuml.exp.diadem import DiademExp  # NOQA
 from secuml.exp.data.features import FeaturesFromExp
 from secuml.exp.tools.db_tables import call_specific_db_func
+from secuml.exp.tools.db_tables import DatasetsAlchemy
 from secuml.exp.tools.db_tables import DiademExpAlchemy
 from secuml.exp.tools.db_tables import ExpAlchemy
 from secuml.exp.tools.db_tables import ExpRelationshipsAlchemy
@@ -53,17 +54,35 @@ def getDiademChildInfo(exp_id):
 
 
 @app.route('/getDiademDetectionChildExp/<diadem_exp_id>/<child_type>/'
-           '<fold_id>/')
-def getDiademDetectionChildExp(diadem_exp_id, child_type, fold_id):
-    fold_id = None if fold_id == 'None' else int(fold_id)
-    query = session.query(DiademExpAlchemy)
-    if child_type != 'cv':
+           '<fold_id>/<dataset>/')
+def getDiademDetectionChildExp(diadem_exp_id, child_type, fold_id, dataset):
+    def _get_parent_id(diadem_exp_id, child_type):
+        if dataset is None or dataset == 'all':
+            return diadem_exp_id
+        query = session.query(DiademExpAlchemy)
         query = query.join(DiademExpAlchemy.exp)
         query = query.join(ExpAlchemy.parents)
         query = query.filter(ExpAlchemy.kind == 'Detection')
         query = query.filter(
-                            ExpRelationshipsAlchemy.parent_id == diadem_exp_id)
+                        ExpRelationshipsAlchemy.parent_id == diadem_exp_id)
+        query = query.filter(DiademExpAlchemy.type == child_type)
+        query = query.filter(DiademExpAlchemy.fold_id == fold_id)
+        return query.one().exp_id
+    fold_id = None if fold_id == 'None' else int(fold_id)
+    dataset = None if dataset == 'None' else dataset
+    if child_type != 'cv':
+        parent_id = _get_parent_id(diadem_exp_id, child_type)
+        query = session.query(DiademExpAlchemy)
+        query = query.join(DiademExpAlchemy.exp)
+        query = query.join(ExpAlchemy.parents)
+        query = query.filter(ExpAlchemy.kind == 'Detection')
+        query = query.filter(
+                        ExpRelationshipsAlchemy.parent_id == parent_id)
+        if dataset is not None and dataset != 'all':
+            query = query.join(DiademExpAlchemy.dataset)
+            query = query.filter(DatasetsAlchemy.dataset == dataset)
     else:
+        query = session.query(DiademExpAlchemy)
         query = query.filter(DiademExpAlchemy.exp_id == diadem_exp_id)
     query = query.filter(DiademExpAlchemy.type == child_type)
     query = query.filter(DiademExpAlchemy.fold_id == fold_id)

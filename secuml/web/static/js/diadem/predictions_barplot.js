@@ -1,4 +1,4 @@
-function displayPredictionsBarplot(div, child_exp_id, bar_callback,
+function displayPredictionsBarplot(div, child_exp_id, bar_callback, with_links,
                                    end_callback=null) {
   var div_obj = cleanDiv(div);
   var query = buildQuery('supervisedLearningMonitoring',
@@ -8,9 +8,10 @@ function displayPredictionsBarplot(div, child_exp_id, bar_callback,
       var barPlot = drawBarPlot(div_obj.id, options, data, type='bar',
                                 width=null, height=null);
       var xlabels = barPlot[1].chart.config.data.labels;
-
-      addCallbackToBarplot(barPlot[0], barPlot[1],
-                           bar_callback(child_exp_id, xlabels));
+      if (with_links) {
+        addCallbackToBarplot(barPlot[0], barPlot[1],
+                             bar_callback(child_exp_id, xlabels));
+      }
       div_obj.style.height = '400px';
       if (end_callback) {
           end_callback(xlabels);

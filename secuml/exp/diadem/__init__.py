@@ -18,6 +18,9 @@ import os.path as path
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import null
 
+from secuml.core.data.predictions import Predictions
+from secuml.core.classif.conf.test.validation_datasets \
+        import InvalidValidationDatasets
 from secuml.exp import experiment
 from secuml.exp.conf.annotations import AnnotationsConf
 from secuml.exp.conf.dataset import DatasetConf
@@ -79,14 +82,16 @@ def add_diadem_exp_to_db(session, exp_id, dataset_id, fold_id, kind,
             predictions_interp = False
         else:
             predictions_interp = classifier_conf.interpretable_predictions()
-        exp = DiademExpAlchemy(exp_id=exp_id, fold_id=fold_id, type=kind,
+        exp = DiademExpAlchemy(exp_id=exp_id, fold_id=fold_id,
+                               dataset_id=dataset_id, type=kind,
                                perf_monitoring=perf_monitoring,
                                model_interp=model_interp,
                                pred_interp=predictions_interp,
                                multiclass=multiclass, proba=proba,
                                with_scoring=with_scoring)
     else:
-        exp = DiademExpAlchemy(exp_id=exp_id, fold_id=fold_id, type=kind)
+        exp = DiademExpAlchemy(exp_id=exp_id, fold_id=fold_id,
+                               dataset_id=dataset_id, type=kind)
     session.add(exp)
     session.flush()
 
@@ -184,6 +189,20 @@ class DiademExp(Experiment):
 
     # kind in ['train', 'test', 'validation']
     def _create_detection_exp(self, kind, classifier_conf, fold_id=None):
+        detection_confs = self._create_detection_conf(kind, classifier_conf,
+                                                      fold_id=fold_id)
+        global_exp = None
+        if len(detection_confs) > 1:
+            global_exp = self._create_global_detection_exp(
+                                               kind,
+                                               classifier_conf,
+                                               detection_confs[0].dataset_conf)
+            for detection_conf in detection_confs:
+                detection_conf.parent = global_exp.exp_id
+        return global_exp, [DetectionExp(detection_conf, session=self.session)
+                            for detection_conf in detection_confs]
+
+    def _create_detection_conf(self, kind, classifier_conf, fold_id=None):
         diadem_id = self.exp_conf.exp_id
         exp_name = 'DIADEM_%i_Detection_%s' % (diadem_id, kind)
         if fold_id is not None:
@@ -191,29 +210,46 @@ class DiademExp(Experiment):
         secuml_conf = self.exp_conf.secuml_conf
         logger = secuml_conf.logger
         if (kind == 'validation' or
-                (kind == 'test' and self.test_conf.method == 'dataset')):
+                (kind == 'test' and self.test_conf.method == 'datasets')):
             validation_conf = getattr(self, '%s_conf' % kind)
-            dataset_conf = DatasetConf(self.exp_conf.dataset_conf.project,
-                                       validation_conf.test_dataset,
-                                       self.exp_conf.secuml_conf.logger)
             annotations_conf = AnnotationsConf('ground_truth.csv', None,
                                                logger)
             features_conf = self.exp_conf.features_conf
             if validation_conf.streaming:
                 stream_batch = validation_conf.stream_batch
                 features_conf = features_conf.copy_streaming(stream_batch)
+            dataset_confs = [DatasetConf(self.exp_conf.dataset_conf.project,
+                                         test_dataset,
+                                         self.exp_conf.secuml_conf.logger)
+                             for test_dataset in
+                             validation_conf.validation_datasets]
         else:
-            dataset_conf = self.exp_conf.dataset_conf
+            dataset_confs = [self.exp_conf.dataset_conf]
             annotations_conf = self.exp_conf.annotations_conf
             features_conf = self.exp_conf.features_conf
         alerts_conf = None
         if fold_id is None and kind != 'train':
             alerts_conf = self.exp_conf.alerts_conf
-        test_exp_conf = DetectionConf(
-                            secuml_conf, dataset_conf, features_conf,
-                            annotations_conf, alerts_conf, name=exp_name,
-                            parent=diadem_id, fold_id=fold_id, kind=kind)
-        return DetectionExp(test_exp_conf, session=self.session)
+        return [DetectionConf(secuml_conf, dataset_conf, features_conf,
+                              annotations_conf, alerts_conf, name=exp_name,
+                              parent=diadem_id, fold_id=fold_id, kind=kind)
+                for dataset_conf in dataset_confs]
+
+    # The dataset_conf is the conf of the first test dataset.
+    # This way, the parameter 'has_ground_truth' has the right value.
+    def _create_global_detection_exp(self, kind, classifier_conf,
+                                     dataset_conf):
+        diadem_id = self.exp_conf.exp_id
+        exp_name = 'DIADEM_%i_GlobalDetection_%s' % (diadem_id, kind)
+        secuml_conf = self.exp_conf.secuml_conf
+        annotations_conf = self.exp_conf.annotations_conf
+        features_conf = self.exp_conf.features_conf
+        alerts_conf = None
+        return DetectionExp(DetectionConf(secuml_conf, dataset_conf,
+                                          features_conf, annotations_conf,
+                                          alerts_conf, name=exp_name,
+                                          parent=diadem_id, kind=kind),
+                            session=self.session)
 
     def _run_one_fold(self, datasets, cv_monitoring, fold_id=None):
         classifier, train_time = self._train(datasets, cv_monitoring, fold_id)
@@ -239,18 +275,40 @@ class DiademExp(Experiment):
 
     # kind: train, test, validation
     def _detection(self, kind, classifier, instances, fold_id):
-        detection_exp = self._create_detection_exp(kind, classifier.conf,
-                                                   fold_id=fold_id)
+        global_exp, detection_exps = self._create_detection_exp(
+                                                            kind,
+                                                            classifier.conf,
+                                                            fold_id=fold_id)
+        if not all(detection_exp.exp_conf.dataset_conf.has_ground_truth ==
+                   detection_exps[0].exp_conf.dataset_conf.has_ground_truth
+                   for detection_exp in detection_exps):
+            raise InvalidValidationDatasets(
+                    'All the test datasets must contain ground truth '
+                    'annotations, or none of them.')
         if fold_id is None:
-            self._set_detection_exp(kind, detection_exp)
-        detection_exp.run(instances, classifier)
-        return detection_exp.predictions, detection_exp.prediction_time
+            exp = global_exp if global_exp is not None else detection_exps[0]
+            self._set_detection_exp(kind, exp)
+        predictions = None
+        prediction_time = None
+        for detection_exp in detection_exps:
+            detection_exp.run(instances, classifier)
+            if predictions is None:
+                predictions = Predictions.deepcopy(detection_exp.predictions)
+                predictions = detection_exp.predictions
+                prediction_time = detection_exp.prediction_time
+            else:
+                predictions.union(detection_exp.predictions)
+                prediction_time += detection_exp.prediction_time
+        if global_exp is not None:
+            global_exp.set_predictions(predictions, prediction_time)
+        return predictions, prediction_time
 
     def _run_cv(self, cv_datasets, cv_monitoring):
         classifiers = [None for _ in range(self.test_conf.num_folds)]
         classifier_conf = self.exp_conf.core_conf.classifier_conf
-        add_diadem_exp_to_db(self.session, self.exp_conf.exp_id, None, 'cv',
-                             classifier_conf=classifier_conf)
+        dataset_id = self.exp_conf.dataset_conf.dataset_id
+        add_diadem_exp_to_db(self.session, self.exp_conf.exp_id, dataset_id,
+                             None, 'cv', classifier_conf=classifier_conf)
         global_cv_monitoring = CvMonitoring(self, self.test_conf.num_folds)
         for fold_id, datasets in enumerate(cv_datasets._datasets):
             classifier, train_t, predictions, test_t = self._run_one_fold(

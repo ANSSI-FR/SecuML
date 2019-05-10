@@ -37,7 +37,7 @@ function displayCurvesTabs(train_test) {
 }
 
 function updatePerformanceDisplay(train_test, exp, proba, with_scoring,
-                                  multiclass) {
+                                  multiclass, with_links) {
     // Indicators
     var indicators = cleanDiv(train_test + '_perf_indicators');
     displayPerfIndicators(indicators, train_test, exp, proba, multiclass);
@@ -51,7 +51,7 @@ function updatePerformanceDisplay(train_test, exp, proba, with_scoring,
       }
       // Confusion Matrix
       var confusion_matrix = cleanDiv(train_test + '_confusion_matrix');
-      displayConfusionMatrix(confusion_matrix, train_test, exp);
+      displayConfusionMatrix(confusion_matrix, train_test, exp, with_links);
     }
 }
 
@@ -196,7 +196,7 @@ function displayThresholdPerfIndicators(div_obj, train_test, exp) {
            );
 }
 
-function displayConfusionMatrix(div_obj, train_test, exp) {
+function displayConfusionMatrix(div_obj, train_test, exp, with_links) {
     var benign_label = 'ok';
     var malicious_label = 'alert';
     var confusion_matrix_path = buildQuery('supervisedLearningMonitoring',
@@ -238,27 +238,34 @@ function displayConfusionMatrix(div_obj, train_test, exp) {
                 var cell = row.insertCell(2);
                 cell.innerHTML = data['TP'];
                 var cell = row.insertCell(3);
-                var fn_elem = document.createElement('a');
-                var fn_text = document.createTextNode(data['FN']);
-                fn_elem.appendChild(fn_text);
-                var errors_query = buildQuery('errors', [exp, 'FN']);
-                fn_elem.href = errors_query;
-                fn_elem.setAttribute('title', 'False Negatives');
-                cell.appendChild(fn_elem);
-                cell.id = 'FN';
-
+                if (with_links) {
+                    var fn_elem = document.createElement('a');
+                    var fn_text = document.createTextNode(data['FN']);
+                    fn_elem.appendChild(fn_text);
+                    var errors_query = buildQuery('errors', [exp, 'FN']);
+                    fn_elem.href = errors_query;
+                    fn_elem.setAttribute('title', 'False Negatives');
+                    cell.appendChild(fn_elem);
+                    cell.id = 'FN';
+                } else {
+                    cell.innerHTML = data['FN'];
+                }
                 var row = table.insertRow(3);
                 var cell = row.insertCell(0);
                 cell.innerHTML = benign_label;
                 var cell = row.insertCell(1);
-                var fp_elem = document.createElement('a');
-                var fp_text = document.createTextNode(data['FP']);
-                fp_elem.appendChild(fp_text);
-                var errors_query = buildQuery('errors', [exp, 'FP']);
-                fp_elem.href = errors_query;
-                fp_elem.setAttribute('title', 'False Positives');
-                cell.appendChild(fp_elem);
-                cell.id = 'FP';
+                if (with_links) {
+                    var fp_elem = document.createElement('a');
+                    var fp_text = document.createTextNode(data['FP']);
+                    fp_elem.appendChild(fp_text);
+                    var errors_query = buildQuery('errors', [exp, 'FP']);
+                    fp_elem.href = errors_query;
+                    fp_elem.setAttribute('title', 'False Positives');
+                    cell.appendChild(fp_elem);
+                    cell.id = 'FP';
+                } else {
+                    cell.innerHTML = data['FP'];
+                }
                 var cell = row.insertCell(2);
                 cell.innerHTML = data['TN'];
     });

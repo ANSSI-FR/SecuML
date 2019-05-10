@@ -14,9 +14,6 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from copy import deepcopy
-
-from secuml.core.data.ids import Ids
 from secuml.core.data.predictions import Predictions
 from .proba_barplot import ProbaBarplot
 from .pred_barplot import PredictionBarplot
@@ -31,17 +28,7 @@ class PredictionsMonitoring(object):
 
     def add_fold(self, predictions):
         if self.predictions is None:
-            ids = Ids(deepcopy(predictions.ids.ids),
-                      deepcopy(predictions.ids.idents),
-                      deepcopy(predictions.ids.timestamps))
-            self.predictions = Predictions(
-                        deepcopy(predictions.values), ids,
-                        predictions.info.multiclass,
-                        all_probas=deepcopy(predictions.all_probas),
-                        probas=deepcopy(predictions.probas),
-                        all_scores=deepcopy(predictions.all_scores),
-                        scores=deepcopy(predictions.scores),
-                        ground_truth=deepcopy(predictions.ground_truth))
+            self.predictions = Predictions.deepcopy(predictions)
         else:
             self.predictions.union(predictions)
 

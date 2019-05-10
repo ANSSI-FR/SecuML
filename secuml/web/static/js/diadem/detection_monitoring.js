@@ -1,4 +1,4 @@
-function createTrainTestMonitoring(child_exp_id, train_test) {
+function createTrainTestMonitoring(child_exp_id, train_test, with_alerts) {
     var panel_title = '';
     var div = null;
     if (train_test == 'cv') {
@@ -11,7 +11,7 @@ function createTrainTestMonitoring(child_exp_id, train_test) {
     var monitoring = createPanel('panel-primary', null, panel_title, div);
     createDivWithClass(train_test + '_monitoring', 'tabbable boxed parentTabs',
                        monitoring);
-    if (train_test == 'test') {
+    if (train_test == 'test' && with_alerts) {
         createDivWithClass('alerts_buttons', 'col-md-12', monitoring);
         if (! children_exps[child_exp_id].multiclass) {
             displayAlertsButtons(child_exp_id);
@@ -60,26 +60,30 @@ function displayAlertsButtons(child_exp_id) {
     }
 }
 
-function displayDetectionMonitoring(conf, train_test, fold_id) {
-    d3.json(buildQuery('getDiademDetectionChildExp',
-                       [conf.exp_id, train_test, fold_id]),
-            function(exp_info) {
-                var child_exp_id = exp_info.exp_id;
-                children_exps[child_exp_id] = exp_info;
-                createTrainTestMonitoring(child_exp_id, train_test);
-                displayMonitoringTabs(train_test, child_exp_id, exp_info);
-                updateMonitoringDisplay(train_test, child_exp_id, exp_info.proba,
-                                        exp_info.with_scoring, exp_info.multiclass,
-                                        exp_info.perf_monitoring);
-            });
+function displayDetectionMonitoring(conf, train_test, fold_id,
+                                    test_dataset='None') {
+  d3.json(buildQuery('getDiademDetectionChildExp',
+                     [conf.exp_id, train_test, fold_id, test_dataset]),
+          function(exp_info) {
+              var child_exp_id = exp_info.exp_id;
+              children_exps[child_exp_id] = exp_info;
+              createTrainTestMonitoring(child_exp_id, train_test,
+                                        test_dataset!='all');
+              displayMonitoringTabs(train_test, child_exp_id, exp_info);
+              updateMonitoringDisplay(train_test, child_exp_id, exp_info.proba,
+                                      exp_info.with_scoring,
+                                      exp_info.multiclass,
+                                      exp_info.perf_monitoring,
+                                      test_dataset!='all');
+          });
 }
 
 function updateMonitoringDisplay(train_test, child_exp_id, proba, with_scoring,
-                                 multiclass, perf_monitoring) {
-    updatePredictionsDisplay(train_test, child_exp_id);
+                                 multiclass, perf_monitoring, with_links) {
+    updatePredictionsDisplay(train_test, child_exp_id, with_links);
     if (perf_monitoring) {
         updatePerformanceDisplay(train_test, child_exp_id, proba, with_scoring,
-                                 multiclass);
+                                 multiclass, with_links);
     }
 }
 

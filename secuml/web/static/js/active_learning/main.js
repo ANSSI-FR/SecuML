@@ -10,16 +10,17 @@ var exp_type          = 'ActiveLearning';
 var monitorings       = null;
 var current_iteration = null;
 var classifier_conf   = null;
+var validation_conf   = null;
 
 function callback(conf) {
     conf.query_strategy = conf.core_conf.__type__.split('Conf')[0];
     conf.has_ground_truth = conf.dataset_conf.has_ground_truth;
     conf.validation_has_ground_truth = null;
-    var validation_conf = conf.core_conf.validation_conf;
+    validation_conf = conf.core_conf.validation_conf;
     if (validation_conf) {
         conf.validation_has_ground_truth = hasGroundTruth(
                                             conf.dataset_conf.project,
-                                            validation_conf.test_dataset);
+                                            validation_conf.validation_datasets[0]);
     }
     classifier_conf = conf.core_conf.main_model_conf.classifier_conf;
     generateDivisions(conf);
@@ -43,7 +44,14 @@ function displayIteration(conf) {
                 var sup_exp_conf = data;
                 children_exps = {};
                 for (var i in monitorings) {
-                  displayDetectionMonitoring(sup_exp_conf, monitorings[i], 'None');
+                  monitoring = monitorings[i];
+                  var dataset = 'None';
+                  if (monitoring == 'validation' &&
+                      validation_conf.validation_datasets.length > 1) {
+                    dataset = 'all';
+                  }
+                  displayDetectionMonitoring(sup_exp_conf, monitorings[i],
+                                             'None', dataset);
                 }
             });
     }

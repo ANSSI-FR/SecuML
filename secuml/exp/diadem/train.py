@@ -42,6 +42,7 @@ class TrainExp(Experiment):
         from secuml.exp.diadem import add_diadem_exp_to_db
         Experiment.add_to_db(self)
         add_diadem_exp_to_db(self.session, self.exp_conf.exp_id,
+                             self.exp_conf.dataset_conf.dataset_id,
                              self.exp_conf.fold_id, 'train',
                              classifier_conf=self.exp_conf.core_conf)
 

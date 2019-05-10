@@ -42,6 +42,8 @@ class DatasetsAlchemy(Base):
                              uselist=True, cascade='all, delete-orphan')
     features = relationship('FeaturesSetsAlchemy', back_populates='dataset',
                             uselist=True, cascade='all, delete-orphan')
+    diadem_exps = relationship('DiademExpAlchemy', back_populates='dataset',
+                               uselist=True, cascade='all, delete-orphan')
 
 
 class ExpAlchemy(Base):
@@ -101,6 +103,8 @@ class DiademExpAlchemy(Base):
     exp_id = Column(Integer, ForeignKey('experiments.id', ondelete='CASCADE'),
                     primary_key=True)
     fold_id = Column(Integer, nullable=True)
+    dataset_id = Column(Integer, ForeignKey('datasets.id', ondelete='CASCADE'),
+                        nullable=False)
     type = Column(Enum('train', 'cv', 'test', 'validation', 'alerts',
                        name='diadem_exp_type'),
                   nullable=False)
@@ -113,6 +117,8 @@ class DiademExpAlchemy(Base):
 
     exp = relationship('ExpAlchemy', back_populates='diadem_exp',
                        uselist=False)
+    dataset = relationship('DatasetsAlchemy', back_populates='diadem_exps',
+                           uselist=False)
 
 
 class PredictionsAlchemy(Base):
