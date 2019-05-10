@@ -8,7 +8,7 @@ on different data types
 (PDF files , PE, Android applications or Spam for instance).
 For a given project, several datasets can be used.
 The directory ``<input_data_dir>/<project>/<dataset>/`` must contain the
-following items a file ``idents.csv``, a ``features`` and an ``annotations``
+following items: a file ``idents.csv``, a ``features`` and an ``annotations``
 directories.
 See `input_data/SpamHam/lingspam/ <https://github.com/ANSSI-FR/SecuML/tree/master/input_data/SpamHam/lingspam>`_
 for an example of input dataset.
@@ -43,21 +43,31 @@ It has the following columns:
   The instances in the features files must be stored in the same order as in
   ``idents.csv``.
 
-The header of a features csv file ``<filename>.csv`` may be human-readable
-names or integer ids.
+Optional description file: ``<features_filename>_description.csv``
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+The header of a features csv file ``<features_filename>.csv`` may be
+human-readable names or integer ids.
 Names and more detailed descriptions can be associated to
-each feature in a file called ``<filename>_description.csv``.
-This description file is optional.
+each feature in a file called ``<features_filename>_description.csv``.
+This description file is optional and its has the following columns:
 
-Some features files can be stored in a folder to run experiments
-on several files. In this case, the features of the different
-files are concatenated to build a dataset.
-See :ref:`exp-params` for more information.
+* **id**: feature id (the sames as in ``<features_filename>.csv``) ;
+* **name**: string describing the feature ;
+* **[optional] name**: longer string describing the feature ;
+* **[optional] type**: type of the feature (``numeric`` or ``binary``).
 
 .. note::
 
   SecuML supports only boolean and numerical features.
   Categorical features are not supported yet.
+
+Folder of features files
+""""""""""""""""""""""""
+Some features files can be stored in a folder to run experiments
+on several files. In this case, the features of the different
+files are concatenated to build a dataset.
+See :ref:`exp-params` for more information.
+
 
 ``annotations`` directory
 ^^^^^^^^^^^^^^^^^^^^^^^^^
