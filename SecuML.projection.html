@@ -99,7 +99,14 @@
 <li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Projection</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#algorithms-available">Algorithms Available</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#algorithms-available">Algorithms Available</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#unsupervised-algorithms">Unsupervised Algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semi-supervised-algorithms">Semi-supervised Algorithms</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#graphical-user-interface">Graphical User Interface</a></li>
 </ul>
 </li>
@@ -174,36 +181,35 @@
             
   <div class="section" id="projection">
 <span id="id1"></span><h1>Projection<a class="headerlink" href="#projection" title="Permalink to this headline">¶</a></h1>
-<div class="line-block">
-<div class="line"><em>Usage:</em> <code class="docutils literal notranslate"><span class="pre">SecuML_projection</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;algo&gt;</span></code>.</div>
-<div class="line">For more information about the available options for a given projection algorithm:</div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">SecuML_projection</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;algo&gt;</span> <span class="pre">-h</span></code>.</div>
-</div>
 <p>The data are projected into a lower-dimensional space for visualization. The user interface allows to display the instances in a plane defined by two components.
 The instances are not displayed individually but with an hexagonal binning (color from green to black according to the number of instances in the bin).
 The color of the dot in the middle of each bin (from yellow to red) corresponds to the proportion of known malicious instances in the bin.</p>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">SecuML_projection</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;algo&gt;</span></code>.</div>
+<div class="line">For more information about the available options for a given projection algorithm:</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">SecuML_projection</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;algo&gt;</span> <span class="pre">-h</span></code>.</div>
+</div>
 <div class="section" id="algorithms-available">
-<h2>Algorithms Available<a class="headerlink" href="#algorithms-available" title="Permalink to this headline">¶</a></h2>
+<h3>Algorithms Available<a class="headerlink" href="#algorithms-available" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="unsupervised-algorithms">
+<h4>Unsupervised Algorithms<a class="headerlink" href="#unsupervised-algorithms" title="Permalink to this headline">¶</a></h4>
 <ul class="simple">
-<li><dl class="simple">
-<dt>Unsupervised Algorithms</dt><dd><ul>
-<li><p>Pca</p></li>
+<li><p>Pca (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html">scikit-learn documentation</a>)</p></li>
 </ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>Semi-supervised Algorithms</dt><dd><ul>
-<li><p>Rca</p></li>
-<li><p>Lda</p></li>
-<li><p>Lmnn</p></li>
-<li><p>Nca</p></li>
-<li><p>Itml</p></li>
+</div>
+<div class="section" id="semi-supervised-algorithms">
+<h4>Semi-supervised Algorithms<a class="headerlink" href="#semi-supervised-algorithms" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Rca (<a class="reference external" href="https://metric-learn.github.io/metric-learn/metric_learn.rca.html">metric-learn documentation</a>)</p></li>
+<li><p>Lda (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.discriminant_analysis.LinearDiscriminantAnalysis.html">scikit-learn documentation</a>)</p></li>
+<li><p>Lmnn (<a class="reference external" href="https://metric-learn.github.io/metric-learn/metric_learn.lmnn.html">metric-learn documentation</a>)</p></li>
+<li><p>Nca (<a class="reference external" href="https://metric-learn.github.io/metric-learn/metric_learn.nca.html">metric-learn documentation</a>)</p></li>
+<li><p>Itml (<a class="reference external" href="https://metric-learn.github.io/metric-learn/metric_learn.itml.html">metric-learn documentation</a>)</p></li>
 </ul>
-</dd>
-</dl>
-</li>
-</ul>
+</div>
+</div>
 </div>
 <div class="section" id="graphical-user-interface">
 <h2>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Permalink to this headline">¶</a></h2>

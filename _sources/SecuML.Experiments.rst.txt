@@ -19,7 +19,7 @@ All the experiments share the following arguments:
 * [optional] ``--filter-in``: csv file containing the features to use;
 * [optional] ``--filter-out``: csv file containing the features to filter out;
 * [optional] ``--exp-name``: the name of the experiment;
-* [optional] ``--secuml-conf``: the name of the experiment.
+* [optional] ``--secuml-conf``: the path of the configuration file.
 
 If ``--features`` is not specified, the features are read from the file
 ``features.csv``.

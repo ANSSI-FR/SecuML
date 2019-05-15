@@ -98,7 +98,10 @@
 <li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Clustering</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#algorithms-available">Algorithms Available</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#algorithms-available">Algorithms Available</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#graphical-user-interface">Graphical User Interface</a></li>
 </ul>
 </li>
@@ -174,18 +177,21 @@
             
   <div class="section" id="clustering">
 <span id="id1"></span><h1>Clustering<a class="headerlink" href="#clustering" title="Permalink to this headline">¶</a></h1>
+<p>The instances are clustered into a number of clusters specified by the user. Then, the user interface allows to display the instances in each cluster and to annotate them.</p>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <div class="line-block">
-<div class="line"><em>Usage:</em> <code class="docutils literal notranslate"><span class="pre">SecuML_clustering</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;algo&gt;</span></code>.</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">SecuML_clustering</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;algo&gt;</span></code>.</div>
 <div class="line">For more information about the available options for a given clustering algorithm:</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">SecuML_clustering</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;algo&gt;</span> <span class="pre">-h</span></code>.</div>
 </div>
-<p>The instances are clustered into a number of clusters specified by the user. Then, the user interface allows to display the instances in each cluster and to annotate instances individually or whole clusters at once.</p>
 <div class="section" id="algorithms-available">
-<h2>Algorithms Available<a class="headerlink" href="#algorithms-available" title="Permalink to this headline">¶</a></h2>
+<h3>Algorithms Available<a class="headerlink" href="#algorithms-available" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p>Kmeans</p></li>
-<li><p>GaussiansMixture</p></li>
+<li><p>Kmeans (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html">scikit-learn documentation</a>)</p></li>
+<li><p>GaussiansMixture (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.mixture.GaussianMixture.html">scikit-learn documentation</a>)</p></li>
 </ul>
+</div>
 </div>
 <div class="section" id="graphical-user-interface">
 <h2>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Permalink to this headline">¶</a></h2>

@@ -66,14 +66,14 @@ the instances from various angles.
 
 
 Implementation
---------------
+^^^^^^^^^^^^^^^
 
 JavaScript code
-^^^^^^^^^^^^^^^
+"""""""""""""""
 | The code must be stored in ``secuml/web/static/js/instances_visu/<project>.js``.
 | See `secuml/web/static/js/instances_visu/SpamHam.js <https://github.com/ANSSI-FR/SecuML/blob/master/secuml/web/static/js/instances_visu/SpamHam.js>`_ for an example.
 
 Flask code
-^^^^^^^^^^
+""""""""""
 | The code must be stored in ``secuml/web/views/projects/<project>.py``.
 | See `secuml/web/views/projects/SpamHam.py <https://github.com/ANSSI-FR/SecuML/blob/master/secuml/web/views/projects/SpamHam.py>`_ for an example.

@@ -279,15 +279,15 @@ dataset into a training (90%) and a validation dataset (10%).</p>
 <p>DIADEM can apply a previously trained detection model with the following
 command line:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_DIADEM &lt;project&gt; &lt;dataset&gt; AlreadyTrained --model-exp-id &lt;exp_id&gt; <span class="se">\</span>
-    --validation-mode ValidationDataset --validation-dataset &lt;validation_dataset&gt;
+    --validation-mode ValidationDatasets --validation-datasets &lt;validation_datasets&gt;
 </pre></div>
 </div>
 <p>In this case, there are two restrictions:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--model-exp-id</span></code> must correspond to a
 <a class="reference internal" href="#diadem"><span class="std std-ref">DIADEM</span></a> or an <a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB</span></a> experiment ;</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ValidationDataset</span></code> is the only <a class="reference internal" href="#diadem-validation-modes"><span class="std std-ref">validation mode</span></a>
-available.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ValidationDatasets</span></code> is the only
+<a class="reference internal" href="#diadem-validation-modes"><span class="std std-ref">validation mode</span></a> available.</p></li>
 </ul>
 </div>
 </div>
@@ -420,10 +420,10 @@ form the validation dataset.</p>
 </div>
 <div class="section" id="validation-dataset">
 <span id="id5"></span><h4>Validation Dataset<a class="headerlink" href="#validation-dataset" title="Permalink to this headline">¶</a></h4>
-<p><code class="docutils literal notranslate"><span class="pre">--validation-mode</span> <span class="pre">ValidationDataset</span> <span class="pre">--validation-dataset</span> <span class="pre">&lt;validation_dataset&gt;</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">--validation-mode</span> <span class="pre">ValidationDatasets</span> <span class="pre">--validation-datasets</span> <span class="pre">&lt;validation_datasets&gt;</span></code></p>
 <p>The whole dataset <code class="docutils literal notranslate"><span class="pre">&lt;dataset&gt;</span></code> constitutes the training data, and
-<code class="docutils literal notranslate"><span class="pre">&lt;validation_dataset&gt;</span></code> constitutes the validation data.</p>
-<p>In this validation mode, the validation dataset can be processed as a stream
+the list <code class="docutils literal notranslate"><span class="pre">&lt;validation_datasets&gt;</span></code> constitutes the validation data.</p>
+<p>In this validation mode, the validation datasets can be processed as a stream
 by specifying <code class="docutils literal notranslate"><span class="pre">--streaming</span></code>. In this case, the validation instances are not
 loaded into memory at once which allows to process bigger datasets.
 The batch size of the streaming process can be specified with the optional

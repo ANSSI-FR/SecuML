@@ -15,17 +15,17 @@ The URI of the database must be specified in SecuML :ref:`configuration file <co
 
 *MySQL database*
 
-* MySQL server (>= 5.5.49)
+* MySQL server
 * Python package
 
-    + mysql.connector (>= 2.1.3, <= 2.1.4)
+    + mysql.connector
 
 *PostgreSQL database*
 
-* PostgreSQL server (>= 9.4.13)
+* PostgreSQL server
 * Python package
 
-    + psycopg2-binary (>= 2.5.4)
+    + psycopg2-binary
 
 
 Installation
@@ -34,18 +34,18 @@ Installation
 Requirements
 """"""""""""
 
-+ rabbitmq-server (>= 3.3.5) (only for :ref:`ILAB <ILAB>` and :ref:`rare category detection <RCD>`)
++ rabbitmq-server
 + Python packages
 
-    * celery (>= 3.1.13) (only for :ref:`ILAB <ILAB>` and :ref:`rare category detection <RCD>`)
-    * flask (>= 0.10.1)
-    * flask_sqlalchemy (>= 1.0)
-    * matplotlib (>= 2.1.1)
-    * metric-learn (>= 0.4.0)
-    * numpy (== 1.14)
-    * pandas (== 0.19.2)
-    * scikit-learn (== 0.20.0)
-    * sqlalchemy (>= 0.9.8)
+    * celery
+    * flask
+    * flask_sqlalchemy
+    * matplotlib
+    * metric-learn
+    * numpy
+    * pandas
+    * scikit-learn (== 0.20.3)
+    * sqlalchemy
     * yaml
 
 Automatic Installation
@@ -55,7 +55,7 @@ Automatic Installation
 
     virtualenv venv_SecuML --no-site-packages --python python3
     source venv_SecuML/bin/activate
-    pip install -e <path_to_SecuML_project>
+    pip install <path_to_SecuML_project>
 
 .. note::
 

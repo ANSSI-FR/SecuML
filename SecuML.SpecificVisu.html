@@ -91,10 +91,12 @@
 <li class="toctree-l1"><a class="reference internal" href="SecuML.Data.html">Data</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Visualization of Individual Instances</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#default-visualization-all-the-features">Default Visualization: All the Features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pluggable-problem-specific-visualizations">Pluggable Problem-Specific Visualizations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#implementation">Implementation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#javascript-code">JavaScript code</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#flask-code">Flask code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pluggable-problem-specific-visualizations">Pluggable Problem-Specific Visualizations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#javascript-code">JavaScript code</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#flask-code">Flask code</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -226,21 +228,21 @@ rely one the same <em>Description</em> panel to display the instances.
 As a result, once a custom visualization has been implemented for a given
 project it is displayed by all SecuML modules.</p>
 </div>
-</div>
 <div class="section" id="implementation">
-<h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h2>
+<h3>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="javascript-code">
-<h3>JavaScript code<a class="headerlink" href="#javascript-code" title="Permalink to this headline">¶</a></h3>
+<h4>JavaScript code<a class="headerlink" href="#javascript-code" title="Permalink to this headline">¶</a></h4>
 <div class="line-block">
 <div class="line">The code must be stored in <code class="docutils literal notranslate"><span class="pre">secuml/web/static/js/instances_visu/&lt;project&gt;.js</span></code>.</div>
 <div class="line">See <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/blob/master/secuml/web/static/js/instances_visu/SpamHam.js">secuml/web/static/js/instances_visu/SpamHam.js</a> for an example.</div>
 </div>
 </div>
 <div class="section" id="flask-code">
-<h3>Flask code<a class="headerlink" href="#flask-code" title="Permalink to this headline">¶</a></h3>
+<h4>Flask code<a class="headerlink" href="#flask-code" title="Permalink to this headline">¶</a></h4>
 <div class="line-block">
 <div class="line">The code must be stored in <code class="docutils literal notranslate"><span class="pre">secuml/web/views/projects/&lt;project&gt;.py</span></code>.</div>
 <div class="line">See <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/blob/master/secuml/web/views/projects/SpamHam.py">secuml/web/views/projects/SpamHam.py</a> for an example.</div>
+</div>
 </div>
 </div>
 </div>

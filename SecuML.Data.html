@@ -90,7 +90,11 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#idents-csv"><code class="docutils literal notranslate"><span class="pre">idents.csv</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#features-directory"><code class="docutils literal notranslate"><span class="pre">features</span></code> directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#features-directory"><code class="docutils literal notranslate"><span class="pre">features</span></code> directory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#optional-description-file-features-filename-description-csv">Optional description file: <code class="docutils literal notranslate"><span class="pre">&lt;features_filename&gt;_description.csv</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#folder-of-features-files">Folder of features files</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#annotations-directory"><code class="docutils literal notranslate"><span class="pre">annotations</span></code> directory</a></li>
 </ul>
 </li>
@@ -180,7 +184,7 @@ on different data types
 (PDF files , PE, Android applications or Spam for instance).
 For a given project, several datasets can be used.
 The directory <code class="docutils literal notranslate"><span class="pre">&lt;input_data_dir&gt;/&lt;project&gt;/&lt;dataset&gt;/</span></code> must contain the
-following items a file <code class="docutils literal notranslate"><span class="pre">idents.csv</span></code>, a <code class="docutils literal notranslate"><span class="pre">features</span></code> and an <code class="docutils literal notranslate"><span class="pre">annotations</span></code>
+following items: a file <code class="docutils literal notranslate"><span class="pre">idents.csv</span></code>, a <code class="docutils literal notranslate"><span class="pre">features</span></code> and an <code class="docutils literal notranslate"><span class="pre">annotations</span></code>
 directories.
 See <a class="reference external" href="https://github.com/ANSSI-FR/SecuML/tree/master/input_data/SpamHam/lingspam">input_data/SpamHam/lingspam/</a>
 for an example of input dataset.</p>
@@ -214,19 +218,31 @@ It has the following columns:</p>
 <p>The instances in the features files must be stored in the same order as in
 <code class="docutils literal notranslate"><span class="pre">idents.csv</span></code>.</p>
 </div>
-<p>The header of a features csv file <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;.csv</span></code> may be human-readable
-names or integer ids.
+<div class="section" id="optional-description-file-features-filename-description-csv">
+<h3>Optional description file: <code class="docutils literal notranslate"><span class="pre">&lt;features_filename&gt;_description.csv</span></code><a class="headerlink" href="#optional-description-file-features-filename-description-csv" title="Permalink to this headline">¶</a></h3>
+<p>The header of a features csv file <code class="docutils literal notranslate"><span class="pre">&lt;features_filename&gt;.csv</span></code> may be
+human-readable names or integer ids.
 Names and more detailed descriptions can be associated to
-each feature in a file called <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;_description.csv</span></code>.
-This description file is optional.</p>
-<p>Some features files can be stored in a folder to run experiments
-on several files. In this case, the features of the different
-files are concatenated to build a dataset.
-See <a class="reference internal" href="SecuML.Experiments.html#exp-params"><span class="std std-ref">Running Experiments</span></a> for more information.</p>
+each feature in a file called <code class="docutils literal notranslate"><span class="pre">&lt;features_filename&gt;_description.csv</span></code>.
+This description file is optional and its has the following columns:</p>
+<ul class="simple">
+<li><p><strong>id</strong>: feature id (the sames as in <code class="docutils literal notranslate"><span class="pre">&lt;features_filename&gt;.csv</span></code>) ;</p></li>
+<li><p><strong>name</strong>: string describing the feature ;</p></li>
+<li><p><strong>[optional] name</strong>: longer string describing the feature ;</p></li>
+<li><p><strong>[optional] type</strong>: type of the feature (<code class="docutils literal notranslate"><span class="pre">numeric</span></code> or <code class="docutils literal notranslate"><span class="pre">binary</span></code>).</p></li>
+</ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>SecuML supports only boolean and numerical features.
 Categorical features are not supported yet.</p>
+</div>
+</div>
+<div class="section" id="folder-of-features-files">
+<h3>Folder of features files<a class="headerlink" href="#folder-of-features-files" title="Permalink to this headline">¶</a></h3>
+<p>Some features files can be stored in a folder to run experiments
+on several files. In this case, the features of the different
+files are concatenated to build a dataset.
+See <a class="reference internal" href="SecuML.Experiments.html#exp-params"><span class="std std-ref">Running Experiments</span></a> for more information.</p>
 </div>
 </div>
 <div class="section" id="annotations-directory">

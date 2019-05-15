@@ -92,14 +92,14 @@ command line:
 .. code-block:: bash
 
     SecuML_DIADEM <project> <dataset> AlreadyTrained --model-exp-id <exp_id> \
-        --validation-mode ValidationDataset --validation-dataset <validation_dataset>
+        --validation-mode ValidationDatasets --validation-datasets <validation_datasets>
 
 In this case, there are two restrictions:
 
 * ``--model-exp-id`` must correspond to a
   :ref:`DIADEM <DIADEM>` or an :ref:`ILAB <ILAB>` experiment ;
-* ``ValidationDataset`` is the only :ref:`validation mode<DIADEM-validation-modes>`
-  available.
+* ``ValidationDatasets`` is the only
+  :ref:`validation mode<DIADEM-validation-modes>` available.
 
 
 .. _DIADEM_hyperparameters:
@@ -274,12 +274,12 @@ form the validation dataset.
 Validation Dataset
 ------------------
 
-``--validation-mode ValidationDataset --validation-dataset <validation_dataset>``
+``--validation-mode ValidationDatasets --validation-datasets <validation_datasets>``
 
 The whole dataset ``<dataset>`` constitutes the training data, and
-``<validation_dataset>`` constitutes the validation data.
+the list ``<validation_datasets>`` constitutes the validation data.
 
-In this validation mode, the validation dataset can be processed as a stream
+In this validation mode, the validation datasets can be processed as a stream
 by specifying ``--streaming``. In this case, the validation instances are not
 loaded into memory at once which allows to process bigger datasets.
 The batch size of the streaming process can be specified with the optional
