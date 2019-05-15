@@ -6,10 +6,10 @@ function experiments {
     SecuML_features_analysis Gaussians test
     SecuML_projection Gaussians test -a ground_truth.csv Lda
     SecuML_clustering Gaussians test Kmeans
-    SecuML_DIADEM Gaussians test LogisticRegression -a ground_truth.csv
-    SecuML_DIADEM Gaussians test GradientBoosting -a ground_truth.csv --alerts-classif GaussianNaiveBayes
-    SecuML_DIADEM Gaussians test GradientBoosting -a ground_truth.csv --alerts-clustering Kmeans --num-alerts-clusters 3
-    SecuML_DIADEM Gaussians test LogisticRegression -a ground_truth.csv --validation-mode ValidationDatasets --validation-datasets test --streaming
+    SecuML_DIADEM Gaussians test LogisticRegression
+    SecuML_DIADEM Gaussians test GradientBoosting --alerts-classif GaussianNaiveBayes
+    SecuML_DIADEM Gaussians test GradientBoosting --alerts-clustering Kmeans --num-alerts-clusters 3
+    SecuML_DIADEM Gaussians test LogisticRegression --validation-mode ValidationDatasets --validation-datasets test --streaming
     SecuML_ILAB Gaussians test Random --auto
     SecuML_rm_project_exp --exp-id 1
     SecuML_rm_project_exp --project Gaussians

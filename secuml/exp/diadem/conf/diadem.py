@@ -64,10 +64,15 @@ class DiademConf(ExpConf):
             classifier_type = get_classifier_type(factory.get_class(model))
             if classifier_type in [ClassifierType.supervised,
                                    ClassifierType.semisupervised]:
-                AnnotationsConf.gen_parser(
-                            model_parser, required=True,
-                            message='CSV file containing the annotations of '
-                                    'some or all the instances.')
+                default = None
+                message = '''CSV file containing the annotations of some or
+                             all the instances.'''
+                if classifier_type == ClassifierType.supervised:
+                    default = 'ground_truth.csv'
+                    message = '%s Default: ground_truth.csv.' % message
+                AnnotationsConf.gen_parser(model_parser,
+                                           required=default is None,
+                                           default=default, message=message)
             ClassificationConf.gen_parser(model_parser)
             AlertsConf.gen_parser(model_parser)
         # Add subparser for already trained model
