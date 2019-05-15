@@ -26,7 +26,7 @@ Training and Diagnosing a Detection Model
 
 .. code-block:: bash
 
-    SecuML_DIADEM SpamHam lingspam --secuml-conf <conf_file> LogisticRegression -a ground_truth.csv
+    SecuML_DIADEM SpamHam lingspam --secuml-conf <conf_file> LogisticRegression
 
 .. figure:: figs/screen_shots/DIADEM/performance.png
 
