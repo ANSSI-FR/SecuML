@@ -43,7 +43,8 @@ class FeaturesAnalysisExperiment(Experiment):
             self.exp_conf.logger.warning('There are more than 150.000, so '
                                          'the density plots are not '
                                          'displayed. ')
-        stats = FeaturesAnalysis(instances, with_density=with_density)
+        stats = FeaturesAnalysis(instances, self.exp_conf.multiclass,
+                                 with_density=with_density)
         stats.gen_plots(self.output_dir())
         stats.gen_scoring(self.output_dir())
 

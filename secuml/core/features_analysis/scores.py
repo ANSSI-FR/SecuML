@@ -75,8 +75,9 @@ class FeatureScoring(object):
 
 class FeaturesScoring(object):
 
-    def __init__(self, instances):
+    def __init__(self, instances, multiclass):
         self.instances = instances
+        self.multiclass = multiclass
         self.annotated_instances = instances.get_annotated_instances()
         self._set_scoring_func()
 
@@ -133,7 +134,8 @@ class FeaturesScoring(object):
             return variance, None
 
         features = self.annotated_instances.features.get_values()
-        annotations = self.annotated_instances.annotations.get_labels()
+        annotations = self.annotated_instances.annotations.get_supervision(
+                                                               self.multiclass)
         if func == 'f_classif':
             return f_classif(features, annotations)
         elif func == 'mutual_info_classif':

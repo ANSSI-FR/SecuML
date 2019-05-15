@@ -156,7 +156,9 @@ class SupervisedClassifierConf(ClassifierConf):
 
     @staticmethod
     def gen_parser(parser, model_class):
-        parser.add_argument('--multiclass', default=False, action='store_true')
+        parser.add_argument('--multiclass', default=False, action='store_true',
+                            help='The classifier is trained on the families '
+                                 'instead of the binary labels.')
         HyperparamConf.gen_parser(parser, model_class, True)
 
 
@@ -183,5 +185,7 @@ class SemiSupervisedClassifierConf(ClassifierConf):
 
     @staticmethod
     def gen_parser(parser, model_class):
-        parser.add_argument('--multiclass', default=False, action='store_true')
+        parser.add_argument('--multiclass', default=False, action='store_true',
+                            help='The classifier is trained on the families '
+                                 'instead of the binary labels.')
         HyperparamConf.gen_parser(parser, model_class, False)

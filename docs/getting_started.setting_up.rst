@@ -45,6 +45,7 @@ Requirements
     * numpy
     * pandas
     * scikit-learn (== 0.20.3)
+    * seaborn
     * sqlalchemy
     * yaml
 

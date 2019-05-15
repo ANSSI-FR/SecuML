@@ -22,6 +22,7 @@ from scipy.sparse.base import spmatrix
 from secuml.core.data.labels_tools import BENIGN, MALICIOUS
 from secuml.core.data.features import FeatureType
 from secuml.core.tools.color import get_label_color
+from secuml.core.tools.color import colors
 from secuml.core.tools.plots.dataset import PlotDataset
 from secuml.core.tools.plots.boxplot import BoxPlot
 from secuml.core.tools.plots.barplot import BarPlot
@@ -31,14 +32,15 @@ from secuml.core.tools.plots.histogram import Histogram
 
 class FeaturePlots(object):
 
-    def __init__(self, instances, feature_index, with_density=True):
+    def __init__(self, instances, multiclass, feature_index,
+                 with_density=True):
         self.feature_index = feature_index
         self.with_density = with_density
         features_info = instances.features.info
         self.feature_type = features_info.types[self.feature_index]
         self.feature_name = features_info.names[self.feature_index]
         self.feature_id = features_info.ids[self.feature_index]
-        self._gen_plot_datasets(instances)
+        self._gen_plot_datasets(instances, multiclass)
 
     def compute(self):
         if self.feature_type == FeatureType.binary:
@@ -72,23 +74,38 @@ class FeaturePlots(object):
             if self.with_density:
                 self.density.display(path.join(output_dir, 'density.png'))
 
-    def _gen_plot_datasets(self, instances):
+    def _gen_plot_datasets(self, instances, multiclass):
         self.plot_datasets = {}
-        self._gen_label_plot_dataset(instances, MALICIOUS)
-        self._gen_label_plot_dataset(instances, BENIGN)
-        self._gen_label_plot_dataset(instances, 'unlabeled')
-
-    def _gen_label_plot_dataset(self, instances, label):
-        if label != 'unlabeled':
-            instances = instances.get_annotated_instances(label=label)
+        if not multiclass:
+            self._gen_label_plot_dataset(instances, label=MALICIOUS)
+            self._gen_label_plot_dataset(instances, label=BENIGN)
+            self._gen_label_plot_dataset(instances, label='unlabeled')
         else:
-            instances = instances.get_unlabeled_instances()
+            families = list(instances.annotations.get_families_values())
+            families_colors = colors(len(families))
+            for family, color in zip(families, families_colors):
+                self._gen_label_plot_dataset(instances, family=family,
+                                             color=color)
+
+    def _gen_label_plot_dataset(self, instances, label=None, family=None,
+                                color=None):
+        if label is not None:
+            if label != 'unlabeled':
+                instances = instances.get_annotated_instances(label=label)
+            else:
+                instances = instances.get_unlabeled_instances()
+        else:
+            instances = instances.get_annotated_instances(family=family)
         values = instances.features.get_values_from_index(self.feature_index)
         if isinstance(values, spmatrix):
             values = values.toarray()
-        dataset = PlotDataset(values, label)
-        dataset.set_color(get_label_color(label))
-        self.plot_datasets[label] = dataset
+        plot_label = label if label is not None else family
+        plot_color = color
+        if plot_color is None:
+            plot_color = get_label_color(plot_label)
+        dataset = PlotDataset(values, plot_label)
+        dataset.set_color(plot_color)
+        self.plot_datasets[plot_label] = dataset
 
     def _gen_bloxplot(self):
         self.boxplot = BoxPlot(title='Feature %s' % self.feature_name)

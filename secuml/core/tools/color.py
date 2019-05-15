@@ -14,9 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import matplotlib.cm as cm
 from matplotlib.colors import rgb2hex
-import numpy as np
+from seaborn import color_palette
 
 from secuml.core.data.labels_tools import BENIGN, MALICIOUS
 
@@ -57,5 +56,5 @@ def display_in_green(e):
 
 
 def colors(num):
-    colors = cm.rainbow(np.linspace(0, 1, num))
+    colors = color_palette(palette='hls', n_colors=num)
     return list(map(rgb2hex, colors))

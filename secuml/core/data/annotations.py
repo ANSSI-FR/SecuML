@@ -152,14 +152,16 @@ class Annotations(object):
             families_prop[family] /= self.num_instances(label=label)
         return families_prop
 
-    def get_annotated_ids(self, label='all'):
+    def get_annotated_ids(self, label='all', family=None):
         annotated_ids = [i for i in self.ids.get_ids() if self.is_annotated(i)]
-        if label == 'all':
-            return annotated_ids
-        elif label == MALICIOUS:
-            return [i for i in annotated_ids if self.get_label(i)]
+        if label == MALICIOUS:
+            annotated_ids = [i for i in annotated_ids if self.get_label(i)]
         elif label == BENIGN:
-            return [i for i in annotated_ids if not self.get_label(i)]
+            annotated_ids = [i for i in annotated_ids if not self.get_label(i)]
+        if family is not None:
+            return [i for i in annotated_ids if self.get_family(i) == family]
+        else:
+            return annotated_ids
 
     def get_unlabeled_ids(self):
         return [i for i in self.ids.get_ids() if not self.is_annotated(i)]
