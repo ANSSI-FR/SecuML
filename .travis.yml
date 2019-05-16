@@ -12,7 +12,7 @@ jobs:
          - mysql
          - postgresql
       install:
-         - pip install -e .
+         - pip install .
          - pip install flake8
       before_script:
          - flake8 secuml
@@ -26,7 +26,7 @@ jobs:
          - mysql
          - postgresql
       install:
-         - pip install -e .
+         - pip install .
          - pip install flake8
       before_script:
          - flake8 secuml
@@ -40,7 +40,7 @@ jobs:
          - mysql
          - postgresql
       install:
-         - pip install -e .
+         - pip install .
          - pip install flake8
       before_script:
          - flake8 secuml
