@@ -180,6 +180,8 @@ class DiademExp(Experiment):
                        ExpRelationshipsAlchemy.parent_id == already_trained_id)
             query = query.filter(DiademExpAlchemy.type == 'train')
             query = query.filter(DiademExpAlchemy.fold_id == null())
+            query = query.join(DiademExpAlchemy.exp)
+            query = query.filter(ExpAlchemy.kind == 'Train')
             res = query.one()
             return res.exp_id
         elif model_exp.kind == 'ActiveLearning':
