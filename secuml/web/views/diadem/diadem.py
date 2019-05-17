@@ -272,6 +272,16 @@ def supervisedLearningMonitoring(exp_id, kind):
     return send_file(path.join(exp.output_dir(), filename))
 
 
+@app.route('/modelInterpretation/<exp_id>/<class_label>/')
+def modelInterpretation(exp_id, class_label):
+    exp = update_curr_exp(exp_id)
+    if class_label == 'None':
+        filename = 'coeff_barplot.json'
+    else:
+        filename = 'coeff_barplot_%s.json' % class_label
+    return send_file(path.join(exp.output_dir(), filename))
+
+
 @app.route('/predictionsInterpretation/<exp_id>/')
 def predictionsInterpretation(exp_id):
     query = session.query(DiademExpAlchemy)

@@ -48,10 +48,7 @@ class LogisticRegressionConf(SupervisedClassifierConf):
         return 'decision_function'
 
     def get_feature_importance(self):
-        if not self.multiclass:
-            return 'weight'
-        else:
-            return None
+        return 'weight'
 
     @staticmethod
     def _get_hyper_desc():

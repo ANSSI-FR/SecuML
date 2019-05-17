@@ -55,6 +55,7 @@ class Classifier(object):
     # conf: ClassifierConf
     def __init__(self, conf):
         self.conf = conf
+        self.class_labels = None
         self._create_pipeline()
 
     @abc.abstractmethod

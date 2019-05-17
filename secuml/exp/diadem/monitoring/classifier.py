@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import json
 from sklearn.externals import joblib
 import os.path as path
 
@@ -27,11 +28,13 @@ class ClassifierMonitoring(object):
         self.num_folds = num_folds
         self.pipelines = [None for _ in range(self.num_folds)]
         self.exec_time = 0
+        self.class_labels = None
         self.coefficients = None
 
     def set_classifier(self, classifier, exec_time, fold_id=0):
         self.pipelines[fold_id] = classifier.pipeline
         self.exec_time += exec_time
+        self.class_labels = classifier.class_labels
         self.set_coefficients(classifier, fold_id)
 
     def set_coefficients(self, classifier, fold_id):
@@ -39,6 +42,7 @@ class ClassifierMonitoring(object):
         if coefs is not None:
             if self.coefficients is None:
                 self.coefficients = Coefficients(self.exp, classifier.conf,
+                                                 classifier.class_labels,
                                                  num_folds=self.num_folds)
             self.coefficients.add_fold(coefs, fold_id=fold_id)
 
@@ -48,6 +52,7 @@ class ClassifierMonitoring(object):
 
     def display(self, directory):
         self._export_pipelines(directory)
+        self._export_class_labels(directory)
         if self.coefficients is not None:
             self.coefficients.display(directory)
 
@@ -58,3 +63,10 @@ class ClassifierMonitoring(object):
             for fold_id, pipeline in enumerate(self.pipelines):
                 joblib.dump(pipeline, path.join(directory,
                                                 'model_%i.out' % fold_id))
+
+    def _export_class_labels(self, directory):
+        class_labels = self.class_labels
+        if class_labels is not None:
+            class_labels = list(class_labels)
+        with open(path.join(directory, 'class_labels.json'), 'w') as f:
+            json.dump({'class_labels': class_labels}, f, indent=2)

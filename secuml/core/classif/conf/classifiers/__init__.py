@@ -142,7 +142,10 @@ class ClassifierConf(Conf):
     def get_coefs(self, model):
         feature_importance = self.get_feature_importance()
         if feature_importance == 'weight':
-            return model.coef_[0]
+            if self.multiclass:
+                return model.coef_
+            else:
+                return model.coef_[0]
         elif feature_importance == 'score':
             return model.feature_importances_
         else:

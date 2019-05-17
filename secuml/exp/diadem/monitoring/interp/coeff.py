@@ -18,6 +18,8 @@ import os.path as path
 
 from secuml.core.classif.monitoring.interp.coeff import Coefficients \
         as CoefficientsCore
+from secuml.core.classif.monitoring.interp.coeff import ClassCoefficients \
+        as ClassCoefficientsCore
 from secuml.core.tools.color import blue, red
 from secuml.core.tools.plots.barplot import BarPlot
 from secuml.core.tools.plots.dataset import PlotDataset
@@ -27,11 +29,12 @@ from secuml.exp.tools.db_tables import FeaturesAlchemy
 NUM_COEFF_EXPORT = 15
 
 
-class Coefficients(CoefficientsCore):
+class ClassCoefficients(ClassCoefficientsCore):
 
-    def __init__(self, exp, classifier_conf, num_folds=1):
-        features_info = exp.exp_conf.features_conf.info
-        CoefficientsCore.__init__(self, features_info, num_folds=num_folds)
+    def __init__(self, exp, classifier_conf, features_info, class_label,
+                 num_folds=1):
+        ClassCoefficientsCore.__init__(self, features_info, class_label,
+                                       num_folds=num_folds)
         self.exp = exp
         self.classifier_conf = classifier_conf
 
@@ -55,10 +58,36 @@ class Coefficients(CoefficientsCore):
         else:
             dataset.set_color(blue)
         barplot.add_dataset(dataset)
-        out_filename = path.join(directory, 'coeff_barplot.json')
-        return barplot.export_to_json(out_filename,
+        if self.class_label is None:
+            out_filename = 'coeff_barplot.json'
+        else:
+            out_filename = 'coeff_barplot_%s.json' % self.class_label
+        return barplot.export_to_json(path.join(directory, out_filename),
                                       tooltip_data=features_names)
 
     def display(self, directory):
-        CoefficientsCore.display(self, directory)
+        ClassCoefficientsCore.display(self, directory)
         self.to_barplot(directory)
+
+
+class Coefficients(CoefficientsCore):
+
+    def __init__(self, exp, classifier_conf, class_labels, num_folds=1):
+        features_info = exp.exp_conf.features_conf.info
+        self.exp = exp
+        self.classifier_conf = classifier_conf
+        CoefficientsCore.__init__(self, features_info, class_labels,
+                                  num_folds=num_folds)
+
+    def _init_class_coefficients(self, features_info, num_folds):
+        if self.class_labels is None:
+            self.coefficients = ClassCoefficients(self.exp,
+                                                  self.classifier_conf,
+                                                  features_info, None,
+                                                  num_folds=num_folds)
+        else:
+            self.coefficients = {label: ClassCoefficients(self.exp,
+                                                          self.classifier_conf,
+                                                          features_info, label,
+                                                          num_folds=num_folds)
+                                 for label in self.class_labels}
