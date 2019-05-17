@@ -1,4 +1,4 @@
-Seeting up SecuML
+Setting up SecuML
 =================
 
 
