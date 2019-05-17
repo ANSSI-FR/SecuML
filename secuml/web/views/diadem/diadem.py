@@ -39,7 +39,7 @@ from secuml.exp.tools.db_tables import GroundTruthAlchemy
 from secuml.exp.tools.db_tables import InstancesAlchemy
 from secuml.exp.tools.db_tables import PredictionsAlchemy
 
-TOP_N_ALERTS = 100
+NUM_MAX_DISPLAY = 100
 
 
 def db_row_to_json(row):
@@ -171,7 +171,7 @@ def getAlerts(exp_id, analysis_type):
     elif analysis_type == 'random':
         query = call_specific_db_func(secuml_conf.db_type, 'random_order',
                                       (query,))
-    query = query.limit(TOP_N_ALERTS)
+    query = query.limit(NUM_MAX_DISPLAY)
     predictions = query.all()
     if predictions:
         ids, probas, scores = zip(*[(r.instance_id, r.proba, r.score)
@@ -197,6 +197,9 @@ def getPredictionsProbas(exp_id, index, label):
         query = query.join(PredictionsAlchemy.instance)
         query = query.join(InstancesAlchemy.ground_truth)
         query = query.filter(GroundTruthAlchemy.label == label)
+    query = call_specific_db_func(secuml_conf.db_type, 'random_order',
+                                  (query,))
+    query = query.limit(NUM_MAX_DISPLAY)
     predictions = query.all()
     if predictions:
         ids, probas, scores = zip(*[(r.instance_id, r.proba, r.score)
@@ -220,6 +223,9 @@ def getPredictionsScores(exp_id, range_, label):
         query = query.join(PredictionsAlchemy.instance)
         query = query.join(InstancesAlchemy.ground_truth)
         query = query.filter(GroundTruthAlchemy.label == label)
+    query = call_specific_db_func(secuml_conf.db_type, 'random_order',
+                                  (query,))
+    query = query.limit(NUM_MAX_DISPLAY)
     predictions = query.all()
     if predictions:
         ids, probas, scores = zip(*[(r.instance_id, r.proba, r.score)
@@ -250,6 +256,9 @@ def getPredictions(exp_id, predicted_value, right_wrong, multiclass):
                                  predicted_value)
         else:
             assert(False)
+    query = call_specific_db_func(secuml_conf.db_type, 'random_order',
+                                  (query,))
+    query = query.limit(NUM_MAX_DISPLAY)
     predictions = query.all()
     if predictions:
         ids, probas, scores = zip(*[(r.instance_id, r.proba, r.score)

@@ -145,22 +145,23 @@ function displayNavigationPanel(selected_index, xlabels) {
     // Select kind of instances (all, benign, or malicious)
     var select_col = createDivWithClass(null, 'col-md-3',
                                         parent_div=panel_body);
-    var labels = null;
-    var labels_ids = null;
-    if (!exp_info.multiclass && exp_info.proba) {
-        labels = ['all', 'malicious', 'benign'];
-        labels_ids = ['label_all', 'label_malicious', 'label_benign'];
-    } else {
-        labels = ['all', 'wrong', 'right'];
-        labels_ids = ['label_all', 'label_wrong', 'label_right'];
+    var labels = ['all'];
+    var labels_ids = ['label_all'];
+    if (conf.has_ground_truth) {
+      if (!exp_info.multiclass && exp_info.proba) {
+          labels = labels.concat(['malicious', 'benign']);
+          labels_ids = labels_ids.concat(['label_malicious', 'label_benign']);
+      } else {
+          labels = labels.concat(['wrong', 'right']);
+          labels_ids = labels_ids.concat(['label_wrong', 'label_right']);
+      }
     }
     function radio_callback() {
         updateInstancesDisplay(exp_id, selected_index,
                                getSelectedRadioButton(labels_ids), xlabels);
     }
-    createRadioList('label_radio', labels, labels_ids,
-            radio_callback,
-            select_col);
+    createRadioList('label_radio', labels, labels_ids, radio_callback,
+                    select_col);
 
     // Go trough the selected instances
     var form_group = createDivWithClass(null, 'col-md-9 form-group',
