@@ -95,6 +95,9 @@ class SecuMLConf(object):
         self._check_directories(input_data_dir, output_data_dir)
         self.input_data_dir = input_data_dir
         self.output_data_dir = output_data_dir
+        self.secuml_dir = os.path.abspath(os.path.join(
+                                                os.path.dirname(__file__),
+                                                '..', '..'))
 
     def _check_directories(self, input_data_dir, output_data_dir):
         for d in [input_data_dir, output_data_dir]:

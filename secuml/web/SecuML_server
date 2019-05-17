@@ -19,6 +19,7 @@
 import argparse
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+import os
 import sys
 
 from secuml.core.tools.color import display_in_red
@@ -43,8 +44,8 @@ if __name__ == '__main__':
         secuml_conf = SecuMLConf(args.secuml_conf)
         setSecuMlConf(secuml_conf)
         setUserExp(args.user_exp)
-
-        app = Flask(__name__)
+        app = Flask(__name__,
+                    root_path=os.path.join(secuml_conf.secuml_dir, 'web'))
         app.config['SQLALCHEMY_DATABASE_URI'] = secuml_conf.db_uri
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         setApp(app)
