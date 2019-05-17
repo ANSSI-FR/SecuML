@@ -34,7 +34,7 @@ class ScoreBarplot(object):
         self.predictions = predictions
         self.datasets = {}
         if not self.has_ground_truth:
-            self.datasets['all'] = PlotDataset(predictions.scores)
+            self.datasets['all'] = PlotDataset(predictions.scores, 'all')
         else:
             for label in [MALICIOUS, BENIGN]:
                 label_bool = label_str_to_bool(label)

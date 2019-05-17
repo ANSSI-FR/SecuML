@@ -23,8 +23,8 @@ from sklearn import metrics
 class PerformanceIndicators(object):
 
     def gen_eval(self, labels_families, predicted_clusters):
-        self.compute_homogeneity_completeness(
-            labels_families, predicted_clusters)
+        self.compute_homogeneity_completeness(labels_families,
+                                              predicted_clusters)
         self.compute_adjusted_evaluations(labels_families, predicted_clusters)
 
     def compute_homogeneity_completeness(self, labels_families,

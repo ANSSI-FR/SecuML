@@ -53,7 +53,7 @@ This description file is optional and its has the following columns:
 
 * **id**: feature id (the sames as in ``<features_filename>.csv``) ;
 * **name**: string describing the feature ;
-* **[optional] name**: longer string describing the feature ;
+* **[optional] description**: longer string describing the feature ;
 * **[optional] type**: type of the feature (``numeric`` or ``binary``).
 
 .. note::

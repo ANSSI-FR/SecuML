@@ -7,6 +7,7 @@ function experiments {
     SecuML_projection Gaussians test -a ground_truth.csv Lda
     SecuML_clustering Gaussians test Kmeans
     SecuML_DIADEM Gaussians test LogisticRegression
+    SecuML_DIADEM Gaussians test LogisticRegression --multiclass
     SecuML_DIADEM Gaussians test GradientBoosting --alerts-classif GaussianNaiveBayes
     SecuML_DIADEM Gaussians test GradientBoosting --alerts-clustering Kmeans --num-alerts-clusters 3
     SecuML_DIADEM Gaussians test LogisticRegression --validation-mode ValidationDatasets --validation-datasets test --streaming
