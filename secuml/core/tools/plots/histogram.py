@@ -22,8 +22,9 @@ from .dataset import PlotDataset
 
 class Histogram(BarPlot):
 
-    def __init__(self, datasets, num_bins=10, title=None, xlabel=None,
+    def __init__(self, datasets, logger, num_bins=10, title=None, xlabel=None,
                  ylabel=None):
+        self.logger = logger
         bin_edges = self._get_bin_edges(datasets, num_bins)
         x_labels = ['%.2f - %.2f' % (bin_edges[e], bin_edges[e+1])
                     for e in range(len(bin_edges) - 1)]
@@ -44,5 +45,13 @@ class Histogram(BarPlot):
                 all_values = dataset.values
             else:
                 all_values = np.vstack((all_values, dataset.values))
+        # Added to deal with numpy issue #8627.
+        # When the minimum and the maximum values are equal and
+        # the maximum value is greater than 2**53,
+        # the values are caped to 2**53  - 1.
+        if all_values.min() == all_values.max() and all_values.max() >= 2**53:
+            np.clip(all_values, None, 2**53-1, out=all_values)
+            self.logger.warning('The values of the histogram have been caped '
+                                'to 2**53-1 to deal with numpy issue #8627. ')
         _, bin_edges = np.histogram(all_values, bins=num_bins, density=False)
         return bin_edges

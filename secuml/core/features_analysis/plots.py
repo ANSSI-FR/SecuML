@@ -32,9 +32,10 @@ from secuml.core.tools.plots.histogram import Histogram
 
 class FeaturePlots(object):
 
-    def __init__(self, instances, multiclass, feature_index,
+    def __init__(self, instances, multiclass, feature_index, logger,
                  with_density=True):
         self.feature_index = feature_index
+        self.logger = logger
         self.with_density = with_density
         features_info = instances.features.info
         self.feature_type = features_info.types[self.feature_index]
@@ -47,23 +48,13 @@ class FeaturePlots(object):
             self._gen_binary_histogram()
         elif self.feature_type == FeatureType.numeric:
             self._gen_bloxplot()
-            # Added to deal with numpy issue #8627
-            # In this case, the variance is null.
-            # The plots are not generated, since the scoring metrics
-            # contain all the informations.
-            try:
-                self._gen_histogram()
-            except IndexError:
-                self.barplot = None
-                pass
+            self._gen_histogram()
             if self.with_density:
                 self._gen_density()
 
     def export(self, output_dir):
         output_dir = path.join(output_dir, str(self.feature_id))
         os.makedirs(output_dir)
-        if self.barplot is None:
-            return
         if self.feature_type == FeatureType.binary:
             self.barplot.export_to_json(path.join(output_dir,
                                                   'binary_histogram.json'))
@@ -114,7 +105,7 @@ class FeaturePlots(object):
                 self.boxplot.add_dataset(dataset)
 
     def _gen_histogram(self):
-        self.barplot = Histogram(self.plot_datasets)
+        self.barplot = Histogram(self.plot_datasets, self.logger)
 
     def _gen_binary_histogram(self):
         self.barplot = BarPlot(['0', '1'])

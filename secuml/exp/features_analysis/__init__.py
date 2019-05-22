@@ -44,6 +44,7 @@ class FeaturesAnalysisExperiment(Experiment):
                                          'the density plots are not '
                                          'displayed. ')
         stats = FeaturesAnalysis(instances, self.exp_conf.multiclass,
+                                 self.exp_conf.logger,
                                  with_density=with_density)
         stats.gen_plots(self.output_dir())
         stats.gen_scoring(self.output_dir())

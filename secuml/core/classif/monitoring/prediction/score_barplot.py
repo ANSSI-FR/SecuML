@@ -25,8 +25,9 @@ from secuml.core.tools.plots.histogram import Histogram
 
 class ScoreBarplot(object):
 
-    def __init__(self, has_ground_truth):
+    def __init__(self, has_ground_truth, logger):
         self.has_ground_truth = has_ground_truth
+        self.logger = logger
         self.predictions = None
         self.datasets = None
 
@@ -44,5 +45,5 @@ class ScoreBarplot(object):
                 self.datasets[label] = PlotDataset(np.array(scores), label)
 
     def display(self, directory):
-        barplot = Histogram(self.datasets)
+        barplot = Histogram(self.datasets, self.logger)
         barplot.export_to_json(path.join(directory, 'pred_barplot.json'))

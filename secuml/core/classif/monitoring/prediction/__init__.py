@@ -22,7 +22,8 @@ from .score_barplot import ScoreBarplot
 
 class PredictionsMonitoring(object):
 
-    def __init__(self):
+    def __init__(self, logger):
+        self.logger = logger
         self.predictions = None
         self.barplot = None
 
@@ -38,7 +39,8 @@ class PredictionsMonitoring(object):
         if not pred_info.multiclass and pred_info.with_probas:
             self.barplot = ProbaBarplot(pred_info.with_ground_truth)
         elif not pred_info.multiclass and pred_info.with_scores:
-            self.barplot = ScoreBarplot(pred_info.with_ground_truth)
+            self.barplot = ScoreBarplot(pred_info.with_ground_truth,
+                                        self.logger)
         else:
             self.barplot = PredictionBarplot(pred_info.with_ground_truth)
         self.barplot.set_predictions(self.predictions)
