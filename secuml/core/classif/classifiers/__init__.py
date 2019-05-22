@@ -69,7 +69,8 @@ class Classifier(object):
     def training(self, instances):
         execution_time = 0
         start = time.time()
-        self._set_best_hyperparam(instances)
+        if self.conf.hyperparam_conf.get_param_grid() is not None:
+            self._set_best_hyperparam(instances)
         execution_time += time.time() - start
         start = time.time()
         self._fit(instances)
@@ -216,11 +217,9 @@ class SupervisedClassifier(Classifier):
 
     def _set_best_hyperparam(self, train_instances):
         hyperparam_conf = self.conf.hyperparam_conf
+        param_grid = hyperparam_conf.get_param_grid()
         optim_conf = hyperparam_conf.optim_conf
         cv = StratifiedKFold(n_splits=optim_conf.num_folds)
-        param_grid = hyperparam_conf.get_param_grid()
-        if param_grid is None:  # No hyper-parameter value to optimize
-            return
         grid_search = GridSearchCV(self.pipeline, param_grid=param_grid,
                                    scoring=optim_conf.get_scoring_method(),
                                    cv=cv, iid=False, n_jobs=optim_conf.n_jobs)
@@ -245,8 +244,7 @@ class SupervisedClassifier(Classifier):
 class UnsupervisedClassifier(Classifier):
 
     def _set_best_hyperparam(self, train_instances):
-        hyperparam_conf = self.conf.hyperparam_conf
-        best_values = hyperparam_conf.values.get_best_values()
+        best_values = self.conf.hyperparam_conf.values.get_best_values()
         self.pipeline.set_params(**best_values)
 
     def _get_supervision(self, instances, ground_truth=False, check=True):
@@ -279,8 +277,7 @@ class UnsupervisedClassifier(Classifier):
 class SemiSupervisedClassifier(Classifier):
 
     def _set_best_hyperparam(self, train_instances):
-        hyperparam_conf = self.conf.hyperparam_conf
-        best_values = hyperparam_conf.values.get_best_values()
+        best_values = self.conf.hyperparam_conf.values.get_best_values()
         self.pipeline.set_params(**best_values)
 
     # -1 for unlabeled instances.

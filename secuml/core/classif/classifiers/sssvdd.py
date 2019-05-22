@@ -16,96 +16,60 @@
 
 import numpy as np
 import scipy
+from sklearn.base import BaseEstimator
 from sklearn.preprocessing import StandardScaler
-import time
 
-from . import Classifier
-from . import NoCvMonitoring
-from secuml.core.data.predictions import Predictions
+from . import SemiSupervisedClassifier
 
 
-class Sssvdd(Classifier):
+class _Sssvdd(BaseEstimator):
 
-    def __init__(self, conf):
-        Classifier.__init__(self, conf)
-        self.scaler = None
+    def __init__(self, nu_l=1., nu_u=1., kappa=1.):
+        self.nu_l = nu_l
+        self.nu_u = nu_u
+        self.kappa = kappa
         self.c = None
         self.r = None
-        # Parameters
-        self.nu_L = 1.
-        self.nu_U = 1.
-        self.kappa = 1.
 
-    def get_coefs(self):
-        return None
-
-    def _create_pipeline(self):
-        self.pipeline = None
-
-    def cv_monitoring(self, train_instances, cv_monitoring):
-        raise NoCvMonitoring(self)
-
-    def training(self, train_instances):
-        exec_time = 0
-
-        # Scaling and training
-        start = time.time()
-        self.scaler = StandardScaler()
-        training_features = train_instances.features.get_values()
-        self.scaler.fit(training_features)
-
-        unlabeled_instances = train_instances.get_unlabeled_instances()
-        if unlabeled_instances.num_instances() > 0:
-            unlabeled_features = self.scaler.transform(
-                unlabeled_instances.features.get_values())
-        else:
-            unlabeled_features = unlabeled_instances.features.get_values()
-        labeled_instances = train_instances.get_annotated_instances()
-        if labeled_instances.num_instances() > 0:
-            labeled_features = self.scaler.transform(
-                labeled_instances.features.get_values())
-        else:
-            labeled_features = labeled_instances.features.get_values()
-        labels = np.array([-1. if x else 1.
-                           for x in
-                           labeled_instances.annotations.get_labels()])
-        num_labeled_instances = labeled_instances.num_instances()
-        num_unlabeled_instances = unlabeled_instances.num_instances()
+    def fit(self, X, y):
+        unlabeled_mask = np.array([annotation == -1 for annotation in y])
+        X_unlabeled = X[unlabeled_mask, :]
+        X_labeled = X[~unlabeled_mask, :]
+        y_labeled = np.array([-1. if annotation else 1. for annotation in y
+                              if annotation != -1])
+        num_labeled_instances = X_labeled.shape[0]
+        num_unlabeled_instances = X_unlabeled.shape[0]
 
         # To avoid numerical instability
         if num_labeled_instances > 0:
-            self.nu_L /= num_labeled_instances
+            self.nu_l /= num_labeled_instances
         if num_unlabeled_instances > 0:
-            self.nu_U /= num_unlabeled_instances
+            self.nu_u /= num_unlabeled_instances
 
-        x_init = gen_x_init(unlabeled_features, labeled_features,
-                            labeled_instances.annotations.get_labels())
-        optim_res = scipy.optimize.fmin_bfgs(
-            objective,
-            x_init,
-            fprime=gradient,
-            args=(unlabeled_features, labeled_features, labels, self.kappa,
-                  self.nu_U, self.nu_L),
-            disp=False)  # not to display the convergence message
+        x_init = gen_x_init(X_unlabeled, X_labeled, y_labeled)
+        # disp=False, not to display the convergence message.
+        optim_res = scipy.optimize.fmin_bfgs(objective,
+                                             x_init,
+                                             fprime=gradient,
+                                             args=(X_unlabeled, X_labeled,
+                                                   y_labeled, self.kappa,
+                                                   self.nu_u, self.nu_l),
+                                             disp=False)
         self.r, _, self.c = get_values(optim_res)
 
-        exec_time = time.time() - start
+    def decision_function(self, X):
+        return np.apply_along_axis(predict_score, 1, X, self.c, self.r)
 
-        train_predictions = self._get_predictions(labeled_instances)
-        return train_predictions, exec_time
+    def predict(self, X):
+        return np.apply_along_axis(predict_label, 1, X, self.c, self.r)
 
-    def apply_pipeline(self, instances):
-        num_instances = instances.num_instances()
-        if num_instances == 0:
-            return Predictions([], instances.ids, False)
-        features = instances.features.get_values()
-        preprocessed_features = self.scaler.transform(features)
-        predicted_scores = np.apply_along_axis(predict_score, 1,
-                                               preprocessed_features,
-                                               self.c, self.r)
-        predicted_labels = predicted_scores > 0
-        return Predictions(predicted_labels, instances.ids, False,
-                           scores=predicted_scores)
+
+class Sssvdd(SemiSupervisedClassifier):
+
+    def _get_pipeline(self):
+        return [('scaler', StandardScaler()),
+                ('model', _Sssvdd(nu_l=self.conf.nu_l, nu_u=self.conf.nu_u,
+                                  kappa=self.conf.kappa))]
 
 
 def predict_label(x, center, r):
@@ -116,8 +80,8 @@ def predict_score(x, center, r):
     return square_distance_to_center(x, center) - pow(r, 2)
 
 
-def objective(x, unlabeled_features, labeled_features, labels, kappa, nu_U,
-              nu_L):
+def objective(x, unlabeled_features, labeled_features, labels, kappa, nu_u,
+              nu_l):
     R, gamma, c = get_values(x)
     # Unlabeled sum
     num_unlabeled_instances = unlabeled_features.shape[0]
@@ -134,8 +98,8 @@ def objective(x, unlabeled_features, labeled_features, labels, kappa, nu_U,
             sum_L += _l(labels[i] * (R * R - square_dist) - gamma)
     obj = R * R
     obj -= kappa * gamma
-    obj += nu_U * sum_U
-    obj += nu_L * sum_L
+    obj += nu_u * sum_U
+    obj += nu_l * sum_L
     return obj
 
 
@@ -174,7 +138,7 @@ def partial_derivatives_c_star(x_i, y_i, x):
     return 2 * y_i * (x_i - c) * l_prime(y_i * (R * R - square_dist) - gamma)
 
 
-def gradient_r(x, unlabeled_features, labeled_features, labels, nu_U, nu_L):
+def gradient_r(x, unlabeled_features, labeled_features, labels, nu_u, nu_l):
     R, _, _ = get_values(x)
 
     # Unlabeled sum
@@ -191,10 +155,10 @@ def gradient_r(x, unlabeled_features, labeled_features, labels, nu_U, nu_L):
             sum_L += partial_derivatives_r_star(
                 labeled_features[i, :], labels[i], x)
 
-    return 2 * R + nu_U * sum_U + nu_L * sum_L
+    return 2 * R + nu_u * sum_U + nu_l * sum_L
 
 
-def gradient_gamma(x, labeled_features, labels, kappa, nu_L):
+def gradient_gamma(x, labeled_features, labels, kappa, nu_l):
     # Labeled sum
     sum_L = 0
     num_labeled_instances = labeled_features.shape[0]
@@ -203,10 +167,10 @@ def gradient_gamma(x, labeled_features, labels, kappa, nu_L):
             sum_L += partial_derivatives_gamma_star(
                 labeled_features[i, :], labels[i], x)
 
-    return -kappa + nu_L * sum_L
+    return -kappa + nu_l * sum_L
 
 
-def gradient_c(x, unlabeled_features, labeled_features, labels, nu_U, nu_L):
+def gradient_c(x, unlabeled_features, labeled_features, labels, nu_u, nu_l):
     # Unlabeled sum
     num_unlabeled_instances = unlabeled_features.shape[0]
     sum_U = 0
@@ -221,18 +185,18 @@ def gradient_c(x, unlabeled_features, labeled_features, labels, nu_U, nu_L):
             sum_L += partial_derivatives_c_star(
                 labeled_features[i, :], labels[i], x)
 
-    res = nu_U * sum_U + nu_L * sum_L
+    res = nu_u * sum_U + nu_l * sum_L
     return res
 
 
-def gradient(x, unlabeled_features, labeled_features, labels, kappa, nu_U,
-             nu_L):
+def gradient(x, unlabeled_features, labeled_features, labels, kappa, nu_u,
+             nu_l):
     g_r = gradient_r(x, unlabeled_features,
-                     labeled_features, labels, nu_U, nu_L)
-    g_gamma = gradient_gamma(x, labeled_features, labels, kappa, nu_L)
+                     labeled_features, labels, nu_u, nu_l)
+    g_gamma = gradient_gamma(x, labeled_features, labels, kappa, nu_l)
     return np.concatenate((np.array([g_r, g_gamma]),
                           gradient_c(x, unlabeled_features, labeled_features,
-                                     labels, nu_U, nu_L)))
+                                     labels, nu_u, nu_l)))
 
 
 # the features have been scaled before
@@ -247,12 +211,12 @@ def gen_x_init(unlabeled_features, labeled_features, labels):
 
 def benign_instances_center_radius(unlabeled_features, labeled_features,
                                    labels):
-    benign_features = labeled_features[~np.array(labels)]
+    benign_features = labeled_features[labels == 1, :]
     if unlabeled_features.shape[0] > 0:
         benign_features = np.concatenate((benign_features, unlabeled_features))
     center = np.mean(benign_features, axis=0)
-    radius = np.mean(np.apply_along_axis(
-        distance_to_center, 1, benign_features, center))
+    radius = np.mean(np.apply_along_axis(distance_to_center, 1,
+                                         benign_features, center))
     return center, radius
 
 

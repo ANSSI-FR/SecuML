@@ -15,14 +15,18 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from secuml.core.classif.classifiers.sssvdd import Sssvdd
+from secuml.core.conf import exportFieldMethod
 from . import SemiSupervisedClassifierConf
 
 
 class SssvddConf(SemiSupervisedClassifierConf):
 
-    def __init__(self, hyperparam_conf, logger):
+    def __init__(self, hyperparam_conf, logger, nu_u=1.0, nu_l=1.0, kappa=1.0):
         SemiSupervisedClassifierConf.__init__(self, False, hyperparam_conf,
                                               logger)
+        self.nu_u = nu_u
+        self.nu_l = nu_l
+        self.kappa = kappa
 
     def _get_model_class(self):
         return Sssvdd
@@ -31,7 +35,7 @@ class SssvddConf(SemiSupervisedClassifierConf):
         return False
 
     def scoring_function(self):
-        return None
+        return 'decision_function'
 
     def get_feature_importance(self):
         return None
@@ -40,14 +44,30 @@ class SssvddConf(SemiSupervisedClassifierConf):
     def _get_hyper_desc():
         return None
 
+    def fields_to_export(self):
+        fields = SemiSupervisedClassifierConf.fields_to_export(self)
+        fields.append(('nu_u', exportFieldMethod.primitive))
+        fields.append(('nu_l', exportFieldMethod.primitive))
+        fields.append(('kappa', exportFieldMethod.primitive))
+        return fields
+
     @staticmethod
     def from_json(multiclass, hyperparam_conf, obj, logger):
-        return SssvddConf(hyperparam_conf, logger)
+        return SssvddConf(hyperparam_conf, logger, nu_u=obj['nu_u'],
+                          nu_l=obj['nu_l'], kappa=obj['kappa'])
 
     @staticmethod
     def gen_parser(parser):
-        SemiSupervisedClassifierConf.gen_parser(parser, SssvddConf)
+        SemiSupervisedClassifierConf.gen_parser(parser, SssvddConf,
+                                                multiclass=False)
+        parser.add_argument('--nu-l', type=float, default=1.0,
+                            help='Default: 1.0')
+        parser.add_argument('--nu-u', type=float, default=1.0,
+                            help='Default: 1.0')
+        parser.add_argument('--kappa', type=float, default=1.0,
+                            help='Default: 1.0')
 
     @staticmethod
     def from_args(args, hyperparam_conf, logger):
-        return SssvddConf(hyperparam_conf, logger)
+        return SssvddConf(hyperparam_conf, logger, nu_u=args.nu_u,
+                          nu_l=args.nu_l, kappa=args.kappa)
