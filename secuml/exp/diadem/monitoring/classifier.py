@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import joblib
 import json
-from sklearn.externals import joblib
 import os.path as path
 
 from .interp.coeff import Coefficients

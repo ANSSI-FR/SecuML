@@ -15,10 +15,10 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import abc
+import joblib
 import numpy as np
 import time
 
-from sklearn.externals import joblib
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline

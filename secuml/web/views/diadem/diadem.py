@@ -15,9 +15,9 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from flask import render_template, send_file, jsonify
+import joblib
 import numpy as np
 import os.path as path
-from sklearn.externals import joblib
 from sqlalchemy.orm.exc import NoResultFound
 
 from secuml.web import app, secuml_conf, session
