@@ -7,6 +7,7 @@ var exp_info               = null;
 var instances_list         = null;
 var proba_list             = null;
 var scores_list            = null;
+var ranking                = null;
 var num_instances          = null;
 var current_instance_index = null;
 
@@ -66,68 +67,7 @@ function updateInstancesDisplay(exp_id, selected_index, label, xlabels) {
         query = buildQuery('getPredictions', [exp_id, xlabels[selected_index],
                                               label, exp_info.multiclass])
     }
-    $.getJSON(query,
-        function(data) {
-            instances_list = data['instances'];
-            proba_list = data['proba'];
-            scores_list = data['scores'];
-            current_instance_index = 0;
-            num_instances = instances_list.length;
-            var num_instances_label = document.getElementById('num_instances_label');
-            num_instances_label.textContent = num_instances;
-            var curr_instance_label = document.getElementById('curr_instance_label');
-            if (num_instances > 0) {
-                curr_instance_label.value = current_instance_index + 1;
-                printInstanceInformation(instances_list[current_instance_index],
-                                         proba_list[current_instance_index],
-                                         scores_list[current_instance_index]);
-            } else {
-                curr_instance_label.value = '0';
-                cleanInstanceData();
-                undisplayAnnotation();
-            }
-        }
-        );
-}
-
-function displayCurrentInstance() {
-    var new_index = document.getElementById('curr_instance_label').value;
-    if (new_index >= 1 && new_index <= num_instances) {
-        current_instance_index = new_index - 1;
-        printInstanceInformation(instances_list[current_instance_index],
-                                 proba_list[current_instance_index],
-                                 scores_list[current_instance_index]);
-    } else {
-        if (num_instances > 0) {
-            displayAlert('wrong_index_alert', 'Wrong Index',
-                         ['The index must be between 1 and ' + num_instances]);
-        } else {
-            displayAlert('wrong_index_alert', 'Wrong Index',
-                         ['There is no instance to display.']);
-        }
-    }
-}
-
-function displayNextInstance() {
-    if (current_instance_index <= num_instances-2) {
-        current_instance_index += 1;
-        var curr_instance_label = document.getElementById('curr_instance_label');
-        curr_instance_label.value = current_instance_index + 1;
-        printInstanceInformation(instances_list[current_instance_index],
-                                 proba_list[current_instance_index],
-                                 scores_list[current_instance_index]);
-    }
-}
-
-function displayPrevInstance() {
-    if (current_instance_index > 0) {
-        current_instance_index -= 1;
-        var curr_instance_label = document.getElementById('curr_instance_label');
-        curr_instance_label.value = current_instance_index + 1;
-        printInstanceInformation(instances_list[current_instance_index],
-                                 proba_list[current_instance_index],
-                                 scores_list[current_instance_index]);
-    }
+    updateList(query);
 }
 
 function displayNavigationPanel(selected_index, xlabels) {
@@ -148,7 +88,7 @@ function displayNavigationPanel(selected_index, xlabels) {
     var labels = ['all'];
     var labels_ids = ['label_all'];
     if (conf.has_ground_truth) {
-      if (!exp_info.multiclass && exp_info.proba) {
+      if (!exp_info.multiclass) {
           labels = labels.concat(['malicious', 'benign']);
           labels_ids = labels_ids.concat(['label_malicious', 'label_benign']);
       } else {

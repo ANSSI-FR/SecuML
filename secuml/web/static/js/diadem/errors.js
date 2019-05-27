@@ -9,6 +9,7 @@ var exp_type               = 'Predictions';
 var instances_list         = null;
 var proba_list             = null;
 var scores_list            = null;
+var ranking                = null;
 var current_instance_index = null;
 
 var errors = {'fp': null,
@@ -35,20 +36,20 @@ function updateInstancesDisplay(exp_id, label) {
     if (!label) {
         label = 'all';
     }
-    var query = buildQuery('supervisedLearningMonitoring', [conf.exp_id,
-                                                            'errors']);
+    var query = buildQuery('getErrors', [conf.exp_id]);
     $.getJSON(query,
             function(data) {
                 if (label == 'all') {
-                    instances_list = data['FP']['ids'].concat(data['FN']['ids']);
-                    proba_list = data['FP']['probas'].concat(data['FN']['probas']);
+                    instances_list = data['FP']['instances'].concat(data['FN']['instances']);
+                    proba_list = data['FP']['proba'].concat(data['FN']['proba']);
                     scores_list = data['FP']['scores'].concat(data['FN']['scores']);
+                    ranking = data['FP']['ranking'].concat(data['FN']['ranking']);
                 } else {
-                    instances_list = data[label]['ids'];
-                    proba_list = data[label]['probas'];
+                    instances_list = data[label]['instances'];
+                    proba_list = data[label]['proba'];
                     scores_list = data[label]['scores'];
+                    ranking = data[label]['ranking'];
                 }
-                console.log(scores_list);
                 current_instance_index = 0;
                 num_instances = instances_list.length;
                 var num_instances_label = document.getElementById('num_instances_label');
@@ -56,9 +57,7 @@ function updateInstancesDisplay(exp_id, label) {
                 var curr_instance_label = document.getElementById('curr_instance_label');
                 if (num_instances > 0) {
                     curr_instance_label.value = current_instance_index + 1;
-                    printInstanceInformation(instances_list[current_instance_index],
-                                             proba_list[current_instance_index],
-                                             scores_list[current_instance_index]);
+                    displayInstance(current_instance_index);
                 } else {
                     curr_instance_label.value = '0';
                     cleanInstanceData();
@@ -157,43 +156,4 @@ function displayNavigationPanel(selected_kind) {
     button.appendChild(button_text);
     button.addEventListener('click', displayNextInstance);
     button_div.appendChild(button);
-}
-
-function displayCurrentInstance() {
-    var new_index = document.getElementById('curr_instance_label').value;
-    if (new_index >= 1 && new_index <= num_instances) {
-        current_instance_index = new_index - 1;
-        printInstanceInformation(instances_list[current_instance_index],
-                proba_list[current_instance_index]);
-    } else {
-        if (num_instances > 0) {
-            displayAlert('wrong_index_alert', 'Wrong Index',
-                    ['The index must be between 1 and ' + num_instances]);
-        } else {
-            displayAlert('wrong_index_alert', 'Wrong Index',
-                    ['There is no instance to display.']);
-        }
-    }
-}
-
-function displayNextInstance() {
-    if (current_instance_index <= num_instances-2) {
-        current_instance_index += 1;
-        var curr_instance_label = document.getElementById('curr_instance_label');
-        curr_instance_label.value = current_instance_index + 1;
-        printInstanceInformation(instances_list[current_instance_index],
-                                 proba_list[current_instance_index],
-                                 scores_list[current_instance_index]);
-    }
-}
-
-function displayPrevInstance() {
-    if (current_instance_index > 0) {
-        current_instance_index -= 1;
-        var curr_instance_label = document.getElementById('curr_instance_label');
-        curr_instance_label.value = current_instance_index + 1;
-        printInstanceInformation(instances_list[current_instance_index],
-                                 proba_list[current_instance_index],
-                                 scores_list[current_instance_index]);
-    }
 }

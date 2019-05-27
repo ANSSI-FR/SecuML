@@ -69,9 +69,9 @@ function displayInstanceInformationStructure() {
 }
 
 function printInstanceInformation(selected_id, proba=null, score=null,
-                                  suggested_label=null,
+                                  rank=null, suggested_label=null,
                                   suggested_family=null) {
-    printInstanceIdent(selected_id, proba, score);
+    printInstanceIdent(selected_id, proba, score, rank);
     printInstanceLabel(selected_id, suggested_label, suggested_family);
     printInstanceData(selected_id);
 }
@@ -101,14 +101,14 @@ function printInstanceData(selected_id, ident) {
     }
 }
 
-function printInstanceIdent(selected_id, proba, score) {
+function printInstanceIdent(selected_id, proba, score, rank) {
     d3.json(buildQuery('getIdent', [exp_id, selected_id]),
         function(data) {
             var text = 'Instance ' + data.user_id + ': ' + data.ident;
             if (proba) {
-                text += ' (proba: ' + proba.toFixed(2)*100 + '%)';
+                text += ' (rank: ' + rank + ', proba: ' + proba.toFixed(8)*100 + '%)';
             } else if (score) {
-                text += ' (score: ' + score.toFixed(2) + ')';
+                text += ' (rank: ' + rank + ', score: ' + score.toFixed(6) + ')';
             }
             document.getElementById('instance_title').textContent = text;
         });

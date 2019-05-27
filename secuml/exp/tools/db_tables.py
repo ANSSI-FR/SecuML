@@ -133,6 +133,7 @@ class PredictionsAlchemy(Base):
     value = Column(String(200), nullable=False)
     proba = Column(Float, nullable=True)
     score = Column(Float, nullable=True)
+    rank = Column(Integer, nullable=True)
 
     instance = relationship('InstancesAlchemy', back_populates='predictions',
                             uselist=False)

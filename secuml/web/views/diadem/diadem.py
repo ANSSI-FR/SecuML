@@ -147,6 +147,21 @@ def getAlertsClusteringExpId(test_exp_id):
         return 'None'
 
 
+def _predictions_results(query):
+    predictions = query.all()
+    if predictions:
+        ids, probas, scores, ranking = zip(*[(r.instance_id, r.proba, r.score,
+                                              r.rank)
+                                           for r in predictions])
+    else:
+        ids = []
+        probas = []
+        scores = []
+        ranking = []
+    return {'instances': ids, 'proba': probas, 'scores': scores,
+            'ranking': ranking}
+
+
 @app.route('/getAlerts/<exp_id>/<analysis_type>/')
 def getAlerts(exp_id, analysis_type):
     exp = update_curr_exp(exp_id)
@@ -172,15 +187,7 @@ def getAlerts(exp_id, analysis_type):
         query = call_specific_db_func(secuml_conf.db_type, 'random_order',
                                       (query,))
     query = query.limit(NUM_MAX_DISPLAY)
-    predictions = query.all()
-    if predictions:
-        ids, probas, scores = zip(*[(r.instance_id, r.proba, r.score)
-                                    for r in predictions])
-    else:
-        ids = []
-        probas = []
-        scores = []
-    return jsonify({'instances': ids, 'proba': probas, 'scores': scores})
+    return jsonify(_predictions_results(query))
 
 
 @app.route('/getPredictionsProbas/<exp_id>/<index>/<label>/')
@@ -200,15 +207,7 @@ def getPredictionsProbas(exp_id, index, label):
     query = call_specific_db_func(secuml_conf.db_type, 'random_order',
                                   (query,))
     query = query.limit(NUM_MAX_DISPLAY)
-    predictions = query.all()
-    if predictions:
-        ids, probas, scores = zip(*[(r.instance_id, r.proba, r.score)
-                                    for r in predictions])
-    else:
-        ids = []
-        probas = []
-        scores = []
-    return jsonify({'instances': ids, 'proba': probas, 'scores': scores})
+    return jsonify(_predictions_results(query))
 
 
 @app.route('/getPredictionsScores/<exp_id>/<range_>/<label>/')
@@ -227,14 +226,7 @@ def getPredictionsScores(exp_id, range_, label):
                                   (query,))
     query = query.limit(NUM_MAX_DISPLAY)
     predictions = query.all()
-    if predictions:
-        ids, probas, scores = zip(*[(r.instance_id, r.proba, r.score)
-                                    for r in predictions])
-    else:
-        ids = []
-        probas = []
-        scores = []
-    return jsonify({'instances': ids, 'proba': probas, 'scores': scores})
+    return jsonify(_predictions_results(query))
 
 
 @app.route('/getPredictions/<exp_id>/<predicted_value>/<right_wrong>/'
@@ -259,15 +251,30 @@ def getPredictions(exp_id, predicted_value, right_wrong, multiclass):
     query = call_specific_db_func(secuml_conf.db_type, 'random_order',
                                   (query,))
     query = query.limit(NUM_MAX_DISPLAY)
-    predictions = query.all()
-    if predictions:
-        ids, probas, scores = zip(*[(r.instance_id, r.proba, r.score)
-                                    for r in predictions])
-    else:
-        ids = []
-        probas = []
-        scores = []
-    return jsonify({'instances': ids, 'proba': probas, 'scores': scores})
+    return jsonify(_predictions_results(query))
+
+
+@app.route('/getErrors/<exp_id>/')
+def getErrors(exp_id):
+    def _get_errors(exp_id, fn_fp):
+        if fn_fp == 'FN':
+            predicted_value = 'benign'
+            ground_truth = 'malicious'
+        else:
+            predicted_value = 'malicious'
+            ground_truth = 'benign'
+        query = session.query(PredictionsAlchemy)
+        query = query.filter(PredictionsAlchemy.exp_id == exp_id)
+        query = query.filter(PredictionsAlchemy.value == predicted_value)
+        query = query.join(PredictionsAlchemy.instance)
+        query = query.join(InstancesAlchemy.ground_truth)
+        query = query.filter(GroundTruthAlchemy.label == ground_truth)
+        query = call_specific_db_func(secuml_conf.db_type, 'random_order',
+                                      (query,))
+        query = query.limit(NUM_MAX_DISPLAY)
+        return _predictions_results(query)
+    errors = {k: _get_errors(exp_id, k) for k in ['FN', 'FP']}
+    return jsonify(errors)
 
 
 @app.route('/supervisedLearningMonitoring/<exp_id>/<kind>/')

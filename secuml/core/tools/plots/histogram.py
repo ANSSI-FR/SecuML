@@ -26,7 +26,7 @@ class Histogram(BarPlot):
                  ylabel=None):
         self.logger = logger
         bin_edges = self._get_bin_edges(datasets, num_bins)
-        x_labels = ['%.2f - %.2f' % (bin_edges[e], bin_edges[e+1])
+        x_labels = ['%f - %f' % (bin_edges[e], bin_edges[e+1])
                     for e in range(len(bin_edges) - 1)]
         BarPlot.__init__(self, x_labels, title=title, xlabel=xlabel,
                          ylabel=ylabel)

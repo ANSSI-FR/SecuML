@@ -55,12 +55,13 @@ class PredictionsInfo(object):
 
 class Prediction(object):
 
-    def __init__(self, value, all_probas, proba, score, instance_id,
+    def __init__(self, value, all_probas, proba, score, rank, instance_id,
                  multiclass, ground_truth=None):
         self.value = value
         self.all_probas = all_probas
         self.proba = proba
         self.score = score
+        self.rank = rank
         self.instance_id = instance_id
         self.multiclass = multiclass
         self.ground_truth = ground_truth
@@ -85,6 +86,7 @@ class Predictions(object):
         self.ground_truth = self._get_array(ground_truth)
         self._check_validity()
         self.info = PredictionsInfo(multiclass, self)
+        self._set_ranking()
 
     def num_instances(self):
         return self.ids.num_instances()
@@ -109,6 +111,21 @@ class Predictions(object):
         self.all_scores = np.vstack((self.all_scores, predictions.all_scores))
         self.scores = np.hstack((self.scores, predictions.scores))
         self.ground_truth.extend(predictions.ground_truth)
+        self._set_ranking()
+
+    def _set_ranking(self):
+        def _rank_elems(values):
+            arg_sort = np.argsort(-values)
+            ranking = np.zeros(arg_sort.shape)
+            for i, v in enumerate(arg_sort):
+                ranking[v] = i
+            return ranking
+        if self.info.with_probas:
+            self.ranking = _rank_elems(self.probas)
+        elif self.info.with_scores:
+            self.ranking = _rank_elems(self.scores)
+        else:
+            self.ranking = [None for _ in range(self.num_instances())]
 
     def get_prediction(self, instance_id):
         return self.get_prediction_from_index(self.ids.get_index(instance_id))
@@ -118,6 +135,7 @@ class Predictions(object):
                           self.all_probas[index],
                           self.probas[index],
                           self.scores[index],
+                          self.ranking[index],
                           self.ids.ids[index],
                           self.info.multiclass,
                           ground_truth=self.ground_truth[index])

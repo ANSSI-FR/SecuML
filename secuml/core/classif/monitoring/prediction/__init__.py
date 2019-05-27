@@ -34,7 +34,6 @@ class PredictionsMonitoring(object):
             self.predictions.union(predictions)
 
     def final_computations(self):
-        # PredictionsBarplots only for probabilist binary models
         pred_info = self.predictions.info
         if not pred_info.multiclass and pred_info.with_probas:
             self.barplot = ProbaBarplot(pred_info.with_ground_truth)

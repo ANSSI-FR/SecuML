@@ -32,35 +32,14 @@ from sklearn.metrics import confusion_matrix
 
 class ConfusionMatrix(object):
 
-    def __init__(self, with_errors=True):
+    def __init__(self):
         self.confusion_matrix = np.zeros((2, 2))
-        self.errors = None
-        if with_errors:
-            self.errors = {k: {'ids': [], 'probas': [], 'scores': []}
-                           for k in ['FP', 'FN']}
 
     def add_fold(self, predictions):
         if predictions.num_instances() > 0:
-            self._update_confusion_matrix(predictions)
-            if self.errors is not None:
-                self._update_errors(predictions)
-
-    def _update_confusion_matrix(self, predictions):
-        conf_matrix = confusion_matrix(predictions.ground_truth,
-                                       predictions.values, [True, False])
-        self.confusion_matrix += conf_matrix
-
-    def _update_errors(self, predictions):
-        for id_, prediction, gt, proba, score in zip(predictions.ids.ids,
-                                                     predictions.values,
-                                                     predictions.ground_truth,
-                                                     predictions.probas,
-                                                     predictions.scores):
-            if prediction != gt:
-                kind = 'FN' if gt else 'FP'
-                self.errors[kind]['ids'].append(id_)
-                self.errors[kind]['probas'].append(proba)
-                self.errors[kind]['scores'].append(score)
+            conf_matrix = confusion_matrix(predictions.ground_truth,
+                                           predictions.values, [True, False])
+            self.confusion_matrix += conf_matrix
 
     def get_true_positives(self):
         return self.confusion_matrix[0][0]
@@ -81,12 +60,6 @@ class ConfusionMatrix(object):
                    'FN': self.get_false_negatives()},
                   f, indent=2)
 
-    def display_errors(self, f):
-        json.dump(self.errors, f, indent=2)
-
     def display(self, directory):
         with open(path.join(directory, 'confusion_matrix.json'), 'w') as f:
             self.display_matrix(f)
-        if self.errors is not None:
-            with open(path.join(directory, 'errors.json'), 'w') as f:
-                self.display_errors(f)
