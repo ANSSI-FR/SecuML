@@ -10,7 +10,7 @@ Jinja2
 joblib
 kombu
 MarkupSafe
-matplotlib
+matplotlib==3.0.3
 metric-learn @ git+https://github.com/ab-anssi/metric-learn.git@v0.4.0ab#egg=metric-learn-0.4.0ab
 mysql-connector
 numpy>=1.14
@@ -19,7 +19,7 @@ psycopg2-binary>=2.5.4
 pyparsing
 python-dateutil
 pyyaml
-scikit-learn==0.21.1
+scikit-learn==0.21.2
 scipy==1.1
 seaborn
 SQLAlchemy>=0.9.8
