@@ -11,7 +11,7 @@ joblib
 kombu
 MarkupSafe
 matplotlib==3.0.3
-metric-learn @ git+https://github.com/ab-anssi/metric-learn.git@v0.4.0ab#egg=metric-learn-0.4.0ab
+metric-learn==0.5.0
 mysql-connector
 numpy>=1.14
 pandas>=0.19.2

@@ -28,4 +28,4 @@ class Nca(SemiSupervisedProjection):
 
     def set_projection_matrix(self):
         self.projection_matrix = np.transpose(
-            self.pipeline['projection'].transformer_)
+            self.pipeline['projection'].components_)
