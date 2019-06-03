@@ -60,7 +60,7 @@ function displayMonitoringRow(conf, selected_fold) {
   }
   if (selected_fold == 'all') {
     displayDetectionMonitoring(conf, 'cv', 'None');
-    displayModelInterpretation(conf, 'None', 'cv');
+    displayTrainingMonitoring(conf, 'None', 'cv');
     cleanDiv('test');
   } else {
     displayDetectionMonitoring(conf, 'train', selected_fold);
@@ -70,6 +70,6 @@ function displayMonitoringRow(conf, selected_fold) {
     } else {
         displayDetectionMonitoring(conf, 'test', selected_fold);
     }
-    displayModelInterpretation(conf, selected_fold, 'train');
+    displayTrainingMonitoring(conf, selected_fold, 'train');
   }
 }

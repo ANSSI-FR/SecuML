@@ -1,14 +1,32 @@
-function displayModelInterpretation(conf, fold_id, child_type) {
+function displayTrainingMonitoring(conf, fold_id, child_type) {
     d3.json(buildQuery('getDiademTrainChildExp',
                        [conf.exp_id, fold_id, child_type]),
             function(exp_info) {
                 if (exp_info.model_interp) {
-                    displayCoefficientsDiv(exp_info.exp_id);
+                    displayModelInterpretation(exp_info.exp_id);
                 }
+                displayTrainExecTimes(exp_info.exp_id);
             });
 }
 
-function displayCoefficientsDiv(train_exp) {
+function displayTrainExecTimes(train_exp) {
+    var div = cleanDiv('exec_times');
+    var exec_times = createPanel('panel-primary', null,
+                                 'Training Execution Times (in seconds)', div);
+    exec_times.setAttribute('id', 'train_exec_times');
+    var query = buildQuery('supervisedLearningMonitoring', [train_exp,
+                                                            'exec_times']);
+    $.getJSON(query, function(data) {
+        var body = createTable('train_exec_times', ['', '']);
+        addRow(body, ['Search for best hyperparameters',
+                      data.best_hyper_params.toFixed(9)]);
+        addRow(body, ['Training', data.training.toFixed(9)]);
+        addRow(body, ['Total',
+                      (data.best_hyper_params + data.training).toFixed(9)]);
+    });
+}
+
+function displayModelInterpretation(train_exp) {
   if (classifier_conf.feature_importance == 'weight') {
       var title = 'Model Coefficients';
   } else if (classifier_conf.feature_importance == 'score') {

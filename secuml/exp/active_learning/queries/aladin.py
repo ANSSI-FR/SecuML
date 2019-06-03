@@ -80,5 +80,5 @@ class AladinQueries(CoreAladinQueries):
         self.lr_predicted_proba = test_exp.predictions.all_probas
         self.lr_predicted_labels = test_exp.predictions.values
         self.lr_class_labels = train_exp.classifier.class_labels
-        self.lr_time = train_exp.monitoring.exec_time
-        self.lr_time += test_exp.monitoring.exec_time
+        self.lr_time = train_exp.monitoring.exec_times.total()
+        self.lr_time += test_exp.monitoring.exec_time.predictions

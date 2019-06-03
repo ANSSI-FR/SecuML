@@ -5,14 +5,14 @@ var conf = null;
 
 function callback(conf) {
   conf.exp_type = exp_type;
-  generateTitle('Detection Method Results');
+  generateTitle('Detection Results');
   d3.json(buildQuery('getDiademExp', [exp_id]),
           function(data) {
               displayPanels(data.proba, data.with_scoring, data.multiclass,
                             data.perf_monitoring);
               updateMonitoringDisplay('test', exp_id, data.proba,
                                       data.with_scoring, data.multiclass,
-                                      data.perf_monitoring);
+                                      data.perf_monitoring, true);
           });
 }
 
@@ -38,11 +38,9 @@ function displayPanels(proba, with_scoring, multiclass, perf_monitoring) {
                                   'test_confusion_matrix');
         }
     }
-    if (!multiclass && proba) {
-        var pred = createPanel('panel-primary', null, 'Predictions',
-                               document.getElementById('pred'),
-                               'test_pred');
-    }
+    var pred = createPanel('panel-primary', null, 'Predictions',
+                           document.getElementById('pred'),
+                           'test_pred');
 }
 
 loadConfigurationFile(exp_id, callback);

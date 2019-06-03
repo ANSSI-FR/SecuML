@@ -20,6 +20,7 @@ import pandas as pd
 from sqlalchemy.sql.expression import false
 import time
 
+from secuml.core.classif.classifiers import TrainingExecTimes
 from secuml.core.classif.classifiers.gaussian_naive_bayes \
         import GaussianNaiveBayes
 from secuml.core.clustering.monitoring.perf_indicators \
@@ -85,7 +86,8 @@ class AladinQueries(Queries):
         else:
             self.nb_predicted_labels = self.naive_bayes.pipeline.predict(
                 self.test_instances.features.get_values())
-        self.nb_time += time.time() - start_time
+        self.nb_time.add(TrainingExecTimes(time.time() - start_time, 0))
+        self.nb_time = self.nb_time.total()
         self.nb_class_labels = self.naive_bayes.class_labels
 
     def eval_clustering_perf(self, instances):

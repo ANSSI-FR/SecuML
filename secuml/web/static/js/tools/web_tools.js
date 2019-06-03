@@ -59,7 +59,7 @@ function createDivWithClass(id, classname, parent_div=null, title=null) {
 }
 
 function createPanel(panel_type, col_size, heading, parent_div, body_id,
-                     return_heading=false) {
+                     return_heading=false, href=null) {
   if (col_size) {
     var col = createDivWithClass(null, col_size, parent_div);
     parent_div = col;
@@ -68,12 +68,19 @@ function createPanel(panel_type, col_size, heading, parent_div, body_id,
                                  parent_div=parent_div);
   if (heading) {
     var panel_heading = createDivWithClass(null, 'panel-heading',
-            parent_div=panel);
+                                           parent_div=panel);
+    var panel_ref = panel_heading;
+    if (href) {
+      panel_ref = document.createElement('a');
+      panel_ref.setAttribute('class', 'panel-title');
+      panel_ref.href = href;
+      panel_heading.appendChild(panel_ref);
+    }
     if (typeof heading == 'string') {
       var panel_title = document.createElement('h3');
       panel_title.setAttribute('class', 'panel-title');
       panel_title.textContent = heading;
-      panel_heading.appendChild(panel_title);
+      panel_ref.appendChild(panel_title);
     } else {
       panel_heading.appendChild(heading);
     }

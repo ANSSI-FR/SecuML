@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import json
 import os
 
 from secuml.core.classif.monitoring.perf import PerformanceMonitoring
@@ -44,7 +45,7 @@ class DetectionMonitoring(object):
 
     def __init__(self, exp, alerts_conf=None):
         self.exp = exp
-        self.exec_time = 0
+        self.exec_time = None
         self.alerts_monitoring = None
         if alerts_conf is not None:
             self.alerts_monitoring = AlertsMonitoring(self.exp, alerts_conf)
@@ -55,7 +56,10 @@ class DetectionMonitoring(object):
             self.performance = PerformanceMonitoring()
 
     def add_predictions(self, predictions, exec_time):
-        self.exec_time += exec_time
+        if self.exec_time is None:
+            self.exec_time = exec_time
+        else:
+            self.exec_time.add(exec_time)
         if self.performance is not None:
             self.performance.add_fold(predictions)
         self.predictions.add_fold(predictions)
@@ -74,6 +78,8 @@ class DetectionMonitoring(object):
             self.performance.display(directory)
         if self.alerts_monitoring is not None:
             self.alerts_monitoring.display(directory)
+        with open(os.path.join(directory, 'exec_time.json'), 'w') as f:
+            json.dump(self.exec_time.__dict__, f, indent=2)
 
 
 class CvMonitoring(object):

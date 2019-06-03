@@ -48,8 +48,9 @@ class UpdateModel(CoreUpdateModel):
         training = self.model_exp.get_train_exp().monitoring
         training_detect = self.model_exp.get_detection_exp('train').monitoring
         detection = self.model_exp.get_detection_exp('test').monitoring
-        self.exec_time = sum([m.exec_time for m in [training, training_detect,
-                                                    detection]])
+        self.exec_time = training.exec_times.total()
+        self.exec_time += sum([m.exec_time.predictions
+                               for m in [training_detect, detection]])
 
     def monitoring(self, al_dir, iteration_dir):
         with_validation = self.iteration.conf.validation_conf is not None

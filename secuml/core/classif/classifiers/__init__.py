@@ -50,6 +50,31 @@ class NoCvMonitoring(SecuMLcoreException):
         return('%s does not support CV monitoring.' % self.model_class)
 
 
+class TrainingExecTimes(object):
+
+    def __init__(self, training, best_hyper_params):
+        self.training = training
+        self.best_hyper_params = best_hyper_params
+
+    def add(self, exec_time):
+        self.training += exec_time.training
+        self.best_hyper_params += exec_time.best_hyper_params
+
+    def total(self):
+        return self.training + self.best_hyper_params
+
+
+class PredictionsExecTime(object):
+
+    def __init__(self, predictions, num_instances):
+        self.predictions = predictions
+        self.num_instances = num_instances
+
+    def add(self, exec_time):
+        self.predictions += exec_time.predictions
+        self.num_instances += exec_time.num_instances
+
+
 class Classifier(object):
 
     # conf: ClassifierConf
@@ -67,22 +92,24 @@ class Classifier(object):
         return
 
     def training(self, instances):
-        execution_time = 0
-        start = time.time()
+        best_hyper_params_time = 0
         if self.conf.hyperparam_conf.get_param_grid() is not None:
+            start = time.time()
             self._set_best_hyperparam(instances)
-        execution_time += time.time() - start
+            best_hyper_params_time = time.time() - start
         start = time.time()
         self._fit(instances)
-        execution_time += time.time() - start
+        train_time = time.time() - start
         predictions = self._get_predictions(instances)
-        return predictions, execution_time
+        return predictions, TrainingExecTimes(train_time,
+                                              best_hyper_params_time)
 
     def testing(self, instances):
         start = time.time()
         predictions = self._get_predictions(instances)
         exec_time = time.time() - start
-        return predictions, exec_time
+        return predictions, PredictionsExecTime(exec_time,
+                                                instances.num_instances())
 
     def load_model(self, model_filename):
         self.pipeline = joblib.load(model_filename)
@@ -120,8 +147,8 @@ class Classifier(object):
                               self._get_supervision(datasets.train_instances))
             train_time = time.time() - start
             cv_predictions, test_time = self.testing(datasets.test_instances)
-            cv_monitoring.add_fold(self, train_time, cv_predictions,
-                                   test_time, fold_id)
+            cv_monitoring.add_fold(self, TrainingExecTimes(train_time, 0),
+                                   cv_predictions, test_time, fold_id)
 
     def apply_pipeline(self, instances):
         num_instances = instances.num_instances()

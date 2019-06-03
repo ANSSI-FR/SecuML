@@ -27,13 +27,16 @@ class ClassifierMonitoring(object):
         self.exp = exp
         self.num_folds = num_folds
         self.pipelines = [None for _ in range(self.num_folds)]
-        self.exec_time = 0
+        self.exec_times = None
         self.class_labels = None
         self.coefficients = None
 
-    def set_classifier(self, classifier, exec_time, fold_id=0):
+    def set_classifier(self, classifier, exec_times, fold_id=0):
         self.pipelines[fold_id] = classifier.pipeline
-        self.exec_time += exec_time
+        if self.exec_times is None:
+            self.exec_times = exec_times
+        else:
+            self.exec_times.add(exec_times)
         self.class_labels = classifier.class_labels
         self.set_coefficients(classifier, fold_id)
 
@@ -53,6 +56,7 @@ class ClassifierMonitoring(object):
     def display(self, directory):
         self._export_pipelines(directory)
         self._export_class_labels(directory)
+        self._export_exec_times(directory)
         if self.coefficients is not None:
             self.coefficients.display(directory)
 
@@ -70,3 +74,7 @@ class ClassifierMonitoring(object):
             class_labels = list(class_labels)
         with open(path.join(directory, 'class_labels.json'), 'w') as f:
             json.dump({'class_labels': class_labels}, f, indent=2)
+
+    def _export_exec_times(self, directory):
+        with open(path.join(directory, 'exec_times.json'), 'w') as f:
+            json.dump(self.exec_times.__dict__, f, indent=2)

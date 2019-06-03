@@ -8,7 +8,18 @@ function createTrainTestMonitoring(child_exp_id, train_test, with_alerts) {
         panel_title = upperCaseFirst(train_test);
         div = cleanDiv(train_test);
     }
-    var monitoring = createPanel('panel-primary', null, panel_title, div);
+    var href = null;
+    if (train_test != 'cv') {
+        href = '/SecuML/' + child_exp_id;
+    }
+    var panel = createPanel('panel-primary', null,
+                            panel_title + ' Performance', div, null,
+                            true, href);
+    var monitoring = panel[0];
+    var heading = panel[1];
+    if (train_test != 'cv') {
+        displayDetectionExecTime(child_exp_id, heading);
+    }
     createDivWithClass(train_test + '_monitoring', 'tabbable boxed parentTabs',
                        monitoring);
     if (train_test == 'test' && with_alerts) {
@@ -17,6 +28,15 @@ function createTrainTestMonitoring(child_exp_id, train_test, with_alerts) {
             displayAlertsButtons(child_exp_id);
         }
     }
+}
+
+function displayDetectionExecTime(child_exp_id, heading) {
+    var query = buildQuery('supervisedLearningMonitoring', [child_exp_id,
+                                                            'exec_time']);
+    $.getJSON(query, function(data) {
+        var exec_time = (data.predictions / data.num_instances) * 1000;
+        heading.textContent += ' (' + exec_time.toFixed(3) + ' ms / instance)'
+    });
 }
 
 function displayAlertsButton(buttons_group, button_label, buttons_title,

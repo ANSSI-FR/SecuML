@@ -225,7 +225,6 @@ def getPredictionsScores(exp_id, range_, label):
     query = call_specific_db_func(secuml_conf.db_type, 'random_order',
                                   (query,))
     query = query.limit(NUM_MAX_DISPLAY)
-    predictions = query.all()
     return jsonify(_predictions_results(query))
 
 

@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-import numpy as np
-
 from secuml.core.classif.monitoring.prediction import PredictionsMonitoring \
         as PredictionsMonitoringCore
 
@@ -31,6 +29,7 @@ class PredictionsMonitoring(PredictionsMonitoringCore):
     def final_computations(self):
         def to_float(x):
             return None if x is None else float(x)
+
         def to_int(x):
             return None if x is None else int(x)
         PredictionsMonitoringCore.final_computations(self)
