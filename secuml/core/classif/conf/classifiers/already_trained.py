@@ -24,6 +24,7 @@ class AlreadyTrainedConf(ClassifierConf):
     def __init__(self, model_exp_id, logger):
         ClassifierConf.__init__(self, None, None, logger)
         self.model_exp_id = model_exp_id
+        self.accept_sparse = True
 
     def _get_model_class(self):
         return None

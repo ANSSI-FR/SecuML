@@ -47,13 +47,13 @@ class RandomForestConf(SupervisedClassifierConf):
         hyper = {}
         hyper['n_estimators'] = {}
         hyper['n_estimators']['values'] = {'type': int,
-                                           'default': [10, 100, 1000]}
+                                           'default': [100]}
         hyper['criterion'] = {}
         hyper['criterion']['values'] = {'choices': ['gini', 'entropy'],
-                                        'default': ['gini', 'entropy']}
+                                        'default': ['gini']}
         hyper['max_depth'] = {}
         hyper['max_depth']['values'] = {'type': int,
-                                        'default': [5, 10, 15, 20, None]}
+                                        'default': [None]}
         hyper['min_samples_split'] = {}
         hyper['min_samples_split']['values'] = {'type': int,
                                                 'default': [2]}
@@ -61,7 +61,8 @@ class RandomForestConf(SupervisedClassifierConf):
         hyper['min_samples_leaf']['values'] = {'type': int,
                                                'default': [1]}
         hyper['max_features'] = {}
-        hyper['max_features']['values'] = {'default': ['sqrt', 'log2', None]}
+        hyper['max_features']['values'] = {'choices': ['sqrt', 'log2'],
+                                           'default': ['sqrt']}
         hyper['max_leaf_nodes'] = {}
         hyper['max_leaf_nodes']['values'] = {'type': int,
                                              'default': [None]}
@@ -70,7 +71,7 @@ class RandomForestConf(SupervisedClassifierConf):
                                                     'default': [0]}
         hyper['bootstrap'] = {}
         hyper['bootstrap']['values'] = {'type': bool,
-                                        'default': [True, False]}
+                                        'default': [False]}
         hyper['oob_score'] = {}
         hyper['oob_score']['values'] = {'type': bool,
                                         'default': [False]}

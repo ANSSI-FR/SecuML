@@ -174,19 +174,25 @@ class LoadFeatures(object):
                 df = pd.read_csv(f, header=0, index_col=0)
                 user_ids = [str(i) for i in df.index.values]
                 try:
-                    names = df['name']
+                    names = df['name'].values
                 except KeyError:
                     raise InvalidDescription(file_path,
                                              'The description file must '
                                              'contain a name column. ')
                 try:
                     # The description column is not mandatory.
-                    descriptions = df['description']
+                    descriptions = df['description'].values
                 except KeyError:
                     pass
+                # The type column is not mandatory.
                 try:
-                    # The type column is not mandatory.
-                    types = [FeatureType[t] for t in df['type']]
+                    types = df['type'].values
+                    try:
+                        types = [FeatureType[t] for t in types]
+                    except KeyError:
+                        raise InvalidDescription(
+                               file_path,
+                               'Features types must be "binary" or "numeric".')
                 except KeyError:
                     pass
         else:
