@@ -16,6 +16,8 @@
 
 from secuml.core.active_learning.update_model import UpdateModel \
         as CoreUpdateModel
+from secuml.core.classif.conf.classifiers import ClassifierType
+from secuml.core.classif.conf.classifiers import get_classifier_type
 from secuml.exp.diadem.conf.diadem import DiademConf
 from secuml.exp.diadem import DiademExp
 
@@ -39,8 +41,16 @@ class UpdateModel(CoreUpdateModel):
                               self.model_conf, None, name=name,
                               parent=self.exp.exp_id)
         self.model_exp = DiademExp(exp_conf, session=self.exp.session)
+        classifier_type = get_classifier_type(
+                                    self.model_conf.classifier_conf.__class__)
+        cv_monitoring = classifier_type == ClassifierType.supervised
+        prev_classifier = None
+        prev_iter = self.iteration.prev_iter
+        if prev_iter is not None:
+            prev_classifier = prev_iter.update_model.classifier
         self.model_exp.run(instances=self.iteration.datasets.instances,
-                           cv_monitoring=True)
+                           cv_monitoring=cv_monitoring,
+                           init_classifier=prev_classifier)
         self._set_exec_time()
         self.classifier = self.model_exp.get_train_exp().classifier
 

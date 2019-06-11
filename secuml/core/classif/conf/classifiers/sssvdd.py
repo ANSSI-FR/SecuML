@@ -69,5 +69,8 @@ class SssvddConf(SemiSupervisedClassifierConf):
 
     @staticmethod
     def from_args(args, hyperparam_conf, logger):
-        return SssvddConf(hyperparam_conf, logger, nu_u=args.nu_u,
-                          nu_l=args.nu_l, kappa=args.kappa)
+        nu_u = args.nu_u if hasattr(args, 'nu_u') else 1.0
+        nu_l = args.nu_l if hasattr(args, 'nu_l') else 1.0
+        kappa = args.kappa if hasattr(args, 'kappa') else 1.0
+        return SssvddConf(hyperparam_conf, logger, nu_u=nu_u, nu_l=nu_l,
+                          kappa=kappa)

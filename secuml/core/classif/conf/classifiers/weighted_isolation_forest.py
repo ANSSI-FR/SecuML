@@ -14,30 +14,31 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from secuml.core.classif.classifiers.isolation_forest import IsolationForest
+from secuml.core.classif.classifiers.weighted_isolation_forest \
+        import WeightedIsolationForest
 from secuml.core.conf import exportFieldMethod
-from . import UnsupervisedClassifierConf
+from . import SemiSupervisedClassifierConf
 
 
-class IsolationForestConf(UnsupervisedClassifierConf):
+class WeightedIsolationForestConf(SemiSupervisedClassifierConf):
 
     def __init__(self, hyper_conf, logger, n_jobs=-1):
-        UnsupervisedClassifierConf.__init__(self, hyper_conf, logger)
+        SemiSupervisedClassifierConf.__init__(self, False, hyper_conf, logger)
         self.accept_sparse = True
         self.n_jobs = n_jobs
 
     def _get_model_class(self):
-        return IsolationForest
+        return WeightedIsolationForest
 
     def fields_to_export(self):
-        fields = UnsupervisedClassifierConf.fields_to_export(self)
+        fields = SemiSupervisedClassifierConf.fields_to_export(self)
         fields.append(('n_jobs', exportFieldMethod.primitive))
         return fields
 
     @staticmethod
     def from_json(multiclass, hyperparam_conf, obj, logger):
-        return IsolationForestConf(hyperparam_conf, logger,
-                                   n_jobs=obj['n_jobs'])
+        return WeightedIsolationForestConf(hyperparam_conf, logger,
+                                           n_jobs=obj['n_jobs'])
 
     def is_probabilist(self):
         return False
@@ -51,6 +52,9 @@ class IsolationForestConf(UnsupervisedClassifierConf):
     @staticmethod
     def _get_hyper_desc():
         hyper = {}
+        hyper['eta'] = {}
+        hyper['eta']['values'] = {'type': float,
+                                  'default': 1.}
         hyper['n_estimators'] = {}
         hyper['n_estimators']['values'] = {'type': int,
                                            'default': 100}
@@ -64,7 +68,9 @@ class IsolationForestConf(UnsupervisedClassifierConf):
 
     @staticmethod
     def gen_parser(parser):
-        UnsupervisedClassifierConf.gen_parser(parser, IsolationForestConf)
+        SemiSupervisedClassifierConf.gen_parser(parser,
+                                                WeightedIsolationForestConf,
+                                                multiclass=False)
         parser.add_argument('--n_jobs',
                             type=int,
                             default=-1,
@@ -75,4 +81,5 @@ class IsolationForestConf(UnsupervisedClassifierConf):
 
     @staticmethod
     def from_args(args, hyperparam_conf, logger):
-        return IsolationForestConf(hyperparam_conf, logger, n_jobs=args.n_jobs)
+        return WeightedIsolationForestConf(hyperparam_conf, logger,
+                                           n_jobs=args.n_jobs)

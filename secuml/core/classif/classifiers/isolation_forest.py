@@ -32,4 +32,6 @@ class _IsolationForest(IsolationForestClassifier):
 class IsolationForest(UnsupervisedClassifier):
 
     def _get_pipeline(self):
-        return [('model', _IsolationForest(n_jobs=self.conf.n_jobs))]
+        return [('model', _IsolationForest(n_jobs=self.conf.n_jobs,
+                                           behaviour='new',
+                                           contamination='auto'))]

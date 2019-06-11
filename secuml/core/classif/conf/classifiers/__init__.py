@@ -110,6 +110,10 @@ class ClassifierConf(Conf):
     def _get_model_class(self):
         return
 
+    @staticmethod
+    def _check_hyper_args(args):
+        return None
+
     def _set_model_class(self):
         self.model_class = self._get_model_class()
         self.model_class_name = self.model_class.__name__

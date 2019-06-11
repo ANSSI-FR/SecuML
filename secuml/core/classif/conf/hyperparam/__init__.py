@@ -56,6 +56,7 @@ class HyperparamConf(Conf):
         optim_conf = None
         if cv_optim:
             optim_conf = OptimConf.from_args(args, logger)
+        model_class._check_hyper_args(args)
         hyperparam_desc = get_model_hyperparam_desc(model_class)
         values = Hyperparams.from_args(args, hyperparam_desc, cv_optim, logger)
         return HyperparamConf(values, optim_conf, logger)

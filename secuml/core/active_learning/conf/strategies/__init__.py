@@ -109,6 +109,7 @@ class ActiveLearningConf(Conf):
         group = parser.add_argument_group('Classification model parameters')
         factory = classifiers.get_factory()
         models = factory.get_methods(ClassifierType.supervised)
+        models.extend(factory.get_methods(ClassifierType.semisupervised))
         group.add_argument('--model-class',
                            choices=models,
                            default='LogisticRegression',

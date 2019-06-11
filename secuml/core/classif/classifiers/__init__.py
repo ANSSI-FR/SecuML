@@ -104,6 +104,13 @@ class Classifier(object):
         return predictions, TrainingExecTimes(train_time,
                                               best_hyper_params_time)
 
+    def update(self, instances):
+        start = time.time()
+        self._update(instances)
+        train_time = time.time() - start
+        predictions = self._get_predictions(instances)
+        return predictions, TrainingExecTimes(train_time, 0)
+
     def testing(self, instances):
         start = time.time()
         predictions = self._get_predictions(instances)
@@ -135,6 +142,9 @@ class Classifier(object):
     @abc.abstractmethod
     def _fit(self, train_instances):
         return
+
+    def _update(self, train_instances):
+        self._fit(train_instances)
 
     def cv_monitoring(self, train_instances, cv_monitoring):
         from secuml.core.classif.conf.test.cv import CvConf

@@ -31,9 +31,9 @@ class TrainExp(Experiment):
         self.train_time = None
         self.monitoring = TrainMonitoring(self)
 
-    def run(self, train_instances, cv_monitoring=False):
+    def run(self, train_instances, cv_monitoring=False, init_classifier=None):
         Experiment.run(self)
-        self._train(train_instances)
+        self._train(train_instances, init_classifier)
         if cv_monitoring:
             self._cv_monitoring(train_instances)
         self.monitoring.display(self.output_dir())
@@ -46,10 +46,14 @@ class TrainExp(Experiment):
                              self.exp_conf.fold_id, 'train',
                              classifier_conf=self.exp_conf.core_conf)
 
-    def _train(self, train_instances):
-        classifier_conf = self.exp_conf.core_conf
-        self.classifier = classifier_conf.model_class(classifier_conf)
-        _, self.train_time = self.classifier.training(train_instances)
+    def _train(self, train_instances, init_classifier):
+        if init_classifier is not None:
+            self.classifier = init_classifier
+            _, self.train_time = self.classifier.update(train_instances)
+        else:
+            classifier_conf = self.exp_conf.core_conf
+            self.classifier = classifier_conf.model_class(classifier_conf)
+            _, self.train_time = self.classifier.training(train_instances)
         self.monitoring.set_classifier(self.classifier, self.train_time)
 
     def _cv_monitoring(self, train_instances):

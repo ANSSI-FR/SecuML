@@ -19,6 +19,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import null
 
 from secuml.core.data.predictions import Predictions
+from secuml.core.classif.conf.classifiers import SemiSupervisedClassifierConf
 from secuml.core.classif.conf.test.validation_datasets \
         import InvalidValidationDatasets
 from secuml.exp import experiment
@@ -67,6 +68,15 @@ class InvalidModelExperimentKind(SecuMLexpException):
                % (self.exp_kind))
 
 
+class InvalidInitClassifier(SecuMLexpException):
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+
 def add_diadem_exp_to_db(session, exp_id, dataset_id, fold_id, kind,
                          classifier_conf=None):
     if classifier_conf is not None:
@@ -113,13 +123,18 @@ class DiademExp(Experiment):
         self.validation_conf = self.exp_conf.core_conf.validation_conf
         self._init_children_exps()
 
-    def run(self, instances=None, cv_monitoring=False):
+    def run(self, instances=None, cv_monitoring=False,
+            init_classifier=None):
         Experiment.run(self)
         datasets = self._gen_datasets(instances)
         if self.test_conf.method in ['cv', 'temporal_cv', 'sliding_window']:
+            if init_classifier is not None:
+                raise InvalidInitClassifier(
+                        'Init classifier cannot be set for CV modes.')
             self._run_cv(datasets, cv_monitoring)
         else:
-            self._run_one_fold(datasets, cv_monitoring)
+            self._run_one_fold(datasets, cv_monitoring,
+                               init_classifier=init_classifier)
 
     def web_template(self):
         return 'diadem/main.html'
@@ -253,10 +268,15 @@ class DiademExp(Experiment):
                                           parent=diadem_id, kind=kind),
                             session=self.session)
 
-    def _run_one_fold(self, datasets, cv_monitoring, fold_id=None):
-        classifier, train_time = self._train(datasets, cv_monitoring, fold_id)
-        self._detection('train', classifier, datasets.train_instances,
-                        fold_id)
+    def _run_one_fold(self, datasets, cv_monitoring, fold_id=None,
+                      init_classifier=None):
+        classifier, train_time = self._train(datasets, cv_monitoring, fold_id,
+                                             init_classifier)
+        train_data = datasets.train_instances
+        if (isinstance(classifier.conf, SemiSupervisedClassifierConf) and
+                self.test_conf.method == 'unlabeled'):
+            train_data = train_data.get_annotated_instances()
+        self._detection('train', classifier, train_data, fold_id)
         test_predictions, test_time = self._detection('test', classifier,
                                                       datasets.test_instances,
                                                       fold_id)
@@ -264,13 +284,18 @@ class DiademExp(Experiment):
             self._detection('validation', classifier, None, fold_id)
         return classifier, train_time, test_predictions, test_time
 
-    def _train(self, datasets, cv_monitoring, fold_id):
+    def _train(self, datasets, cv_monitoring, fold_id, init_classifier):
         if self.exp_conf.already_trained is not None:
+            if init_classifier is not None:
+                raise InvalidInitClassifier('Init classifier cannot be set in '
+                                            'AlreadyTrained mode.')
             train_exp_id = self._set_train_exp_id()
             return self._get_trained_classifier(train_exp_id), 0
         else:
             train_exp = self._create_train_exp(fold_id=fold_id)
-            train_exp.run(datasets.train_instances, cv_monitoring)
+            train_exp.run(datasets.train_instances,
+                          cv_monitoring=cv_monitoring,
+                          init_classifier=init_classifier)
             if fold_id is None:
                 self._set_train_exp(train_exp)
             return train_exp.classifier, train_exp.train_time
