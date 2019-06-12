@@ -35,7 +35,7 @@ class AlertsMonitoring(object):
         if not self.alerts_conf.with_analysis():
             return
         threshold = self.alerts_conf.detection_threshold
-        alerts = predictions.get_alerts(threshold)
+        alerts = predictions.get_alerts(threshold=threshold)
         alerts_ids = [alert.instance_id for alert in alerts]
         if len(alerts_ids) == 0:
             return

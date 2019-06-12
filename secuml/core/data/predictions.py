@@ -91,14 +91,27 @@ class Predictions(object):
     def num_instances(self):
         return self.ids.num_instances()
 
-    def get_alerts(self, threshold):
-        if threshold is None or not self.info.with_probas:
-            return [self.get_prediction_from_index(i[0])
-                    for i, value in np.ndenumerate(self.values) if value]
-        else:
+    def get_alerts(self, threshold=None, top_n=None):
+        if threshold is not None and self.info.with_probas:
             return [self.get_prediction_from_index(i[0])
                     for i, proba in np.ndenumerate(self.probas)
                     if proba > threshold]
+        elif top_n is not None:
+            if self.num_instances() <= top_n:
+                return self.to_list()
+            if self.info.with_probas or self.info.with_scores:
+                return [self.get_prediction_from_index(i)
+                        for i in range(self.num_instances())
+                        if self.ranking[i] < top_n]
+            else:
+                ids = [i[0] for i, value in np.ndenumerate(self.values)
+                       if value]
+                if top_n < len(ids):
+                    ids = random.sample(ids, top_n)
+                return [self.get_prediction_from_index(id_) for id_ in ids]
+        else:
+            return [self.get_prediction_from_index(i[0])
+                    for i, value in np.ndenumerate(self.values) if value]
 
     def union(self, predictions):
         if self.info.multiclass != predictions.info.multiclass:
