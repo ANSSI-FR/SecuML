@@ -30,7 +30,7 @@ class ActiveLearningConf(ExpConf):
         parser = argparse.ArgumentParser(
                 description='Active Learning',
                 formatter_class=argparse.RawTextHelpFormatter)
-        ExpConf.gen_parser(parser)
+        ExpConf.gen_parser(parser, filters=True, sparse=True)
         AnnotationsConf.gen_parser(
                     parser, default='init_annotations.csv', required=False,
                     message='CSV file containing the initial annotations '
@@ -85,7 +85,7 @@ class RcdConf(ExpConf):
         parser = argparse.ArgumentParser(
                                  description='Rare Category Detection',
                                  formatter_class=argparse.RawTextHelpFormatter)
-        ExpConf.gen_parser(parser)
+        ExpConf.gen_parser(parser, filters=True, sparse=True)
         AnnotationsConf.gen_parser(
                     parser, default='init_annotations.csv', required=False,
                     message='CSV file containing the initial annotations '

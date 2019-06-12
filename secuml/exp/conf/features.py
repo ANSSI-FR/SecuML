@@ -82,11 +82,6 @@ class FeaturesConf(Conf):
         group = parser
         if filters or sparse:
             group = parser.add_argument_group('Features')
-        if sparse:
-            group.add_argument('--sparse', required=False, default=False,
-                               action='store_true',
-                               help='CSR, CSC and LIL scipy sparse matrices '
-                                    'are accepted.')
         group.add_argument(
                  '--features', '-f', dest='input_features', required=False,
                  default='features.csv',
@@ -94,6 +89,11 @@ class FeaturesConf(Conf):
                       'In the latter case, all the files of the directory are '
                       'concatenated to build the input features. '
                       'Default: features.csv. ')
+        if sparse:
+            group.add_argument('--sparse', required=False, default=False,
+                               action='store_true',
+                               help='CSR, CSC and LIL scipy sparse matrices '
+                                    'are accepted.')
         if filters:
             filter_group = group.add_mutually_exclusive_group()
             filter_group.add_argument(
