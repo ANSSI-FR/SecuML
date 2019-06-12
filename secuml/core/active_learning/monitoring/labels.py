@@ -112,16 +112,18 @@ class LabelsMonitoring(object):
                             self.stats[BENIGN]['families'])
         for l in [MALICIOUS, BENIGN]:
             evolution = self.evolutions[l]['families']
+            num_families = 0
             if self.has_ground_truth:
                 instances = self.monitoring.datasets.instances
                 num_families = len(
                     instances.ground_truth.get_families_values(label=l))
-                evolution = [x / num_families for x in evolution]
+                if num_families > 0:
+                    evolution = [x / num_families for x in evolution]
             plt.plot(annotations, evolution, label=l.title(),
                      color=get_label_color(l), linewidth=4, marker='o')
         plt.ylim(0, max_value)
         plt.xlabel('Num Annotations')
-        if self.has_ground_truth:
+        if self.has_ground_truth and num_families > 0:
             plt.ylabel('Prop. Families Discovered')
         else:
             plt.ylabel('Num. Families Discovered')
