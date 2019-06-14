@@ -26,7 +26,7 @@ class SvcConf(SupervisedClassifierConf):
         return Svc
 
     def is_probabilist(self):
-        return False
+        return True
 
     def scoring_function(self):
         return 'decision_function'
