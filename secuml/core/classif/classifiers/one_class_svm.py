@@ -14,13 +14,22 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
 from sklearn.svm import OneClassSVM
 from sklearn.preprocessing import StandardScaler
 
 from . import UnsupervisedClassifier
 
 
+class _OneClassSvm(OneClassSVM):
+
+    def predict_from_scores(self, X, scores):
+        is_inlier = np.full(X.shape[0], -1, dtype=int)
+        is_inlier[scores >= 0] = 1
+        return is_inlier
+
+
 class OneClassSvm(UnsupervisedClassifier):
 
     def _get_pipeline(self):
-        return [('scaler', StandardScaler()), ('model', OneClassSVM())]
+        return [('scaler', StandardScaler()), ('model', _OneClassSvm())]

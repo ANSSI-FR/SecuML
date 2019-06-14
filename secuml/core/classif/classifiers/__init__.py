@@ -165,9 +165,18 @@ class Classifier(object):
             return self._predict_matrix(features.get_values(), instances_ids)
 
     def _predict_matrix(self, matrix, instances_ids):
-        values = self._predict_values(matrix)
         all_probas, probas = self._predict_probas(matrix)
-        all_scores, scores = self._predict_scores(matrix)
+        if all_probas is None and probas is None:
+            all_scores, scores = self._predict_scores(matrix)
+            if all_scores is None and scores is None:
+                values = self._predict_values(matrix)
+            else:
+                values = self._predict_from_scores(matrix, all_scores, scores)
+        else:
+            all_scores, scores = None, None
+            values = self._predict_from_probas(matrix, all_probas, probas)
+        if probas is not None:
+            probas = probas[:, 1]
         return Predictions(values, instances_ids, self.conf.multiclass,
                            all_probas=all_probas, probas=probas,
                            all_scores=all_scores, scores=scores)
@@ -205,15 +214,14 @@ class Classifier(object):
         return list(self.pipeline.predict(features))
 
     def _predict_probas(self, features):
+        all_predicted_proba = None
+        predicted_proba = None
         if self.conf.probabilist:
             all_predicted_proba = self.pipeline.predict_proba(features)
             if self.conf.multiclass:
                 predicted_proba = None
             else:
-                predicted_proba = all_predicted_proba[:, 1]
-        else:
-            all_predicted_proba = None
-            predicted_proba = None
+                predicted_proba = all_predicted_proba
         return all_predicted_proba, predicted_proba
 
     def _predict_scores(self, features):
@@ -227,6 +235,20 @@ class Classifier(object):
             else:
                 scores = predicted_scores
         return all_scores, scores
+
+    def _predict_from_probas(self, matrix, all_probas, probas):
+        if self.conf.multiclass:
+            return self.pipeline['model'].predict_from_probas(matrix,
+                                                              all_probas)
+        else:
+            return self.pipeline['model'].predict_from_probas(matrix, probas)
+
+    def _predict_from_scores(self, matrix, all_scores, scores):
+        if self.conf.multiclass:
+            return self.pipeline['model'].predict_from_scores(matrix,
+                                                              all_scores)
+        else:
+            return self.pipeline['model'].predict_from_scores(matrix, scores)
 
 
 class SupervisedClassifier(Classifier):
@@ -299,6 +321,14 @@ class UnsupervisedClassifier(Classifier):
         if scores is not None:
             scores = -scores
         return all_scores, scores
+
+    def _predict_from_scores(self, matrix, all_scores, scores):
+        if all_scores is not None:
+            all_scores = -all_scores
+        if scores is not None:
+            scores = -scores
+        return Classifier._predict_from_scores(self, matrix, all_scores,
+                                               scores)
 
 
 class SemiSupervisedClassifier(Classifier):

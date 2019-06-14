@@ -63,6 +63,11 @@ class _Sssvdd(BaseEstimator):
     def predict(self, X):
         return np.apply_along_axis(predict_label, 1, X, self.c, self.r)
 
+    def predict_from_scores(self, X, scores):
+        is_outlier = np.full(X.shape[0], False, dtype=int)
+        is_outlier[scores > 0] = True
+        return is_outlier
+
 
 class Sssvdd(SemiSupervisedClassifier):
 

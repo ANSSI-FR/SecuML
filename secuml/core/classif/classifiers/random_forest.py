@@ -14,12 +14,19 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 
 from . import SupervisedClassifier
 
 
+class _RandomForest(RandomForestClassifier):
+
+    def predict_from_probas(self, X, probas):
+        return self.classes_.take(np.argmax(probas, axis=1), axis=0)
+
+
 class RandomForest(SupervisedClassifier):
 
     def _get_pipeline(self):
-        return [('model', RandomForestClassifier())]
+        return [('model', _RandomForest())]

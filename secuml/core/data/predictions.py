@@ -104,7 +104,7 @@ class Predictions(object):
         if self.info.multiclass != predictions.info.multiclass:
             raise InvalidPredictions('Predictions with multiclass and binary '
                                      'values cannot be concatenated.')
-        self.values.extend(predictions.values)
+        self.values = np.hstack((self.values, predictions.values))
         self.ids.union(predictions.ids)
         self.all_probas = np.vstack((self.all_probas, predictions.all_probas))
         self.probas = np.hstack((self.probas, predictions.probas))

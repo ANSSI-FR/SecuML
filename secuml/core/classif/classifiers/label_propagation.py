@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
 from sklearn.semi_supervised import LabelPropagation \
         as LabelPropagationClassifier
 from sklearn.preprocessing import StandardScaler
@@ -21,8 +22,14 @@ from sklearn.preprocessing import StandardScaler
 from . import SemiSupervisedClassifier
 
 
+class _LabelPropagation(LabelPropagationClassifier):
+
+    def predict_from_probas(self, X, probas):
+        return self.classes_[np.argmax(probas, axis=1)].ravel()
+
+
 class LabelPropagation(SemiSupervisedClassifier):
 
     def _get_pipeline(self):
         return [('scaler', StandardScaler()),
-                ('model', LabelPropagationClassifier(n_jobs=self.conf.n_jobs))]
+                ('model', _LabelPropagation(n_jobs=self.conf.n_jobs))]

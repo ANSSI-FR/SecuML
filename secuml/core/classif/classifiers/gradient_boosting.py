@@ -19,7 +19,14 @@ from sklearn.ensemble import GradientBoostingClassifier
 from . import SupervisedClassifier
 
 
+class _GradientBoosting(GradientBoostingClassifier):
+
+    # FIXME: a more efficient implementation should be provided.
+    def predict_from_probas(self, X, probas):
+        return self.predict(X)
+
+
 class GradientBoosting(SupervisedClassifier):
 
     def _get_pipeline(self):
-        return [('model', GradientBoostingClassifier())]
+        return [('model', _GradientBoosting())]

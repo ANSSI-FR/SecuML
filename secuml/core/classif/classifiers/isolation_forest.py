@@ -14,12 +14,22 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
 from sklearn.ensemble import IsolationForest as IsolationForestClassifier
 
 from . import UnsupervisedClassifier
 
 
+class _IsolationForest(IsolationForestClassifier):
+
+    def predict_from_scores(self, X, scores):
+        threshold = self.threshold_ if self.behaviour == 'old' else 0
+        is_inlier = np.ones(X.shape[0], dtype=int)
+        is_inlier[scores < threshold] = -1
+        return is_inlier
+
+
 class IsolationForest(UnsupervisedClassifier):
 
     def _get_pipeline(self):
-        return [('model', IsolationForestClassifier(n_jobs=self.conf.n_jobs))]
+        return [('model', _IsolationForest(n_jobs=self.conf.n_jobs))]

@@ -22,11 +22,18 @@ from sklearn.preprocessing import StandardScaler
 from . import SupervisedClassifier
 
 
+class _GaussianNaiveBayes(naive_bayes.GaussianNB):
+
+    # FIXME: a more efficient implementation should be provided.
+    def predict_from_probas(self, X, probas):
+        return self.predict(X)
+
+
 class GaussianNaiveBayes(SupervisedClassifier):
 
     def _get_pipeline(self):
         return [('scaler', StandardScaler()),
-                ('model', naive_bayes.GaussianNB())]
+                ('model', _GaussianNaiveBayes())]
 
     def log_likelihood(self, features, label):
         all_theta = self.pipeline.named_steps['model'].theta_

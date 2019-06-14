@@ -14,14 +14,25 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
 from sklearn import svm
 from sklearn.preprocessing import StandardScaler
 
 from . import SupervisedClassifier
 
 
+class _Svc(svm.SVC):
+
+    def predict_from_probas(self, X, probas):
+        if probas.shape[1] == 1:
+            indices = (probas[:, 1] > 0.5).astype(np.int)
+        else:
+            indices = probas.argmax(axis=1)
+        return self.classes_[indices]
+
+
 class Svc(SupervisedClassifier):
 
     def _get_pipeline(self):
         return [('scaler', StandardScaler()),
-                ('model', svm.SVC(kernel='linear', probability=True))]
+                ('model', _Svc(kernel='linear', probability=True))]

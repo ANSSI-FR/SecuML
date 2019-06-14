@@ -32,7 +32,12 @@ class CesaBianchiQueries(Queries):
 
     def generate_queries(self, already_queried=None):
         instances = self.predictions.ids.ids
-        predicted_scores = self.predictions.scores
+        if self.predictions.info.with_scores:
+            predicted_scores = self.predictions.scores
+        elif self.predictions.info.with_probas:
+            predicted_scores = self.predictions.probas - 0.5
+        else:
+            assert(False)
         proba = [self.b / (self.b + abs(s)) for s in predicted_scores]
         predictions_df = pd.DataFrame({'proba': proba}, index=instances)
         # drop already queried instances
