@@ -51,6 +51,8 @@ class Annotations(object):
         return exp_annotations.id
 
     def load_partial_annotations(self, filename, annotations_id):
+        if filename is None:
+            return
         filename = path.join(self.dataset_conf.input_dir(self.secuml_conf),
                              'annotations', filename)
         if not path.isfile(filename):

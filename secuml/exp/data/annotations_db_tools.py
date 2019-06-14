@@ -90,9 +90,7 @@ def get_dataset_families(session, annotations_id):
 
 def get_labels_families(session, annotations_type, annotations_id, dataset_id,
                         instance_ids=None, iter_max=None):
-    if annotations_type == AnnotationsTypes.none:
-        return {}
-    elif annotations_type == AnnotationsTypes.ground_truth:
+    if annotations_type == AnnotationsTypes.ground_truth:
         query = get_labels_families_gt(session, dataset_id, instance_ids)
     elif annotations_type == AnnotationsTypes.partial:
         query = get_labels_families_partial(session, annotations_id,
@@ -130,9 +128,7 @@ def get_labels_families_partial(session, annotations_id, instance_ids,
 
 def get_label_family_ids(session, annotations_type, annotations_id, dataset_id,
                          label, family=None, iter_max=None, instance_ids=None):
-    if annotations_type == AnnotationsTypes.none:
-        return []
-    elif annotations_type == AnnotationsTypes.ground_truth:
+    if annotations_type == AnnotationsTypes.ground_truth:
         return get_label_family_ids_gt(session, dataset_id, label, family,
                                        instance_ids)
     elif annotations_type == AnnotationsTypes.partial:

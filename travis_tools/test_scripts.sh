@@ -11,7 +11,7 @@ function experiments {
     SecuML_DIADEM Gaussians test GradientBoosting --alerts-classif GaussianNaiveBayes
     SecuML_DIADEM Gaussians test GradientBoosting --alerts-clustering Kmeans --num-alerts-clusters 3
     SecuML_DIADEM Gaussians test LogisticRegression --validation-mode ValidationDatasets --validation-datasets test --streaming
-    SecuML_ILAB Gaussians test Random --auto
+    SecuML_ILAB Gaussians test -a init_annotations.csv Random --auto
     SecuML_rm_project_exp --exp-id 1
     SecuML_rm_project_exp --project Gaussians
 }

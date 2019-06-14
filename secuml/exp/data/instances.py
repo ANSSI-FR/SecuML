@@ -59,8 +59,6 @@ class Instances(CoreInstances):
 
     def _get_annotations(self, ids):
         annotations_type = self.annotations_conf.annotations_type
-        if annotations_type == AnnotationsTypes.none:
-            return Annotations(None, None, ids)
         if annotations_type == AnnotationsTypes.ground_truth:
             return self._get_ground_truth(ids)
         if annotations_type == AnnotationsTypes.partial:

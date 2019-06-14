@@ -32,10 +32,9 @@ class ActiveLearningConf(ExpConf):
                 formatter_class=argparse.RawTextHelpFormatter)
         ExpConf.gen_parser(parser, filters=True, sparse=True)
         AnnotationsConf.gen_parser(
-                    parser, default='init_annotations.csv', required=False,
+                    parser, default=None, required=False,
                     message='CSV file containing the initial annotations '
-                            'used to learn the first supervised detection '
-                            'model.')
+                            'used to learn the first detection model.')
         subparsers = parser.add_subparsers(dest='strategy')
         subparsers.required = True
         strategies = strategies_conf.get_factory().get_methods()

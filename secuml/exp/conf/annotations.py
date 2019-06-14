@@ -21,9 +21,8 @@ from secuml.core.conf import exportFieldMethod
 
 
 class AnnotationsTypes(Enum):
-    none = 0
-    ground_truth = 1
-    partial = 2
+    ground_truth = 0
+    partial = 1
 
 
 class AnnotationsConf(Conf):
@@ -55,9 +54,7 @@ class AnnotationsConf(Conf):
         self.set_annotations_type()
 
     def set_annotations_type(self):
-        if self.annotations_filename is None:
-            self.annotations_type = AnnotationsTypes.none
-        elif self.annotations_filename == 'ground_truth.csv':
+        if self.annotations_filename == 'ground_truth.csv':
             self.annotations_type = AnnotationsTypes.ground_truth
         else:
             self.annotations_type = AnnotationsTypes.partial
