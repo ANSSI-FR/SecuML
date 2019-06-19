@@ -319,13 +319,17 @@ class DiademExp(Experiment):
         prediction_time = None
         for detection_exp in detection_exps:
             detection_exp.run(instances, classifier)
-            if predictions is None:
-                predictions = Predictions.deepcopy(detection_exp.predictions)
-                predictions = detection_exp.predictions
-                prediction_time = detection_exp.prediction_time
-            else:
-                predictions.union(detection_exp.predictions)
-                prediction_time += detection_exp.prediction_time
+            predictions = detection_exp.predictions
+            prediction_time = detection_exp.prediction_time
+            if global_exp is not None:
+                if predictions is None:
+                    predictions = Predictions.deepcopy(
+                                                    detection_exp.predictions)
+                    predictions = detection_exp.predictions
+                    prediction_time = detection_exp.prediction_time
+                else:
+                    predictions.union(detection_exp.predictions)
+                    prediction_time += detection_exp.prediction_time
         if global_exp is not None:
             global_exp.set_predictions(predictions, prediction_time)
         return predictions, prediction_time

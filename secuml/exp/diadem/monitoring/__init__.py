@@ -43,13 +43,13 @@ class TrainMonitoring(ClassifierMonitoring):
 
 class DetectionMonitoring(object):
 
-    def __init__(self, exp, alerts_conf=None):
+    def __init__(self, exp, alerts_conf=None, num_folds=1):
         self.exp = exp
         self.exec_time = None
         self.alerts_monitoring = None
         if alerts_conf is not None:
             self.alerts_monitoring = AlertsMonitoring(self.exp, alerts_conf)
-        self.predictions = PredictionsMonitoring(self.exp)
+        self.predictions = PredictionsMonitoring(self.exp, num_folds)
         self.performance = None
         self.has_ground_truth = self.exp.has_ground_truth()
         if self.has_ground_truth:
@@ -87,7 +87,7 @@ class CvMonitoring(object):
     def __init__(self, exp, num_folds):
         self.num_folds = num_folds
         self.classifiers = ClassifierMonitoring(exp, num_folds=num_folds)
-        self.detect_monitoring = DetectionMonitoring(exp)
+        self.detect_monitoring = DetectionMonitoring(exp, num_folds=num_folds)
 
     def add_fold(self, classifier, train_exec_time, predictions,
                  pred_exec_time, fold_id):
