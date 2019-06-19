@@ -19,8 +19,8 @@ import math
 import numpy as np
 import pandas as pd
 from sklearn.metrics import confusion_matrix
-from sklearn.metrics import roc_curve, auc, accuracy_score, f1_score, \
-    precision_score, recall_score
+from sklearn.metrics import roc_curve, auc, accuracy_score
+from sklearn.metrics import precision_recall_fscore_support
 
 from secuml.core.tools.float import to_percentage, trunc
 
@@ -73,22 +73,10 @@ class BinaryIndicators(object):
         self.fold_auc[fold_id] = roc_auc
 
     def compute_precision_recall_fscore(self, ground_truth, predictions):
-        if len(ground_truth) == 0:
-            return 0, 0, 0
-        # Check the presence of all the ground_truth in predictions
-        diff = set(ground_truth) - set(predictions)
-        if len(diff) != 0:
-            precision = 0
-            f_score = 0
-        else:
-            precision = precision_score(ground_truth, predictions,
-                                        average='binary')
-            f_score = f1_score(ground_truth, predictions, average='binary')
-        # Check the presence of positive examples in ground_truth
-        if sum(ground_truth) > 0:
-            recall = recall_score(ground_truth, predictions, average='binary')
-        else:
-            recall = 0
+        precision, recall, f_score, _ = precision_recall_fscore_support(
+                                                ground_truth, predictions,
+                                                average='binary',
+                                                warn_for=())
         return precision, recall, f_score
 
     def compute_fpr(self, ground_truth, predictions):
