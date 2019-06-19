@@ -19,11 +19,11 @@ import hashlib
 from secuml.exp.tools.db_tables import InstancesAlchemy
 
 
-def get_dataset_ids(session, dataset_id):
-    query = session.query(InstancesAlchemy.id)
+def get_dataset_ids_timestamps(session, dataset_id):
+    query = session.query(InstancesAlchemy)
     query = query.filter(InstancesAlchemy.dataset_id == dataset_id)
     query = query.order_by(InstancesAlchemy.id)
-    return [r.id for r in query.all()]
+    return zip(*[(r.id, r.timestamp) for r in query.all()])
 
 
 def compute_hash(filename, kind='md5'):

@@ -18,11 +18,25 @@ from enum import Enum
 
 from secuml.core.conf import Conf
 from secuml.core.conf import exportFieldMethod
+from secuml.exp.tools.exp_exceptions import SecuMLexpException
 
 
 class AnnotationsTypes(Enum):
     ground_truth = 0
     partial = 1
+    ground_truth_if_exists = 2
+
+
+class NoGroundTruth(SecuMLexpException):
+
+    def __init__(self, dataset):
+        self.dataset = dataset
+
+    def __str__(self):
+        return('The dataset %s has no ground truth. '
+               'Ground truth labels and families can be specified in the file '
+               'idents.csv.'
+               % self.dataset)
 
 
 class AnnotationsConf(Conf):
@@ -54,15 +68,19 @@ class AnnotationsConf(Conf):
         self.set_annotations_type()
 
     def set_annotations_type(self):
-        if self.annotations_filename == 'ground_truth.csv':
+        if self.annotations_filename == 'GROUND_TRUTH':
             self.annotations_type = AnnotationsTypes.ground_truth
+        elif self.annotations_filename == 'GROUND_TRUTH_IF_EXISTS':
+            self.annotations_type = AnnotationsTypes.ground_truth_if_exists
         else:
             self.annotations_type = AnnotationsTypes.partial
 
     @staticmethod
     def gen_parser(parser, default=None, required=False, message=None):
         if message is None:
-            message = 'CSV file containing annotations.'
+            message = '''CSV file containing the annotations of some
+                         instances, or GROUND_TRUTH to use the ground
+                         truth annotations stored in idents.csv. '''
         parser.add_argument('--annotations', '-a',
                             dest='annotations_file',
                             default=default,

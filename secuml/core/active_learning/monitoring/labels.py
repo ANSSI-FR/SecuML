@@ -37,13 +37,14 @@ class LabelsMonitoring(object):
         self.stats = {}
         for l in [MALICIOUS, BENIGN]:
             self.stats[l] = {}
-            self.stats[l]['annotations'] = instances.num_instances(label=l)
+            self.stats[l]['annotations'] = int(instances.num_instances(
+                                                                    label=l))
             self.stats[l]['families'] = len(
                 instances.annotations.get_families_values(label=l))
         self.stats['global'] = {}
         for k in ['annotations', 'families']:
-            self.stats['global'][k] = (self.stats[MALICIOUS][k] +
-                                       self.stats[BENIGN][k])
+            self.stats['global'][k] = int(self.stats[MALICIOUS][k] +
+                                          self.stats[BENIGN][k])
         self.stats['unlabeled'] = (instances.num_instances() -
                                    self.stats['global']['annotations'])
 

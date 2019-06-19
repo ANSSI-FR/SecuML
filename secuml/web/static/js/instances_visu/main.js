@@ -194,7 +194,7 @@ function displayFamilySelector(label_row, label) {
     var label_title = label.charAt(0).toUpperCase() + label.substr(1) + ' Families';
     var selector_size = 6;
     createSelectList('instance_' + label + '_family_selector', selector_size,
-            null, col, label_title);
+                     null, col, label_title);
     var select = $('#' + 'instance_' + label + '_family_selector')[0];
     // Adding value input
     var form_group = createDivWithClass(null, 'form-group', col);
@@ -203,7 +203,8 @@ function displayFamilySelector(label_row, label) {
     var add_family_field = document.createElement('input');
     add_family_field.setAttribute('class', 'form-control');
     add_family_field.setAttribute('type', 'text');
-    add_family_field.setAttribute('id', 'instance_' + label + '_add_family_field');
+    add_family_field.setAttribute('id',
+                                  'instance_' + label + '_add_family_field');
     add_family_field.setAttribute('size', 5);
     input_group.appendChild(add_family_field);
     // Button

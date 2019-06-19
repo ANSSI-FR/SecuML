@@ -18,7 +18,8 @@
 import sqlalchemy
 from sqlalchemy.sql.expression import func
 
-from .postgresql_specific import annotations_with_families
+from secuml.exp.tools import annotations_with_families
+from secuml.exp.tools import idents_header_info
 
 
 def get_trailing_characters(filename):
@@ -33,6 +34,14 @@ def get_trailing_characters(filename):
 
 
 def load_idents(cursor, filename, dataset_id):
+    has_timestamp, gt_labels, gt_families = idents_header_info(filename)
+    fields = ['user_instance_id', 'ident']
+    if has_timestamp:
+        fields.append('timestamp')
+    if gt_labels:
+        fields.append('label')
+        if gt_families:
+            fields.append('family')
     cursor.execute('LOAD DATA LOCAL INFILE \'%s\' '
                    'INTO TABLE instances '
                    'CHARACTER SET UTF8 '
@@ -40,46 +49,18 @@ def load_idents(cursor, filename, dataset_id):
                    'OPTIONALLY ENCLOSED BY \'"\' '
                    'LINES TERMINATED BY \'%s\' '
                    'IGNORE 1 LINES '
+                   '(%s) '
                    'SET dataset_id = %d,'
                    'row_number = NULL;'
                    % (filename,
                       get_trailing_characters(filename),
+                      ','.join(fields),
                       dataset_id))
     cursor.execute('SET @pos = 0;')
     cursor.execute('UPDATE instances SET row_number = '
                    '( SELECT @pos := @pos + 1 ) WHERE dataset_id = %d;'
                    % dataset_id)
-
-
-def load_ground_truth(cursor, filename, dataset_id):
-    families = annotations_with_families(filename)
-    cursor.execute('CREATE TEMPORARY TABLE ground_truth_import('
-                   'user_instance_id integer PRIMARY KEY, '
-                   'label varchar(200), '
-                   'family varchar(200) DEFAULT \'other\', '
-                   'dataset_id integer DEFAULT %d, '
-                   'id integer DEFAULT NULL);' % dataset_id)
-    fields = ['user_instance_id', 'label']
-    if families:
-        fields.append('family')
-    cursor.execute('LOAD DATA LOCAL INFILE \'%s\' '
-                   'INTO TABLE ground_truth_import '
-                   'FIELDS TERMINATED BY \',\' '
-                   'LINES TERMINATED BY \'%s\' '
-                   'IGNORE 1 LINES '
-                   '(%s);' % (filename,
-                              get_trailing_characters(filename),
-                              ','.join(fields)))
-    cursor.execute('UPDATE ground_truth_import t '
-                   'JOIN instances i '
-                   'ON i.user_instance_id = t.user_instance_id '
-                   'AND i.dataset_id = t.dataset_id '
-                   'SET t.id = i.id;')
-    cursor.execute('INSERT INTO ground_truth'
-                   '(instance_id, dataset_id, label, family) '
-                   'SELECT t.id, t.dataset_id, t.label, t.family '
-                   'FROM ground_truth_import AS t;')
-    cursor.execute('DROP TABLE ground_truth_import;')
+    return gt_labels
 
 
 def load_partial_annotations(cursor, filename, annotations_id, dataset_id):

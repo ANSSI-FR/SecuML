@@ -39,15 +39,6 @@ from .monitoring import CvMonitoring
 from .train import TrainExp
 
 
-class NoGroundTruth(SecuMLexpException):
-
-    def __init__(self, message):
-        self.message = message
-
-    def __str__(self):
-        return self.message
-
-
 class ExperimentNotFound(SecuMLexpException):
 
     def __init__(self, exp_id):
@@ -229,7 +220,7 @@ class DiademExp(Experiment):
         if (kind == 'validation' or
                 (kind == 'test' and self.test_conf.method == 'datasets')):
             validation_conf = getattr(self, '%s_conf' % kind)
-            annotations_conf = AnnotationsConf('ground_truth.csv', None,
+            annotations_conf = AnnotationsConf('GROUND_TRUTH_IF_EXISTS', None,
                                                logger)
             features_conf = self.exp_conf.features_conf
             if validation_conf.streaming:
@@ -310,7 +301,7 @@ class DiademExp(Experiment):
                    detection_exps[0].exp_conf.dataset_conf.has_ground_truth
                    for detection_exp in detection_exps):
             raise InvalidValidationDatasets(
-                    'All the test datasets must contain ground truth '
+                    'All the validation datasets must contain ground truth '
                     'annotations, or none of them.')
         if fold_id is None:
             exp = global_exp if global_exp is not None else detection_exps[0]

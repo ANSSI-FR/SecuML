@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from secuml.core.data import labels_tools
 from secuml.core.data.labels_tools import BENIGN, MALICIOUS
+from secuml.core.data.labels_tools import label_bool_to_str
 
 
 class Datasets(object):
@@ -26,12 +26,9 @@ class Datasets(object):
 
     def update(self, instance_id, label, family):
         self.new_annotations = True
-        self.instances.annotations.set_label_family(
-                                       instance_id,
-                                       labels_tools.label_str_to_bool(label),
-                                       family)
+        self.instances.annotations.set_label_family(instance_id, label, family)
         # Update the annotation count
-        self.num_annotations[label] += 1
+        self.num_annotations[label_bool_to_str(label)] += 1
 
     def num_annotations(self, label='all'):
         return len(self.instances.annotations.get_annotated_ids(label=label))

@@ -19,11 +19,6 @@ from sqlalchemy import Column, ForeignKey
 from sqlalchemy import Boolean, DateTime, Enum, Float, Integer, String, Text
 from sqlalchemy.orm import relationship
 
-from secuml.core.data.labels_tools import BENIGN, MALICIOUS
-
-from . import mysql_specific
-from . import postgresql_specific
-
 
 Base = declarative_base()
 
@@ -36,7 +31,7 @@ class DatasetsAlchemy(Base):
     project = Column(String(200), index=True)
     dataset = Column(String(200), index=True)
     idents_hash = Column(String(32), nullable=False)
-    ground_truth_hash = Column(String(32), nullable=True)
+    ground_truth = Column(Boolean, default=False, nullable=False)
 
     instances = relationship('InstancesAlchemy', back_populates='dataset',
                              uselist=True, cascade='all, delete-orphan')
@@ -130,9 +125,9 @@ class PredictionsAlchemy(Base):
     instance_id = Column(Integer,
                          ForeignKey('instances.id', ondelete='CASCADE'),
                          primary_key=True)
-    value = Column(String(200), nullable=False)
-    proba = Column(Float, nullable=True)
-    score = Column(Float, nullable=True)
+    value = Column(String(200), nullable=False, index=True)
+    proba = Column(Float, nullable=True, index=True)
+    score = Column(Float, nullable=True, index=True)
     rank = Column(Integer, nullable=True)
 
     instance = relationship('InstancesAlchemy', back_populates='predictions',
@@ -213,7 +208,7 @@ class ExpAnnotationsAlchemy(Base):
     __tablename__ = 'exp_annotations'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    type = Column(Enum('none', 'ground_truth', 'partial',
+    type = Column(Enum('ground_truth', 'partial', 'ground_truth_if_exists',
                        name='annotations_type'),
                   nullable=False)
 
@@ -233,6 +228,8 @@ class InstancesAlchemy(Base):
     user_instance_id = Column(Integer, index=True)
     ident = Column(Text())
     timestamp = Column(DateTime())
+    label = Column(Boolean, nullable=True, index=True)
+    family = Column(String(200), nullable=True, index=True)
     dataset_id = Column(Integer, ForeignKey('datasets.id', ondelete='CASCADE'),
                         index=True)
     row_number = Column(Integer, nullable=True)
@@ -245,30 +242,8 @@ class InstancesAlchemy(Base):
                                back_populates='instance',
                                uselist=True,
                                cascade='all, delete-orphan')
-    ground_truth = relationship('GroundTruthAlchemy',
-                                back_populates='instance',
-                                uselist=False,
-                                cascade='all, delete-orphan')
     predictions = relationship('PredictionsAlchemy', back_populates='instance',
                                uselist=False, cascade='all, delete-orphan')
-
-
-class GroundTruthAlchemy(Base):
-
-    __tablename__ = 'ground_truth'
-
-    instance_id = Column(Integer,
-                         ForeignKey('instances.id', ondelete='CASCADE'),
-                         primary_key=True)
-    dataset_id = Column(Integer, ForeignKey('datasets.id', ondelete='CASCADE'))
-
-    label = Column(Enum(MALICIOUS, BENIGN, name='ground_truth_enum'),
-                   nullable=False)
-    family = Column(String(200))
-
-    instance = relationship('InstancesAlchemy',
-                            back_populates='ground_truth',
-                            uselist=False)
 
 
 class AnnotationsAlchemy(Base):
@@ -282,9 +257,8 @@ class AnnotationsAlchemy(Base):
                             ForeignKey('exp_annotations.id',
                                        ondelete='CASCADE'),
                             primary_key=True)
-    label = Column(Enum(MALICIOUS, BENIGN, name='labels_enum'),
-                   nullable=False)
-    family = Column(String(200))
+    label = Column(Boolean, nullable=False, index=True)
+    family = Column(String(200), index=True)
     iteration = Column(Integer)
     method = Column(String(200))
 
@@ -359,14 +333,3 @@ class FeaturesAlchemy(Base):
                                  back_populates='features', uselist=False)
     features_set = relationship('FeaturesSetsAlchemy',
                                 back_populates='features', uselist=False)
-
-
-# db_type: mysql or postgresql
-def call_specific_db_func(db_type, function, args):
-    if db_type == 'mysql':
-        module = mysql_specific
-    elif db_type == 'postgresql':
-        module = postgresql_specific
-    else:
-        assert(False)
-    return getattr(module, function)(*args)

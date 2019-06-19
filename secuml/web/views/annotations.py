@@ -21,6 +21,7 @@ import os.path as path
 from secuml.web import app, user_exp, session
 from secuml.web.views.experiments import update_curr_exp
 
+from secuml.core.data.labels_tools import label_str_to_bool, label_bool_to_str
 from secuml.exp.conf.annotations import AnnotationsTypes
 from secuml.exp.data import annotations_db_tools
 
@@ -37,7 +38,8 @@ def getAnnotation(annotations_type, annotations_id, dataset_id, instance_id):
     if annotation is None:
         return jsonify({})
     else:
-        return jsonify({'label': annotation[0], 'family': annotation[1]})
+        return jsonify({'label': label_bool_to_str(annotation[0]),
+                        'family': annotation[1]})
 
 
 # If there is already an annotation for 'instance_id' in 'experiment',
@@ -64,6 +66,7 @@ def removeAnnotation(exp_id, annotations_id, instance_id):
 def updateAnnotation(exp_id, annotations_id, iter_num, instance_id, label,
                      family, method):
     iter_num = None if iter_num == 'None' else int(iter_num)
+    label = label_str_to_bool(label)
     annotations_db_tools.update_annotation(session, annotations_id,
                                            instance_id, label, family,
                                            iter_num, method)

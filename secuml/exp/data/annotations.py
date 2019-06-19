@@ -17,7 +17,8 @@
 import os.path as path
 
 from secuml.exp.conf.annotations import AnnotationsTypes
-from secuml.exp.tools.db_tables import call_specific_db_func
+from secuml.exp.conf.annotations import NoGroundTruth
+from secuml.exp.tools import call_specific_db_func
 from secuml.exp.tools.db_tables import ExpAnnotationsAlchemy
 from secuml.exp.tools.exp_exceptions import SecuMLexpException
 
@@ -32,14 +33,22 @@ class Annotations(object):
 
     def load(self):
         annotations_id = self.annotations_conf.annotations_id
-        annotations_type = self.annotations_conf.annotations_type
-        filename = self.annotations_conf.annotations_filename
         if annotations_id is None:
             annotations_id = self.add_exp_annotations_in_db()
+            annotations_type = self.annotations_conf.annotations_type
+            if (annotations_type == AnnotationsTypes.ground_truth_if_exists
+                    and not self.dataset_conf.has_ground_truth):
+                annotations_type = AnnotationsTypes.partial
+                self.annotations_conf.annotations_type = annotations_type
+                self.annotations_conf.annotations_filename = None
             if annotations_type == AnnotationsTypes.partial:
+                filename = self.annotations_conf.annotations_filename
                 self.load_partial_annotations(filename, annotations_id)
         else:
             annotations_type = self.get_annotations_type(annotations_id)
+        if (annotations_type == AnnotationsTypes.ground_truth
+                and not self.dataset_conf.has_ground_truth):
+            raise NoGroundTruth()
         self.annotations_conf.set_exp_annotations(annotations_id,
                                                   annotations_type)
 

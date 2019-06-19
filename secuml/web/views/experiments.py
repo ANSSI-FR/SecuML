@@ -122,7 +122,7 @@ def getFeaturesAnalysisExp(exp_id):
     query = query.filter(FeaturesAnalysisExpAlchemy.features_set_id ==
                          features_set_id)
     query = query.filter(FeaturesAnalysisExpAlchemy.annotations_filename ==
-                         'ground_truth.csv')
+                         'GROUND_TRUTH')
     query = query.order_by(desc(FeaturesAnalysisExpAlchemy.id))
     res = query.first()
     if res is not None:

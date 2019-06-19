@@ -23,19 +23,19 @@ from sqlalchemy.orm.exc import NoResultFound
 from secuml.web import app, secuml_conf, session
 from secuml.web.views.experiments import update_curr_exp
 
-from secuml.core.data.labels_tools import MALICIOUS
+from secuml.core.data.labels_tools import label_str_to_bool
+from secuml.core.data.labels_tools import BENIGN, MALICIOUS
 from secuml.core.tools.plots.barplot import BarPlot
 from secuml.core.tools.plots.dataset import PlotDataset
 from secuml.core.tools.color import red
 
 from secuml.exp.diadem import DiademExp  # NOQA
 from secuml.exp.data.features import FeaturesFromExp
-from secuml.exp.tools.db_tables import call_specific_db_func
+from secuml.exp.tools import call_specific_db_func
 from secuml.exp.tools.db_tables import DatasetsAlchemy
 from secuml.exp.tools.db_tables import DiademExpAlchemy
 from secuml.exp.tools.db_tables import ExpAlchemy
 from secuml.exp.tools.db_tables import ExpRelationshipsAlchemy
-from secuml.exp.tools.db_tables import GroundTruthAlchemy
 from secuml.exp.tools.db_tables import InstancesAlchemy
 from secuml.exp.tools.db_tables import PredictionsAlchemy
 
@@ -177,7 +177,8 @@ def getAlerts(exp_id, analysis_type):
         threshold = exp.exp_conf.core_conf.detection_threshold
         query = query.filter(PredictionsAlchemy.proba >= threshold)
     else:
-        query = query.filter(PredictionsAlchemy.value == MALICIOUS)
+        query = query.filter(
+                    PredictionsAlchemy.value == label_str_to_bool(MALICIOUS))
     if analysis_type == 'topN' and (with_proba or with_scores):
         if with_proba:
             query = query.order_by(PredictionsAlchemy.proba.desc())
@@ -202,8 +203,8 @@ def getPredictionsProbas(exp_id, index, label):
     query = query.order_by(PredictionsAlchemy.proba.asc())
     if label != 'all':
         query = query.join(PredictionsAlchemy.instance)
-        query = query.join(InstancesAlchemy.ground_truth)
-        query = query.filter(GroundTruthAlchemy.label == label)
+        query = query.filter(
+                            InstancesAlchemy.label == label_str_to_bool(label))
     query = call_specific_db_func(secuml_conf.db_type, 'random_order',
                                   (query,))
     query = query.limit(NUM_MAX_DISPLAY)
@@ -220,8 +221,8 @@ def getPredictionsScores(exp_id, range_, label):
     query = query.order_by(PredictionsAlchemy.score.asc())
     if label != 'all':
         query = query.join(PredictionsAlchemy.instance)
-        query = query.join(InstancesAlchemy.ground_truth)
-        query = query.filter(GroundTruthAlchemy.label == label)
+        query = query.filter(
+                            InstancesAlchemy.label == label_str_to_bool(label))
     query = call_specific_db_func(secuml_conf.db_type, 'random_order',
                                   (query,))
     query = query.limit(NUM_MAX_DISPLAY)
@@ -237,13 +238,16 @@ def getPredictions(exp_id, predicted_value, right_wrong, multiclass):
     query = query.filter(PredictionsAlchemy.value == predicted_value)
     if right_wrong != 'all':
         query = query.join(PredictionsAlchemy.instance)
-        query = query.join(InstancesAlchemy.ground_truth)
-        field = 'family' if multiclass else 'label'
+        if multiclass:
+            field = 'family'
+        else:
+            field = 'label'
+            predicted_value = label_str_to_bool(predicted_value)
         if right_wrong == 'right':
-            query = query.filter(getattr(GroundTruthAlchemy, field) ==
+            query = query.filter(getattr(InstancesAlchemy, field) ==
                                  predicted_value)
         elif right_wrong == 'wrong':
-            query = query.filter(getattr(GroundTruthAlchemy, field) !=
+            query = query.filter(getattr(InstancesAlchemy, field) !=
                                  predicted_value)
         else:
             assert(False)
@@ -257,17 +261,16 @@ def getPredictions(exp_id, predicted_value, right_wrong, multiclass):
 def getErrors(exp_id):
     def _get_errors(exp_id, fn_fp):
         if fn_fp == 'FN':
-            predicted_value = 'benign'
-            ground_truth = 'malicious'
+            predicted_value = label_str_to_bool(BENIGN)
+            ground_truth = label_str_to_bool(MALICIOUS)
         else:
-            predicted_value = 'malicious'
-            ground_truth = 'benign'
+            predicted_value = label_str_to_bool(MALICIOUS)
+            ground_truth = label_str_to_bool(BENIGN)
         query = session.query(PredictionsAlchemy)
         query = query.filter(PredictionsAlchemy.exp_id == exp_id)
         query = query.filter(PredictionsAlchemy.value == predicted_value)
         query = query.join(PredictionsAlchemy.instance)
-        query = query.join(InstancesAlchemy.ground_truth)
-        query = query.filter(GroundTruthAlchemy.label == ground_truth)
+        query = query.filter(InstancesAlchemy.label == ground_truth)
         query = call_specific_db_func(secuml_conf.db_type, 'random_order',
                                       (query,))
         query = query.limit(NUM_MAX_DISPLAY)

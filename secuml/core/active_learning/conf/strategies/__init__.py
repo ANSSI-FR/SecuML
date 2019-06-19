@@ -127,7 +127,7 @@ class ActiveLearningConf(Conf):
               default=False,
               help='When specified, the annotation queries are answered '
                    'automatically by an oracle with the ground-truth labels '
-                   'stored in ground_truth.csv. '
+                   'stored in idents.csv. '
                    '\nOtherwise, the user must answer some annotation queries '
                    'in the web interface at each iteration.')
         al_group.add_argument(

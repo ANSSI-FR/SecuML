@@ -77,7 +77,8 @@ class Annotations(object):
         if label == 'all':
             return self.ids.num_instances()
         else:
-            return len(self.get_annotated_ids(label=label))
+            mask = self.labels == label_str_to_bool(label)
+            return np.sum(mask)
 
     def get_supervision(self, multiclass):
         if multiclass:

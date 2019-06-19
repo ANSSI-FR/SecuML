@@ -15,7 +15,6 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from secuml.core.active_learning.queries import Query as CoreQuery
-from secuml.core.data import labels_tools
 from secuml.exp.data import annotations_db_tools
 
 
@@ -23,9 +22,8 @@ class Query(CoreQuery):
 
     def annotate_auto(self, iteration, kind):
         instances = iteration.datasets.instances
-        label = instances.ground_truth.get_label(self.instance_id)
-        label = labels_tools.label_bool_to_str(label)
-        family = instances.ground_truth.get_family(self.instance_id)
+        label, family = instances.ground_truth.get_label_family(
+                                                            self.instance_id)
         # Update the datasets
         self.update_datasets(iteration, label, family)
         # Update in the database

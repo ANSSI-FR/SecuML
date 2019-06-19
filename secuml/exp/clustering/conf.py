@@ -57,7 +57,7 @@ class ClusteringConf(ExpConf):
                       'By default, the clustering is built from all the '
                       'instances. The malicious and benign instances are '
                       'selected according to the ground-truth stored in '
-                      'annotations/ground_truth.csv.')
+                      'idents.csv.')
         subparsers = parser.add_subparsers(dest='algo')
         subparsers.required = True
         factory = clustering_conf.get_factory()

@@ -122,8 +122,9 @@ and to make comparisons automatically.
 .. note::
 
   The oracle mode requires that the ground truth is known and stored in
-  ``<input_data_dir>/<project>/<dataset>/annotations/ground_truth.csv`` where
-  input data directory ``<input_data_dir>`` is specified in the :ref:`configuration file <configuration>`.
+  ``<input_data_dir>/<project>/<dataset>/idents.csv`` where
+  input data directory ``<input_data_dir>`` is specified in the
+  :ref:`configuration file <configuration>`.
 
 Annotation Budget
 ^^^^^^^^^^^^^^^^^

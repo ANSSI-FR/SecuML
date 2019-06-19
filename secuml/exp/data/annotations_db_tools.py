@@ -17,10 +17,11 @@
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import func
 
-from secuml.core.data import labels_tools
+from secuml.core.data.labels_tools import label_bool_to_str
 from secuml.exp.conf.annotations import AnnotationsTypes
 from secuml.exp.tools.db_tables import AnnotationsAlchemy
-from secuml.exp.tools.db_tables import GroundTruthAlchemy
+from secuml.exp.tools.db_tables import DatasetsAlchemy
+from secuml.exp.tools.db_tables import InstancesAlchemy
 
 
 def get_annotation(session, annotations_type, annotations_id, dataset_id,
@@ -30,6 +31,9 @@ def get_annotation(session, annotations_type, annotations_id, dataset_id,
                                                instance_id)
     elif annotations_type == AnnotationsTypes.ground_truth:
         return get_instance_ground_truth(session, dataset_id, instance_id)
+    elif annotations_type == AnnotationsTypes.ground_truth_if_exists:
+        if has_ground_truth(session, dataset_id):
+            return get_instance_ground_truth(session, dataset_id, instance_id)
     else:
         return None
 
@@ -54,24 +58,14 @@ def get_instance_partial_annotation(session, annotations_id, instance_id):
 
 
 def get_instance_ground_truth(session, dataset_id, instance_id):
-    query = session.query(GroundTruthAlchemy)
-    query = query.filter(GroundTruthAlchemy.dataset_id == dataset_id)
-    query = query.filter(GroundTruthAlchemy.instance_id == int(instance_id))
+    query = session.query(InstancesAlchemy)
+    query = query.filter(InstancesAlchemy.dataset_id == dataset_id)
+    query = query.filter(InstancesAlchemy.id == int(instance_id))
     try:
         row = query.one()
         return row.label, row.family
     except NoResultFound:
         return None
-
-
-def get_ground_truth(session, dataset_id):
-    query = session.query(GroundTruthAlchemy)
-    query = query.filter(GroundTruthAlchemy.dataset_id == dataset_id)
-    query = query.order_by(GroundTruthAlchemy.instance_id)
-    res = query.all()
-    labels = [labels_tools.label_str_to_bool(r.label) for r in res]
-    families = [r.family for r in res]
-    return labels, families
 
 
 def get_annotated_instances(session, annotations_id):
@@ -88,10 +82,21 @@ def get_dataset_families(session, annotations_id):
     return families
 
 
+def has_ground_truth(session, dataset_id):
+    query = session.query(DatasetsAlchemy)
+    query = query.filter(DatasetsAlchemy.id == dataset_id)
+    return query.one().ground_truth
+
+
 def get_labels_families(session, annotations_type, annotations_id, dataset_id,
                         instance_ids=None, iter_max=None):
     if annotations_type == AnnotationsTypes.ground_truth:
         query = get_labels_families_gt(session, dataset_id, instance_ids)
+    elif annotations_type == AnnotationsTypes.ground_truth_if_exists:
+        if has_ground_truth(session, dataset_id):
+            query = get_labels_families_gt(session, dataset_id, instance_ids)
+        else:
+            return {}
     elif annotations_type == AnnotationsTypes.partial:
         query = get_labels_families_partial(session, annotations_id,
                                             instance_ids, iter_max)
@@ -99,18 +104,19 @@ def get_labels_families(session, annotations_type, annotations_id, dataset_id,
         assert(False)
     labels = {}
     for r in query.all():
-        if r.label not in list(labels.keys()):
-            labels[r.label] = {}
-        labels[r.label][r.family] = 0
+        label = label_bool_to_str(r.label)
+        if label not in list(labels.keys()):
+            labels[label] = {}
+        labels[label][r.family] = 0
     return labels
 
 
 def get_labels_families_gt(session, dataset_id, instance_ids):
-    query = session.query(GroundTruthAlchemy)
-    query = query.distinct(GroundTruthAlchemy.label, GroundTruthAlchemy.family)
-    query = query.filter(GroundTruthAlchemy.dataset_id == dataset_id)
+    query = session.query(InstancesAlchemy)
+    query = query.distinct(InstancesAlchemy.label, InstancesAlchemy.family)
+    query = query.filter(InstancesAlchemy.dataset_id == dataset_id)
     if instance_ids is not None:
-        query = query.filter(GroundTruthAlchemy.instance_id.in_(instance_ids))
+        query = query.filter(InstancesAlchemy.id.in_(instance_ids))
     return query
 
 
@@ -153,13 +159,13 @@ def get_label_family_ids_partial(session, annotations_id, label, family,
 
 
 def get_label_family_ids_gt(session, dataset_id, label, family, instance_ids):
-    query = session.query(GroundTruthAlchemy)
-    query = query.filter(GroundTruthAlchemy.dataset_id == dataset_id)
-    query = query.filter(GroundTruthAlchemy.label == label)
+    query = session.query(InstancesAlchemy)
+    query = query.filter(InstancesAlchemy.dataset_id == dataset_id)
+    query = query.filter(InstancesAlchemy.label == label)
     if family is not None:
-        query = query.filter(GroundTruthAlchemy.family == family)
+        query = query.filter(InstancesAlchemy.family == family)
     if instance_ids is not None:
-        query = query.filter(GroundTruthAlchemy.instance_id.in_(instance_ids))
+        query = query.filter(InstancesAlchemy.id.in_(instance_ids))
     return [r.instance_id for r in query.all()]
 
 
@@ -191,10 +197,11 @@ def get_families_counts(session, annotations_id, iter_max=None, label=None):
 def add_annotation(session, annotations_id, instance_id, label, family,
                    iter_num, method):
     annotation = AnnotationsAlchemy(annotations_id=annotations_id,
-                                    # MySQL does not support numpy type int64
+                                    # MySQL does not support numpy int64 type
                                     instance_id=int(instance_id),
                                     label=label,
-                                    family=family,
+                                    # MySQL does not support numpy str_ type
+                                    family=str(family),
                                     iteration=iter_num,
                                     method=method)
     session.add(annotation)
@@ -240,8 +247,7 @@ def change_family_label(session, annotations_id, label, family):
     query = query.filter(AnnotationsAlchemy.family == family)
     query = query.filter(AnnotationsAlchemy.annotations_id == annotations_id)
     instances = query.all()
-    bool_label = labels_tools.label_str_to_bool(label)
-    new_label = labels_tools.label_bool_to_str(not bool_label)
+    new_label = not label
     for instance in instances:
         instance.label = new_label
     session.flush()

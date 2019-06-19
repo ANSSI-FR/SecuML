@@ -4,7 +4,7 @@ set -e
 
 function experiments {
     SecuML_features_analysis Gaussians test
-    SecuML_projection Gaussians test -a ground_truth.csv Lda
+    SecuML_projection Gaussians test -a GROUND_TRUTH Lda
     SecuML_clustering Gaussians test Kmeans
     SecuML_DIADEM Gaussians test LogisticRegression
     SecuML_DIADEM Gaussians test LogisticRegression --multiclass

@@ -17,9 +17,9 @@
 import os.path as path
 
 from . import compute_hash
+from secuml.exp.tools import call_specific_db_func
 from secuml.exp.tools.db_tables import DatasetsAlchemy
 from secuml.exp.tools.db_tables import InstancesAlchemy
-from secuml.exp.tools.db_tables import call_specific_db_func
 from secuml.exp.tools.exp_exceptions import SecuMLexpException
 from secuml.exp.tools.exp_exceptions import UpdatedFile
 
@@ -43,14 +43,17 @@ class Idents(object):
 
     def load(self):
         filepath, _ = self.get_filepath_hash()
-        call_specific_db_func(self.secuml_conf.db_type, 'load_idents',
-                              (self.cursor, filepath,
-                               self.dataset_conf.dataset_id))
+        has_ground_truth = call_specific_db_func(self.secuml_conf.db_type,
+                                                 'load_idents',
+                                                 (self.cursor, filepath,
+                                                  self.dataset_conf.dataset_id)
+                                                 )
         self.secuml_conf.logger.info('Idents file for the dataset %s/%s '
                                      'loaded into the database (%s).'
                                      % (self.dataset_conf.project,
                                         self.dataset_conf.dataset,
                                         filepath))
+        return has_ground_truth
 
     def check(self):
         filepath, curr_idents_hash = self.get_filepath_hash()

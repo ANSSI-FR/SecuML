@@ -18,8 +18,6 @@ import csv
 import os
 import os.path as path
 
-from secuml.core.data import labels_tools
-
 from secuml.exp.data import idents_tools
 
 
@@ -57,14 +55,9 @@ class ExportInstances(object):
                                          'description.csv'])
         self.export_features_names(path.join(features_dir,
                                              description_filename))
-        if self.instances.has_ground_truth():
+        if not self.instances.has_ground_truth():
             self.export_annotations(path.join(annotations_dir,
-                                              'ground_truth.csv'),
-                                    ground_truth=True)
-        else:
-            self.export_annotations(path.join(annotations_dir,
-                                              'partial_annotations.csv'),
-                                    ground_truth=False)
+                                              'partial_annotations.csv'))
 
     def get_print_id(self, instance_id):
         print_id = instance_id
@@ -76,12 +69,24 @@ class ExportInstances(object):
         idents = self.instances.ids.idents
         if idents is None:
             idents = ['undefined'] * self.instances.num_instances()
+        annotations = None
+        has_ground_truth = self.instances.has_ground_truth()
+        if has_ground_truth:
+            annotations = self.instances.get_annotations(True)
         with open(output_filename, 'w') as f:
             csv_writer = csv.writer(f)
-            csv_writer.writerow(['instance_id', 'ident'])
+            header = ['instance_id', 'ident']
+            if has_ground_truth:
+                header.extend(['label', 'family'])
+            csv_writer.writerow(header)
             for instance_id in self.ids:
                 print_id = self.get_print_id(instance_id)
-                csv_writer.writerow([print_id, idents[str(instance_id)]])
+                values = [print_id, idents[str(instance_id)]]
+                if has_ground_truth:
+                    bool_label = annotations.get_label(instance_id)
+                    family = annotations.get_family(instance_id)
+                    values.extend([int(bool_label), family])
+                csv_writer.writerow(values)
 
     def export_features(self, output_filename):
         header = ['instance_id']
@@ -107,16 +112,15 @@ class ExportInstances(object):
                        self.instances.features.get_descriptions()[i]]
                 csv_writer.writerow(row)
 
-    def export_annotations(self, output_filename, ground_truth=False):
+    def export_annotations(self, output_filename):
         header = ['instance_id', 'label', 'family']
-        annotations = self.instances.get_annotations(ground_truth)
+        annotations = self.instances.get_annotations(False)
         with open(output_filename, 'w') as f:
             csv_writer = csv.writer(f)
             csv_writer.writerow(header)
             for instance_id in self.ids:
                 print_id = self.get_print_id(instance_id)
                 bool_label = annotations.get_label(instance_id)
-                label = labels_tools.label_bool_to_str(bool_label)
                 family = annotations.get_family(instance_id)
-                row = [print_id, label, family]
+                row = [print_id, int(bool_label), family]
                 csv_writer.writerow(row)

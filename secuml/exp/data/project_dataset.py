@@ -24,7 +24,6 @@ from secuml.exp.tools.db_tables import ExpRelationshipsAlchemy
 from secuml.exp.tools.exp_exceptions import SecuMLexpException
 
 from .idents import Idents
-from .ground_truth import GroundTruth
 
 
 class ProjectDirNotFound(SecuMLexpException):
@@ -84,12 +83,12 @@ def rm_project_from_db(session, project):
     session.flush()
 
 
-def get_dataset_id(session, project, dataset):
+def get_dataset(session, project, dataset):
     query = session.query(DatasetsAlchemy)
     query = query.filter(DatasetsAlchemy.project == project)
     query = query.filter(DatasetsAlchemy.dataset == dataset)
     try:
-        return query.one().id
+        return query.one()
     except NoResultFound:
         return None
 
@@ -100,8 +99,6 @@ class ProjectDataset(object):
         self._set_var(dataset_conf, secuml_conf, session)
         self.idents = Idents(self.dataset_conf, self.secuml_conf, self.session,
                              self.cursor)
-        self.ground_truth = GroundTruth(self.dataset_conf, self.secuml_conf,
-                                        self.session, self.cursor)
 
     def _set_var(self, dataset_conf, secuml_conf, session):
         # Configuration
@@ -132,25 +129,24 @@ class ProjectDataset(object):
                                      self.project, self.dataset)
 
     def _set_dataset_id(self):
-        dataset_id = get_dataset_id(self.session, self.project, self.dataset)
-        if dataset_id is not None:
-            self.dataset_id = dataset_id
+        dataset_obj = get_dataset(self.session, self.project, self.dataset)
+        if dataset_obj is not None:
+            self.dataset_id = dataset_obj.id
             self.dataset_conf.set_dataset_id(self.dataset_id, self.session)
+            self.dataset_conf.set_has_ground_truth(dataset_obj.ground_truth)
             self.idents.check()
-            self.ground_truth.check()
         else:
             # Add dataset to DB
             _, idents_hash = self.idents.get_filepath_hash()
-            _, ground_truth_hash = self.ground_truth.get_filepath_hash()
             dataset = DatasetsAlchemy(project=self.project,
                                       dataset=self.dataset,
-                                      idents_hash=idents_hash,
-                                      ground_truth_hash=ground_truth_hash)
+                                      idents_hash=idents_hash)
             self.session.add(dataset)
             self.session.flush()
             self.dataset_id = dataset.id
             self.dataset_conf.set_dataset_id(self.dataset_id, self.session)
-            # Load idents and ground_truth
-            self.idents.load()
-            self.ground_truth.load()
-        self.dataset_conf.set_has_ground_truth(self.ground_truth.exists)
+            # Load idents (idents, timestamps, ground truth labels/families)
+            has_ground_truth = self.idents.load()
+            self.dataset_conf.set_has_ground_truth(has_ground_truth)
+            dataset.ground_truth = has_ground_truth
+            self.session.flush()

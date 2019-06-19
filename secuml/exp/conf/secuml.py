@@ -19,8 +19,8 @@ from sqlalchemy.orm import sessionmaker
 import yaml
 
 from secuml.core.tools.logging import close_logger, get_logger
+from secuml.exp.tools import call_specific_db_func
 from secuml.exp.tools.db_tables import Base
-from secuml.exp.tools.db_tables import call_specific_db_func
 from secuml.exp.tools.exp_exceptions import SecuMLexpException
 
 

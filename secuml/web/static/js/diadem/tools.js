@@ -1,5 +1,6 @@
 function interactiveAnnotations() {
-    return !(annotations_type == 'ground_truth');
+    return !(annotations_type == 'ground_truth' ||
+             annotations_type == 'ground_truth_if_exists');
 }
 
 

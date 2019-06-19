@@ -20,18 +20,12 @@ from scipy.sparse import hstack
 from scipy.sparse import load_npz
 
 from secuml.core.data.features import Features
-from secuml.core.data.ids import Ids
-from secuml.exp.data import get_dataset_ids
 from secuml.exp.tools.db_tables import InstancesAlchemy
 
 
 class FeaturesFromExp(Features):
 
-    def __init__(self, exp, instance_ids=None, streaming=False,
-                 stream_batch=None):
-        if instance_ids is None:
-            dataset_id = exp.exp_conf.dataset_conf.dataset_id
-            instance_ids = Ids(get_dataset_ids(exp.session, dataset_id))
+    def __init__(self, exp, instance_ids, streaming=False, stream_batch=None):
         features_conf = exp.exp_conf.features_conf
         num_instances = instance_ids.num_instances()
         if streaming:

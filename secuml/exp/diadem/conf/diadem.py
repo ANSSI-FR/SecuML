@@ -49,9 +49,8 @@ class DiademConf(ExpConf):
     @staticmethod
     def gen_parser():
         parser = argparse.ArgumentParser(
-                              description='Learn a detection model. '
-                                          'The ground-truth must be stored in '
-                                          'annotations/ground_truth.csv.')
+                              description='Train and evaluate a detection '
+                                          'model. ')
         ExpConf.gen_parser(parser, sparse=True)
         factory = classifiers.get_factory()
         models = factory.get_methods()
@@ -65,11 +64,12 @@ class DiademConf(ExpConf):
             if classifier_type in [ClassifierType.supervised,
                                    ClassifierType.semisupervised]:
                 default = None
-                message = '''CSV file containing the annotations of some or
-                             all the instances.'''
+                message = '''CSV file containing the annotations of some
+                             instances, or GROUND_TRUTH to use the ground
+                             truth annotations stored in idents.csv. '''
                 if classifier_type == ClassifierType.supervised:
-                    default = 'ground_truth.csv'
-                    message = '%s Default: ground_truth.csv.' % message
+                    default = 'GROUND_TRUTH'
+                    message = '%s Default: GROUND_TRUTH.' % message
                 AnnotationsConf.gen_parser(model_parser,
                                            required=default is None,
                                            default=default, message=message)

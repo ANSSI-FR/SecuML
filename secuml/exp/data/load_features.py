@@ -157,11 +157,12 @@ class LoadFeatures(object):
     def _load_features(self, set_id, file_id, file_path, num_instances):
         user_ids, names, descrips, types = self._get_ids_types(file_path,
                                                                num_instances)
-        for u_id, name, desc, type_ in zip(user_ids, names, descrips, types):
-            feature = FeaturesAlchemy(user_id=u_id, file_id=file_id,
-                                      set_id=set_id, name=name,
-                                      description=desc, type=type_.name)
-            self.session.add(feature)
+        features = [FeaturesAlchemy(user_id=u_id, file_id=file_id,
+                                    set_id=set_id, name=name, description=desc,
+                                    type=type_.name)
+                    for u_id, name, desc, type_ in zip(user_ids, names,
+                                                       descrips, types)]
+        self.session.bulk_save_objects(features)
 
     def _get_ids_types(self, file_path, num_instances):
         user_ids = None
