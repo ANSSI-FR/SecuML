@@ -76,7 +76,7 @@ class AladinQueries(Queries):
         self.eval_clustering_perf(train_instances)
         # Train the naive Bayes detection model and predict
         self.naive_bayes = GaussianNaiveBayes(naive_bayes_conf)
-        _, self.nb_time = self.naive_bayes.training(train_instances)
+        self.nb_time = self.naive_bayes.training(train_instances)
         num_test_instances = self.test_instances.num_instances()
         self.test_instances.annotations.set_families(
                                 [None for i in range(num_test_instances)])

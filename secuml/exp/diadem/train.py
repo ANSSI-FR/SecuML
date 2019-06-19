@@ -49,11 +49,11 @@ class TrainExp(Experiment):
     def _train(self, train_instances, init_classifier):
         if init_classifier is not None:
             self.classifier = init_classifier
-            _, self.train_time = self.classifier.update(train_instances)
+            self.train_time = self.classifier.update(train_instances)
         else:
             classifier_conf = self.exp_conf.core_conf
             self.classifier = classifier_conf.model_class(classifier_conf)
-            _, self.train_time = self.classifier.training(train_instances)
+            self.train_time = self.classifier.training(train_instances)
         self.monitoring.set_classifier(self.classifier, self.train_time)
 
     def _cv_monitoring(self, train_instances):

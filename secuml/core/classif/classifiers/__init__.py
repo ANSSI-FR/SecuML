@@ -100,16 +100,13 @@ class Classifier(object):
         start = time.time()
         self._fit(instances)
         train_time = time.time() - start
-        predictions = self._get_predictions(instances)
-        return predictions, TrainingExecTimes(train_time,
-                                              best_hyper_params_time)
+        return TrainingExecTimes(train_time, best_hyper_params_time)
 
     def update(self, instances):
         start = time.time()
         self._update(instances)
         train_time = time.time() - start
-        predictions = self._get_predictions(instances)
-        return predictions, TrainingExecTimes(train_time, 0)
+        return TrainingExecTimes(train_time, 0)
 
     def testing(self, instances):
         start = time.time()
@@ -294,10 +291,10 @@ class SupervisedClassifier(Classifier):
                           self._get_supervision(train_instances))
 
     def training(self, train_instances):
-        predictions, exec_time = Classifier.training(self, train_instances)
+        exec_time = Classifier.training(self, train_instances)
         if self.conf.multiclass:
             self.class_labels = self.pipeline.named_steps['model'].classes_
-        return predictions, exec_time
+        return exec_time
 
 
 class UnsupervisedClassifier(Classifier):
