@@ -53,6 +53,9 @@ class Instances(object):
         instance_ids = self.annotations.get_unlabeled_ids()
         return self.get_from_ids(instance_ids)
 
+    def has_unlabeled_data(self):
+        return self.annotations.has_unlabeled_ids()
+
     def get_annotated_instances(self, label='all', family=None):
         instance_ids = self.annotations.get_annotated_ids(label=label,
                                                           family=family)

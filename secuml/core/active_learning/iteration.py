@@ -65,8 +65,7 @@ class Iteration(object):
         return self.budget
 
     def check_unlabeled_data(self):
-        unlabeled_data = self.datasets.get_unlabeled_instances()
-        if unlabeled_data.num_instances() == 0:
+        if not self.datasets.has_unlabeled_data():
             raise NoUnlabeledDataLeft()
 
     def generate_queries(self, predictions):

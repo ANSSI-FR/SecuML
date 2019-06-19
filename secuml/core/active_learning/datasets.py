@@ -39,6 +39,9 @@ class Datasets(object):
     def get_unlabeled_instances(self):
         return self.instances.get_unlabeled_instances()
 
+    def has_unlabeled_data(self):
+        return self.instances.has_unlabeled_data()
+
     def init_counts(self):
         self.ground_truth = {}
         self.num_init = {}

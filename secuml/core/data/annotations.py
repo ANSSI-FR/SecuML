@@ -166,5 +166,11 @@ class Annotations(object):
     def get_unlabeled_ids(self):
         return [i for i in self.ids.get_ids() if not self.is_annotated(i)]
 
+    def has_unlabeled_ids(self):
+        for i in self.ids.get_ids():
+            if not self.is_annotated(i):
+                return True
+        return False
+
     def is_annotated(self, instance_id):
         return self.get_label(instance_id) is not None
