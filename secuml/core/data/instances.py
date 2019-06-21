@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
+
 
 class Instances(object):
 
@@ -34,7 +36,7 @@ class Instances(object):
         self.ground_truth.union(instances.ground_truth)
 
     def has_ground_truth(self):
-        return all(l is not None for l in self.ground_truth.get_labels())
+        return np.all(self.ground_truth.get_labels() != None)  # NOQA: 711
 
     def get_annotations(self, ground_truth):
         if ground_truth:
@@ -62,10 +64,11 @@ class Instances(object):
         return self.get_from_ids(instance_ids)
 
     def get_from_ids(self, instance_ids):
-        ids = self.ids.get_from_ids(instance_ids)
-        features = self.features.get_from_ids(ids)
-        annotations = self.annotations.get_from_ids(ids)
-        ground_truth = self.ground_truth.get_from_ids(ids)
+        indices = np.array([self.ids.indexes[id_] for id_ in instance_ids])
+        ids = self.ids.get_from_indices(instance_ids, indices)
+        features = self.features.get_from_indices(ids, indices)
+        annotations = self.annotations.get_from_indices(ids, indices)
+        ground_truth = self.ground_truth.get_from_indices(ids, indices)
         return Instances(ids, features, annotations, ground_truth)
 
     def get_features_ids(self):

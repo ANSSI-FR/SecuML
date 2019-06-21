@@ -83,7 +83,7 @@ class Predictions(object):
         self.probas = self._get_nparray(probas)
         self.all_scores = self._get_ndarray(all_scores)
         self.scores = self._get_nparray(scores)
-        self.ground_truth = self._get_array(ground_truth)
+        self.ground_truth = self._get_nparray(ground_truth)
         self._check_validity()
         self.info = PredictionsInfo(multiclass, self)
         self._set_ranking()
@@ -97,11 +97,12 @@ class Predictions(object):
                     for i, proba in np.ndenumerate(self.probas)
                     if proba > threshold]
         elif top_n is not None:
-            if self.num_instances() <= top_n:
+            num_instances = self.num_instances()
+            if num_instances <= top_n:
                 return self.to_list()
             if self.info.with_probas or self.info.with_scores:
                 return [self.get_prediction_from_index(i)
-                        for i in range(self.num_instances())
+                        for i in range(num_instances)
                         if self.ranking[i] < top_n]
             else:
                 ids = [i[0] for i, value in np.ndenumerate(self.values)
@@ -123,7 +124,8 @@ class Predictions(object):
         self.probas = np.hstack((self.probas, predictions.probas))
         self.all_scores = np.vstack((self.all_scores, predictions.all_scores))
         self.scores = np.hstack((self.scores, predictions.scores))
-        self.ground_truth.extend(predictions.ground_truth)
+        self.ground_truth = np.hstack((self.ground_truth,
+                                       predictions.ground_truth))
         self._set_ranking()
 
     def _set_ranking(self):
@@ -138,7 +140,7 @@ class Predictions(object):
         elif self.info.with_scores:
             self.ranking = _rank_elems(self.scores)
         else:
-            self.ranking = [None for _ in range(self.num_instances())]
+            self.ranking = np.full((self.num_instances(),), None)
 
     def get_prediction(self, instance_id):
         return self.get_prediction_from_index(self.ids.get_index(instance_id))
@@ -173,12 +175,13 @@ class Predictions(object):
 
     def set_ground_truth(self, ground_truth):
         num_instances = self.num_instances()
-        if len(self.ground_truth) != num_instances:
+        if self.ground_truth.shape[0] != num_instances:
             raise InvalidPredictions(
                     'There are %d instances '
                     'but %d ground-truth annotations are provided'
-                    % (num_instances, len(self.ground_truth)))
+                    % (num_instances, self.ground_truth.shape[0]))
         self.ground_truth = ground_truth
+        self.info.with_ground_truth = self._with_ground_truth()
 
     @staticmethod
     def deepcopy(predictions):
@@ -193,10 +196,10 @@ class Predictions(object):
 
     def _check_validity(self):
         num_instances = self.num_instances()
-        if len(self.values) != num_instances:
+        if self.values.shape[0] != num_instances:
             raise InvalidPredictions('There are %d instances '
                                      'but %d values are provided.'
-                                     % (num_instances, len(self.values)))
+                                     % (num_instances, self.values.shape[0]))
         elif self.all_probas.shape[0] != num_instances:
             raise InvalidPredictions('There are %d instances '
                                      'but %d arrays of probabilities '
@@ -215,36 +218,30 @@ class Predictions(object):
             raise InvalidPredictions('There are %d instances '
                                      'but %d scores are provided.'
                                      % (num_instances, self.scores.shape[0]))
-        elif len(self.ground_truth) != num_instances:
+        elif self.ground_truth.shape[0] != num_instances:
             raise InvalidPredictions('There are %d instances '
                                      'but %d ground-truth annotations '
                                      'are provided.'
-                                     % (num_instances, len(self.ground_truth)))
+                                     % (num_instances,
+                                        self.ground_truth.shape[0]))
 
     def _get_nparray(self, array):
         if array is None:
-            return np.array(self._get_array(array))
+            return np.full((self.num_instances(),), None)
         else:
             return array
 
     def _get_ndarray(self, array):
         if array is None:
-            return np.ndarray((self.ids.num_instances(), 1),
-                              buffer=np.array(self._get_array(array)))
-        else:
-            return array
-
-    def _get_array(self, array):
-        if array is None:
-            return [None for _ in range(self.ids.num_instances())]
+            return np.full((self.num_instances(), 1), None)
         else:
             return array
 
     def _with_probas(self):
-        return all(l is not None for l in self.probas)
+        return np.all(self.probas != None)  # NOQA: 711
 
     def _with_scores(self):
-        return all(l is not None for l in self.scores)
+        return np.all(self.scores != None)  # NOQA: 711
 
     def _with_ground_truth(self):
-        return all(l is not None for l in self.ground_truth)
+        return np.all(self.ground_truth != None)  # NOQA: 711

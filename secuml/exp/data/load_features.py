@@ -16,6 +16,7 @@
 
 import csv
 import os
+import numpy as np
 import pandas as pd
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -230,7 +231,7 @@ class LoadFeatures(object):
                                               num_instances,
                                               sparse=self.features_conf.sparse)
         num_features = features.shape[1]
-        types = [None for _ in range(num_features)]
+        types = np.empty((num_features,), dtype=object)
         for i in range(num_features):
             values = features[:, i]
             if all(v in [0, 1] for v in values):

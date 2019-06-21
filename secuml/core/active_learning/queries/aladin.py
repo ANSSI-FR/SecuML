@@ -69,8 +69,7 @@ class AladinQueries(Queries):
         naive_bayes_conf = self._create_naive_bayes_conf()
         # Update training data
         # the naive Bayes classifier is trained on all the data
-        self.test_instances.annotations.set_families(
-                list(self.lr_predicted_labels))
+        self.test_instances.annotations.set_families(self.lr_predicted_labels)
         train_instances = copy.deepcopy(self.train_instances)
         train_instances.union(self.test_instances)
         self.eval_clustering_perf(train_instances)
@@ -78,8 +77,7 @@ class AladinQueries(Queries):
         self.naive_bayes = GaussianNaiveBayes(naive_bayes_conf)
         self.nb_time = self.naive_bayes.training(train_instances)
         num_test_instances = self.test_instances.num_instances()
-        self.test_instances.annotations.set_families(
-                                [None for i in range(num_test_instances)])
+        self.test_instances.annotations.set_families(None)
         start_time = time.time()
         if num_test_instances == 0:
             self.nb_predicted_labels = []

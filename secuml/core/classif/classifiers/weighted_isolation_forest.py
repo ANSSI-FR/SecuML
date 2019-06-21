@@ -150,7 +150,7 @@ class _WeightedIsolationForest(_IsolationForest):
         return -_IsolationForest.decision_function(self, X)
 
     def predict(self, X):
-        return [p == -1 for p in _IsolationForest.predict(self, X)]
+        return _IsolationForest.predict(self, X) == -1
 
     def _init_node_weights(self):
         num_nodes = sum([estimator.tree_.node_count
@@ -204,8 +204,8 @@ class WeightedIsolationForest(SemiSupervisedClassifier):
 
     def _update(self, instances):
         self.pipeline['model'].update_node_weights(
-                                            instances.features.get_values(),
-                                            self._get_supervision(instances))
+                                          instances.features.get_values(),
+                                          self.conf.get_supervision(instances))
 
     # sklearn unsupervised learning algorithms return
     #   -1 for outliers
@@ -214,5 +214,5 @@ class WeightedIsolationForest(SemiSupervisedClassifier):
     def _predict(self, features, instances_ids):
         predictions = SemiSupervisedClassifier._predict(self, features,
                                                         instances_ids)
-        predictions.values = [p == -1 for p in predictions.values]
+        predictions.values = predictions.values == -1
         return predictions

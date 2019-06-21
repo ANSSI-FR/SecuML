@@ -14,8 +14,9 @@
 # You should have received a copy of the GNU General Public License along
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
-from secuml.core.data import labels_tools
-from secuml.core.data.labels_tools import BENIGN, MALICIOUS
+import numpy as np
+
+from secuml.core.data.labels_tools import label_str_to_bool
 from secuml.core.tools.core_exceptions import SecuMLcoreException
 
 
@@ -37,36 +38,40 @@ class Annotations(object):
 
     def check_validity(self):
         num_instances = self.ids.num_instances()
-        if len(self.labels) != num_instances:
+        if self.labels.shape[0] != num_instances:
             raise InvalidAnnotations('There are %d instances '
                                      'but %d labels are provided.'
-                                     % (num_instances,
-                                        len(self.labels)))
-        elif len(self.families) != num_instances:
+                                     % (num_instances, self.labels.shape[0]))
+        elif self.families.shape[0] != num_instances:
             raise InvalidAnnotations('There are %d instances '
                                      'but %d families are provided.'
-                                     % (num_instances,
-                                        len(self.families)))
+                                     % (num_instances, self.families.shape[0]))
 
     def _set_labels_families(self, labels, families):
-        if labels is None:
-            labels = [None for _ in range(self.ids.num_instances())]
-        if families is None:
-            families = [None for _ in range(self.ids.num_instances())]
         self.set_labels(labels)
         self.set_families(families)
 
     # The union must be used on instances coming from the same dataset.
     # Otherwise, there may be some collisions on the ids.
     def union(self, annotations):
-        self.labels = self.labels + annotations.labels
-        self.families = self.families + annotations.families
+        self.labels = np.hstack((self.labels, annotations.labels))
+        self.families = np.hstack((self.families, annotations.families))
         self.check_validity()
 
     def get_from_ids(self, ids):
-        return Annotations([self.get_label(i) for i in ids.ids],
-                           [self.get_family(i) for i in ids.ids],
-                           ids)
+        if ids.num_instances() == 0:
+            return Annotations(None, None, ids)
+        else:
+            indexes = np.array([self.ids.get_index(i) for i in ids.ids])
+            return Annotations(self.labels[indexes], self.families[indexes],
+                               ids)
+
+    def get_from_indices(self, ids, indices):
+        if ids.num_instances() == 0:
+            return Annotations(None, None, ids)
+        else:
+            return Annotations(self.labels[indices], self.families[indices],
+                               ids)
 
     def num_instances(self, label='all'):
         if label == 'all':
@@ -91,7 +96,9 @@ class Annotations(object):
 
     def set_labels(self, labels):
         num_instances = self.ids.num_instances()
-        if len(labels) != num_instances:
+        if labels is None:
+            labels = np.full((num_instances,), None)
+        elif labels.shape[0] != num_instances:
             raise InvalidAnnotations('There are %d instances '
                                      'but there %d labels are provided.'
                                      % (num_instances, len(labels)))
@@ -117,27 +124,22 @@ class Annotations(object):
 
     def set_families(self, families):
         num_instances = self.ids.num_instances()
-        if len(families) != num_instances:
+        if families is None:
+            families = np.full((num_instances,), None)
+        elif families.shape[0] != num_instances:
             raise InvalidAnnotations('There are %d instances '
                                      'but %d families are provided.'
-                                     % (num_instances,
-                                        len(families)))
+                                     % (num_instances, len(families)))
         self.families = families
 
     def get_family_ids(self, family):
-        return [i for i in self.ids.get_ids() if self.get_family(i) == family]
+        return self.ids.ids[self.families == family]
 
     def get_families_values(self, label='all'):
-        if label == 'all':
-            indexes = range(self.ids.num_instances())
-        else:
-            label_b = labels_tools.label_str_to_bool(label)
-            indexes = [i for i in range(self.ids.num_instances())
-                       if self.labels[i] is not None
-                       and self.labels[i] == label_b]
-        families = set([self.families[i]
-                        for i in indexes if self.families[i] is not None])
-        return families
+        families = self.families
+        if label != 'all':
+            families = self.families[self.labels == label_str_to_bool(label)]
+        return set(families[families != None])  # NOQA: 711
 
     def get_families_count(self, label='all'):
         families_values = self.get_families_values(label=label)
@@ -153,18 +155,17 @@ class Annotations(object):
         return families_prop
 
     def get_annotated_ids(self, label='all', family=None):
-        annotated_ids = [i for i in self.ids.get_ids() if self.is_annotated(i)]
-        if label == MALICIOUS:
-            annotated_ids = [i for i in annotated_ids if self.get_label(i)]
-        elif label == BENIGN:
-            annotated_ids = [i for i in annotated_ids if not self.get_label(i)]
-        if family is not None:
-            return [i for i in annotated_ids if self.get_family(i) == family]
+        if label == 'all':
+            mask = self.labels != None  # NOQA: 711
         else:
-            return annotated_ids
+            mask = self.labels == label_str_to_bool(label)
+        if family is not None:
+            family_mask = self.families == family
+            mask = np.logical_and(mask, family_mask)
+        return self.ids.ids[mask]
 
     def get_unlabeled_ids(self):
-        return [i for i in self.ids.get_ids() if not self.is_annotated(i)]
+        return self.ids.ids[self.labels == None]  # NOQA: 711
 
     def has_unlabeled_ids(self):
         for i in self.ids.get_ids():

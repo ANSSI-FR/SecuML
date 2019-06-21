@@ -132,8 +132,8 @@ class RcdQueries(Queries):
             all_families.extend(train.annotations.get_families())
             predicted_proba = test_predictions.all_probas
             for family in train.annotations.get_families():
-                probas = [int(family == s)
-                          for s in self.multiclass_model.class_labels]
+                probas = self.multiclass_model.class_labels == family
+                probas = probas.astype('int')
                 predicted_proba = np.vstack((predicted_proba,
                                              np.array(probas)))
         else:
@@ -148,7 +148,8 @@ class RcdQueries(Queries):
                     predicted_proba = np.vstack((predicted_proba,
                                                  np.array(probas)))
         labels_values = list(self.multiclass_model.class_labels)
-        assigned_categories = [labels_values.index(x) for x in all_families]
+        assigned_categories = np.array([labels_values.index(x)
+                                        for x in all_families])
         self._set_categories(all_instances, assigned_categories,
                              predicted_proba)
 

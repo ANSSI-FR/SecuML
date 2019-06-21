@@ -162,6 +162,16 @@ class Features(object):
         values = safe_indexing(self.values, indices)
         return Features(values, self.info, instance_ids)
 
+    def get_from_indices(self, instance_ids, indices):
+        if self.streaming:
+            raise StreamingUnsupported('get_from_ids is not supported for '
+                                       'streaming features.')
+        if len(indices) > 0:
+            values = safe_indexing(self.values, indices)
+        else:
+            values = np.empty((0, self.values.shape[1]))
+        return Features(values, self.info, instance_ids)
+
     def get_names(self):
         return self.info.names
 

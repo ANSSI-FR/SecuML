@@ -44,6 +44,7 @@ class GaussianNaiveBayes(SupervisedClassifier):
         theta = all_theta[label_index, :][0]
         sigma = all_sigma[label_index, :][0]
         probas = scipy.stats.norm(theta, sigma).pdf(scaled_features)
-        log_likelihoods = np.sum(
-            np.log(np.maximum(probas, np.finfo(float).eps)), axis=1)
+        log_likelihoods = np.sum(np.log(np.maximum(probas,
+                                                   np.finfo(float).eps)),
+                                 axis=1)
         return log_likelihoods

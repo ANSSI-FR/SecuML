@@ -35,7 +35,7 @@ class PredictionsMonitoring(PredictionsMonitoringCore):
             return None if x is None else int(x)
         PredictionsMonitoringCore.final_computations(self)
         predictions_db = [PredictionsAlchemy(exp_id=self.exp.exp_id,
-                                             instance_id=p.instance_id,
+                                             instance_id=to_int(p.instance_id),
                                              value=p.value_to_str(),
                                              proba=to_float(p.proba),
                                              score=to_float(p.score),

@@ -15,12 +15,15 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 import abc
+from copy import deepcopy
 from enum import Enum
+import numpy as np
 
 from secuml.core.classif.conf.hyperparam import HyperparamConf
 from secuml.core.conf import Conf
 from secuml.core.conf import ConfFactory
 from secuml.core.conf import exportFieldMethod
+from secuml.core.tools.core_exceptions import SecuMLcoreException
 
 
 classifier_conf_factory = None
@@ -49,6 +52,20 @@ def get_classifier_type(class_):
     elif issubclass(class_, ClassifierConf):
         return None
     raise ValueError('%s is not a classifier configuration.' % class_.__name__)
+
+
+class AtLeastTwoClasses(SecuMLcoreException):
+
+    def __str__(self):
+        return('Supervised learning models require that the training dataset '
+               'contains at least two classes.')
+
+
+class MissingAnnotations(SecuMLcoreException):
+
+    def __str__(self):
+        return('Supervised learning models require that all the training '
+               'instances are annotated. ')
 
 
 class ClassifierConfFactory(ConfFactory):
@@ -155,6 +172,10 @@ class ClassifierConf(Conf):
         else:
             return None
 
+    def get_supervision(self, instances, ground_truth=False, check=True):
+        annotations = instances.get_annotations(ground_truth)
+        return annotations.get_supervision(self.multiclass)
+
 
 class SupervisedClassifierConf(ClassifierConf):
 
@@ -167,6 +188,20 @@ class SupervisedClassifierConf(ClassifierConf):
                             help='The classifier is trained on the families '
                                  'instead of the binary labels.')
         HyperparamConf.gen_parser(parser, model_class, True)
+
+    def get_supervision(self, instances, ground_truth=False, check=True):
+        supervision = ClassifierConf.get_supervision(self, instances,
+                                                     ground_truth=ground_truth,
+                                                     check=check)
+        if not np.all(supervision != None):  # NOQA: E711
+            raise MissingAnnotations()
+        if check:
+            if len(set(supervision)) < 2:
+                raise AtLeastTwoClasses()
+        if self.multiclass:
+            return supervision.astype('str')
+        else:
+            return supervision.astype('int')
 
 
 class UnsupervisedClassifierConf(ClassifierConf):
@@ -184,6 +219,13 @@ class UnsupervisedClassifierConf(ClassifierConf):
     def gen_parser(parser, model_class):
         HyperparamConf.gen_parser(parser, model_class, False)
 
+    def supervision(self, instances, ground_truth=False, check=True):
+        if not ground_truth:
+            return None
+        return ClassifierConf.get_supervision(self, instances,
+                                              ground_truth=ground_truth,
+                                              check=check).astype('int')
+
 
 class SemiSupervisedClassifierConf(ClassifierConf):
 
@@ -198,3 +240,13 @@ class SemiSupervisedClassifierConf(ClassifierConf):
                                 help='The classifier is trained on the '
                                      'families instead of the binary labels.')
         HyperparamConf.gen_parser(parser, model_class, False)
+
+    # -1 for unlabeled instances.
+    def get_supervision(self, instances, ground_truth=False, check=True):
+        supervision = ClassifierConf.get_supervision(self, instances,
+                                                     ground_truth=ground_truth,
+                                                     check=check)
+        supervision = deepcopy(supervision)
+        mask_unnanotated = supervision == None  # NOQA: 711
+        supervision[mask_unnanotated] = -1
+        return supervision.astype('int')

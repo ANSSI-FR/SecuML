@@ -16,16 +16,23 @@
 
 import copy
 import json
+import numpy as np
 import random
 
 from secuml.core.classif.classifiers.gaussian_naive_bayes \
         import GaussianNaiveBayes
-
 from .category import Category
 
 
 class Categories(object):
 
+    # assigned categories: array of int.
+    #                      The index of the category associated to each
+    #                      instance.
+    # assignment_proba: array of float.
+    #                   The probability associated to each instance.
+    # category_labels: array of string.
+    #                  The label of each category.
     def __init__(self, iteration, instances, assigned_categories,
                  assignment_proba, label, category_labels):
         self.iteration = iteration
@@ -45,9 +52,7 @@ class Categories(object):
         self.assigned_categories = assigned_categories
         self.num_categories = len(set(assigned_categories))
         self.init(label, category_labels)
-        ids = self.instances.ids.get_ids()
-        for i in range(len(ids)):
-            instance_id = ids[i]
+        for i, instance_id in enumerate(self.instances.ids.get_ids()):
             annotated = self.instances.annotations.is_annotated(instance_id)
             c = self.assigned_categories[i]
             probas = None
@@ -79,23 +84,24 @@ class Categories(object):
                                       already_queried=already_queried)
 
     def set_category_num_annotations(self, conf):
-        weights = [1 / self.num_categories] * self.num_categories
+        weights = np.full((self.num_categories,), 1 / self.num_categories)
         num_annotations = conf.num_annotations
-        annotations = [None for c in range(self.num_categories)]
+        annotations = np.full((self.num_categories,), None)
         card = [self.categories[c].num_instances() -
                 self.categories[c].num_annotated_instances
                 for c in range(self.num_categories)]
-        if num_annotations > sum(card):
-            num_annotations = sum(card)
+        sum_card = sum(card)
+        if num_annotations > sum_card:
+            num_annotations = sum_card
             self.iteration.conf.logger.warning(
                 'The number of instances is smaller than the requested number '
                 'of annotation queries. '
-                'The number of annotation queries is set to %d.' % (sum(card)))
+                'The number of annotation queries is set to %d.' % (sum_card))
         num_remaining_annotations = num_annotations
         no_starve_cluster = False
         while not no_starve_cluster:
             no_starve_cluster = True
-            weights = [w / sum(weights) for w in weights]
+            weights = weights / np.sum(weights)
             for c in range(self.num_categories):
                 if annotations[c] is not None:
                     continue
@@ -104,8 +110,8 @@ class Categories(object):
                     annotations[c] = card[c]
                     weights[c] = 0
                     no_starve_cluster = False
-            num_remaining_annotations = num_annotations - \
-                sum([x for x in annotations if x is not None])
+            num_annotated = np.sum(annotations != None)  # NOQA: 711
+            num_remaining_annotations = num_annotations - num_annotated
             if num_remaining_annotations == 0:
                 break
         for c in range(self.num_categories):
@@ -131,16 +137,15 @@ class Categories(object):
         naive_bayes = self.train_naive_bayes()
         features = self.instances.features.get_values()
         for c in range(self.num_categories):
-            indexes = [i for i, x in enumerate(
-                self.assigned_categories) if x == c]
-            c_features = features[indexes, :]
-            c_likelihood = naive_bayes.log_likelihood(c_features, c)
+            mask = self.assigned_categories == c
+            c_features = features[mask, :]
+            c_likelihood = naive_bayes.log_likelihood(c_features, str(c))
             self.categories[c].set_likelihood(c_likelihood)
 
     def train_naive_bayes(self):
         naive_bayes_conf = self.get_naive_bayes_conf()
-        current_families = copy.deepcopy(
-            self.instances.annotations.get_families())
+        families = self.instances.annotations.get_families()
+        current_families = copy.deepcopy(families)
         # families are altered
         self.instances.annotations.set_families(self.assigned_categories)
         naive_bayes = GaussianNaiveBayes(naive_bayes_conf)

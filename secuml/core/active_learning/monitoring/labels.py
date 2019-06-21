@@ -42,10 +42,10 @@ class LabelsMonitoring(object):
                 instances.annotations.get_families_values(label=l))
         self.stats['global'] = {}
         for k in ['annotations', 'families']:
-            self.stats['global'][k] = self.stats[MALICIOUS][k] + \
-                self.stats[BENIGN][k]
-        self.stats['unlabeled'] = instances.num_instances(
-        ) - self.stats['global']['annotations']
+            self.stats['global'][k] = (self.stats[MALICIOUS][k] +
+                                       self.stats[BENIGN][k])
+        self.stats['unlabeled'] = (instances.num_instances() -
+                                   self.stats['global']['annotations'])
 
     def export(self, al_dir, iteration_dir):
         monitoring_dir, evolution_dir = self.get_ouput_dirs(al_dir,

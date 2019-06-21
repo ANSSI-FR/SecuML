@@ -15,7 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from secuml.core.data.labels_tools import MALICIOUS
-from secuml.core.classif.classifiers import AtLeastTwoClasses
+from secuml.core.classif.conf.classifiers import AtLeastTwoClasses
 
 from secuml.exp import experiment
 from secuml.exp.clustering.conf import ClusteringConf

@@ -15,6 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from copy import deepcopy
+import numpy as np
 
 
 class Ids(object):
@@ -31,14 +32,22 @@ class Ids(object):
     def union(self, ids):
         if ids.num_instances() == 0:
             return
-        self.__init__(self.ids + ids.get_ids(),
-                      idents=self.idents + ids.idents,
-                      timestamps=self.timestamps + ids.timestamps)
+        self.__init__(np.hstack((self.ids, ids.get_ids())),
+                      idents=np.hstack((self.idents, ids.idents)),
+                      timestamps=np.hstack((self.timestamps, ids.timestamps)))
 
     def get_from_ids(self, instance_ids):
         return Ids(instance_ids,
                    idents=[self.get_ident(i) for i in instance_ids],
                    timestamps=[self.get_timestamp(i) for i in instance_ids])
+
+    def get_from_indices(self, instance_ids, indices):
+        if len(instance_ids) == 0:
+            return Ids(instance_ids, idents=np.array([]),
+                       timestamps=np.array([]))
+        else:
+            return Ids(instance_ids, idents=self.idents[indices],
+                       timestamps=self.timestamps[indices])
 
     def num_instances(self):
         return len(self.ids)
@@ -56,16 +65,16 @@ class Ids(object):
         return self.timestamps[self.get_index(instance_id)]
 
     def get_ids_before(self, cutoff_time):
-        return [self.ids[i] for i, t in enumerate(self.timestamps)
-                if t < cutoff_time]
+        return self.ids[self.timestamps > cutoff_time]
 
     def get_ids_after(self, cutoff_time):
-        return [self.ids[i] for i, t in enumerate(self.timestamps)
-                if t >= cutoff_time]
+        return self.ids[self.timestamps >= cutoff_time]
 
     def get_ids_between(self, start, end):
-        return [self.ids[i] for i, t in enumerate(self.timestamps)
-                if t < end and t >= start]
+        mask_end = self.timestamps < end
+        mask_start = self.timestamps >= start
+        mask = np.logical_and(mask_end, mask_start)
+        return self.ids[mask]
 
     @staticmethod
     def deepcopy(ids):
@@ -75,7 +84,8 @@ class Ids(object):
     def _set_idents_timetamps(self, idents, timestamps):
         self.idents = idents
         self.timestamps = timestamps
+        num_instances = self.num_instances()
         if self.idents is None:
-            self.idents = [None for _ in range(self.num_instances())]
+            self.idents = np.full((num_instances,), None)
         if self.timestamps is None:
-            self.timestamps = [None for _ in range(self.num_instances())]
+            self.timestamps = np.full((num_instances,), None)

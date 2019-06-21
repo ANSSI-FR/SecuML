@@ -89,8 +89,8 @@ class HexagonalBin(object):
                                    [self.xmin, self.ymin])
         json['num_malicious_instances'] = len(self.malicious_ids)
         json['num_ok_instances'] = len(self.ok_ids)
-        json['malicious_instances'] = self.malicious_ids
-        json['ok_instances'] = self.ok_ids
+        json['malicious_instances'] = [int(x) for x in self.malicious_ids]
+        json['ok_instances'] = [int(x) for x in self.ok_ids]
         num_instances = len(self.malicious_ids) + len(self.ok_ids)
         json['prop_malicious'] = len(self.malicious_ids) / num_instances
         return json
@@ -99,8 +99,7 @@ class HexagonalBin(object):
 class HexagonalBinning(object):
 
     def __init__(self, x, y, ids, nx, malicious_ids):
-
-        self.malicious_ids = malicious_ids
+        self.malicious_ids = set(malicious_ids)
 
         self.x = np.array(x, float)
         self.y = np.array(y, float)
