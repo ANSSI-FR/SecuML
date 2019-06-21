@@ -24,17 +24,15 @@ class Kmeans(ClusteringAlgorithm):
     def __init__(self, instances, conf, algo='auto'):
         n_jobs = -1
         ClusteringAlgorithm.__init__(self, instances, conf)
-        self.algo = sklearn.cluster.KMeans(
-            n_clusters=self.num_clusters,
-            n_jobs=n_jobs, verbose=0,
-            algorithm=algo)
+        self.algo = sklearn.cluster.KMeans(n_clusters=self.num_clusters,
+                                           n_jobs=n_jobs, verbose=0,
+                                           algorithm=algo)
 
     def get_distortion(self):
         return self.algo.inertia_
 
     def get_centroids(self):
-        clustering = self.pipeline.named_steps['clustering']
-        return clustering.cluster_centers_
+        return self.pipeline['clustering'].cluster_centers_
 
     def get_assigned_clusters(self):
         return self.pipeline.predict(self.instances.features.get_values())

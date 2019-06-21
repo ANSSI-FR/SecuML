@@ -28,7 +28,7 @@ class Rca(SemiSupervisedProjection):
 
     def set_projection_matrix(self):
         self.projection_matrix = np.transpose(
-            self.pipeline.named_steps['projection'].transformer_)
+            self.pipeline['projection'].transformer_)
 
     def fit(self, instances):
         features, labels = self.gen_input_params(instances)

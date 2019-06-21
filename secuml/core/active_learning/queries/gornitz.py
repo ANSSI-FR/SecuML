@@ -69,8 +69,7 @@ class GornitzQueries(Queries):
                            for x in all_instances.annotations.get_labels()])
         # Compute neighbour scores
         scores = []
-        all_neighbours = pipeline.named_steps['model'].kneighbors(
-            return_distance=False)
+        all_neighbours = pipeline['model'].kneighbors(return_distance=False)
         for i, label in enumerate(labels):
             if label != 0:
                 continue

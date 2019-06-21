@@ -33,19 +33,15 @@ class GaussianMixture(ClusteringAlgorithm):
         return 0
 
     def get_centroids(self):
-        clustering = self.pipeline.named_steps['clustering']
-        return clustering.means_
+        return self.pipeline['clustering'].means_
 
     def get_assigned_clusters(self):
         return self.pipeline.predict(self.instances.features.get_values())
 
     def get_predicted_proba(self):
-        all_probas = self.pipeline.predict_proba(
-            self.instances.features.get_values())
-        predicted_proba = np.amax(all_probas, axis=1)
-        return predicted_proba
+        all_probas = self.get_all_proba()
+        return np.amax(all_probas, axis=1)
 
     def get_all_proba(self):
-        all_probas = self.pipeline.predict_proba(
-            self.instances.features.get_values())
-        return all_probas
+        features = self.instances.features.get_values()
+        return self.pipeline.predict_proba(features)

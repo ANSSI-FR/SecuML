@@ -27,4 +27,4 @@ class Itml(SemiSupervisedProjection):
 
     def set_projection_matrix(self):
         self.projection_matrix = np.transpose(
-            self.pipeline.named_steps['projection'].transformer_)
+                self.pipeline['projection'].transformer_)

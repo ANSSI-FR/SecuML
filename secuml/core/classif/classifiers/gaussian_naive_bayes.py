@@ -36,10 +36,9 @@ class GaussianNaiveBayes(SupervisedClassifier):
                 ('model', _GaussianNaiveBayes())]
 
     def log_likelihood(self, features, label):
-        all_theta = self.pipeline.named_steps['model'].theta_
-        all_sigma = self.pipeline.named_steps['model'].sigma_
-        scaled_features = self.pipeline.named_steps['scaler'].transform(
-            features)
+        all_theta = self.pipeline['model'].theta_
+        all_sigma = self.pipeline['model'].sigma_
+        scaled_features = self.pipeline['scaler'].transform(features)
         label_index = np.where(self.class_labels == label)[0]
         theta = all_theta[label_index, :][0]
         sigma = all_sigma[label_index, :][0]

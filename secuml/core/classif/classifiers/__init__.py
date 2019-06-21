@@ -105,7 +105,7 @@ class Classifier(object):
         self.pipeline = joblib.load(model_filename)
 
     def get_coefs(self):
-        return self.conf.get_coefs(self.pipeline.named_steps['model'])
+        return self.conf.get_coefs(self.pipeline['model'])
 
     def _create_pipeline(self):
         self.pipeline = Pipeline(self._get_pipeline())
@@ -267,7 +267,7 @@ class SupervisedClassifier(Classifier):
     def training(self, train_instances):
         exec_time = Classifier.training(self, train_instances)
         if self.conf.multiclass:
-            self.class_labels = self.pipeline.named_steps['model'].classes_
+            self.class_labels = self.pipeline['model'].classes_
         return exec_time
 
 

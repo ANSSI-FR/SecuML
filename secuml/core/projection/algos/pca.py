@@ -38,7 +38,7 @@ class Pca(UnsupervisedProjection):
 
     def set_projection_matrix(self):
         self.projection_matrix = np.transpose(
-            self.pipeline.named_steps['projection'].components_)
+            self.pipeline['projection'].components_)
 
     def get_fitting_instances(self, instances):
         return instances
