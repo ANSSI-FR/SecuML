@@ -59,7 +59,7 @@ class Hyperparams(Conf):
                     (sklearn_mess,
                      ', '.join(map(str, params['values']['default'])))
             else:
-                params['nargs'] = 1
+                params['nargs'] = None
                 params['help'] = '%s Default value: %s.' % \
                                  (sklearn_mess,
                                   str(params['values']['default']))
