@@ -2,7 +2,8 @@ Setting up SecuML
 =================
 
 
-SecuML comes with a web user interface to display the results of the analysis and interact with the Machine Learning models.
+SecuML comes with a web user interface to display the results of the analysis
+and interact with the Machine Learning models.
 The analyses must be run from the command line.
 Once they are computed, the results can be displayed in the web user interface.
 
@@ -10,8 +11,10 @@ Once they are computed, the results can be displayed in the web user interface.
 Database
 --------
 SecuML requires an access to a database. MySQL and PostgreSQL are supported.
-The user must have the following permissions: ``SELECT``, ``INSERT``, ``UPDATE``, ``DELETE``, ``CREATE TEMPORARY TABLES``.
-The URI of the database must be specified in SecuML :ref:`configuration file <configuration>`.
+The user must have the following permissions:
+``SELECT``, ``INSERT``, ``UPDATE``, ``DELETE``, ``CREATE TEMPORARY TABLES``.
+The URI of the database must be specified in SecuML
+:ref:`configuration file <configuration>`.
 
 *MySQL database*
 
@@ -44,7 +47,7 @@ Requirements
     * metric-learn
     * numpy
     * pandas
-    * scikit-learn (== 0.20.3)
+    * scikit-learn (== 0.21.2)
     * seaborn
     * sqlalchemy
     * yaml
@@ -95,7 +98,8 @@ Input and Output Directories
 
 .. note::
 
-    ``input_data_dir`` must be set to `input_data <https://github.com/ANSSI-FR/SecuML/tree/master/input_data/>`_
+    ``input_data_dir`` must be set to
+    `input_data <https://github.com/ANSSI-FR/SecuML/tree/master/input_data/>`_
     in the configuration file to test SecuML with the dataset we provide.
 
 
@@ -135,7 +139,9 @@ By default, the web serveur binds to ``localhost`` on port ``8080``.
 Web User Interface
 ------------------
 
-SecuML comes with a web user interface to display the results of the experiments, and to interact with machine learning models (see :ref:`ILAB <ILAB>` and :ref:`Rare Category Detection <RCD>`).
+SecuML comes with a web user interface to display the results of the
+experiments, and to interact with machine learning models
+(see :ref:`ILAB <ILAB>` and :ref:`Rare Category Detection <RCD>`).
 
 You can launch the web server with the following command line.
 
@@ -145,13 +151,15 @@ You can launch the web server with the following command line.
 
 ``http://<host>:<port>/SecuML/`` gives access to SecuML menu.
 It displays the list of projects and datasets available.
-Besides, for each dataset, it displays the list of experiments gathered by type.
+Besides, for each dataset, it displays the list of experiments gathered by
+type.
 
 ``http://<host>:<port>/SecuML/<experiment_id>/`` displays directly
 the results of an experiment identified by ``experiment_id``.
 
 .. note::
 
-  The configuration file is required to run SecuML executables (e.g. ``SecuML_server``, ``SecuML_DIADEM``, ``SecuML_ILAB``).
-  It can be specified either with the parameter ``--secuml-conf`` for each execution, or globally
-  with the environment variable ``SECUMLCONF``.
+  The configuration file is required to run SecuML executables
+  (e.g. ``SecuML_server``, ``SecuML_DIADEM``, ``SecuML_ILAB``).
+  It can be specified either with the parameter ``--secuml-conf`` for each
+  execution, or globally with the environment variable ``SECUMLCONF``.

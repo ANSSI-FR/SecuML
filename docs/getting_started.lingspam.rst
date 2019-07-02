@@ -28,6 +28,13 @@ Training and Diagnosing a Detection Model
 
     SecuML_DIADEM SpamHam lingspam --secuml-conf <conf_file> LogisticRegression
 
+Once the experiment has been completed, the following message is displayed:
+
+.. code-block:: bash
+
+  Experiment <experiment_id> has been successfully completed.
+  See http://<host>:<port>/SecuML/<experiment_id>/ to display the results.
+
 .. figure:: figs/screen_shots/DIADEM/performance.png
 
    DIADEM Monitoring Interface
@@ -39,7 +46,14 @@ Annotating a Dataset with a Reduced Workload
 
 .. code-block:: bash
 
-    SecuML_ILAB SpamHam lingspam --secuml-conf <conf_file> Ilab --auto --budget 500
+    SecuML_ILAB SpamHam lingspam --secuml-conf <conf_file> -a init_annotations.csv Ilab --auto --budget 500
+
+Once the experiment has been completed, the following message is displayed:
+
+.. code-block:: bash
+
+  Experiment <experiment_id> has been successfully completed.
+  See http://<host>:<port>/SecuML/<experiment_id>/ to display the results.
 
 .. figure:: figs/screen_shots/ILAB/monitoring.png
 

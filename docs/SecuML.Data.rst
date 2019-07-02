@@ -25,7 +25,9 @@ It has the following columns:
 
 * **instance_id**: integer ;
 * **ident**: string describing the instance ;
-* **[optional] timestamp**: date (``YYYY-MM-DD HH:MM:SS`` format) of the instance.
+* **[optional] timestamp**: date (``YYYY-MM-DD HH:MM:SS`` format) of the instance ;
+* **[optional] label**: boolean, ground truth label (0 for ``benign`` and 1 for ``malicious``) ;
+* **[optional] family**: string, ground truth family.
 
 The timestamps are required for
 :ref:`DIADEM's temporal validation modes <diadem-validation-modes>`.
@@ -75,7 +77,7 @@ It contains csv files with the annotations associated to the instances.
 It has the following columns:
 
 * **instance_id**: integer ;
-* **label**: binary label, ``malicious`` or ``benign`` ;
+* **label**: boolean, 0 for ``benign`` and 1 for ``malicious``;
 * **[optional] family**: string.
 
 **Families**
@@ -93,16 +95,10 @@ alerts according to user-defined malicious families.
 
 **Ground Truth and Partial Annotations**
 
-If the ground truth is known, it must be stored in the file
-``annotations/ground_truth.csv``.
+If the ground truth is known, it must be stored in the file ``idents.csv``.
 
-.. warning::
-
-  The instances in ``annotations/ground_truth.csv`` must be stored in the same
-  order as in ``idents.csv``.
-
-If only some instances are annotated, their annotations can be stored, in any
-order, in an annotation file ``annotations/<filename>.csv``.
+If only some instances are annotated, their annotations can be stored
+in an annotation file ``annotations/<filename>.csv``.
 
 Partial annotations are required for
 :ref:`DIADEM <diadem>`, :ref:`ILAB <ILAB>` and
