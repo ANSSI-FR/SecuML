@@ -26,6 +26,10 @@ class IsolationForestConf(UnsupervisedClassifierConf):
         self.accept_sparse = True
         self.n_jobs = n_jobs
 
+    def get_exp_name(self):
+        n_estimators = self.hyperparam_conf.values.n_estimators.values[0]
+        return '%s_%iestimators' % (self.model_class_name, n_estimators)
+
     def _get_model_class(self):
         return IsolationForest
 

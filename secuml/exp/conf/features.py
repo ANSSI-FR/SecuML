@@ -15,6 +15,7 @@
 # with SecuML. If not, see <http://www.gnu.org/licenses/>.
 
 from enum import Enum
+import os.path as path
 
 from secuml.core.conf import Conf
 from secuml.core.conf import exportFieldMethod
@@ -41,6 +42,17 @@ class FeaturesConf(Conf):
         self.set_id = None
         self.files = None
         self.info = None
+
+    def _get_exp_name(self):
+        name = ''
+        if self.sparse:
+            name = 'sparse'
+        name += 'Features_%s' % path.splitext(self.input_features)[0]
+        if self.filter_in_f is not None:
+            name += '_FilterIn_%s' % path.splitext(self.filter_in_f)[0]
+        elif self.filter_out_f is not None:
+            name += '_FilterOut_%s' % path.splitext(self.filter_out_f)[0]
+        return name
 
     def set_input_type(self, input_type):
         self.input_type = input_type

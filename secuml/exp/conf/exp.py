@@ -64,10 +64,9 @@ class ExpConf(Conf):
         name = ''
         if self.core_conf is not None:
             name += self.core_conf.get_exp_name()
-        basename, ext = path.splitext(self.features_conf.input_features)
         if name != '':
             name += '__'
-        name += 'Features_' + basename
+        name += self.features_conf._get_exp_name()
         return name
 
     def set_dataset_id(self, dataset_id, session):
