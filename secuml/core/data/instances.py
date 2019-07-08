@@ -45,8 +45,11 @@ class Instances(object):
             return self.annotations
 
     def num_instances(self, label='all', ground_truth=False):
-        annotations = self.get_annotations(ground_truth)
-        return annotations.num_instances(label=label)
+        if label == 'all':
+            return self.ids.num_instances()
+        else:
+            annotations = self.get_annotations(ground_truth)
+            return annotations.num_instances(label=label)
 
     def num_features(self):
         return self.features.num_features()
