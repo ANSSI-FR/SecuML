@@ -34,16 +34,19 @@ class DiademConf(ExpConf):
 
     def __init__(self, secuml_conf, dataset_conf, features_conf,
                  annotations_conf, core_conf, alerts_conf, name=None,
-                 parent=None, already_trained=None):
+                 parent=None, already_trained=None,
+                 no_training_detection=False):
         self.already_trained = already_trained
         ExpConf.__init__(self, secuml_conf, dataset_conf, features_conf,
                          annotations_conf, core_conf, name=name, parent=parent)
         self.alerts_conf = alerts_conf
+        self.no_training_detection = no_training_detection
 
     def fields_to_export(self):
         fields = ExpConf.fields_to_export(self)
-        fields.extend([('already_trained', exportFieldMethod.primitive)])
-        fields.extend([('alerts_conf', exportFieldMethod.obj)])
+        fields.extend([('already_trained', exportFieldMethod.primitive),
+                       ('alerts_conf', exportFieldMethod.obj),
+                       ('no_training_detection', exportFieldMethod.primitive)])
         return fields
 
     @staticmethod
@@ -52,6 +55,10 @@ class DiademConf(ExpConf):
                               description='Train and evaluate a detection '
                                           'model. ')
         ExpConf.gen_parser(parser, sparse=True)
+        parser.add_argument('--no-training-detection',
+                            action='store_true', default=False,
+                            help='''When specified, the detection model is
+                                    not applied to the training instances. ''')
         factory = classifiers.get_factory()
         models = factory.get_methods()
         models.remove('AlreadyTrained')
@@ -122,7 +129,8 @@ class DiademConf(ExpConf):
                                         'features. ' % args.model_class)
         return DiademConf(secuml_conf, dataset_conf, features_conf,
                           annotations_conf, classif_conf, alerts_conf,
-                          name=args.exp_name, already_trained=already_trained)
+                          name=args.exp_name, already_trained=already_trained,
+                          no_training_detection=args.no_training_detection)
 
     @staticmethod
     def from_json(conf_json, secuml_conf):
@@ -137,10 +145,12 @@ class DiademConf(ExpConf):
                                                  secuml_conf.logger)
         alerts_conf = AlertsConf.from_json(conf_json['alerts_conf'],
                                            secuml_conf.logger)
+        no_training_detection = conf_json['no_training_detection']
         exp_conf = DiademConf(secuml_conf, dataset_conf, features_conf,
                               annotations_conf, core_conf, alerts_conf,
                               name=conf_json['name'],
                               parent=conf_json['parent'],
-                              already_trained=conf_json['already_trained'])
+                              already_trained=conf_json['already_trained'],
+                              no_training_detection=no_training_detection)
         exp_conf.exp_id = conf_json['exp_id']
         return exp_conf

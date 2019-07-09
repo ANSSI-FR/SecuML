@@ -63,8 +63,11 @@ function displayMonitoringRow(conf, selected_fold) {
     displayTrainingMonitoring(conf, 'None', 'cv');
     cleanDiv('test');
   } else {
-    displayDetectionMonitoring(conf, 'train', selected_fold);
-    if (test_conf.method == 'datasets' && test_conf.validation_datasets.length > 1) {
+    if (!conf.no_training_detection) {
+        displayDetectionMonitoring(conf, 'train', selected_fold);
+    }
+    if (test_conf.method == 'datasets' &&
+            test_conf.validation_datasets.length > 1) {
         displayTestDatasetsSelectList(conf, $('#select_dataset')[0]);
         displayDetectionMonitoring(conf, 'test', selected_fold, 'all');
     } else {

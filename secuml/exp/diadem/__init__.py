@@ -263,11 +263,12 @@ class DiademExp(Experiment):
                       init_classifier=None):
         classifier, train_time = self._train(datasets, cv_monitoring, fold_id,
                                              init_classifier)
-        train_data = datasets.train_instances
-        if (isinstance(classifier.conf, SemiSupervisedClassifierConf) and
-                self.test_conf.method == 'unlabeled'):
-            train_data = train_data.get_annotated_instances()
-        self._detection('train', classifier, train_data, fold_id)
+        if not self.exp_conf.no_training_detection:
+            train_data = datasets.train_instances
+            if (isinstance(classifier.conf, SemiSupervisedClassifierConf) and
+                    self.test_conf.method == 'unlabeled'):
+                train_data = train_data.get_annotated_instances()
+            self._detection('train', classifier, train_data, fold_id)
         test_predictions, test_time = self._detection('test', classifier,
                                                       datasets.test_instances,
                                                       fold_id)
