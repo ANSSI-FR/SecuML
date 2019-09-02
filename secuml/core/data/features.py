@@ -122,8 +122,8 @@ class Features(object):
         num_instances = self.instance_ids.num_instances()
         if num_instances != 0:
             if self.values.shape[0] != num_instances:
-                raise InvalidFeatures('There are %d instances '
-                                      'but the features of %d are provided.'
+                raise InvalidFeatures('There are %d instances but the '
+                                      'features of %d instances are provided.'
                                       % (num_instances, self.values.shape[0]))
             num_features = self.info.num_features()
             if self.values.shape[1] != num_features:
