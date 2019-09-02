@@ -63,7 +63,7 @@ class LabelPropagationConf(SemiSupervisedClassifierConf):
     @staticmethod
     def gen_parser(parser):
         SemiSupervisedClassifierConf.gen_parser(parser, LabelPropagationConf)
-        parser.add_argument('--n_jobs',
+        parser.add_argument('--n-jobs',
                             type=int,
                             default=-1,
                             help='Number of CPU cores used to train the '

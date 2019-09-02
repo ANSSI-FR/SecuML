@@ -43,8 +43,9 @@ class FeaturesAnalysisConf(ExpConf):
         ExpConf.gen_parser(parser, filters=False, sparse=True)
         AnnotationsConf.gen_parser(
                     parser, required=False,
-                    message='CSV file containing the annotations of some or '
-                            'all the instances.')
+                    message='''CSV file containing the annotations of some
+                               instances, or GROUND_TRUTH to use the ground
+                               truth annotations stored in idents.csv.''')
         parser.add_argument('--multiclass', default=False, action='store_true',
                             help='The instances are grouped according to '
                                  'their families instead of their binary '

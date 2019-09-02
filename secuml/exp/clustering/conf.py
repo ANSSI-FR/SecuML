@@ -45,19 +45,21 @@ class ClusteringConf(ExpConf):
         ExpConf.gen_parser(parser)
         AnnotationsConf.gen_parser(
                     parser,
-                    message='CSV file containing the annotations of some '
-                            'instances. These annotations are used for '
-                            'semi-supervised projections.')
+                    message='''CSV file containing the annotations of some
+                               instances, or GROUND_TRUTH to use the ground
+                               truth annotations stored in idents.csv.
+                               These annotations are used for semi-supervised
+                               projections.''')
         parser.add_argument(
                  '--label',
                  choices=['all', 'malicious', 'benign'],
                  default='all',
-                 help='The clustering is built from all the instances in the '
-                      'dataset, or only from the benign or malicious ones. '
-                      'By default, the clustering is built from all the '
-                      'instances. The malicious and benign instances are '
-                      'selected according to the ground-truth stored in '
-                      'idents.csv.')
+                 help='''The clustering is built from all the instances in the
+                         dataset, or only from the benign or malicious ones.
+                         By default, the clustering is built from all the
+                         instances. The malicious and benign instances are
+                         selected according to the ground-truth stored in
+                         idents.csv.''')
         subparsers = parser.add_subparsers(dest='algo')
         subparsers.required = True
         factory = clustering_conf.get_factory()

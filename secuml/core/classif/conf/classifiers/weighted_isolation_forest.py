@@ -75,7 +75,7 @@ class WeightedIsolationForestConf(SemiSupervisedClassifierConf):
         SemiSupervisedClassifierConf.gen_parser(parser,
                                                 WeightedIsolationForestConf,
                                                 multiclass=False)
-        parser.add_argument('--n_jobs',
+        parser.add_argument('--n-jobs',
                             type=int,
                             default=-1,
                             help='Number of CPU cores used to train the '

@@ -69,7 +69,7 @@ class IsolationForestConf(UnsupervisedClassifierConf):
     @staticmethod
     def gen_parser(parser):
         UnsupervisedClassifierConf.gen_parser(parser, IsolationForestConf)
-        parser.add_argument('--n_jobs',
+        parser.add_argument('--n-jobs',
                             type=int,
                             default=-1,
                             help='Number of CPU cores used to train the '

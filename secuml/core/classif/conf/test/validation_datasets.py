@@ -57,7 +57,7 @@ class ValidationDatasetsConf(OneFoldTestConf):
         parser.add_argument('--validation-datasets', default=None, nargs='+',
                             help='Name(s) of the validation dataset(s).')
         parser.add_argument('--streaming', default=False, action='store_true',
-                            help='When specify, the validation datasets are '
+                            help='When specified, the validation datasets are '
                                  'processed as a stream. '
                                  'In this case, alerts analyses are not '
                                  'available. ')

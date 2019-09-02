@@ -63,7 +63,7 @@ class Hyperparams(Conf):
                 params['help'] = '%s Default value: %s.' % \
                                  (sklearn_mess,
                                   str(params['values']['default']))
-            p.replace('_', '-')
+            p = p.replace('_', '-')
             group.add_argument('--%s' % p, help=params['help'],
                                nargs=params['nargs'], **params['values'])
 

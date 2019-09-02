@@ -32,9 +32,11 @@ class ProjectionConf(ExpConf):
         ExpConf.gen_parser(parser)
         AnnotationsConf.gen_parser(
                  parser,
-                 message='CSV file containing the annotations of some'
-                         ' instances. These annotations are used for '
-                         'semi-supervised projections.')
+                 message='''CSV file containing the annotations of some
+                            instances, or GROUND_TRUTH to use the ground
+                            truth annotations stored in idents.csv.
+                            These annotations are used for semi-supervised
+                            projections.''')
         subparsers = parser.add_subparsers(dest='algo')
         subparsers.required = True
         for algo in projection_conf.get_factory().get_methods():
