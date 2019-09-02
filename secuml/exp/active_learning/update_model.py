@@ -18,6 +18,7 @@ from secuml.core.active_learning.update_model import UpdateModel \
         as CoreUpdateModel
 from secuml.core.classif.conf.classifiers import ClassifierType
 from secuml.core.classif.conf.classifiers import get_classifier_type
+from secuml.exp.conf.features import FeaturesConf
 from secuml.exp.diadem.conf.diadem import DiademConf
 from secuml.exp.diadem import DiademExp
 
@@ -34,9 +35,15 @@ class UpdateModel(CoreUpdateModel):
     def execute(self):
         name = 'AL%d-Iter%d-main' % (self.exp.exp_id,
                                      self.iteration.iter_num)
+        features_conf = FeaturesConf(
+                self.exp.exp_conf.features_conf.input_features,
+                self.exp.exp_conf.features_conf.sparse,
+                self.exp.exp_conf.features_conf.logger,
+                filter_in_f=self.exp.exp_conf.features_conf.filter_in_f,
+                filter_out_f=self.exp.exp_conf.features_conf.filter_out_f)
         exp_conf = DiademConf(self.exp.exp_conf.secuml_conf,
                               self.exp.exp_conf.dataset_conf,
-                              self.exp.exp_conf.features_conf,
+                              features_conf,
                               self.exp.exp_conf.annotations_conf,
                               self.model_conf, None, name=name,
                               parent=self.exp.exp_id)

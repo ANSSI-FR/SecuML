@@ -66,13 +66,13 @@ class FeaturesConf(Conf):
     def set_files(self, files):
         self.files = files
 
-    def copy_streaming(self, stream_batch):
+    def deepcopy(self):
         features_conf = FeaturesConf(self.input_features, self.sparse,
                                      self.logger,
                                      filter_in_f=self.filter_in_f,
                                      filter_out_f=self.filter_out_f,
-                                     streaming=True,
-                                     stream_batch=stream_batch)
+                                     streaming=self.streaming,
+                                     stream_batch=self.stream_batch)
         features_conf.set_input_type(self.input_type)
         features_conf.set_set_id(self.set_id)
         features_conf.set_info(self.info)

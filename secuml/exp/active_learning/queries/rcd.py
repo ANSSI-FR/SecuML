@@ -22,6 +22,7 @@ from secuml.core.clustering.clusters import Clusters
 
 from secuml.exp.clustering.conf import ClusteringConf
 from secuml.exp.clustering import ClusteringExperiment
+from secuml.exp.conf.features import FeaturesConf
 from secuml.exp.diadem.conf.diadem import DiademConf
 from secuml.exp.diadem import DiademExp
 from . import Query
@@ -48,13 +49,18 @@ class RcdQueries(CoreRcdQueries):
                          'Iter%d' % self.iteration.iter_num,
                          self.label,
                          'analysis'])
+        features_conf = FeaturesConf(
+                self.exp.exp_conf.features_conf.input_features,
+                self.exp.exp_conf.features_conf.sparse,
+                self.exp.exp_conf.features_conf.logger,
+                filter_in_f=self.exp.exp_conf.features_conf.filter_in_f,
+                filter_out_f=self.exp.exp_conf.features_conf.filter_out_f)
         exp_conf = DiademConf(self.exp.exp_conf.secuml_conf,
                               self.exp.exp_conf.dataset_conf,
-                              self.exp.exp_conf.features_conf,
+                              features_conf,
                               self.exp.exp_conf.annotations_conf,
                               conf, None, name=name, parent=self.exp.exp_id)
         self.multiclass_exp = DiademExp(exp_conf, session=self.exp.session)
-        self.multiclass_exp.create_exp()
         return conf
 
     def _create_clustering_exp(self):
@@ -64,14 +70,19 @@ class RcdQueries(CoreRcdQueries):
                          'Iter%d' % self.iteration.iter_num,
                          self.label,
                          'clustering'])
+        features_conf = FeaturesConf(
+                self.exp.exp_conf.features_conf.input_features,
+                self.exp.exp_conf.features_conf.sparse,
+                self.exp.exp_conf.features_conf.logger,
+                filter_in_f=self.exp.exp_conf.features_conf.filter_in_f,
+                filter_out_f=self.exp.exp_conf.features_conf.filter_out_f)
         exp_conf = ClusteringConf(self.exp.exp_conf.secuml_conf,
                                   self.exp.exp_conf.dataset_conf,
-                                  self.exp.exp_conf.features_conf,
+                                  features_conf,
                                   self.exp.exp_conf.annotations_conf,
                                   core_conf, name=name, parent=self.exp.exp_id)
         clustering_exp = ClusteringExperiment(exp_conf,
                                               session=self.exp.session)
-        clustering_exp.create_exp()
         return clustering_exp
 
     def _gen_clustering_visu(self):

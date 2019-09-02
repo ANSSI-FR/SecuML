@@ -20,6 +20,7 @@ from secuml.core.classif.conf import classifiers
 from secuml.core.classif.conf import ClassificationConf
 from secuml.core.classif.conf.test.unlabeled_labeled \
         import UnlabeledLabeledConf
+from secuml.exp.conf.features import FeaturesConf
 from secuml.exp.diadem.conf.diadem import DiademConf
 from secuml.exp.diadem import DiademExp
 
@@ -55,12 +56,17 @@ class Categories(CoreCategories):
         test_conf = UnlabeledLabeledConf(self.exp.logger)
         classification_conf = ClassificationConf(naive_bayes_conf, test_conf,
                                                  self.exp.logger)
+        features_conf = FeaturesConf(
+                self.exp.exp_conf.features_conf.input_features,
+                self.exp.exp_conf.features_conf.sparse,
+                self.exp.exp_conf.features_conf.logger,
+                filter_in_f=self.exp.exp_conf.features_conf.filter_in_f,
+                filter_out_f=self.exp.exp_conf.features_conf.filter_out_f)
         exp_conf = DiademConf(self.exp.exp_conf.secuml_conf,
                               self.exp.exp_conf.dataset_conf,
-                              self.exp.exp_conf.features_conf,
+                              features_conf,
                               self.exp.exp_conf.annotations_conf,
                               classification_conf, None, name=name,
                               parent=self.exp.exp_id)
-        naive_bayes_exp = DiademExp(exp_conf, session=self.exp.session)
-        naive_bayes_exp.create_exp()
+        DiademExp(exp_conf, session=self.exp.session)
         return naive_bayes_conf

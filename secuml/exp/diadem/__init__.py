@@ -25,6 +25,7 @@ from secuml.core.classif.conf.test.validation_datasets \
 from secuml.exp import experiment
 from secuml.exp.conf.annotations import AnnotationsConf
 from secuml.exp.conf.dataset import DatasetConf
+from secuml.exp.conf.features import FeaturesConf
 from secuml.exp.tools.db_tables import DiademExpAlchemy
 from secuml.exp.tools.db_tables import ExpAlchemy
 from secuml.exp.tools.db_tables import ExpRelationshipsAlchemy
@@ -144,9 +145,16 @@ class DiademExp(Experiment):
         exp_name = 'DIADEM_%i_Train' % diadem_id
         if fold_id is not None:
             exp_name = '%s_fold_%i' % (exp_name, fold_id)
+        main_features_conf = self.exp_conf.features_conf
+        features_conf = FeaturesConf(
+                main_features_conf.input_features,
+                main_features_conf.sparse,
+                main_features_conf.logger,
+                filter_in_f=main_features_conf.filter_in_f,
+                filter_out_f=main_features_conf.filter_out_f)
         train_exp_conf = TrainConf(self.exp_conf.secuml_conf,
                                    self.exp_conf.dataset_conf,
-                                   self.exp_conf.features_conf,
+                                   features_conf,
                                    self.exp_conf.annotations_conf,
                                    self.exp_conf.core_conf.classifier_conf,
                                    name=exp_name, parent=diadem_id,
@@ -217,15 +225,21 @@ class DiademExp(Experiment):
             exp_name = '%s_fold_%i' % (exp_name, fold_id)
         secuml_conf = self.exp_conf.secuml_conf
         logger = secuml_conf.logger
+        main_features_conf = self.exp_conf.features_conf
+        features_conf = FeaturesConf(
+                main_features_conf.input_features,
+                main_features_conf.sparse,
+                main_features_conf.logger,
+                filter_in_f=main_features_conf.filter_in_f,
+                filter_out_f=main_features_conf.filter_out_f)
         if (kind == 'validation' or
                 (kind == 'test' and self.test_conf.method == 'datasets')):
             validation_conf = getattr(self, '%s_conf' % kind)
             annotations_conf = AnnotationsConf('GROUND_TRUTH_IF_EXISTS', None,
                                                logger)
-            features_conf = self.exp_conf.features_conf
             if validation_conf.streaming:
-                stream_batch = validation_conf.stream_batch
-                features_conf = features_conf.copy_streaming(stream_batch)
+                features_conf.streaming = True
+                features_conf.stream_batch = validation_conf.stream_batch
             dataset_confs = [DatasetConf(self.exp_conf.dataset_conf.project,
                                          test_dataset,
                                          self.exp_conf.secuml_conf.logger)
@@ -234,13 +248,13 @@ class DiademExp(Experiment):
         else:
             dataset_confs = [self.exp_conf.dataset_conf]
             annotations_conf = self.exp_conf.annotations_conf
-            features_conf = self.exp_conf.features_conf
         alerts_conf = None
         if fold_id is None and kind != 'train':
             alerts_conf = self.exp_conf.alerts_conf
-        return [DetectionConf(secuml_conf, dataset_conf, features_conf,
-                              annotations_conf, alerts_conf, name=exp_name,
-                              parent=diadem_id, fold_id=fold_id, kind=kind)
+        return [DetectionConf(secuml_conf, dataset_conf,
+                              features_conf.deepcopy(), annotations_conf,
+                              alerts_conf, name=exp_name, parent=diadem_id,
+                              fold_id=fold_id, kind=kind)
                 for dataset_conf in dataset_confs]
 
     # The dataset_conf is the conf of the first test dataset.
@@ -251,7 +265,13 @@ class DiademExp(Experiment):
         exp_name = 'DIADEM_%i_GlobalDetection_%s' % (diadem_id, kind)
         secuml_conf = self.exp_conf.secuml_conf
         annotations_conf = self.exp_conf.annotations_conf
-        features_conf = self.exp_conf.features_conf
+        main_features_conf = self.exp_conf.features_conf
+        features_conf = FeaturesConf(
+                main_features_conf.input_features,
+                main_features_conf.sparse,
+                main_features_conf.logger,
+                filter_in_f=main_features_conf.filter_in_f,
+                filter_out_f=main_features_conf.filter_out_f)
         alerts_conf = None
         return DetectionExp(DetectionConf(secuml_conf, dataset_conf,
                                           features_conf, annotations_conf,

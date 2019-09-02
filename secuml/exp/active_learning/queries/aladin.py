@@ -21,6 +21,7 @@ from secuml.core.classif.conf import ClassificationConf
 from secuml.core.classif.conf.test.unlabeled_labeled \
         import UnlabeledLabeledConf
 
+from secuml.exp.conf.features import FeaturesConf
 from secuml.exp.diadem.conf.diadem import DiademConf
 from secuml.exp.diadem import DiademExp
 from . import Query
@@ -54,9 +55,15 @@ class AladinQueries(CoreAladinQueries):
         test_conf = UnlabeledLabeledConf(self.exp.logger)
         classif_conf = ClassificationConf(naive_bayes_conf, test_conf,
                                           self.exp.logger)
+        features_conf = FeaturesConf(
+                self.exp.exp_conf.features_conf.input_features,
+                self.exp.exp_conf.features_conf.sparse,
+                self.exp.exp_conf.features_conf.logger,
+                filter_in_f=self.exp.exp_conf.features_conf.filter_in_f,
+                filter_out_f=self.exp.exp_conf.features_conf.filter_out_f)
         DiademConf(self.exp.exp_conf.secuml_conf,
                    self.exp.exp_conf.dataset_conf,
-                   self.exp.exp_conf.features_conf,
+                   features_conf,
                    self.exp.exp_conf.annotations_conf,
                    classif_conf, None, name=name, parent=self.exp.exp_id)
         return naive_bayes_conf
@@ -66,9 +73,15 @@ class AladinQueries(CoreAladinQueries):
                          'Iter%d' % (self.iteration.iter_num),
                          'all',
                          'LogisticRegression'])
+        features_conf = FeaturesConf(
+                self.exp.exp_conf.features_conf.input_features,
+                self.exp.exp_conf.features_conf.sparse,
+                self.exp.exp_conf.features_conf.logger,
+                filter_in_f=self.exp.exp_conf.features_conf.filter_in_f,
+                filter_out_f=self.exp.exp_conf.features_conf.filter_out_f)
         exp_conf = DiademConf(self.exp.exp_conf.secuml_conf,
                               self.exp.exp_conf.dataset_conf,
-                              self.exp.exp_conf.features_conf,
+                              features_conf,
                               self.exp.exp_conf.annotations_conf,
                               self.exp.exp_conf.core_conf.multiclass_model,
                               None, name=name, parent=self.exp.exp_id)

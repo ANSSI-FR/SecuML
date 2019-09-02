@@ -19,6 +19,7 @@ from secuml.core.classif.conf.classifiers import AtLeastTwoClasses
 
 from secuml.exp import experiment
 from secuml.exp.clustering.conf import ClusteringConf
+from secuml.exp.conf.features import FeaturesConf
 from secuml.exp.tools.db_tables import DiademExpAlchemy
 from secuml.exp.tools.db_tables import ExpAlchemy
 from secuml.exp.tools.db_tables import ExpRelationshipsAlchemy
@@ -77,9 +78,15 @@ class AlertsMonitoring(object):
 
     def _create_clustering_exp(self, core_clustering_conf):
         exp_conf = self.test_exp.exp_conf
+        features_conf = FeaturesConf(
+                exp_conf.features_conf.input_features,
+                exp_conf.features_conf.sparse,
+                exp_conf.features_conf.logger,
+                filter_in_f=exp_conf.features_conf.filter_in_f,
+                filter_out_f=exp_conf.features_conf.filter_out_f)
         conf = ClusteringConf(exp_conf.secuml_conf,
                               exp_conf.dataset_conf,
-                              exp_conf.features_conf,
+                              features_conf,
                               exp_conf.annotations_conf,
                               core_clustering_conf,
                               name='Alerts_%i' % exp_conf.exp_id,

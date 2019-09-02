@@ -29,6 +29,7 @@ class Dataset(object):
                                        exp_conf.annotations_conf,
                                        exp_conf.secuml_conf, session)
         self.features = LoadFeatures(exp_conf, exp_conf.secuml_conf, session)
+        assert(self.features.features_conf.files is None)
 
     def load(self):
         num_instances = self.project_dataset.load()
