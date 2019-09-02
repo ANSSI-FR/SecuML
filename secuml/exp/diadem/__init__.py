@@ -307,23 +307,22 @@ class DiademExp(Experiment):
         if fold_id is None:
             exp = global_exp if global_exp is not None else detection_exps[0]
             self._set_detection_exp(kind, exp)
-        predictions = None
-        prediction_time = None
+        global_predictions = None
+        global_prediction_time = None
         for detection_exp in detection_exps:
             detection_exp.run(instances, classifier)
             predictions = detection_exp.predictions
             prediction_time = detection_exp.prediction_time
             if global_exp is not None:
-                if predictions is None:
-                    predictions = Predictions.deepcopy(
-                                                    detection_exp.predictions)
-                    predictions = detection_exp.predictions
-                    prediction_time = detection_exp.prediction_time
+                if global_predictions is None:
+                    global_predictions = Predictions.deepcopy(predictions)
+                    global_prediction_time = prediction_time
                 else:
-                    predictions.union(detection_exp.predictions)
-                    prediction_time += detection_exp.prediction_time
+                    global_predictions.union(predictions)
+                    global_prediction_time.add(prediction_time)
         if global_exp is not None:
-            global_exp.set_predictions(predictions, prediction_time)
+            global_exp.set_predictions(global_predictions,
+                                       global_prediction_time)
         return predictions, prediction_time
 
     def _run_cv(self, cv_datasets, cv_monitoring):
