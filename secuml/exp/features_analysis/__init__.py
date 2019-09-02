@@ -38,11 +38,11 @@ class FeaturesAnalysisExperiment(Experiment):
     def run(self):
         Experiment.run(self)
         instances = self.get_instances()
-        with_density = instances.num_instances() < 150000
+        with_density = instances.num_instances() < 10000
         if not with_density:
-            self.exp_conf.logger.warning('There are more than 150.000, so '
-                                         'the density plots are not '
-                                         'displayed. ')
+            self.exp_conf.logger.warning('There are more than 10.000 '
+                                         'instances, so the density plots are '
+                                         'not displayed.')
         stats = FeaturesAnalysis(instances, self.exp_conf.multiclass,
                                  self.exp_conf.logger,
                                  with_density=with_density)
