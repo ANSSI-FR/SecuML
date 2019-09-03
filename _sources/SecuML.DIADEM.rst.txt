@@ -77,11 +77,16 @@ Unsupervised Model Classes
 Semi-supervised Model Classes
 -----------------------------
 * LabelPropagation (`scikit-learn documentation <https://scikit-learn.org/stable/modules/generated/sklearn.semi_supervised.LabelPropagation.html>`__)
+* WeighedIsolationForest (new implementation [#f1]_)
 * Sssvdd (new implementation)
-
 
 | For more information about the available options for a given model class:
 | ``SecuML_DIADEM <project> <dataset> <model_class> -h``.
+
+.. rubric:: References
+
+.. [#f1] Siddiqui et al., "Feedback-Guided Anomaly Discovery via Online Optimization", KDD 2018.
+
 
 Applying a Previous Detection Model
 -----------------------------------
@@ -271,8 +276,8 @@ form the validation dataset.
 
 .. _validation-dataset:
 
-Validation Dataset
-------------------
+Validation Datasets
+-------------------
 
 ``--validation-mode ValidationDatasets --validation-datasets <validation_datasets>``
 

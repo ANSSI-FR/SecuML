@@ -115,7 +115,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#cross-validation">Cross Validation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#temporal-cross-validation">Temporal Cross Validation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sliding-window">Sliding Window</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#validation-dataset">Validation Dataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#validation-datasets">Validation Datasets</a></li>
 </ul>
 </li>
 </ul>
@@ -267,12 +267,19 @@ dataset into a training (90%) and a validation dataset (10%).</p>
 <span id="diadem-semisupervised"></span><h4>Semi-supervised Model Classes<a class="headerlink" href="#semi-supervised-model-classes" title="Permalink to this headline">¶</a></h4>
 <ul class="simple">
 <li><p>LabelPropagation (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.semi_supervised.LabelPropagation.html">scikit-learn documentation</a>)</p></li>
+<li><p>WeighedIsolationForest (new implementation <a class="footnote-reference brackets" href="#f1" id="id1">1</a>)</p></li>
 <li><p>Sssvdd (new implementation)</p></li>
 </ul>
 <div class="line-block">
 <div class="line">For more information about the available options for a given model class:</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">SecuML_DIADEM</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;model_class&gt;</span> <span class="pre">-h</span></code>.</div>
 </div>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="f1"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Siddiqui et al., “Feedback-Guided Anomaly Discovery via Online Optimization”, KDD 2018.</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="applying-a-previous-detection-model">
 <h4>Applying a Previous Detection Model<a class="headerlink" href="#applying-a-previous-detection-model" title="Permalink to this headline">¶</a></h4>
@@ -343,19 +350,19 @@ These validation modes ensure that no instance from the future is used when the
 detection model is trained:
 the training instances predate the validation instances.</p>
 <div class="section" id="random-split">
-<span id="id1"></span><h4>Random Split<a class="headerlink" href="#random-split" title="Permalink to this headline">¶</a></h4>
+<span id="id2"></span><h4>Random Split<a class="headerlink" href="#random-split" title="Permalink to this headline">¶</a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">--validation-mode</span> <span class="pre">RandomSplit</span> <span class="pre">--test-size</span> <span class="pre">&lt;prop&gt;</span></code></p>
 <p><code class="docutils literal notranslate"><span class="pre">&lt;prop&gt;</span></code> instances of <code class="docutils literal notranslate"><span class="pre">&lt;dataset&gt;</span></code> are selected uniformly for the validation
 dataset. The remaining instances constitute the training dataset.</p>
 </div>
 <div class="section" id="temporal-split">
-<span id="id2"></span><h4>Temporal Split<a class="headerlink" href="#temporal-split" title="Permalink to this headline">¶</a></h4>
+<span id="id3"></span><h4>Temporal Split<a class="headerlink" href="#temporal-split" title="Permalink to this headline">¶</a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">--validation-mode</span> <span class="pre">TemporalSplit</span> <span class="pre">--test-size</span> <span class="pre">&lt;prop&gt;</span></code></p>
 <p>The <code class="docutils literal notranslate"><span class="pre">&lt;prop&gt;</span></code> most recent instances of <code class="docutils literal notranslate"><span class="pre">&lt;dataset&gt;</span></code> are selected for the
 validation dataset. The remaining instances constitute the training dataset.</p>
 </div>
 <div class="section" id="cutoff-time">
-<span id="id3"></span><h4>Cutoff Time<a class="headerlink" href="#cutoff-time" title="Permalink to this headline">¶</a></h4>
+<span id="id4"></span><h4>Cutoff Time<a class="headerlink" href="#cutoff-time" title="Permalink to this headline">¶</a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">--validation-mode</span> <span class="pre">CutoffTime</span> <span class="pre">--cutoff-time</span> <span class="pre">&lt;cutoff_time&gt;</span></code></p>
 <p>The instances of <code class="docutils literal notranslate"><span class="pre">&lt;dataset&gt;</span></code> with a timestamp before <code class="docutils literal notranslate"><span class="pre">&lt;cutoff_time&gt;</span></code>
 constitutes the training dataset, and the instances after constitute the
@@ -396,7 +403,7 @@ the validation dataset.</p>
 </a>
 </div>
 <div class="section" id="sliding-window">
-<span id="id4"></span><h4>Sliding Window<a class="headerlink" href="#sliding-window" title="Permalink to this headline">¶</a></h4>
+<span id="id5"></span><h4>Sliding Window<a class="headerlink" href="#sliding-window" title="Permalink to this headline">¶</a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">--validation-mode</span> <span class="pre">SlidingWindow</span> <span class="pre">--buckets</span> <span class="pre">&lt;n&gt;</span> <span class="pre">--train-buckets</span> <span class="pre">&lt;n_train&gt;</span> <span class="pre">--test-buckets</span> <span class="pre">&lt;n_test&gt;</span></code></p>
 <p>The dataset <code class="docutils literal notranslate"><span class="pre">&lt;dataset&gt;</span></code> is divided into <code class="docutils literal notranslate"><span class="pre">&lt;n&gt;</span></code> buckets
 just as in the case of <a class="reference internal" href="#temporal-cv"><span class="std std-ref">Temporal Cross Validation</span></a>.
@@ -418,8 +425,8 @@ form the validation dataset.</p>
 <a class="reference internal image-reference" href="_images/sliding_window.svg"><div align="center" class="align-center"><img alt="_images/sliding_window.svg" src="_images/sliding_window.svg" width="90%" /></div>
 </a>
 </div>
-<div class="section" id="validation-dataset">
-<span id="id5"></span><h4>Validation Dataset<a class="headerlink" href="#validation-dataset" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="validation-datasets">
+<span id="validation-dataset"></span><h4>Validation Datasets<a class="headerlink" href="#validation-datasets" title="Permalink to this headline">¶</a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">--validation-mode</span> <span class="pre">ValidationDatasets</span> <span class="pre">--validation-datasets</span> <span class="pre">&lt;validation_datasets&gt;</span></code></p>
 <p>The whole dataset <code class="docutils literal notranslate"><span class="pre">&lt;dataset&gt;</span></code> constitutes the training data, and
 the list <code class="docutils literal notranslate"><span class="pre">&lt;validation_datasets&gt;</span></code> constitutes the validation data.</p>

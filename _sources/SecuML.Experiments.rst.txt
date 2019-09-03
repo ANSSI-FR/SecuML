@@ -23,8 +23,8 @@ All the experiments share the following arguments:
 
 If ``--features`` is not specified, the features are read from the file
 ``features.csv``.
-If a directory is provided, then all the files of the directory are concatenated
-to build the input features.
+If a directory is provided, then all the files of the directory are
+concatenated to build the input features.
 
 The parameters ``--filter-in`` and ``--filter-out`` are mutually exclusive.
 File format: one feature id per line.

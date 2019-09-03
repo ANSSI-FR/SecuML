@@ -200,7 +200,9 @@ It has the following columns:</p>
 <ul class="simple">
 <li><p><strong>instance_id</strong>: integer ;</p></li>
 <li><p><strong>ident</strong>: string describing the instance ;</p></li>
-<li><p><strong>[optional] timestamp</strong>: date (<code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span> <span class="pre">HH:MM:SS</span></code> format) of the instance.</p></li>
+<li><p><strong>[optional] timestamp</strong>: date (<code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span> <span class="pre">HH:MM:SS</span></code> format) of the instance ;</p></li>
+<li><p><strong>[optional] label</strong>: boolean, ground truth label (0 for <code class="docutils literal notranslate"><span class="pre">benign</span></code> and 1 for <code class="docutils literal notranslate"><span class="pre">malicious</span></code>) ;</p></li>
+<li><p><strong>[optional] family</strong>: string, ground truth family.</p></li>
 </ul>
 <p>The timestamps are required for
 <a class="reference internal" href="SecuML.DIADEM.html#diadem-validation-modes"><span class="std std-ref">DIADEM’s temporal validation modes</span></a>.</p>
@@ -251,7 +253,7 @@ See <a class="reference internal" href="SecuML.Experiments.html#exp-params"><spa
 It has the following columns:</p>
 <ul class="simple">
 <li><p><strong>instance_id</strong>: integer ;</p></li>
-<li><p><strong>label</strong>: binary label, <code class="docutils literal notranslate"><span class="pre">malicious</span></code> or <code class="docutils literal notranslate"><span class="pre">benign</span></code> ;</p></li>
+<li><p><strong>label</strong>: boolean, 0 for <code class="docutils literal notranslate"><span class="pre">benign</span></code> and 1 for <code class="docutils literal notranslate"><span class="pre">malicious</span></code>;</p></li>
 <li><p><strong>[optional] family</strong>: string.</p></li>
 </ul>
 <p><strong>Families</strong></p>
@@ -265,15 +267,9 @@ families are specified.
 Besides, the families can be leveraged by <a class="reference internal" href="SecuML.DIADEM.html#diadem"><span class="std std-ref">DIADEM</span></a> to cluster
 alerts according to user-defined malicious families.</p>
 <p><strong>Ground Truth and Partial Annotations</strong></p>
-<p>If the ground truth is known, it must be stored in the file
-<code class="docutils literal notranslate"><span class="pre">annotations/ground_truth.csv</span></code>.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The instances in <code class="docutils literal notranslate"><span class="pre">annotations/ground_truth.csv</span></code> must be stored in the same
-order as in <code class="docutils literal notranslate"><span class="pre">idents.csv</span></code>.</p>
-</div>
-<p>If only some instances are annotated, their annotations can be stored, in any
-order, in an annotation file <code class="docutils literal notranslate"><span class="pre">annotations/&lt;filename&gt;.csv</span></code>.</p>
+<p>If the ground truth is known, it must be stored in the file <code class="docutils literal notranslate"><span class="pre">idents.csv</span></code>.</p>
+<p>If only some instances are annotated, their annotations can be stored
+in an annotation file <code class="docutils literal notranslate"><span class="pre">annotations/&lt;filename&gt;.csv</span></code>.</p>
 <p>Partial annotations are required for
 <a class="reference internal" href="SecuML.DIADEM.html#diadem"><span class="std std-ref">DIADEM</span></a>, <a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB</span></a> and
 <a class="reference internal" href="SecuML.RCD.html#rcd"><span class="std std-ref">rare category detection</span></a>.
