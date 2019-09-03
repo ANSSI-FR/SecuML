@@ -161,7 +161,7 @@ class Predictions(object):
     def get_within_range(self, proba_min, proba_max):
         return [self.get_prediction_from_index(i[0])
                 for i, proba in np.ndenumerate(self.probas)
-                if proba > proba_min and proba >= proba_max]
+                if proba > proba_min and proba <= proba_max]
 
     def to_list(self):
         return [self.get_prediction_from_index(i)
