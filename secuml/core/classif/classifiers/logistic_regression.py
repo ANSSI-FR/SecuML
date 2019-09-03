@@ -24,7 +24,6 @@ from . import SupervisedClassifier
 class _LogisticRegression(linear_model.LogisticRegression):
 
     def predict_from_probas(self, X, probas):
-        print(probas.shape)
         if probas.shape[1] == 1:
             indices = (probas[:, 1] > 0.5).astype(np.int)
         else:
