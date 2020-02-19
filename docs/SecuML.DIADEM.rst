@@ -33,6 +33,13 @@ Usage
 | **Unsupervised model classes:**
 | ``SecuML_DIADEM <project> <dataset> <model_class>``.
 
+Semi-supervised and supervised model classes require annotated data.
+DIADEM can be launched with the ground truth annotations
+with ``-a GROUND_TRUTH`` or with a partial annotation file
+with ``-a <filename>``.
+See :ref:`Data<Data>` for more information about ground truth and partial
+annotations.
+
 .. note::
 
     These arguments are enough to launch DIADEM on a given dataset.
@@ -88,8 +95,8 @@ Semi-supervised Model Classes
 .. [#f1] Siddiqui et al., "Feedback-Guided Anomaly Discovery via Online Optimization", KDD 2018.
 
 
-Applying a Previous Detection Model
------------------------------------
+Applying a Previously Trained Detection Model
+---------------------------------------------
 
 DIADEM can apply a previously trained detection model with the following
 command line:
@@ -131,7 +138,8 @@ value.
 Semi-supervised and unsupervised model classes accept only a single value
 for each hyperparameter. On the contrary, supervised model classes
 accept a list of values for each hyperparameter, and the best combination
-of hyperparameters is selected automatically with a grid-search.
+of hyperparameters is selected automatically with a cross-validation
+grid-search.
 
 Automatic Selection
 -------------------
@@ -290,6 +298,17 @@ loaded into memory at once which allows to process bigger datasets.
 The batch size of the streaming process can be specified with the optional
 argument ``--stream-batch <size>`` (default value: 1000).
 
+Unlabeled / Labeled
+-------------------
+
+``--validation-mode UnlabeledLabeled``
+
+This validation mode is available if partial annotations are provided as input :
+the labeled instances are used as training data, and the unlabeled instances
+as validation data. In this case, the validation performance cannot be
+assessed, but the predictions on the validation dataset can be analyzed
+from the web user interface.
+
 
 .. _diadem-gui:
 
@@ -370,7 +389,7 @@ Individual Predictions
 ======================
 DIADEM diagnosis interface also allows to examine individual predictions.
 For example, the false positives and negatives can be reviewed
-by clicking on the confusion matrix displayed by the :ref:`performance-tab`.
+by clicking on the confusion matrix displayed in the :ref:`performance-tab`.
 
 Besides, the :ref:`predictions-tab` allows to analyze the instances
 whose predicted probability is within a given range.

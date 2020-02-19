@@ -45,23 +45,37 @@ It has the following columns:
   The instances in the features files must be stored in the same order as in
   ``idents.csv``.
 
-Optional description file: ``<features_filename>_description.csv``
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+The features can also be stored in a sparse format.
+CSC, CSR and LIL
+`scipy sparse formats <https://scikit-learn.org/stable/developers/performance.html>`_
+are supported.
+In this case, a description file (see below) must be provided
+to describe the features.
+
+.. _features_description_file:
+
+Optional features description file: ``<features_filename>_description.csv``
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 The header of a features csv file ``<features_filename>.csv`` may be
 human-readable names or integer ids.
 Names and more detailed descriptions can be associated to
 each feature in a file called ``<features_filename>_description.csv``.
-This description file is optional and its has the following columns:
+This description file is optional and it has the following columns:
 
 * **id**: feature id (the sames as in ``<features_filename>.csv``) ;
 * **name**: string describing the feature ;
 * **[optional] description**: longer string describing the feature ;
 * **[optional] type**: type of the feature (``numeric`` or ``binary``).
 
+SecuML supports only boolean and numerical features.
+Categorical features are not supported yet.
+
 .. note::
 
-  SecuML supports only boolean and numerical features.
-  Categorical features are not supported yet.
+   If you provide the features' types in a description file,
+   SecuML will load the dataset more quickly
+   since it does not need to infer them.
+
 
 Folder of features files
 """"""""""""""""""""""""
@@ -73,12 +87,22 @@ See :ref:`exp-params` for more information.
 
 ``annotations`` directory
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-It contains csv files with the annotations associated to the instances.
-It has the following columns:
+The ground truth labels and families are stored in the ``idents.csv``
+file.
+If only some instances are annotated, their annotations can be stored
+in a CSV annotation file ``annotations/<filename>.csv`` with the following
+columns:
 
 * **instance_id**: integer ;
 * **label**: boolean, 0 for ``benign`` and 1 for ``malicious``;
 * **[optional] family**: string.
+
+Partial annotations are required for
+:ref:`DIADEM <diadem>`, :ref:`ILAB <ILAB>` and
+:ref:`rare category detection <RCD>`.
+:ref:`Clustering <clustering>`, :ref:`projection <projection>`, and
+:ref:`features analysis <stats>` do not require annotations,
+but they can be leveraged to ease analyses.
 
 **Families**
 
@@ -92,17 +116,3 @@ they may be email messages coming from the same spam campaign.
 families are specified.
 Besides, the families can be leveraged by :ref:`DIADEM <DIADEM>` to cluster
 alerts according to user-defined malicious families.
-
-**Ground Truth and Partial Annotations**
-
-If the ground truth is known, it must be stored in the file ``idents.csv``.
-
-If only some instances are annotated, their annotations can be stored
-in an annotation file ``annotations/<filename>.csv``.
-
-Partial annotations are required for
-:ref:`DIADEM <diadem>`, :ref:`ILAB <ILAB>` and
-:ref:`rare category detection <RCD>`.
-:ref:`Clustering <clustering>`, :ref:`projection <projection>`, and
-:ref:`features analysis <stats>` do not require annotations,
-but they can be leveraged to ease analyses.

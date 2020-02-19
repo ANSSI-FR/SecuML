@@ -16,6 +16,8 @@ All the experiments share the following arguments:
 * ``project``: the name of the project;
 * ``dataset``: the name of the dataset belonging to ``project``;
 * [optional] ``--features``: csv file or directory containing the features;
+* [optional] ``--sparse``: specify that the input features are stored
+                           in a sparse format;
 * [optional] ``--filter-in``: csv file containing the features to use;
 * [optional] ``--filter-out``: csv file containing the features to filter out;
 * [optional] ``--exp-name``: the name of the experiment;
