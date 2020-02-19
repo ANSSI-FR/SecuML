@@ -67,7 +67,7 @@ class Coefficients(object):
 
     def add_fold(self, coef, fold_id=0):
         if self.class_labels is None:
-            self.coefficients.add_fold(coef[0], fold_id=fold_id)
+            self.coefficients.add_fold(coef, fold_id=fold_id)
         else:
             if len(self.class_labels) == 2:
                 coef = np.vstack((coef, -coef[0]))
