@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -91,7 +91,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#idents-csv"><code class="docutils literal notranslate"><span class="pre">idents.csv</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#features-directory"><code class="docutils literal notranslate"><span class="pre">features</span></code> directory</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#optional-description-file-features-filename-description-csv">Optional description file: <code class="docutils literal notranslate"><span class="pre">&lt;features_filename&gt;_description.csv</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-features-description-file-features-filename-description-csv">Optional features description file: <code class="docutils literal notranslate"><span class="pre">&lt;features_filename&gt;_description.csv</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#folder-of-features-files">Folder of features files</a></li>
 </ul>
 </li>
@@ -113,6 +113,7 @@
 <p class="caption"><span class="caption-text">Miscellaneous</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="miscellaneous.detection_perf.html">Detection Performance Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.large_datasets.html">Running SecuML on Large Datasets</a></li>
 </ul>
 
             
@@ -220,23 +221,32 @@ It has the following columns:</p>
 <p>The instances in the features files must be stored in the same order as in
 <code class="docutils literal notranslate"><span class="pre">idents.csv</span></code>.</p>
 </div>
-<div class="section" id="optional-description-file-features-filename-description-csv">
-<h3>Optional description file: <code class="docutils literal notranslate"><span class="pre">&lt;features_filename&gt;_description.csv</span></code><a class="headerlink" href="#optional-description-file-features-filename-description-csv" title="Permalink to this headline">¶</a></h3>
+<p>The features can also be stored in a sparse format.
+CSC, CSR and LIL
+<a class="reference external" href="https://scikit-learn.org/stable/developers/performance.html">scipy sparse formats</a>
+are supported.
+In this case, a description file (see below) must be provided
+to describe the features.</p>
+<div class="section" id="optional-features-description-file-features-filename-description-csv">
+<span id="features-description-file"></span><h3>Optional features description file: <code class="docutils literal notranslate"><span class="pre">&lt;features_filename&gt;_description.csv</span></code><a class="headerlink" href="#optional-features-description-file-features-filename-description-csv" title="Permalink to this headline">¶</a></h3>
 <p>The header of a features csv file <code class="docutils literal notranslate"><span class="pre">&lt;features_filename&gt;.csv</span></code> may be
 human-readable names or integer ids.
 Names and more detailed descriptions can be associated to
 each feature in a file called <code class="docutils literal notranslate"><span class="pre">&lt;features_filename&gt;_description.csv</span></code>.
-This description file is optional and its has the following columns:</p>
+This description file is optional and it has the following columns:</p>
 <ul class="simple">
 <li><p><strong>id</strong>: feature id (the sames as in <code class="docutils literal notranslate"><span class="pre">&lt;features_filename&gt;.csv</span></code>) ;</p></li>
 <li><p><strong>name</strong>: string describing the feature ;</p></li>
 <li><p><strong>[optional] description</strong>: longer string describing the feature ;</p></li>
 <li><p><strong>[optional] type</strong>: type of the feature (<code class="docutils literal notranslate"><span class="pre">numeric</span></code> or <code class="docutils literal notranslate"><span class="pre">binary</span></code>).</p></li>
 </ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
 <p>SecuML supports only boolean and numerical features.
 Categorical features are not supported yet.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you provide the features’ types in a description file,
+SecuML will load the dataset more quickly
+since it does not need to infer them.</p>
 </div>
 </div>
 <div class="section" id="folder-of-features-files">
@@ -249,13 +259,22 @@ See <a class="reference internal" href="SecuML.Experiments.html#exp-params"><spa
 </div>
 <div class="section" id="annotations-directory">
 <h2><code class="docutils literal notranslate"><span class="pre">annotations</span></code> directory<a class="headerlink" href="#annotations-directory" title="Permalink to this headline">¶</a></h2>
-<p>It contains csv files with the annotations associated to the instances.
-It has the following columns:</p>
+<p>The ground truth labels and families are stored in the <code class="docutils literal notranslate"><span class="pre">idents.csv</span></code>
+file.
+If only some instances are annotated, their annotations can be stored
+in a CSV annotation file <code class="docutils literal notranslate"><span class="pre">annotations/&lt;filename&gt;.csv</span></code> with the following
+columns:</p>
 <ul class="simple">
 <li><p><strong>instance_id</strong>: integer ;</p></li>
 <li><p><strong>label</strong>: boolean, 0 for <code class="docutils literal notranslate"><span class="pre">benign</span></code> and 1 for <code class="docutils literal notranslate"><span class="pre">malicious</span></code>;</p></li>
 <li><p><strong>[optional] family</strong>: string.</p></li>
 </ul>
+<p>Partial annotations are required for
+<a class="reference internal" href="SecuML.DIADEM.html#diadem"><span class="std std-ref">DIADEM</span></a>, <a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB</span></a> and
+<a class="reference internal" href="SecuML.RCD.html#rcd"><span class="std std-ref">rare category detection</span></a>.
+<a class="reference internal" href="SecuML.clustering.html#clustering"><span class="std std-ref">Clustering</span></a>, <a class="reference internal" href="SecuML.projection.html#projection"><span class="std std-ref">projection</span></a>, and
+<a class="reference internal" href="SecuML.stats.html#stats"><span class="std std-ref">features analysis</span></a> do not require annotations,
+but they can be leveraged to ease analyses.</p>
 <p><strong>Families</strong></p>
 <p>Families detail the binary label.
 Instances sharing the same family behave similarly.
@@ -266,16 +285,6 @@ they may be email messages coming from the same spam campaign.</p>
 families are specified.
 Besides, the families can be leveraged by <a class="reference internal" href="SecuML.DIADEM.html#diadem"><span class="std std-ref">DIADEM</span></a> to cluster
 alerts according to user-defined malicious families.</p>
-<p><strong>Ground Truth and Partial Annotations</strong></p>
-<p>If the ground truth is known, it must be stored in the file <code class="docutils literal notranslate"><span class="pre">idents.csv</span></code>.</p>
-<p>If only some instances are annotated, their annotations can be stored
-in an annotation file <code class="docutils literal notranslate"><span class="pre">annotations/&lt;filename&gt;.csv</span></code>.</p>
-<p>Partial annotations are required for
-<a class="reference internal" href="SecuML.DIADEM.html#diadem"><span class="std std-ref">DIADEM</span></a>, <a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB</span></a> and
-<a class="reference internal" href="SecuML.RCD.html#rcd"><span class="std std-ref">rare category detection</span></a>.
-<a class="reference internal" href="SecuML.clustering.html#clustering"><span class="std std-ref">Clustering</span></a>, <a class="reference internal" href="SecuML.projection.html#projection"><span class="std std-ref">projection</span></a>, and
-<a class="reference internal" href="SecuML.stats.html#stats"><span class="std std-ref">features analysis</span></a> do not require annotations,
-but they can be leveraged to ease analyses.</p>
 </div>
 </div>
 

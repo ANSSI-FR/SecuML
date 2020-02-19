@@ -25,6 +25,11 @@ interpretable for humans.
 
   All the Features for Spam Detection
 
+.. note::
+
+  The values of the features are not displayed in the case of sparse feature
+  matrices for performance reasons.
+
 .. _problem-specific-visu:
 
 Pluggable Problem-Specific Visualizations
@@ -60,7 +65,7 @@ the instances from various angles.
 
   Moreover, all SecuML modules (e.g. :ref:`DIADEM<DIADEM>`,
   :ref:`ILAB<ILAB>`, :ref:`projection`, :ref:`clustering`)
-  rely one the same *Description* panel to display the instances.
+  rely on the same *Description* panel to display the instances.
   As a result, once a custom visualization has been implemented for a given
   project it is displayed by all SecuML modules.
 

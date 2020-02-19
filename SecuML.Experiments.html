@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -110,6 +110,7 @@
 <p class="caption"><span class="caption-text">Miscellaneous</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="miscellaneous.detection_perf.html">Detection Performance Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.large_datasets.html">Running SecuML on Large Datasets</a></li>
 </ul>
 
             
@@ -186,6 +187,11 @@ Each type of experiment has its own executable
 <li><p><code class="docutils literal notranslate"><span class="pre">project</span></code>: the name of the project;</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">dataset</span></code>: the name of the dataset belonging to <code class="docutils literal notranslate"><span class="pre">project</span></code>;</p></li>
 <li><p>[optional] <code class="docutils literal notranslate"><span class="pre">--features</span></code>: csv file or directory containing the features;</p></li>
+<li><dl class="simple">
+<dt>[optional] <code class="docutils literal notranslate"><span class="pre">--sparse</span></code>: specify that the input features are stored</dt><dd><p>in a sparse format;</p>
+</dd>
+</dl>
+</li>
 <li><p>[optional] <code class="docutils literal notranslate"><span class="pre">--filter-in</span></code>: csv file containing the features to use;</p></li>
 <li><p>[optional] <code class="docutils literal notranslate"><span class="pre">--filter-out</span></code>: csv file containing the features to filter out;</p></li>
 <li><p>[optional] <code class="docutils literal notranslate"><span class="pre">--exp-name</span></code>: the name of the experiment;</p></li>

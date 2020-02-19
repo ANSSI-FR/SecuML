@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -100,7 +100,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#supervised-model-classes">Supervised Model Classes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#unsupervised-model-classes">Unsupervised Model Classes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#semi-supervised-model-classes">Semi-supervised Model Classes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#applying-a-previous-detection-model">Applying a Previous Detection Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#applying-a-previously-trained-detection-model">Applying a Previously Trained Detection Model</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#hyperparameters">Hyperparameters</a><ul>
@@ -116,6 +116,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#temporal-cross-validation">Temporal Cross Validation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sliding-window">Sliding Window</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#validation-datasets">Validation Datasets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#unlabeled-labeled">Unlabeled / Labeled</a></li>
 </ul>
 </li>
 </ul>
@@ -137,6 +138,7 @@
 <p class="caption"><span class="caption-text">Miscellaneous</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="miscellaneous.detection_perf.html">Detection Performance Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.large_datasets.html">Running SecuML on Large Datasets</a></li>
 </ul>
 
             
@@ -230,6 +232,12 @@ evaluate and diagnose detection models.</p>
 <div class="line"><strong>Unsupervised model classes:</strong></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">SecuML_DIADEM</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;model_class&gt;</span></code>.</div>
 </div>
+<p>Semi-supervised and supervised model classes require annotated data.
+DIADEM can be launched with the ground truth annotations
+with <code class="docutils literal notranslate"><span class="pre">-a</span> <span class="pre">GROUND_TRUTH</span></code> or with a partial annotation file
+with <code class="docutils literal notranslate"><span class="pre">-a</span> <span class="pre">&lt;filename&gt;</span></code>.
+See <a class="reference internal" href="SecuML.Data.html#data"><span class="std std-ref">Data</span></a> for more information about ground truth and partial
+annotations.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>These arguments are enough to launch DIADEM on a given dataset.
@@ -281,8 +289,8 @@ dataset into a training (90%) and a validation dataset (10%).</p>
 </dd>
 </dl>
 </div>
-<div class="section" id="applying-a-previous-detection-model">
-<h4>Applying a Previous Detection Model<a class="headerlink" href="#applying-a-previous-detection-model" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="applying-a-previously-trained-detection-model">
+<h4>Applying a Previously Trained Detection Model<a class="headerlink" href="#applying-a-previously-trained-detection-model" title="Permalink to this headline">¶</a></h4>
 <p>DIADEM can apply a previously trained detection model with the following
 command line:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>SecuML_DIADEM &lt;project&gt; &lt;dataset&gt; AlreadyTrained --model-exp-id &lt;exp_id&gt; <span class="se">\</span>
@@ -317,7 +325,8 @@ value.</p>
 <p>Semi-supervised and unsupervised model classes accept only a single value
 for each hyperparameter. On the contrary, supervised model classes
 accept a list of values for each hyperparameter, and the best combination
-of hyperparameters is selected automatically with a grid-search.</p>
+of hyperparameters is selected automatically with a cross-validation
+grid-search.</p>
 </div>
 <div class="section" id="automatic-selection">
 <h4>Automatic Selection<a class="headerlink" href="#automatic-selection" title="Permalink to this headline">¶</a></h4>
@@ -380,8 +389,7 @@ dataset.
 The detection model is trained <code class="docutils literal notranslate"><span class="pre">&lt;num_folds&gt;</span></code> times: each time, one bucket is
 the validation dataset and the other buckets form the training dataset.</p>
 <p><em>Example with</em> <span class="math notranslate nohighlight">\(\text{num_folds} = 4\)</span>:</p>
-<a class="reference internal image-reference" href="_images/cv.svg"><div align="center" class="align-center"><img alt="_images/cv.svg" src="_images/cv.svg" width="90%" /></div>
-</a>
+<a class="reference internal image-reference" href="_images/cv.svg"><img alt="_images/cv.svg" class="align-center" src="_images/cv.svg" width="90%" /></a>
 </div>
 <div class="section" id="temporal-cross-validation">
 <span id="temporal-cv"></span><h4>Temporal Cross Validation<a class="headerlink" href="#temporal-cross-validation" title="Permalink to this headline">¶</a></h4>
@@ -399,8 +407,7 @@ where</p>
 to <span class="math notranslate nohighlight">\(b_f\)</span> constitute the training dataset, and the remaining buckets form
 the validation dataset.</p>
 <p><em>Example with</em> <span class="math notranslate nohighlight">\(\text{num_folds} = 4\)</span>:</p>
-<a class="reference internal image-reference" href="_images/temporal_cv.svg"><div align="center" class="align-center"><img alt="_images/temporal_cv.svg" src="_images/temporal_cv.svg" width="90%" /></div>
-</a>
+<a class="reference internal image-reference" href="_images/temporal_cv.svg"><img alt="_images/temporal_cv.svg" class="align-center" src="_images/temporal_cv.svg" width="90%" /></a>
 </div>
 <div class="section" id="sliding-window">
 <span id="id5"></span><h4>Sliding Window<a class="headerlink" href="#sliding-window" title="Permalink to this headline">¶</a></h4>
@@ -422,8 +429,7 @@ the training dataset, and the buckets from <span class="math notranslate nohighl
 to <span class="math notranslate nohighlight">\(b_{f+n_{train}+n_{test}}\)</span>
 form the validation dataset.</p>
 <p><em>Example with</em> <span class="math notranslate nohighlight">\(n = 5\)</span>, <span class="math notranslate nohighlight">\(n_{train} = 2\)</span> and <span class="math notranslate nohighlight">\(n_{test} = 1\)</span>.</p>
-<a class="reference internal image-reference" href="_images/sliding_window.svg"><div align="center" class="align-center"><img alt="_images/sliding_window.svg" src="_images/sliding_window.svg" width="90%" /></div>
-</a>
+<a class="reference internal image-reference" href="_images/sliding_window.svg"><img alt="_images/sliding_window.svg" class="align-center" src="_images/sliding_window.svg" width="90%" /></a>
 </div>
 <div class="section" id="validation-datasets">
 <span id="validation-dataset"></span><h4>Validation Datasets<a class="headerlink" href="#validation-datasets" title="Permalink to this headline">¶</a></h4>
@@ -435,6 +441,15 @@ by specifying <code class="docutils literal notranslate"><span class="pre">--str
 loaded into memory at once which allows to process bigger datasets.
 The batch size of the streaming process can be specified with the optional
 argument <code class="docutils literal notranslate"><span class="pre">--stream-batch</span> <span class="pre">&lt;size&gt;</span></code> (default value: 1000).</p>
+</div>
+<div class="section" id="unlabeled-labeled">
+<h4>Unlabeled / Labeled<a class="headerlink" href="#unlabeled-labeled" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">--validation-mode</span> <span class="pre">UnlabeledLabeled</span></code></p>
+<p>This validation mode is available if partial annotations are provided as input :
+the labeled instances are used as training data, and the unlabeled instances
+as validation data. In this case, the validation performance cannot be
+assessed, but the predictions on the validation dataset can be analyzed
+from the web user interface.</p>
 </div>
 </div>
 </div>
@@ -494,7 +509,7 @@ decision-making, and may point out biases in the training dataset.</p>
 <h3>Individual Predictions<a class="headerlink" href="#individual-predictions" title="Permalink to this headline">¶</a></h3>
 <p>DIADEM diagnosis interface also allows to examine individual predictions.
 For example, the false positives and negatives can be reviewed
-by clicking on the confusion matrix displayed by the <a class="reference internal" href="#performance-tab"><span class="std std-ref">Performance Tab</span></a>.</p>
+by clicking on the confusion matrix displayed in the <a class="reference internal" href="#performance-tab"><span class="std std-ref">Performance Tab</span></a>.</p>
 <p>Besides, the <a class="reference internal" href="#predictions-tab"><span class="std std-ref">Predictions Tab</span></a> allows to analyze the instances
 whose predicted probability is within a given range.
 For instance, the instances close to the decision boundary

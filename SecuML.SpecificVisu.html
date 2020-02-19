@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -115,6 +115,7 @@
 <p class="caption"><span class="caption-text">Miscellaneous</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="miscellaneous.detection_perf.html">Detection Performance Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.large_datasets.html">Running SecuML on Large Datasets</a></li>
 </ul>
 
             
@@ -197,6 +198,11 @@ interpretable for humans.</p>
 <span id="all-features"></span><a class="reference internal image-reference" href="_images/features_values.png"><img alt="_images/features_values.png" src="_images/features_values.png" style="width: 80%;" /></a>
 <p class="caption"><span class="caption-text">All the Features for Spam Detection</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The values of the features are not displayed in the case of sparse feature
+matrices for performance reasons.</p>
+</div>
 </div>
 <div class="section" id="pluggable-problem-specific-visualizations">
 <span id="problem-specific-visu"></span><h2>Pluggable Problem-Specific Visualizations<a class="headerlink" href="#pluggable-problem-specific-visualizations" title="Permalink to this headline">¶</a></h2>
@@ -224,7 +230,7 @@ problem-specific visualizations, since they can significantly ease the
 analysis of individual instances.</p>
 <p>Moreover, all SecuML modules (e.g. <a class="reference internal" href="SecuML.DIADEM.html#diadem"><span class="std std-ref">DIADEM</span></a>,
 <a class="reference internal" href="SecuML.ILAB.html#ilab"><span class="std std-ref">ILAB</span></a>, <a class="reference internal" href="SecuML.projection.html#projection"><span class="std std-ref">Projection</span></a>, <a class="reference internal" href="SecuML.clustering.html#clustering"><span class="std std-ref">Clustering</span></a>)
-rely one the same <em>Description</em> panel to display the instances.
+rely on the same <em>Description</em> panel to display the instances.
 As a result, once a custom visualization has been implemented for a given
 project it is displayed by all SecuML modules.</p>
 </div>

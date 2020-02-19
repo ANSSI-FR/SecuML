@@ -60,6 +60,7 @@ to let security experts focus mainly on detection.
   :caption: Miscellaneous
 
   miscellaneous.detection_perf.rst
+  miscellaneous.large_datasets.rst
 
 .. Indices and tables
 .. ==================
