@@ -2,7 +2,7 @@ var current_tile = null;
 var current_color = null;
 
 var color_hex = d3.scale.linear().domain([0, 100])
-                                 .range(['GreenYellow', 'black']);
+                                 .range(['rgb(115,255,255)', 'black']);
 
 function tile_color(d) {
     return color_hex(d.num_malicious_instances + d.num_ok_instances);
