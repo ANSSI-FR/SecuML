@@ -26,7 +26,7 @@ function displayInstancePanel(parent_div, annotation=true) {
 
 function qPrintWeightedFeatures(conf) {
     var exp_type = conf.__type__.split('Conf')[0];
-    if (['Classification', 'Train', 'Test'].indexOf(exp_type) > -1) {
+    if (exp_type == 'Detection') {
         var query = buildQuery('predictionsInterpretation',
                                [conf.exp_id]);
         var xmlHttp = new XMLHttpRequest();

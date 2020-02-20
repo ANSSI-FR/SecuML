@@ -313,24 +313,19 @@ def get_train_exp(exp_id):
     query = session.query(DiademExpAlchemy)
     query = query.filter(DiademExpAlchemy.exp_id == exp_id)
     row = query.one()
-    if row.type == 'train':
-        return exp_id
-    elif row.type == 'test':
-        # get diadem_exp
-        query = session.query(ExpRelationshipsAlchemy)
-        query = query.filter(ExpRelationshipsAlchemy.child_id == exp_id)
-        diadem_exp_id = query.one().parent_id
-        # get train_exp
-        query = session.query(DiademExpAlchemy)
-        query = query.join(DiademExpAlchemy.exp)
-        query = query.join(ExpAlchemy.parents)
-        query = query.filter(
-                ExpRelationshipsAlchemy.parent_id == diadem_exp_id)
-        query = query.filter(DiademExpAlchemy.fold_id == row.fold_id)
-        query = query.filter(DiademExpAlchemy.type == 'train')
-        return query.one().exp_id
-    else:
-        assert(False)
+    # get diadem_exp
+    query = session.query(ExpRelationshipsAlchemy)
+    query = query.filter(ExpRelationshipsAlchemy.child_id == exp_id)
+    diadem_exp_id = query.one().parent_id
+    # get train_exp
+    query = session.query(DiademExpAlchemy)
+    query = query.join(DiademExpAlchemy.exp)
+    query = query.join(ExpAlchemy.parents)
+    query = query.filter(
+            ExpRelationshipsAlchemy.parent_id == diadem_exp_id)
+    query = query.filter(ExpAlchemy.kind == 'Train')
+    query = query.filter(DiademExpAlchemy.fold_id == row.fold_id)
+    return query.one().exp_id
 
 
 def get_classifier(exp_id):
@@ -345,18 +340,19 @@ def getTopWeightedFeatures(exp_id, instance_id, size):
     classifier = get_classifier(exp_id)
     # get the features
     exp = update_curr_exp(exp_id)
-    f_names, f_values = FeaturesFromExp.get_instance(exp, instance_id)
+    f_names, f_ids, f_values = FeaturesFromExp.get_instance(exp, instance_id)
     # scale the features
     scaled_values = classifier.named_steps['scaler'].transform(np.reshape(
                                                     f_values, (1, -1)))
     weighted_values = np.multiply(scaled_values,
                                   classifier.named_steps['model'].coef_)
-    features = list(map(lambda name, value, w_value: (name, value, w_value),
-                        f_names, f_values, weighted_values[0]))
-    features.sort(key=lambda tup: abs(tup[2]))
+    features = list(map(
+                lambda name, id_, value, w_value: (name, id_, value, w_value),
+                f_names, f_ids, f_values, weighted_values[0]))
+    features.sort(key=lambda tup: abs(tup[3]))
     features = features[:-int(size) - 1:-1]
-    f_names, f_values, f_weighted = list(zip(*features))
-    labels = [str(name) for name in f_names]
+    f_names, f_ids, f_values, f_weighted = list(zip(*features))
+    labels = [str(id_) for id_ in f_ids]
     tooltips = ['%s (%.2f)' % (name, f_values[i])
                 for i, name in enumerate(f_names)]
     barplot = BarPlot(labels)

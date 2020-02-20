@@ -103,4 +103,4 @@ class FeaturesFromExp(Features):
                     v = v[f_mask]
                 values = np.hstack((values, v))
         values = [float(x) for x in values]
-        return features_conf.info.names, values
+        return features_conf.info.names, features_conf.info.ids, values
