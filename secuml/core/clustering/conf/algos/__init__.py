@@ -47,6 +47,7 @@ class ClusteringConf(Conf):
         # Clustering arguments
         parser.add_argument('--num-clusters',
                             type=int,
+                            help='''Number of clusters. Default: 4.''',
                             default=4)
         # Projection parameters
         projection_group = parser.add_argument_group('Projection parameters')
@@ -54,18 +55,23 @@ class ClusteringConf(Conf):
                 '--projection-algo',
                 choices=projection_conf.get_factory().get_methods() + [None],
                 default=None,
-                help='Projection performed before building the clustering. '
-                     'By default the instances are not projected.')
+                help='''Projection performed before building the clustering.
+                        By default the instances are not projected.''')
         projection_group.add_argument(
                 '--multiclass',
                 action='store_true',
                 default=False,
-                help='When specified, the semi-supervision is based on '
-                'the families instead of the binary labels. '
-                'Useless if an unsupervised projection method is used.')
-        projection_group.add_argument('--num-components',
-                                      type=int,
-                                      default=None)
+                help='''When specified, the semi-supervision is based on
+                        the families instead of the binary labels.
+                        Useless if an unsupervised projection method is
+                        used.''')
+        projection_group.add_argument(
+                            '--num-components',
+                            type=int,
+                            default=None,
+                            help='''Number of components. Default: None,
+                                    the number of components is set to the
+                                    number of input features. ''')
 
     @staticmethod
     def proj_conf_from_args(args, logger):

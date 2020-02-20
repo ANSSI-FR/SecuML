@@ -36,7 +36,7 @@ class ProjectionConf(ExpConf):
                             instances, or GROUND_TRUTH to use the ground
                             truth annotations stored in idents.csv.
                             These annotations are used for semi-supervised
-                            projections.''')
+                            projections and are displayed in the GUI.''')
         subparsers = parser.add_subparsers(dest='algo')
         subparsers.required = True
         for algo in projection_conf.get_factory().get_methods():
