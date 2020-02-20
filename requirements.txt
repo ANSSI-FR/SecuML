@@ -14,7 +14,7 @@ matplotlib==3.0.3
 metric-learn==0.5.0
 mysql-connector
 numpy>=1.14
-pandas>=0.19.2
+pandas==0.25
 psycopg2-binary>=2.5.4
 pyparsing
 python-dateutil

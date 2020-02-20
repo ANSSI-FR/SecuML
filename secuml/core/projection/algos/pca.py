@@ -86,7 +86,7 @@ class Pca(UnsupervisedProjection):
         for c in range(self.num_components):
             reconstruction_error = self.reconstruction_error(
                 instances, projected_instances, c + 1)
-            reconstruction_errors.set_value(c, 'y', reconstruction_error)
+            reconstruction_errors.at[c, 'y'] = reconstruction_error
         reconstruction_errors.to_csv(path.join(output_dir,
                                                'reconstruction_errors.csv'),
                                      sep=',',

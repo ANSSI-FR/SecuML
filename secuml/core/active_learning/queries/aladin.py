@@ -203,10 +203,10 @@ class AladinQueries(Queries):
                     predicted_class = self.scores.loc[query, c + '_prediction']
                     predicted_class_index = np.where(
                         self.lr_class_labels == predicted_class)[0][0]
-                    families_scores[c][predicted_class_index].set_value(
-                        query, 'queried', True)
-                self.scores.set_value(query, 'queried', True)
-                lr_predicted_proba_df.set_value(query, 'queried', True)
+                    selected_df = families_scores[c][predicted_class_index]
+                    selected_df.at[query, 'queried'] = True
+                self.scores.at[query, 'queried'] = True
+                lr_predicted_proba_df.at[query, 'queried'] = True
                 # Break condition
                 # self.num_annotations instances have been queried
                 if num_annotations >= self.num_annotations:
