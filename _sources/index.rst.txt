@@ -41,19 +41,19 @@ to let security experts focus mainly on detection.
   :caption: Data and Experiments
 
   SecuML.Data
-  SecuML.SpecificVisu
   SecuML.Experiments
+  SecuML.SpecificVisu
 
 .. toctree::
   :maxdepth: 1
   :caption: Available Experiments
 
+  SecuML.stats
   SecuML.DIADEM
   SecuML.ILAB
   SecuML.RCD
   SecuML.clustering
   SecuML.projection
-  SecuML.stats
 
 .. toctree::
   :maxdepth: 1

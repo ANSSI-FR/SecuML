@@ -4,7 +4,9 @@
 Clustering
 ##########
 
-The instances are clustered into a number of clusters specified by the user. Then, the user interface allows to display the instances in each cluster and to annotate them.
+The instances are clustered into a number of clusters specified by the user.
+Then, the user interface allows to display the instances in each cluster and to
+annotate them.
 
 
 *****
@@ -25,3 +27,8 @@ Graphical User Interface
 ************************
 
 .. image:: figs/screen_shots/clustering/main.png
+
+The top panel, Clusters Statistics, can be opened to display the number of
+instances in each cluster. Selecting a cluster from the list
+allows to display its instances in the
+:ref:`Description panel<instance-visu>` at the bottom.

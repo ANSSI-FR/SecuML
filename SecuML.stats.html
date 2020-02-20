@@ -36,8 +36,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Detection Performance Metrics" href="miscellaneous.detection_perf.html" />
-    <link rel="prev" title="Projection" href="SecuML.projection.html" /> 
+    <link rel="next" title="DIADEM: DIAgnosis of DEtection Models" href="SecuML.DIADEM.html" />
+    <link rel="prev" title="Visualization of Individual Instances" href="SecuML.SpecificVisu.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -89,20 +89,20 @@
 <p class="caption"><span class="caption-text">Data and Experiments</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.Data.html">Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.SpecificVisu.html">Visualization of Individual Instances</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.Experiments.html">Experiments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.SpecificVisu.html">Visualization of Individual Instances</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Available Experiments</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Features Analysis</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#graphical-user-interface">Graphical User Interface</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.projection.html">Projection for Data Visualization</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Miscellaneous</span></p>
 <ul>
@@ -174,6 +174,23 @@
             
   <div class="section" id="features-analysis">
 <span id="stats"></span><h1>Features Analysis<a class="headerlink" href="#features-analysis" title="Permalink to this headline">¶</a></h1>
+<p>This module provides an overview of input datasets. It displays
+the boxplot, the histogram and the distribution of the values of each feature.
+If annotations are provided
+(with <code class="docutils literal notranslate"><span class="pre">-a</span> <span class="pre">GROUND_TRUTH</span></code> or <code class="docutils literal notranslate"><span class="pre">-a</span> <span class="pre">&lt;partial_annotations&gt;.csv</span></code>)
+the analyses are carried out for each label (malicious and benign)
+independently and the discriminating power of each feature is assessed
+with various indicators
+(<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.chi2.html">chi2</a>,
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.f_classif.html">f_classif</a>, and
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.mutual_info_classif.html">mutual information</a>).</p>
+<p>Features analysis should be executed before running more complex algorithms
+such as clustering or training a classification model.
+Indeed, this module can help detect bugs in the feature extraction process
+(e.g. a feature defined as a ratio that does not have all its values
+between 0 and 1).
+Besides, it allows to identify useless features those variance is null on a
+given dataset.</p>
 <div class="line-block">
 <div class="line"><em>Usage:</em> <code class="docutils literal notranslate"><span class="pre">SecuML_features_analysis</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span></code>.</div>
 <div class="line">For more information about the available options:</div>
@@ -182,6 +199,16 @@
 <div class="section" id="graphical-user-interface">
 <h2>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Permalink to this headline">¶</a></h2>
 <img alt="_images/main2.png" src="_images/main2.png" />
+<p>The graphical user interface displays the boxplot, the histogram and the
+distribution of the values of each features.</p>
+<p>The features are listed with their ids (see <a class="reference internal" href="SecuML.Data.html#data"><span class="std std-ref">Data</span></a>).
+The panel at the bottom left displays the name and the description
+of the feature if provided in a
+<a class="reference internal" href="SecuML.Data.html#features-description-file"><span class="std std-ref">description file</span></a>.</p>
+<p>The features can be sorted alphabetically, according to their discriminating
+power (if annotations are provided) or according to their variance.
+Features with a null variance on the input dataset can be set apart
+with the <code class="docutils literal notranslate"><span class="pre">null_variance</span></code> sorting criterion.</p>
 </div>
 </div>
 
@@ -193,10 +220,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="miscellaneous.detection_perf.html" class="btn btn-neutral float-right" title="Detection Performance Metrics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="SecuML.DIADEM.html" class="btn btn-neutral float-right" title="DIADEM: DIAgnosis of DEtection Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="SecuML.projection.html" class="btn btn-neutral float-left" title="Projection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="SecuML.SpecificVisu.html" class="btn btn-neutral float-left" title="Visualization of Individual Instances" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

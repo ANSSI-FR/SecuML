@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Projection &mdash; SecuML  documentation</title>
+  <title>Projection for Data Visualization &mdash; SecuML  documentation</title>
   
 
   
@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Features Analysis" href="SecuML.stats.html" />
+    <link rel="next" title="Detection Performance Metrics" href="miscellaneous.detection_perf.html" />
     <link rel="prev" title="Clustering" href="SecuML.clustering.html" /> 
 </head>
 
@@ -89,16 +89,17 @@
 <p class="caption"><span class="caption-text">Data and Experiments</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.Data.html">Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.SpecificVisu.html">Visualization of Individual Instances</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.Experiments.html">Experiments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SecuML.SpecificVisu.html">Visualization of Individual Instances</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Available Experiments</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Features Analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.DIADEM.html">DIADEM: DIAgnosis of DEtection Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.ILAB.html">ILAB: Interactive LABeling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.RCD.html">Rare Category Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SecuML.clustering.html">Clustering</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Projection</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Projection for Data Visualization</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#algorithms-available">Algorithms Available</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#unsupervised-algorithms">Unsupervised Algorithms</a></li>
@@ -110,7 +111,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#graphical-user-interface">Graphical User Interface</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="SecuML.stats.html">Features Analysis</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Miscellaneous</span></p>
 <ul>
@@ -161,7 +161,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Projection</li>
+      <li>Projection for Data Visualization</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -180,11 +180,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="projection">
-<span id="id1"></span><h1>Projection<a class="headerlink" href="#projection" title="Permalink to this headline">¶</a></h1>
-<p>The data are projected into a lower-dimensional space for visualization. The user interface allows to display the instances in a plane defined by two components.
-The instances are not displayed individually but with an hexagonal binning (color from blue to black according to the number of instances in the bin).
-The color of the dot in the middle of each bin (from yellow to red) corresponds to the proportion of known malicious instances in the bin.</p>
+  <div class="section" id="projection-for-data-visualization">
+<span id="projection"></span><h1>Projection for Data Visualization<a class="headerlink" href="#projection-for-data-visualization" title="Permalink to this headline">¶</a></h1>
+<p>The data are projected into a lower-dimensional space for visualization.
+They can be explored by displaying the instances projected in a plane
+defined by two components.</p>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <div class="line-block">
@@ -192,6 +192,17 @@ The color of the dot in the middle of each bin (from yellow to red) corresponds 
 <div class="line">For more information about the available options for a given projection algorithm:</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">SecuML_projection</span> <span class="pre">&lt;project&gt;</span> <span class="pre">&lt;dataset&gt;</span> <span class="pre">&lt;algo&gt;</span> <span class="pre">-h</span></code>.</div>
 </div>
+<p><strong>Annotations.</strong>
+The annotations
+(specified with <code class="docutils literal notranslate"><span class="pre">-a</span> <span class="pre">GROUND_TRUTH</span></code> or <code class="docutils literal notranslate"><span class="pre">-a</span> <span class="pre">&lt;partial_annotations&gt;.csv</span></code>)
+are displayed in the GUI to focus on areas with known malicious
+instances. This way, the projections can allow to detect new malicious
+instances close to the known ones.</p>
+<p>Moreover, the annotations can be leveraged by
+<a class="reference internal" href="#proj-semisupervised"><span class="std std-ref">semi-supervised algorithms</span></a>
+through metric learning to bring malicious instances closer.
+This way, it is even easier to detect unknown malicious instances
+with the 2D visualizations.</p>
 <div class="section" id="algorithms-available">
 <h3>Algorithms Available<a class="headerlink" href="#algorithms-available" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="unsupervised-algorithms">
@@ -201,7 +212,7 @@ The color of the dot in the middle of each bin (from yellow to red) corresponds 
 </ul>
 </div>
 <div class="section" id="semi-supervised-algorithms">
-<h4>Semi-supervised Algorithms<a class="headerlink" href="#semi-supervised-algorithms" title="Permalink to this headline">¶</a></h4>
+<span id="proj-semisupervised"></span><h4>Semi-supervised Algorithms<a class="headerlink" href="#semi-supervised-algorithms" title="Permalink to this headline">¶</a></h4>
 <ul class="simple">
 <li><p>Rca (<a class="reference external" href="https://metric-learn.github.io/metric-learn/metric_learn.rca.html">metric-learn documentation</a>)</p></li>
 <li><p>Lda (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.discriminant_analysis.LinearDiscriminantAnalysis.html">scikit-learn documentation</a>)</p></li>
@@ -215,6 +226,16 @@ The color of the dot in the middle of each bin (from yellow to red) corresponds 
 <div class="section" id="graphical-user-interface">
 <h2>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Permalink to this headline">¶</a></h2>
 <img alt="_images/main1.png" src="_images/main1.png" />
+<p>The instances are not displayed individually but with an hexagonal binning
+for scalability.
+The color of the bins, from blue to black, corresponds to the number of
+instances in the bins.
+The color of the dot in the middle of each bin (from yellow to red) corresponds
+to the proportion of known malicious instances in the bin.
+The orange and red dots allow to guide the exploration of the data
+close to known malicious instances.</p>
+<p>Clicking on an hexagon displays its instances in the
+<a class="reference internal" href="SecuML.SpecificVisu.html#instance-visu"><span class="std std-ref">Description panel</span></a> at the bottom.</p>
 </div>
 </div>
 
@@ -226,7 +247,7 @@ The color of the dot in the middle of each bin (from yellow to red) corresponds 
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="SecuML.stats.html" class="btn btn-neutral float-right" title="Features Analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="miscellaneous.detection_perf.html" class="btn btn-neutral float-right" title="Detection Performance Metrics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="SecuML.clustering.html" class="btn btn-neutral float-left" title="Clustering" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
