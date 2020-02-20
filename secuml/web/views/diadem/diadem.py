@@ -261,10 +261,10 @@ def getPredictions(exp_id, predicted_value, right_wrong, multiclass):
 def getErrors(exp_id):
     def _get_errors(exp_id, fn_fp):
         if fn_fp == 'FN':
-            predicted_value = label_str_to_bool(BENIGN)
+            predicted_value = BENIGN
             ground_truth = label_str_to_bool(MALICIOUS)
         else:
-            predicted_value = label_str_to_bool(MALICIOUS)
+            predicted_value = MALICIOUS
             ground_truth = label_str_to_bool(BENIGN)
         query = session.query(PredictionsAlchemy)
         query = query.filter(PredictionsAlchemy.exp_id == exp_id)
