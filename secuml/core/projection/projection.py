@@ -85,7 +85,7 @@ class Projection(object):
     def export_transform(self, output_dir, instances, projected_instances):
         visu = Visualization(self, output_dir)
         visu.all_hex_bin(projected_instances)
-        self.assess_perf(output_dir, projected_instances)
+        # self.assess_perf(output_dir, projected_instances)
 
     def assess_perf(self, output_dir, projected_instances):
         if not projected_instances.has_ground_truth():

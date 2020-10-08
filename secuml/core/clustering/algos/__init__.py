@@ -59,4 +59,4 @@ class ClusteringAlgorithm(object):
 
     def export(self, output_dir, quick=False):
         self.clustering.export(output_dir)
-        self.clustering.gen_eval(output_dir, quick=quick)
+        # self.clustering.gen_eval(output_dir, quick=quick)
