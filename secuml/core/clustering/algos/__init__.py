@@ -37,10 +37,6 @@ class ClusteringAlgorithm(object):
     def get_centroids(self):
         return
 
-    @abc.abstractmethod
-    def get_assigned_clusters(self):
-        return
-
     def get_predicted_proba(self):
         return None
 
@@ -50,11 +46,12 @@ class ClusteringAlgorithm(object):
     def fit(self):
         self.pipeline = Pipeline([('scaler', StandardScaler()),
                                   ('clustering', self.algo)])
-        self.pipeline.fit(self.instances.features.get_values())
+        self.assigned_clusters = self.pipeline.fit_predict(
+                                        self.instances.features.get_values())
 
     def generate(self, drop_annotated_instances=False):
         self.clustering = Clusters(self.instances,
-                                   self.get_assigned_clusters(),
+                                   self.assigned_clusters,
                                    clustering_algo=self)
         self.clustering.generate(
                             self.get_centroids(),

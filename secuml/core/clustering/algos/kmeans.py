@@ -33,6 +33,3 @@ class Kmeans(ClusteringAlgorithm):
 
     def get_centroids(self):
         return self.pipeline['clustering'].cluster_centers_
-
-    def get_assigned_clusters(self):
-        return self.pipeline.predict(self.instances.features.get_values())
