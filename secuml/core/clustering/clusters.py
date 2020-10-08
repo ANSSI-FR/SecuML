@@ -31,6 +31,12 @@ class Clusters(object):
             self.num_clusters = 0
         else:
             self.num_clusters = max(assigned_clusters) + 1
+            # Check if there is an outlier cluster (label = -1), as in
+            # DBSCAN for instance.
+            self.with_outliers = False
+            if -1 in set(assigned_clusters):
+                self.num_clusters += 1
+                self.with_outliers = True
         self.clustering_algo = clustering_algo
         self.evaluation = ClusteringEvaluation(self.instances,
                                                self.assigned_clusters,
@@ -70,6 +76,8 @@ class Clusters(object):
         for c in range(self.num_clusters):
             unknown_cluster_id = self.clusters[c].final_computation(
                                                             unknown_cluster_id)
+        if self.with_outliers:
+            self.clusters[-1].label = 'Outliers'
 
     def gen_eval(self, output_dir, quick=False):
         self.evaluation.gen_eval(output_dir, quick=quick)

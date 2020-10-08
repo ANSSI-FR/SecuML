@@ -32,7 +32,9 @@ class ClusteringConf(Conf):
         self.num_clusters = num_clusters
 
     def get_exp_name(self):
-        name = '%s__num_clusters_%d' % (self.algo.__name__, self.num_clusters)
+        name = self.algo.__name__
+        if self.num_clusters is not None:
+            name += '__num_clusters_%d' % self.num_clusters
         if self.projection_conf is not None:
             name += '__%s' % self.projection_conf.get_exp_name()
         return name
