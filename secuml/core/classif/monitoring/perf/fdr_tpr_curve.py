@@ -65,12 +65,12 @@ class FdrTprCurve(object):
         else:
             self.mean_recall += recall
         if self.num_folds > 1:
-            self.ax1.plot(1-self.mean_precision, recall, lw=1,
+            self.ax1.plot(1 - self.mean_precision, recall, lw=1,
                           label='FAR/DR fold %d' % (fold_id))
         else:
-            self.ax1.plot(1-self.mean_precision, recall, lw=3,
+            self.ax1.plot(1 - self.mean_precision, recall, lw=3,
                           color=get_label_color('all'), label='FAR/DR')
-        return 1-self.mean_precision, recall
+        return 1 - self.mean_precision, recall
 
     def display(self, directory):
         self.plot(path.join(directory, 'false_discovery_recall_curve.png'))
@@ -79,7 +79,7 @@ class FdrTprCurve(object):
     def plot(self, output_file):
         if self.num_folds > 1:
             self.mean_recall /= self.num_folds
-            self.ax1.plot(1-self.mean_precision,
+            self.ax1.plot(1 - self.mean_precision,
                           self.mean_recall,
                           'k--',
                           label='Mean FAR/DR',

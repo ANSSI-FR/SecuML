@@ -26,7 +26,7 @@ def to_percentage(x):
     if math.isnan(x):
         return str(x)
     else:
-        return '%.2f%%' % (x*100)
+        return '%.2f%%' % (x * 100)
 
 
 def trunc(x):

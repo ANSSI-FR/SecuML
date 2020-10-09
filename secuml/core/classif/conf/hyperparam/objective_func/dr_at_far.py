@@ -26,7 +26,7 @@ from . import ObjectiveFuncConf
 def detection_rate_at_fdr(ground_truth, scores, far):
     precision_sample = np.linspace(0, 1, 101)
     recall, _ = interp_recall(ground_truth, scores, precision_sample)
-    return recall[100 - int(far*100)]
+    return recall[100 - int(far * 100)]
 
 
 class DrAtFarConf(ObjectiveFuncConf):

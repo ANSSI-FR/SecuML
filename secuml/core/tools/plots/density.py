@@ -69,11 +69,11 @@ class Density(object):
         delta = self.max_value - self.min_value
         density_delta = 1.2 * delta
         if delta > 0:
-            x = np.arange(self.min_value - 0.1*delta,
-                          self.max_value + 0.1*delta,
+            x = np.arange(self.min_value - 0.1 * delta,
+                          self.max_value + 0.1 * delta,
                           density_delta / self.num_points)
         else:
-            x = np.array([self.min_value - 2*eps, self.max_value + 2*eps])
+            x = np.array([self.min_value - 2 * eps, self.max_value + 2 * eps])
         if isinstance(dataset.values, spmatrix):
             variance = mean_variance_axis(dataset.values, axis=0)[1]
         else:

@@ -61,6 +61,7 @@ def removeAnnotation(exp_id, annotations_id, instance_id):
             f.write(to_print)
     return ''
 
+
 @app.route('/updateAnnotation/<exp_id>/<annotations_id>/<iter_num>/'
            '<instance_id>/<label>/<family>/<method>/')
 def updateAnnotation(exp_id, annotations_id, iter_num, instance_id, label,

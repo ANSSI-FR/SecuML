@@ -42,7 +42,7 @@ def activeLearningSuggestionsMonitoring(exp_id, iteration):
     iteration = int(iteration)
     experiment = update_curr_exp(exp_id)
     filename = path.join(experiment.output_dir(),
-                         str(iteration-1),
+                         str(iteration - 1),
                          'suggestions_accuracy',
                          'labels_families_high_confidence_suggestions.png')
     return send_file(filename)

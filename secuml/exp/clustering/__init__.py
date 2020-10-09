@@ -61,8 +61,8 @@ class ClusteringExperiment(Experiment):
                                                     export=False)
             except FewerThanTwoLabels:
                 self.exp_conf.logger.warning('There are too few class labels. '
-                                         'The instances are not projected '
-                                         'before building the clustering.')
+                                             'The instances are not projected '
+                                             'before building the clustering.')
         return instances
 
     def run(self, instances=None, drop_annotated_instances=False, quick=False):

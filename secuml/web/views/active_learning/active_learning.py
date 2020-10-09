@@ -68,7 +68,7 @@ def getFamiliesBarplot(annotations_id, iteration, label):
     df = pd.DataFrame({
         'families': list(family_counts.keys()),
         'counts': [family_counts[k] for k in list(family_counts.keys())]
-        })
+                      })
     sort_data_frame(df, 'families', ascending=True, inplace=True)
     barplot = BarPlot(df['families'].values)
     dataset = PlotDataset(df['counts'].values, 'Num. Instances')

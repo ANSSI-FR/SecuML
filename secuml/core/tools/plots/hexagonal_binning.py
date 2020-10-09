@@ -70,7 +70,7 @@ class HexagonalBin(object):
     def hexagon(self):
         hexag = []
         c = self.center()
-        nodes = [[-0.5,  0.5], [0, 1],
+        nodes = [[-0.5, 0.5], [0, 1],
                  [0.5, 0.5], [0.5, -0.5],
                  [0, -1], [-0.5, -0.5]]
         for node in nodes:

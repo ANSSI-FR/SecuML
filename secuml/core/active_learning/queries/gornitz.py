@@ -75,7 +75,7 @@ class GornitzQueries(Queries):
                 continue
             else:
                 neighbours = all_neighbours[i]
-                score = sum(labels[neighbours] + 1) / (2.0*self.num_neighbours)
+                score = sum(labels[neighbours] + 1) / (2.0 * self.num_neighbours)
                 scores.append(score)
         return np.array(scores)
 

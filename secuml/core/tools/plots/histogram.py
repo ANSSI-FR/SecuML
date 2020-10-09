@@ -26,7 +26,7 @@ class Histogram(BarPlot):
                  ylabel=None):
         self.logger = logger
         bin_edges = self._get_bin_edges(datasets, num_bins)
-        x_labels = ['%f - %f' % (bin_edges[e], bin_edges[e+1])
+        x_labels = ['%f - %f' % (bin_edges[e], bin_edges[e + 1])
                     for e in range(len(bin_edges) - 1)]
         BarPlot.__init__(self, x_labels, title=title, xlabel=xlabel,
                          ylabel=ylabel)
@@ -50,7 +50,7 @@ class Histogram(BarPlot):
         # the maximum value is greater than 2**53,
         # the values are caped to 2**53  - 1.
         if all_values.min() == all_values.max() and all_values.max() >= 2**53:
-            np.clip(all_values, None, 2**53-1, out=all_values)
+            np.clip(all_values, None, 2**53 - 1, out=all_values)
             self.logger.warning('The values of the histogram have been caped '
                                 'to 2**53-1 to deal with numpy issue #8627. ')
         _, bin_edges = np.histogram(all_values, bins=num_bins, density=False)

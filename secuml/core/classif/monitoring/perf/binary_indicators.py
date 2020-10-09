@@ -109,7 +109,7 @@ class BinaryIndicators(object):
             false_positive_rate = self.compute_fpr(
                 predictions.ground_truth, predicted_labels)
             self.fold_perf[threshold][fold_id, :] = [precision, recall,
-                                                     1-precision,
+                                                     1 - precision,
                                                      false_positive_rate,
                                                      f_score]
 
@@ -120,7 +120,7 @@ class BinaryIndicators(object):
         accuracy = accuracy_score(predictions.ground_truth,
                                   predictions.values)
         fpr = self.compute_fpr(predictions.ground_truth, predictions.values)
-        self.fold_perf[fold_id, :] = [precision, recall, 1-precision, fpr,
+        self.fold_perf[fold_id, :] = [precision, recall, 1 - precision, fpr,
                                       f_score, accuracy]
 
     def final_computations(self):

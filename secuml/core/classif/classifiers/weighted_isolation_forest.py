@@ -175,7 +175,7 @@ class _WeightedIsolationForest(_IsolationForest):
         for tree, features in zip(self.estimators_, self.estimators_features_):
             X_subset = X[:, features] if subsample_features else X
             node_indicator = tree.decision_path(X_subset)
-            node_weights = self.node_weights[i:i+node_indicator.shape[1]]
+            node_weights = self.node_weights[i:i + node_indicator.shape[1]]
             depths += node_indicator * node_weights
             i += node_indicator.shape[1]
 

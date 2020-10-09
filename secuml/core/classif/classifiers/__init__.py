@@ -180,7 +180,7 @@ class Classifier(object):
         for i, batch in enumerate(range(num_batches)):
             matrix = np.vstack(tuple(next(features_iter)
                                      for _ in range(stream_batch)))
-            ids = instances_ids.ids[i*stream_batch:(i+1)*stream_batch]
+            ids = instances_ids.ids[i * stream_batch:(i + 1) * stream_batch]
             ids = instances_ids.get_from_ids(ids)
             predictions = self._update_streaming_predictions(predictions,
                                                              matrix, ids)
