@@ -1,6 +1,6 @@
 amqp
 billiard==3.5.0.4
-celery==4.2.1
+celery==5.2.2
 click
 cycler
 Flask>=0.10.1
